@@ -1,0 +1,16 @@
+---
+providers:
+    tvdb:
+        apikey: "tvdbapikey"
+        username: "tvdb_username"
+        userkey: "tvdb_userkey"
+
+notifiers:
+    pushbullet:
+        accessToken: "pushbullet access token"
+
+shows:
+    - "Game of thrones"
+    - "Suits"
+    - "Blablabla"
+    - "South Park"
