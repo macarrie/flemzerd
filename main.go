@@ -1,11 +1,7 @@
 // TODO
-// [] Pouvoir vérifier la validité de la conf (bonne clés pour les notifiers et les providers par exemple)
-//      [] Bonne clés pour pushbullet, tvdb
-//      [] Au moins un show de configuré
 // [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
 //      [] Charger poll_interval dans la conf
 //      [] Utiliser poll_interval comme intervalle de boucle
-//      [] Dans la boucle, checker les derniers episodes. Si on a deja envoyé une notif pour cet episode, ne rien faire. Sinon, envoyer une notif comme quoi l'episode est dispo
 // [] Voir comment marche jackett et si ya pas moyen de rechercher des torrents avec
 // [] Si on peut les recuperer, faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
 // [] Pouvoir configurer un dossier destination
@@ -32,8 +28,8 @@ import (
 	"flemzerd/configuration"
 	log "flemzerd/logging"
 	"flemzerd/notifier"
-	"flemzerd/pushbullet"
-	"flemzerd/tvdb"
+	"flemzerd/notifiers/pushbullet"
+	"flemzerd/providers/tvdb"
 )
 
 var config configuration.Configuration
@@ -70,7 +66,7 @@ func NotifyRecentEpisode(show tvdb.Show, episode tvdb.Episode) {
 	alreadyNotified := false
 	var cleanedRetention []int
 
-	for episodeId := range notificationsRetention {
+	for _, episodeId := range notificationsRetention {
 		airDate, err := time.Parse("2006-01-02", episode.FirstAired)
 		if err != nil {
 			continue
@@ -107,7 +103,9 @@ func NotifyRecentEpisode(show tvdb.Show, episode tvdb.Episode) {
 	//if err != nil {
 	//log.Warning("Failed to send all notifications")
 	//} else {
-	notificationsRetention = append(notificationsRetention, episode.Id)
+    if !alreadyNotified {
+        notificationsRetention = append(notificationsRetention, episode.Id)
+    }
 	//}
 
 }
@@ -137,6 +135,13 @@ func main() {
 		}).Fatal("Cannot load configuration file")
 	}
 
+	err = configuration.Check(config)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("Errors in configuration file")
+	}
+
 	initNotifiers(config)
 	initProviders(config)
 	initDownloaders(config)
@@ -155,9 +160,7 @@ func main() {
 		} else {
 			showObjects = append(showObjects, show)
 		}
-		log.Debug(show)
 	}
-	log.Debug("Shows objects loaded from config: ", showObjects)
 
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)

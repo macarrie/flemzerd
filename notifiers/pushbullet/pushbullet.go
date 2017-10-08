@@ -71,8 +71,6 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 		}
 		urlObject.RawQuery = params.Encode()
 
-		log.Debug("GET ", urlObject.String())
-
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
 			log.Fatal("NewRequest: ", err)
@@ -80,7 +78,6 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
-		log.Debug("POST ", urlObject.String(), paramsMap)
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
 			log.Fatal("NewRequest: ", err)
@@ -139,8 +136,6 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 
 	params := map[string]string{"type": "note", "title": title, "body": content}
 	status, _ := performAPIRequest("POST", "v2/pushes", params)
-	log.Debug("Status: ", status)
-	//fmt.Println("Content: ", string(body[:]))
 
 	if status != 200 {
 		log.WithFields(log.Fields{

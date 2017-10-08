@@ -3,6 +3,7 @@ package configuration
 import (
 	log "flemzerd/logging"
 	"github.com/spf13/viper"
+    "errors"
 )
 
 var customConfigFilePath string
@@ -20,6 +21,42 @@ func UseFile(filePath string) {
 	}).Info("Using specified configuration file")
 	customConfigFile = true
 	customConfigFilePath = filePath
+}
+
+func Check(config Configuration) error {
+    if len(config.Shows) == 0 {
+        return errors.New("No Shows defined")
+    }
+
+    if len(config.Providers) == 0 {
+        return errors.New("No Providers defined")
+    }
+
+    _, tvdb := config.Providers["tvdb"]
+    if tvdb {
+        _, tvdbapikey := config.Providers["tvdb"]["apikey"]
+        _, tvdbusername := config.Providers["tvdb"]["username"]
+        _, tvdbuserkey := config.Providers["tvdb"]["userkey"]
+
+        if !tvdbapikey || !tvdbusername || !tvdbuserkey {
+            return errors.New("Missing keys for tvdb provider (apikey, username and userkey required)")
+        }
+    }
+
+    if len(config.Notifiers) == 0 {
+        return errors.New("No Notifiers defined")
+    }
+
+    _, pushbullet := config.Notifiers["pushbullet"]
+    if pushbullet {
+        _, pushbulletaccesstoken := config.Notifiers["pushbullet"]["accesstoken"]
+
+        if !pushbulletaccesstoken {
+            return errors.New("Missing key for pushbullet notifier (accessToken required)")
+        }
+    }
+
+    return nil
 }
 
 func Load() (Configuration, error) {

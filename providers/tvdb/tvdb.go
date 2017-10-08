@@ -96,8 +96,6 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 		}
 		urlObject.RawQuery = params.Encode()
 
-		log.Debug("GET ", urlObject.String())
-
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
 			log.Fatal("NewRequest: ", err)
@@ -105,7 +103,6 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
-		log.Debug("POST ", urlObject.String(), paramsMap)
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
 			log.Fatal("NewRequest: ", err)
@@ -133,8 +130,6 @@ func Authenticate(apiKey string, username string, userKey string) bool {
 
 	params := map[string]string{"apikey": apiKey, "username": username, "userkey": userKey}
 	_, body := performAPIRequest("POST", "login", params)
-	//fmt.Println("Status: ", status)
-	//fmt.Println("Content: ", string(body[:]))
 
 	err := json.Unmarshal(body, &APIToken)
 	log.Debug("API Token: ", APIToken.Token)
@@ -162,7 +157,6 @@ func FindShow(query string) (Show, error) {
 		log.Fatal(err)
 		return Show{}, errors.New("Cannot find show")
 	} else {
-		log.Debug(searchResults)
 		if len(searchResults.Results) == 0 {
 			log.WithFields(log.Fields{
 				"search": query,
@@ -186,8 +180,6 @@ func GetShow(id int) (Show, error) {
 	}).Info("Retrieving info for show")
 
 	_, body := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
-	//log.Info("Status: ", status)
-	//fmt.Println("Content: ", string(body[:]))
 
 	var searchResults ShowSearchResult
 	err := json.Unmarshal(body, &searchResults)
@@ -269,11 +261,6 @@ func FindNextAiredEpisode(episodeList []Episode) (Episode, error) {
 		}
 
 		if airDate.After(time.Now()) {
-			//log.WithFields(log.Fields{
-			//"airDate": airDate,
-			//"episode": episode,
-			//}).Info("Episode not aired yet")
-
 			futureEpisodes = append(futureEpisodes, episode)
 		}
 	}
