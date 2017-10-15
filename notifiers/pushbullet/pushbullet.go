@@ -1,19 +1,15 @@
 package pushbullet
 
 import (
-	"fmt"
-	//"errors"
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	log "flemzerd/logging"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	//"flemzerd/notifier"
-	//"sort"
-	//"strconv"
-	//"time"
 )
 
 ///////////////
@@ -135,13 +131,14 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 	}).Info("Sending Pushbullet notification")
 
 	params := map[string]string{"type": "note", "title": title, "body": content}
-	status, _ := performAPIRequest("POST", "v2/pushes", params)
+	log.Debug("Pushbullet Mock: Notification sent", params)
+	//status, _ := performAPIRequest("POST", "v2/pushes", params)
 
-	if status != 200 {
-		log.WithFields(log.Fields{
-			"http_error": status,
-		}).Warning("Unable to send notification")
-	}
+	//if status != 200 {
+	//log.WithFields(log.Fields{
+	//"http_error": status,
+	//}).Warning("Unable to send notification")
+	//}
 
 	return nil
 }

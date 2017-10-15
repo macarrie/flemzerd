@@ -2,7 +2,6 @@
 // [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
 //      [] Charger poll_interval dans la conf
 //      [] Utiliser poll_interval comme intervalle de boucle
-// [] Voir comment marche jackett et si ya pas moyen de rechercher des torrents avec
 // [] Si on peut les recuperer, faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
 // [] Pouvoir configurer un dossier destination
 // [] Faire des hook en fin de téléchargement (maj kodi, création d'un dossier dans un dossier destination prédéfini et copier le fichier dedans)
@@ -26,18 +25,45 @@ import (
 	"time"
 	//"io/ioutil"
 	"flemzerd/configuration"
+	log "flemzerd/logging"
+
+	provider "flemzerd/providers"
+	"flemzerd/providers/tvdb"
+
 	indexer "flemzerd/indexers"
 	"flemzerd/indexers/torznab"
-	log "flemzerd/logging"
+
+	notifier "flemzerd/notifiers"
 	"flemzerd/notifiers/pushbullet"
-	"flemzerd/providers/tvdb"
 )
 
 var config configuration.Configuration
-var notificationsRetention []int
 
 func initProviders(config configuration.Configuration) {
 	log.Info("Initializing Providers")
+
+	var newProviders []provider.Provider
+	for providerType, providerElt := range config.Providers {
+		switch providerType {
+		case "tvdb":
+			newProviders = append(newProviders, tvdb.New(providerElt["apikey"], providerElt["username"], providerElt["userkey"]))
+		default:
+			log.WithFields(log.Fields{
+				"providerType": providerType,
+			}).Warning("Unknown provider type")
+		}
+
+		if len(newProviders) != 0 {
+			for _, newProvider := range newProviders {
+				newProvider.Init()
+				provider.AddProvider(newProvider)
+				log.WithFields(log.Fields{
+					"provider": newProvider,
+				}).Info("Provider added to list of providers")
+			}
+			newProviders = []provider.Provider{}
+		}
+	}
 }
 
 func initIndexers(config configuration.Configuration) {
@@ -80,7 +106,7 @@ func initNotifiers(config configuration.Configuration) {
 		switch name {
 		case "pushbullet":
 			pushbulletNotifier := pushbullet.New(map[string]string{"AccessToken": notifierObject["accesstoken"]})
-			AddNotifier(pushbulletNotifier)
+			notifier.AddNotifier(pushbulletNotifier)
 
 			log.WithFields(log.Fields{
 				"notifier": pushbulletNotifier,
@@ -89,54 +115,25 @@ func initNotifiers(config configuration.Configuration) {
 	}
 }
 
-func NotifyRecentEpisode(show tvdb.Show, episode tvdb.Episode) {
-	episodeLogString := fmt.Sprintf("S%03dE%03d: %v", episode.AiredSeason, episode.AiredEpisodeNumber, episode.EpisodeName)
-
-	alreadyNotified := false
-	var cleanedRetention []int
-
-	for _, episodeId := range notificationsRetention {
-		airDate, err := time.Parse("2006-01-02", episode.FirstAired)
+func NotifyRecentEpisode(show provider.Show, episode provider.Episode) {
+	for _, episodeId := range notifier.Retention {
+		airDate, err := time.Parse("2006-01-02", episode.Date)
 		if err != nil {
 			continue
 		}
 
-		if airDate.Before(time.Now()) && airDate.After(time.Now().AddDate(0, 0, -14)) {
-			cleanedRetention = append(cleanedRetention, episode.Id)
-		}
-
-		if episode.Id == episodeId {
-			alreadyNotified = true
-
-			break
+		if airDate.Before(time.Now().AddDate(0, 0, -14)) {
+			notifier.RemoveFromRetention(episodeId)
 		}
 	}
-	notificationsRetention = cleanedRetention
 
-	if alreadyNotified {
-		log.WithFields(log.Fields{
-			"show":    show.SeriesName,
-			"episode": episodeLogString,
-		}).Info("Notifications already sent for episode. Nothing to do")
+	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
 
-		return
+	err := notifier.NotifyRecentEpisode(episode.Id, notificationTitle, notificationContent)
+	if err != nil {
+		log.Warning("Failed to send all notifications")
 	}
-
-	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.SeriesName, episode.AiredSeason, episode.AiredEpisodeNumber)
-	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.FirstAired, show.SeriesName, episode.AiredSeason, episode.AiredEpisodeNumber, episode.EpisodeName)
-
-	log.Debug(notificationTitle)
-	log.Debug(notificationContent)
-	log.Debug("Notification sent debug")
-	//err := notifier.SendNotification(notificationTitle, notificationContent)
-	//if err != nil {
-	//log.Warning("Failed to send all notifications")
-	//} else {
-	if !alreadyNotified {
-		notificationsRetention = append(notificationsRetention, episode.Id)
-	}
-	//}
-
 }
 
 func main() {
@@ -176,15 +173,11 @@ func main() {
 	initIndexers(config)
 	initDownloaders(config)
 
-	if !tvdb.Authenticate(config.Providers["tvdb"]["apikey"], config.Providers["tvdb"]["username"], config.Providers["tvdb"]["userkey"]) {
-		log.Fatal("Unable to get tvdb API token")
-	}
-
 	// Load configuration objects
-	var showObjects []tvdb.Show
+	var showObjects []provider.Show
 
 	for _, show := range config.Shows {
-		show, err := tvdb.FindShow(show)
+		show, err := provider.FindShow(show)
 		if err != nil {
 			log.Warning(err)
 		} else {
@@ -201,7 +194,7 @@ func main() {
 		log.Debug("========== Polling loop start ==========")
 
 		for _, show := range showObjects {
-			recentEpisode, err := tvdb.FindRecentlyAiredEpisodeForShow(show)
+			recentEpisode, err := provider.FindRecentlyAiredEpisodeForShow(show)
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
