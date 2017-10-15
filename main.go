@@ -26,8 +26,9 @@ import (
 	"time"
 	//"io/ioutil"
 	"flemzerd/configuration"
+	indexer "flemzerd/indexers"
+	"flemzerd/indexers/torznab"
 	log "flemzerd/logging"
-	"flemzerd/notifier"
 	"flemzerd/notifiers/pushbullet"
 	"flemzerd/providers/tvdb"
 )
@@ -37,6 +38,34 @@ var notificationsRetention []int
 
 func initProviders(config configuration.Configuration) {
 	log.Info("Initializing Providers")
+}
+
+func initIndexers(config configuration.Configuration) {
+	log.Info("Initializing Indexers")
+
+	var newIndexers []indexer.Indexer
+	for indexerType, indexerList := range config.Indexers {
+		switch indexerType {
+		case "torznab":
+			for _, indexer := range indexerList {
+				newIndexers = append(newIndexers, torznab.New(indexer["name"], indexer["url"], indexer["apikey"]))
+			}
+		default:
+			log.WithFields(log.Fields{
+				"indexerType": indexerType,
+			}).Warning("Unknown indexer type")
+		}
+
+		if len(newIndexers) != 0 {
+			for _, newIndexer := range newIndexers {
+				indexer.AddIndexer(newIndexer)
+				log.WithFields(log.Fields{
+					"indexer": newIndexer.GetName(),
+				}).Info("Indexer added to list of indexers")
+			}
+			newIndexers = []indexer.Indexer{}
+		}
+	}
 }
 
 func initDownloaders(config configuration.Configuration) {
@@ -51,7 +80,7 @@ func initNotifiers(config configuration.Configuration) {
 		switch name {
 		case "pushbullet":
 			pushbulletNotifier := pushbullet.New(map[string]string{"AccessToken": notifierObject["accesstoken"]})
-			notifier.AddNotifier(pushbulletNotifier)
+			AddNotifier(pushbulletNotifier)
 
 			log.WithFields(log.Fields{
 				"notifier": pushbulletNotifier,
@@ -103,9 +132,9 @@ func NotifyRecentEpisode(show tvdb.Show, episode tvdb.Episode) {
 	//if err != nil {
 	//log.Warning("Failed to send all notifications")
 	//} else {
-    if !alreadyNotified {
-        notificationsRetention = append(notificationsRetention, episode.Id)
-    }
+	if !alreadyNotified {
+		notificationsRetention = append(notificationsRetention, episode.Id)
+	}
 	//}
 
 }
@@ -144,6 +173,7 @@ func main() {
 
 	initNotifiers(config)
 	initProviders(config)
+	initIndexers(config)
 	initDownloaders(config)
 
 	if !tvdb.Authenticate(config.Providers["tvdb"]["apikey"], config.Providers["tvdb"]["username"], config.Providers["tvdb"]["userkey"]) {
@@ -161,6 +191,8 @@ func main() {
 			showObjects = append(showObjects, show)
 		}
 	}
+
+	indexer.GetTorrentForEpisode("Suits", "2", "3")
 
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)

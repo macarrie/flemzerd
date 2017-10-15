@@ -1,13 +1,9 @@
-package notifier
+package main
 
 import (
 	"errors"
 	log "flemzerd/logging"
 )
-
-type NotifierStruct struct {
-	Name string
-}
 
 type Notifier interface {
 	Setup(authCredentials map[string]string)

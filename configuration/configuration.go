@@ -1,9 +1,9 @@
 package configuration
 
 import (
+	"errors"
 	log "flemzerd/logging"
 	"github.com/spf13/viper"
-    "errors"
 )
 
 var customConfigFilePath string
@@ -11,6 +11,7 @@ var customConfigFile bool
 
 type Configuration struct {
 	Providers map[string]map[string]string
+	Indexers  map[string][]map[string]string
 	Notifiers map[string]map[string]string
 	Shows     []string
 }
@@ -24,39 +25,39 @@ func UseFile(filePath string) {
 }
 
 func Check(config Configuration) error {
-    if len(config.Shows) == 0 {
-        return errors.New("No Shows defined")
-    }
+	if len(config.Shows) == 0 {
+		return errors.New("No Shows defined")
+	}
 
-    if len(config.Providers) == 0 {
-        return errors.New("No Providers defined")
-    }
+	if len(config.Providers) == 0 {
+		return errors.New("No Providers defined")
+	}
 
-    _, tvdb := config.Providers["tvdb"]
-    if tvdb {
-        _, tvdbapikey := config.Providers["tvdb"]["apikey"]
-        _, tvdbusername := config.Providers["tvdb"]["username"]
-        _, tvdbuserkey := config.Providers["tvdb"]["userkey"]
+	_, tvdb := config.Providers["tvdb"]
+	if tvdb {
+		_, tvdbapikey := config.Providers["tvdb"]["apikey"]
+		_, tvdbusername := config.Providers["tvdb"]["username"]
+		_, tvdbuserkey := config.Providers["tvdb"]["userkey"]
 
-        if !tvdbapikey || !tvdbusername || !tvdbuserkey {
-            return errors.New("Missing keys for tvdb provider (apikey, username and userkey required)")
-        }
-    }
+		if !tvdbapikey || !tvdbusername || !tvdbuserkey {
+			return errors.New("Missing keys for tvdb provider (apikey, username and userkey required)")
+		}
+	}
 
-    if len(config.Notifiers) == 0 {
-        return errors.New("No Notifiers defined")
-    }
+	if len(config.Notifiers) == 0 {
+		return errors.New("No Notifiers defined")
+	}
 
-    _, pushbullet := config.Notifiers["pushbullet"]
-    if pushbullet {
-        _, pushbulletaccesstoken := config.Notifiers["pushbullet"]["accesstoken"]
+	_, pushbullet := config.Notifiers["pushbullet"]
+	if pushbullet {
+		_, pushbulletaccesstoken := config.Notifiers["pushbullet"]["accesstoken"]
 
-        if !pushbulletaccesstoken {
-            return errors.New("Missing key for pushbullet notifier (accessToken required)")
-        }
-    }
+		if !pushbulletaccesstoken {
+			return errors.New("Missing key for pushbullet notifier (accessToken required)")
+		}
+	}
 
-    return nil
+	return nil
 }
 
 func Load() (Configuration, error) {
