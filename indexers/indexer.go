@@ -7,7 +7,7 @@ import (
 
 type Indexer interface {
 	GetName() string
-	GetTorrentForEpisode(show string, season string, episode string) ([]Torrent, error)
+	GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error)
 }
 
 type Torrent struct {
@@ -32,6 +32,6 @@ func AddIndexer(indexer Indexer) {
 	}).Info("Indexer loaded")
 }
 
-func GetTorrentForEpisode(show string, season string, episode string) {
-	indexers[0].GetTorrentForEpisode(show, season, episode)
+func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
+	return indexers[0].GetTorrentForEpisode(show, season, episode)
 }

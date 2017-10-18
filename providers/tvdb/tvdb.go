@@ -285,7 +285,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(show provider.Show) ([]provider.Epi
 	return episodesList, nil
 }
 
-func (tvdbProvider TVDBProvider) FindNextAiredEpisode(episodeList []provider.Episode) (provider.Episode, error) {
+func (tvdbProvider TVDBProvider) FindNextAiredEpisodes(episodeList []provider.Episode) ([]provider.Episode, error) {
 	log.Debug("Looking for next episode in given episodes list")
 
 	sort.Slice(episodeList[:], func(i, j int) bool {
@@ -305,27 +305,27 @@ func (tvdbProvider TVDBProvider) FindNextAiredEpisode(episodeList []provider.Epi
 	}
 
 	if len(futureEpisodes) == 0 {
-		return provider.Episode{}, errors.New("All episodes in episode list have already aired")
+		return []provider.Episode{}, errors.New("All episodes in episode list have already aired")
 	}
 
-	return futureEpisodes[0], nil
+	return futureEpisodes, nil
 }
 
-func (tvdbProvider TVDBProvider) FindNextEpisodeForShow(show provider.Show) (provider.Episode, error) {
+func (tvdbProvider TVDBProvider) FindNextEpisodesForShow(show provider.Show) ([]provider.Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(show)
 	if err != nil {
-		return provider.Episode{}, err
+		return []provider.Episode{}, err
 	}
 
-	nextEpisode, err := tvdbProvider.FindNextAiredEpisode(episodes)
+	nextEpisodes, err := tvdbProvider.FindNextAiredEpisodes(episodes)
 	if err != nil {
-		return provider.Episode{}, err
+		return []provider.Episode{}, err
 	}
 
-	return nextEpisode, nil
+	return nextEpisodes, nil
 }
 
-func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisode(episodeList []provider.Episode) (provider.Episode, error) {
+func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodes(episodeList []provider.Episode) ([]provider.Episode, error) {
 	log.Debug("Looking for recent episode in given episodes list")
 
 	sort.Slice(episodeList[:], func(i, j int) bool {
@@ -351,22 +351,22 @@ func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisode(episodeList []provider
 	}
 
 	if len(recentEpisodes) == 0 {
-		return provider.Episode{}, errors.New("No recent episodes in episodes list")
+		return []provider.Episode{}, errors.New("No recent episodes in episodes list")
 	}
 
-	return recentEpisodes[0], nil
+	return recentEpisodes, nil
 }
 
-func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodeForShow(show provider.Show) (provider.Episode, error) {
+func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodesForShow(show provider.Show) ([]provider.Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(show)
 	if err != nil {
-		return provider.Episode{}, err
+		return []provider.Episode{}, err
 	}
 
-	nextEpisode, err := tvdbProvider.FindRecentlyAiredEpisode(episodes)
+	nextEpisodes, err := tvdbProvider.FindRecentlyAiredEpisodes(episodes)
 	if err != nil {
-		return provider.Episode{}, err
+		return []provider.Episode{}, err
 	}
 
-	return nextEpisode, nil
+	return nextEpisodes, nil
 }

@@ -2,18 +2,19 @@
 // [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
 //      [] Charger poll_interval dans la conf
 //      [] Utiliser poll_interval comme intervalle de boucle
-// [] Si on peut les recuperer, faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
+// [] Gérer les timeouts dans les requetes
+// [] Dans la recherche des torrents, aggréger les résultats lorsqu'on a plusieurs indexers
+// [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
 // [] Pouvoir configurer un dossier destination
 // [] Faire des hook en fin de téléchargement (maj kodi, création d'un dossier dans un dossier destination prédéfini et copier le fichier dedans)
-// [] Transformer tvdb en provider
 // [] Faire une interface provider pour charger choisir un provider (et un seul ? sinon c'est chiant a gerer et ca sert a rien)
-// [] Tests unitaires
-// [] Doc ?
+// [] Tests unitaires (chiant)
+// [] Doc (aussi chiant)
 
 // TODO List de riche
-// [] Retention fichier des derniers episodes notifiés. Si le demon tombe, pas de nouvelle notif pour rien
+// [] Retention fichier des derniers episodes notifiés. Si le demon tombe, pas de nouvelle notif pour rien. Lire au démarrage et écrire a l'extinction
 // [] Script systemd pour transformer l'exec en démon et le gerer avec systemctl
-// [] Ajouter un autre notifier (mail par exemple)
+// [] Ajouter un autre notifier
 // [] Interface web pour voir vite fait ce qu'il se passe: nouveaux episodes, shows surveillés et telechargements en cours
 
 package main
@@ -149,7 +150,6 @@ func main() {
 	}
 
 	if *configFilePath != "" {
-		// TODO
 		log.Info("Loading provided configuration file")
 		configuration.UseFile(*configFilePath)
 	}
@@ -185,29 +185,33 @@ func main() {
 		}
 	}
 
-	indexer.GetTorrentForEpisode("Suits", "2", "3")
-
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)
-	//stopMainLoop := make(chan struct{})
 	for {
 		log.Debug("========== Polling loop start ==========")
 
 		for _, show := range showObjects {
-			recentEpisode, err := provider.FindRecentlyAiredEpisodeForShow(show)
+			recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-				}).Warning("No recent episode found for show")
+				}).Warning("No recent episodes found for show")
 				continue
 			}
-			// Send notification
-			NotifyRecentEpisode(show, recentEpisode)
+
+			//log.Debug("Recent episodes: ", recentEpisod)
+			for _, recentEpisode := range recentEpisodes {
+				NotifyRecentEpisode(show, recentEpisode)
+
+				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
+				if err != nil {
+					log.Warning(err)
+				}
+				log.Debug("Torrent list: ", torrentList)
+			}
 		}
 
 		log.Debug("========== Polling loop end ==========\n")
 		<-loopTicker.C
 	}
-
-	log.Debug("Polling loop terminated. Shutting down daemon")
 }

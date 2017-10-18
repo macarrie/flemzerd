@@ -1,15 +1,16 @@
 package torznab
 
 import (
-	//"fmt"
-	//"bytes"
 	"crypto/tls"
 	"encoding/xml"
+	"errors"
 	"flemzerd/indexers"
 	log "flemzerd/logging"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type TorznabIndexer struct {
@@ -40,7 +41,7 @@ func New(name string, url string, apikey string) TorznabIndexer {
 	return TorznabIndexer{Name: name, Url: url, ApiKey: apikey}
 }
 
-func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season string, episode string) ([]indexer.Torrent, error) {
+func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]indexer.Torrent, error) {
 	baseURL := torznabIndexer.Url
 
 	tr := &http.Transport{
@@ -56,8 +57,8 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season st
 	params.Add("apikey", torznabIndexer.ApiKey)
 	params.Add("t", "tvsearch")
 	params.Add("q", show)
-	params.Add("season", season)
-	params.Add("episode", episode)
+	params.Add("season", strconv.Itoa(season))
+	params.Add("episode", strconv.Itoa(episode))
 	urlObject.RawQuery = params.Encode()
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
@@ -75,14 +76,17 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season st
 		log.Fatal("API Response read: ", readError)
 	}
 
-	//log.Debug(string(body[:]))
-	//log.Debug(readError)
-
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
 		log.Debug(parseErr)
 		return []indexer.Torrent{}, parseErr
+	}
+
+	fmt.Printf("searchResults: %+v\n", searchResults)
+	if len(searchResults.Torrents) == 0 {
+		noTorrentsFound := fmt.Sprintf("No torrents found for %s Season %d Episode %d\n", show, season, episode)
+		return []indexer.Torrent{}, errors.New(noTorrentsFound)
 	}
 
 	// Construct Attributes map

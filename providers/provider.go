@@ -30,10 +30,10 @@ type Provider interface {
 	FindShow(query string) (Show, error)
 	GetShow(id int) (Show, error)
 	GetEpisodes(show Show) ([]Episode, error)
-	FindNextAiredEpisode(episodeList []Episode) (Episode, error)
-	FindNextEpisodeForShow(show Show) (Episode, error)
-	FindRecentlyAiredEpisode(episodeList []Episode) (Episode, error)
-	FindRecentlyAiredEpisodeForShow(show Show) (Episode, error)
+	FindNextAiredEpisodes(episodeList []Episode) ([]Episode, error)
+	FindNextEpisodesForShow(show Show) ([]Episode, error)
+	FindRecentlyAiredEpisodes(episodeList []Episode) ([]Episode, error)
+	FindRecentlyAiredEpisodesForShow(show Show) ([]Episode, error)
 }
 
 var providers []Provider
@@ -49,6 +49,6 @@ func FindShow(query string) (Show, error) {
 	return providers[0].FindShow(query)
 }
 
-func FindRecentlyAiredEpisodeForShow(show Show) (Episode, error) {
-	return providers[0].FindRecentlyAiredEpisodeForShow(show)
+func FindRecentlyAiredEpisodesForShow(show Show) ([]Episode, error) {
+	return providers[0].FindRecentlyAiredEpisodesForShow(show)
 }
