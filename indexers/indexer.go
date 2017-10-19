@@ -1,8 +1,9 @@
 package indexer
 
 import (
-	//"errors"
 	log "flemzerd/logging"
+	"sort"
+	"strconv"
 )
 
 type Indexer interface {
@@ -33,5 +34,17 @@ func AddIndexer(indexer Indexer) {
 }
 
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
-	return indexers[0].GetTorrentForEpisode(show, season, episode)
+	torrentList, err := indexers[0].GetTorrentForEpisode(show, season, episode)
+	if err != nil {
+		return []Torrent{}, err
+	}
+
+	sort.Slice(torrentList[:], func(i, j int) bool {
+		iValue, _ := strconv.Atoi(torrentList[i].Attributes["seeders"])
+		jValue, _ := strconv.Atoi(torrentList[j].Attributes["seeders"])
+
+		return iValue > jValue
+	})
+
+	return torrentList, err
 }

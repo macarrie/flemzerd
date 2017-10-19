@@ -83,7 +83,6 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 		return []indexer.Torrent{}, parseErr
 	}
 
-	fmt.Printf("searchResults: %+v\n", searchResults)
 	if len(searchResults.Torrents) == 0 {
 		noTorrentsFound := fmt.Sprintf("No torrents found for %s Season %d Episode %d\n", show, season, episode)
 		return []indexer.Torrent{}, errors.New(noTorrentsFound)

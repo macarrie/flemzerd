@@ -207,7 +207,10 @@ func main() {
 				if err != nil {
 					log.Warning(err)
 				}
-				log.Debug("Torrent list: ", torrentList)
+				log.Debug("Torrents found: ", len(torrentList))
+				for _, torrent := range torrentList {
+					log.Debug("Torrent: ", torrent.Title)
+				}
 			}
 		}
 
