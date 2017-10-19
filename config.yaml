@@ -9,6 +9,15 @@ notifiers:
     pushbullet:
         accessToken: "pushbullet access token"
 
+indexers:
+    torznab:
+        - name: "Indexer 1"
+          url: "url1"
+          apikey: "apikey1"
+        - name: "Indexer 2"
+          url: "url2"
+          apikey: "apikey2"
+
 shows:
     - "Game of thrones"
     - "Suits"

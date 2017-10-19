@@ -2,6 +2,7 @@
 // [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
 //      [] Charger poll_interval dans la conf
 //      [] Utiliser poll_interval comme intervalle de boucle
+// [] Verifier les indexers dans le check de la conf
 // [] Gérer les timeouts dans les requetes
 // [] Dans la recherche des torrents, aggréger les résultats lorsqu'on a plusieurs indexers
 // [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
