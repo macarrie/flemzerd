@@ -3,10 +3,10 @@ package torznab
 import (
 	"crypto/tls"
 	"encoding/xml"
-	"errors"
+	//"errors"
 	"flemzerd/indexers"
 	log "flemzerd/logging"
-	"fmt"
+	//"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -63,17 +63,17 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		return []indexer.Torrent{}, err
 	}
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Fatal("API Request: ", err)
+		return []indexer.Torrent{}, err
 	}
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
-		log.Fatal("API Response read: ", readError)
+		return []indexer.Torrent{}, err
 	}
 
 	var searchResults TorrentSearchResults
@@ -81,11 +81,6 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	if parseErr != nil {
 		log.Debug(parseErr)
 		return []indexer.Torrent{}, parseErr
-	}
-
-	if len(searchResults.Torrents) == 0 {
-		noTorrentsFound := fmt.Sprintf("No torrents found for %s Season %d Episode %d\n", show, season, episode)
-		return []indexer.Torrent{}, errors.New(noTorrentsFound)
 	}
 
 	// Construct Attributes map

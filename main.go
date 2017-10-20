@@ -4,7 +4,6 @@
 //      [] Utiliser poll_interval comme intervalle de boucle
 // [] Verifier les indexers dans le check de la conf
 // [] Gérer les timeouts dans les requetes
-// [] Dans la recherche des torrents, aggréger les résultats lorsqu'on a plusieurs indexers
 // [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
 // [] Pouvoir configurer un dossier destination
 // [] Faire des hook en fin de téléchargement (maj kodi, création d'un dossier dans un dossier destination prédéfini et copier le fichier dedans)
@@ -210,7 +209,7 @@ func main() {
 				}
 				log.Debug("Torrents found: ", len(torrentList))
 				for _, torrent := range torrentList {
-					log.Debug("Torrent: ", torrent.Title)
+					log.Debug(fmt.Sprintf("Torrent (%04v) %v", torrent.Attributes["seeders"], torrent.Title))
 				}
 			}
 		}

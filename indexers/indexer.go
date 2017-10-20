@@ -2,6 +2,7 @@ package indexer
 
 import (
 	log "flemzerd/logging"
+	"fmt"
 	"sort"
 	"strconv"
 )
@@ -34,9 +35,32 @@ func AddIndexer(indexer Indexer) {
 }
 
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
-	torrentList, err := indexers[0].GetTorrentForEpisode(show, season, episode)
-	if err != nil {
-		return []Torrent{}, err
+	var torrentList []Torrent
+	var err error
+
+	for _, indexer := range indexers {
+		indexerSearch, err := indexer.GetTorrentForEpisode(show, season, episode)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"indexer": indexer.GetName(),
+				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+				"error":   err,
+			}).Warning("Couldn't get torrents from indexer")
+			continue
+		}
+
+		if len(indexerSearch) != 0 {
+			torrentList = append(torrentList, indexerSearch...)
+			log.WithFields(log.Fields{
+				"indexer": indexer.GetName(),
+				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+			}).Info(len(indexerSearch), " torrents found")
+		} else {
+			log.WithFields(log.Fields{
+				"indexer": indexer.GetName(),
+				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+			}).Info("No torrents found")
+		}
 	}
 
 	sort.Slice(torrentList[:], func(i, j int) bool {

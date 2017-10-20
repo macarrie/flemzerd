@@ -108,7 +108,7 @@ func convertEpisode(e TVDBEpisode) provider.Episode {
 	}
 }
 
-func performAPIRequest(method string, path string, paramsMap map[string]string) (string, []byte) {
+func performAPIRequest(method string, path string, paramsMap map[string]string) (int, []byte) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -153,7 +153,7 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 		log.Fatal("API Response read: ", readError)
 	}
 
-	return response.Status, body
+	return response.StatusCode, body
 }
 
 func New(apiKey string, username string, userKey string) TVDBProvider {
