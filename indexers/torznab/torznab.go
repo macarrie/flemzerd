@@ -3,7 +3,7 @@ package torznab
 import (
 	"crypto/tls"
 	"encoding/xml"
-	//"errors"
+    "errors"
 	"flemzerd/indexers"
 	log "flemzerd/logging"
 	//"fmt"
@@ -76,10 +76,14 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 		return []indexer.Torrent{}, err
 	}
 
+    if len(body) == 0 {
+         return []indexer.Torrent{}, errors.New("Empty result")
+    }
+
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
-		log.Debug(parseErr)
+        log.Debug("ParseError: ", parseErr)
 		return []indexer.Torrent{}, parseErr
 	}
 
