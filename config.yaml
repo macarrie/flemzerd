@@ -18,6 +18,13 @@ indexers:
           url: "url2"
           apikey: "apikey2"
 
+downloaders:
+    transmission:
+        address: localhost
+        port: 1234
+        user: test
+        password: testpasswd
+
 shows:
     - "Game of thrones"
     - "Suits"
