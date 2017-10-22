@@ -42,7 +42,7 @@ func AddProvider(provider Provider) {
 	providers = append(providers, provider)
 	log.WithFields(log.Fields{
 		"provider": provider,
-	}).Info("Provider loaded")
+	}).Debug("Provider loaded")
 }
 
 func FindShow(query string) (Show, error) {

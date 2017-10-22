@@ -24,7 +24,7 @@ func AddNotifier(notifier Notifier) {
 	notifiers = append(notifiers, notifier)
 	log.WithFields(log.Fields{
 		"notifier": notifier,
-	}).Info("Notifier loaded")
+	}).Debug("Notifier loaded")
 }
 
 func RemoveFromRetention(idToRemove int) {

@@ -131,7 +131,7 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 	log.WithFields(log.Fields{
 		"title":   title,
 		"content": content,
-	}).Info("Sending Pushbullet notification")
+	}).Debug("Sending Pushbullet notification")
 
 	params := map[string]string{"type": "note", "title": title, "body": content}
 	log.Debug("Pushbullet Mock: Notification sent", params)

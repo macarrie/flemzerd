@@ -31,7 +31,7 @@ func AddIndexer(indexer Indexer) {
 	indexers = append(indexers, indexer)
 	log.WithFields(log.Fields{
 		"indexer": indexer.GetName(),
-	}).Info("Indexer loaded")
+	}).Debug("Indexer loaded")
 }
 
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {

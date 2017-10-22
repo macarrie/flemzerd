@@ -1,7 +1,6 @@
 // TODO
 // [] Reduire les logs en mode normal
 // [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
-// [] Module de retention pour gerer les telechargements et les notifications (2 retentions séparées mais pas besoin de faire 2 fois le meme taff)
 // [] Retention pour les telechargements
 // [] Telecharger le fichier torrent dans /tmp/ (pas besoin ?)
 // [] Virer les fichiers torrents a la fin du telechargement (ou telechargement echoué)
@@ -50,7 +49,7 @@ import (
 var config configuration.Configuration
 
 func initProviders(config configuration.Configuration) {
-	log.Info("Initializing Providers")
+	log.Debug("Initializing Providers")
 
 	var newProviders []provider.Provider
 	for providerType, providerElt := range config.Providers {
@@ -77,7 +76,7 @@ func initProviders(config configuration.Configuration) {
 }
 
 func initIndexers(config configuration.Configuration) {
-	log.Info("Initializing Indexers")
+	log.Debug("Initializing Indexers")
 
 	var newIndexers []indexer.Indexer
 	for indexerType, indexerList := range config.Indexers {
@@ -105,7 +104,7 @@ func initIndexers(config configuration.Configuration) {
 }
 
 func initDownloaders(config configuration.Configuration) {
-	log.Info("Initializing Downloaders")
+	log.Debug("Initializing Downloaders")
 
     var newDownloaders []downloader.Downloader
     for name, downloaderObject := range config.Downloaders {
@@ -142,7 +141,7 @@ func initDownloaders(config configuration.Configuration) {
 }
 
 func initNotifiers(config configuration.Configuration) {
-	log.Info("Initializing Notifiers")
+	log.Debug("Initializing Notifiers")
 	//fmt.Printf("%#v\n", config)
 	for name, notifierObject := range config.Notifiers {
 		//fmt.Printf("Name: %v, Notifier: %#v\n", name, notifierObject)

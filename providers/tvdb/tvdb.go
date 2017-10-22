@@ -181,7 +181,7 @@ func (tvdbProvider TVDBProvider) Init() error {
 func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
 	log.WithFields(log.Fields{
 		"name": query,
-	}).Info("Searching show")
+	}).Debug("Searching show")
 	params := map[string]string{"name": query}
 	response, err := performAPIRequest("GET", "search/series", params)
     if err != nil {
@@ -206,7 +206,7 @@ func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
 		log.WithFields(log.Fields{
 			"Id":   showID,
 			"name": query,
-		}).Info("Found ID for show")
+		}).Debug("Found ID for show")
 
 		return tvdbProvider.GetShow(showID)
 	}
@@ -215,7 +215,7 @@ func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
 func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
 	log.WithFields(log.Fields{
 		"Id": id,
-	}).Info("Retrieving info for show")
+	}).Debug("Retrieving info for show")
 
 	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
     if err != nil {
@@ -263,7 +263,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(show provider.Show) ([]provider.Epi
 	log.WithFields(log.Fields{
 		"Id":   show.Id,
 		"name": show.Name,
-	}).Info("Retrieving epîsodes for show")
+	}).Debug("Retrieving epîsodes for show")
 
 	episodesSearchResults, err := tvdbProvider.getEpisodesByPage(show, 1)
 	if err != nil {
@@ -362,7 +362,7 @@ func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodes(episodeList []provide
 			log.WithFields(log.Fields{
 				"airDate": airDate,
 				"episode": episodeLogString,
-			}).Info("Found recent episode")
+			}).Debug("Found recent episode")
 
 			recentEpisodes = append(recentEpisodes, episode)
 		}
