@@ -1,7 +1,7 @@
 package provider
 
 import (
-	log "flemzerd/logging"
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 type Show struct {

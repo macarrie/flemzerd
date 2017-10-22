@@ -1,7 +1,7 @@
 package downloader
 
 import (
-//log "flemzerd/logging"
+//log "github.com/macarrie/flemzerd/logging"
 )
 
 var downloaders []Downloader

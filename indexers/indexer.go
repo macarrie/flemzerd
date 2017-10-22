@@ -1,8 +1,8 @@
 package indexer
 
 import (
-	log "flemzerd/logging"
 	"fmt"
+	log "github.com/macarrie/flemzerd/logging"
 	"sort"
 	"strconv"
 )

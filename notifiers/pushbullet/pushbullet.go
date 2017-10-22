@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	log "flemzerd/logging"
 	"fmt"
+	log "github.com/macarrie/flemzerd/logging"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	//"flemzerd/notifier"
+	//"github.com/macarrie/flemzerd/notifier"
 )
 
 ///////////////

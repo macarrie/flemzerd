@@ -1,24 +1,24 @@
 package main
 
 import (
-	"flemzerd/configuration"
-	log "flemzerd/logging"
 	"fmt"
+	"github.com/macarrie/flemzerd/configuration"
+	log "github.com/macarrie/flemzerd/logging"
 	flag "github.com/ogier/pflag"
 	"strconv"
 	"time"
 
-	provider "flemzerd/providers"
-	"flemzerd/providers/tvdb"
+	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers/tvdb"
 
-	indexer "flemzerd/indexers"
-	"flemzerd/indexers/torznab"
+	indexer "github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/indexers/torznab"
 
-	notifier "flemzerd/notifiers"
-	"flemzerd/notifiers/pushbullet"
+	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/notifiers/pushbullet"
 
-	downloader "flemzerd/downloaders"
-	"flemzerd/downloaders/transmission"
+	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders/transmission"
 )
 
 var config configuration.Configuration

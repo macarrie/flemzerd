@@ -2,7 +2,7 @@ package notifier
 
 import (
 	"errors"
-	log "flemzerd/logging"
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 type Notifier interface {
