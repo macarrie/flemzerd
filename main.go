@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	flag "github.com/ogier/pflag"
-	"time"
-    "strconv"
 	"flemzerd/configuration"
 	log "flemzerd/logging"
+	"fmt"
+	flag "github.com/ogier/pflag"
+	"strconv"
+	"time"
 
 	provider "flemzerd/providers"
 	"flemzerd/providers/tvdb"
@@ -81,38 +81,38 @@ func initIndexers(config configuration.Configuration) {
 func initDownloaders(config configuration.Configuration) {
 	log.Debug("Initializing Downloaders")
 
-    var newDownloaders []downloader.Downloader
-    for name, downloaderObject := range config.Downloaders {
-        switch name {
-        case "transmission":
-            address := downloaderObject["address"]
-            port, _ := strconv.Atoi(downloaderObject["port"])
-            user, authNeeded := downloaderObject["user"]
-            password := downloaderObject["password"]
-            if !authNeeded {
-                user = ""
-                password = ""
-            }
+	var newDownloaders []downloader.Downloader
+	for name, downloaderObject := range config.Downloaders {
+		switch name {
+		case "transmission":
+			address := downloaderObject["address"]
+			port, _ := strconv.Atoi(downloaderObject["port"])
+			user, authNeeded := downloaderObject["user"]
+			password := downloaderObject["password"]
+			if !authNeeded {
+				user = ""
+				password = ""
+			}
 
-            transmissionDownloader := transmission.New(address, port, user, password)
-            newDownloaders = append(newDownloaders, transmissionDownloader)
+			transmissionDownloader := transmission.New(address, port, user, password)
+			newDownloaders = append(newDownloaders, transmissionDownloader)
 		default:
 			log.WithFields(log.Fields{
 				"downloaderType": name,
 			}).Warning("Unknown downloader type")
-        }
+		}
 
 		if len(newDownloaders) != 0 {
 			for _, newDownloader := range newDownloaders {
-                newDownloader.Init()
+				newDownloader.Init()
 				downloader.AddDownloader(newDownloader)
-                log.WithFields(log.Fields{
-                    "downloader": name,
-                }).Info("Downloader added to list of downloaders")
+				log.WithFields(log.Fields{
+					"downloader": name,
+				}).Info("Downloader added to list of downloaders")
 			}
 			newDownloaders = []downloader.Downloader{}
 		}
-    }
+	}
 }
 
 func initNotifiers(config configuration.Configuration) {
@@ -198,22 +198,22 @@ func main() {
 	var showObjects []provider.Show
 
 	for _, show := range config.Shows {
-        showName := show
+		showName := show
 		show, err := provider.FindShow(show)
 		if err != nil {
-            log.WithFields(log.Fields{
-                "error": err,
-                "show": showName,
-            }).Warning("Unable to get show informations")
+			log.WithFields(log.Fields{
+				"error": err,
+				"show":  showName,
+			}).Warning("Unable to get show informations")
 		} else {
 			showObjects = append(showObjects, show)
 		}
 	}
-    if len(showObjects) == 0 {
-        log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
-    }
+	if len(showObjects) == 0 {
+		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
+	}
 
-    downloader.AddTorrent("test")
+	downloader.AddTorrent("test")
 
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)
@@ -225,7 +225,7 @@ func main() {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-                    "show": show.Name,
+					"show":  show.Name,
 				}).Warning("No recent episodes found")
 				continue
 			}

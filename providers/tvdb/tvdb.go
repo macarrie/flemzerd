@@ -129,14 +129,14 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
-            return http.Response{}, err
+			return http.Response{}, err
 		}
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
-            return http.Response{}, err
+			return http.Response{}, err
 		}
 	}
 
@@ -145,7 +145,7 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-        return http.Response{}, err
+		return http.Response{}, err
 	}
 
 	return *response, nil
@@ -160,21 +160,21 @@ func (tvdbProvider TVDBProvider) Init() error {
 
 	params := map[string]string{"apikey": tvdbProvider.ApiKey, "username": tvdbProvider.Username, "userkey": tvdbProvider.UserKey}
 	response, err := performAPIRequest("POST", "login", params)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    body, readError := ioutil.ReadAll(response.Body)
-    if readError != nil {
-        return errors.New(fmt.Sprintf("API Response read: %v", readError))
-    }
+	body, readError := ioutil.ReadAll(response.Body)
+	if readError != nil {
+		return errors.New(fmt.Sprintf("API Response read: %v", readError))
+	}
 
 	parseErr := json.Unmarshal(body, &APIToken)
 	if parseErr != nil {
 		return parseErr
 	} else {
 		log.Debug("Authentication successful")
-        return nil
+		return nil
 	}
 }
 
@@ -184,14 +184,14 @@ func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
 	}).Debug("Searching show")
 	params := map[string]string{"name": query}
 	response, err := performAPIRequest("GET", "search/series", params)
-    if err != nil {
-        return provider.Show{}, err
-    }
+	if err != nil {
+		return provider.Show{}, err
+	}
 
-    body, readError := ioutil.ReadAll(response.Body)
-    if readError != nil {
-        return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-    }
+	body, readError := ioutil.ReadAll(response.Body)
+	if readError != nil {
+		return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+	}
 
 	var searchResults ShowsSearchResults
 	parseErr := json.Unmarshal(body, &searchResults)
@@ -218,14 +218,14 @@ func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
 	}).Debug("Retrieving info for show")
 
 	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
-    if err != nil {
-        return provider.Show{}, err
-    }
+	if err != nil {
+		return provider.Show{}, err
+	}
 
-    body, readError := ioutil.ReadAll(response.Body)
-    if readError != nil {
-        return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-    }
+	body, readError := ioutil.ReadAll(response.Body)
+	if readError != nil {
+		return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+	}
 
 	var searchResults ShowSearchResult
 	parseErr := json.Unmarshal(body, &searchResults)
@@ -241,14 +241,14 @@ func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
 func (tvdbProvider TVDBProvider) getEpisodesByPage(show provider.Show, page int) (EpisodesSearchResults, error) {
 	params := map[string]string{"page": strconv.Itoa(page)}
 	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d/episodes/query", show.Id), params)
-    if err != nil {
-        return EpisodesSearchResults{}, err
-    }
+	if err != nil {
+		return EpisodesSearchResults{}, err
+	}
 
-    body, readError := ioutil.ReadAll(response.Body)
-    if readError != nil {
-        return EpisodesSearchResults{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-    }
+	body, readError := ioutil.ReadAll(response.Body)
+	if readError != nil {
+		return EpisodesSearchResults{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+	}
 
 	var searchResults EpisodesSearchResults
 	parseErr := json.Unmarshal(body, &searchResults)

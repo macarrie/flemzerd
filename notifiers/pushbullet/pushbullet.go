@@ -69,21 +69,21 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
-            return http.Response{}, err
+			return http.Response{}, err
 		}
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
-            return http.Response{}, err
+			return http.Response{}, err
 		}
 	} else {
 		log.WithFields(log.Fields{
 			"method": method,
 		}).Error("HTTP method unknown")
 
-        return http.Response{}, err
+		return http.Response{}, err
 	}
 
 	request.Header.Set("Content-Type", "application/json")
@@ -91,9 +91,8 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-        return http.Response{}, err
+		return http.Response{}, err
 	}
-
 
 	return *response, nil
 }
@@ -107,9 +106,9 @@ func (notifier *PushbulletNotifier) Init() error {
 	log.Debug("Checking Pushbullet user token validity")
 
 	response, err := performAPIRequest("GET", "v2/users/me", nil)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
