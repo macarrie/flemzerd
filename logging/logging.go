@@ -15,14 +15,10 @@ func Setup(debug bool) {
 	})
 }
 
-type Fields map[string]interface{}
+type Fields = log.Fields
 
 func WithFields(fields Fields) *log.Entry {
-	logrusField := log.Fields{}
-	for key, val := range fields {
-		logrusField[key] = val
-	}
-	return log.WithFields(logrusField)
+    return log.WithFields(fields)
 }
 
 func Debug(args ...interface{}) {
