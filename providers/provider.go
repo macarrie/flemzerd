@@ -26,7 +26,7 @@ type Episode struct {
 }
 
 type Provider interface {
-	Init() bool
+	Init() error
 	FindShow(query string) (Show, error)
 	GetShow(id int) (Show, error)
 	GetEpisodes(show Show) ([]Episode, error)

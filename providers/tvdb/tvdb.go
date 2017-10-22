@@ -108,7 +108,7 @@ func convertEpisode(e TVDBEpisode) provider.Episode {
 	}
 }
 
-func performAPIRequest(method string, path string, paramsMap map[string]string) (int, []byte) {
+func performAPIRequest(method string, path string, paramsMap map[string]string) (http.Response, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -129,14 +129,14 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
-			log.Fatal("NewRequest: ", err)
+            return http.Response{}, err
 		}
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
-			log.Fatal("NewRequest: ", err)
+            return http.Response{}, err
 		}
 	}
 
@@ -145,34 +145,36 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Fatal("API Request: ", err)
+        return http.Response{}, err
 	}
 
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		log.Fatal("API Response read: ", readError)
-	}
-
-	return response.StatusCode, body
+	return *response, nil
 }
 
 func New(apiKey string, username string, userKey string) TVDBProvider {
 	return TVDBProvider{ApiKey: apiKey, Username: username, UserKey: userKey}
 }
 
-func (tvdbProvider TVDBProvider) Init() bool {
+func (tvdbProvider TVDBProvider) Init() error {
 	log.Debug("Beginning authentication process to thetvdb API")
 
 	params := map[string]string{"apikey": tvdbProvider.ApiKey, "username": tvdbProvider.Username, "userkey": tvdbProvider.UserKey}
-	_, body := performAPIRequest("POST", "login", params)
+	response, err := performAPIRequest("POST", "login", params)
+    if err != nil {
+        return err
+    }
 
-	err := json.Unmarshal(body, &APIToken)
-	if err != nil {
-		log.Fatal(err)
-		return false
+    body, readError := ioutil.ReadAll(response.Body)
+    if readError != nil {
+        return errors.New(fmt.Sprintf("API Response read: %v", readError))
+    }
+
+	parseErr := json.Unmarshal(body, &APIToken)
+	if parseErr != nil {
+		return parseErr
 	} else {
 		log.Debug("Authentication successful")
-		return true
+        return nil
 	}
 }
 
@@ -181,21 +183,23 @@ func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
 		"name": query,
 	}).Info("Searching show")
 	params := map[string]string{"name": query}
-	_, body := performAPIRequest("GET", "search/series", params)
-	//log.Info("Status: ", status)
-	//fmt.Println("Content: ", string(body[:]))
+	response, err := performAPIRequest("GET", "search/series", params)
+    if err != nil {
+        return provider.Show{}, err
+    }
+
+    body, readError := ioutil.ReadAll(response.Body)
+    if readError != nil {
+        return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+    }
 
 	var searchResults ShowsSearchResults
-	err := json.Unmarshal(body, &searchResults)
-	if err != nil {
-		log.Fatal(err)
+	parseErr := json.Unmarshal(body, &searchResults)
+	if parseErr != nil {
 		return provider.Show{}, errors.New("Cannot find show")
 	} else {
 		if len(searchResults.Results) == 0 {
-			log.WithFields(log.Fields{
-				"search": query,
-			}).Warning("No show found")
-			return provider.Show{}, errors.New(fmt.Sprintf("No show found for query \"%s\"", query))
+			return provider.Show{}, errors.New("No show foun")
 		}
 		showID := searchResults.Results[0].Id
 
@@ -213,12 +217,19 @@ func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
 		"Id": id,
 	}).Info("Retrieving info for show")
 
-	_, body := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
+	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
+    if err != nil {
+        return provider.Show{}, err
+    }
+
+    body, readError := ioutil.ReadAll(response.Body)
+    if readError != nil {
+        return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+    }
 
 	var searchResults ShowSearchResult
-	err := json.Unmarshal(body, &searchResults)
-	if err != nil {
-		log.Fatal(err)
+	parseErr := json.Unmarshal(body, &searchResults)
+	if parseErr != nil {
 		return provider.Show{}, errors.New(err.Error())
 	} else {
 		show := searchResults.Result
@@ -229,12 +240,19 @@ func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
 
 func (tvdbProvider TVDBProvider) getEpisodesByPage(show provider.Show, page int) (EpisodesSearchResults, error) {
 	params := map[string]string{"page": strconv.Itoa(page)}
-	_, body := performAPIRequest("GET", fmt.Sprintf("series/%d/episodes/query", show.Id), params)
+	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d/episodes/query", show.Id), params)
+    if err != nil {
+        return EpisodesSearchResults{}, err
+    }
+
+    body, readError := ioutil.ReadAll(response.Body)
+    if readError != nil {
+        return EpisodesSearchResults{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
+    }
 
 	var searchResults EpisodesSearchResults
-	err := json.Unmarshal(body, &searchResults)
-	if err != nil {
-		log.Fatal(err)
+	parseErr := json.Unmarshal(body, &searchResults)
+	if parseErr != nil {
 		return EpisodesSearchResults{}, errors.New(err.Error())
 	} else {
 		return searchResults, nil

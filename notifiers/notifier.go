@@ -7,7 +7,7 @@ import (
 
 type Notifier interface {
 	Setup(authCredentials map[string]string)
-	Init() bool
+	Init() error
 	Send(title, content string) error
 }
 

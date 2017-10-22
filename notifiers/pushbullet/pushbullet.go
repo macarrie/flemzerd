@@ -48,7 +48,7 @@ type User struct {
 
 var APIToken Token
 
-func performAPIRequest(method string, path string, paramsMap map[string]string) (int, []byte) {
+func performAPIRequest(method string, path string, paramsMap map[string]string) (http.Response, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -69,19 +69,21 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 		request, err = http.NewRequest(method, urlObject.String(), nil)
 		if err != nil {
-			log.Fatal("NewRequest: ", err)
+            return http.Response{}, err
 		}
 	} else if method == "POST" {
 		jsonParams, _ := json.Marshal(paramsMap)
 
 		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
 		if err != nil {
-			log.Fatal("NewRequest: ", err)
+            return http.Response{}, err
 		}
 	} else {
 		log.WithFields(log.Fields{
 			"method": method,
-		}).Fatal("HTTP method unknown")
+		}).Error("HTTP method unknown")
+
+        return http.Response{}, err
 	}
 
 	request.Header.Set("Content-Type", "application/json")
@@ -89,15 +91,11 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Fatal("API Request: ", err)
+        return http.Response{}, err
 	}
 
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		log.Fatal("API Response read: ", readError)
-	}
 
-	return response.StatusCode, body
+	return *response, nil
 }
 
 func (pushbulletNotifier *PushbulletNotifier) Setup(credentials map[string]string) {
@@ -105,22 +103,27 @@ func (pushbulletNotifier *PushbulletNotifier) Setup(credentials map[string]strin
 	pushbulletNotifier.Name = "Pushbullet"
 }
 
-func (notifier *PushbulletNotifier) Init() bool {
+func (notifier *PushbulletNotifier) Init() error {
 	log.Debug("Checking Pushbullet user token validity")
 
-	_, body := performAPIRequest("GET", "v2/users/me", nil)
-	//fmt.Println("Status: ", status)
-	//fmt.Println("Content: ", string(body[:]))
+	response, err := performAPIRequest("GET", "v2/users/me", nil)
+    if err != nil {
+        return err
+    }
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
 
 	var authResult User
-	err := json.Unmarshal(body, &authResult)
-	if err != nil {
-		log.Fatal(err)
-		return false
+	parseErr := json.Unmarshal(body, &authResult)
+	if parseErr != nil {
+		return parseErr
 	} else {
 		log.Debug("Pushbullet token valid")
 
-		return true
+		return nil
 	}
 }
 

@@ -1,13 +1,20 @@
 // TODO
+// [] Reduire les logs en mode normal
+// [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
+// [] Module de retention pour gerer les telechargements et les notifications (2 retentions séparées mais pas besoin de faire 2 fois le meme taff)
+// [] Retention pour les telechargements
+// [] Telecharger le fichier torrent dans /tmp/ (pas besoin ?)
+// [] Virer les fichiers torrents a la fin du telechargement (ou telechargement echoué)
+// [] Gerer le cas ou il y a une authentification sur Transmission
+// [] Vérifier l'espace disque libre avant d'ajouter un torrent
+// [] Configuration check/Indexers/Torznab
+// [] Configuration check/Downloaders/Transmission
 // [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
 //      [] Charger poll_interval dans la conf
 //      [] Utiliser poll_interval comme intervalle de boucle
-// [] Verifier les indexers dans le check de la conf
 // [] Gérer les timeouts dans les requetes
-// [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
 // [] Pouvoir configurer un dossier destination
 // [] Faire des hook en fin de téléchargement (maj kodi, création d'un dossier dans un dossier destination prédéfini et copier le fichier dedans)
-// [] Faire une interface provider pour charger choisir un provider (et un seul ? sinon c'est chiant a gerer et ca sert a rien)
 // [] Tests unitaires (chiant)
 // [] Doc (aussi chiant)
 
@@ -21,10 +28,9 @@ package main
 
 import (
 	"fmt"
-	//"os"
 	flag "github.com/ogier/pflag"
 	"time"
-	//"io/ioutil"
+    "strconv"
 	"flemzerd/configuration"
 	log "flemzerd/logging"
 
@@ -36,6 +42,9 @@ import (
 
 	notifier "flemzerd/notifiers"
 	"flemzerd/notifiers/pushbullet"
+
+	downloader "flemzerd/downloaders"
+	"flemzerd/downloaders/transmission"
 )
 
 var config configuration.Configuration
@@ -59,7 +68,7 @@ func initProviders(config configuration.Configuration) {
 				newProvider.Init()
 				provider.AddProvider(newProvider)
 				log.WithFields(log.Fields{
-					"provider": newProvider,
+					"provider": providerType,
 				}).Info("Provider added to list of providers")
 			}
 			newProviders = []provider.Provider{}
@@ -97,6 +106,39 @@ func initIndexers(config configuration.Configuration) {
 
 func initDownloaders(config configuration.Configuration) {
 	log.Info("Initializing Downloaders")
+
+    var newDownloaders []downloader.Downloader
+    for name, downloaderObject := range config.Downloaders {
+        switch name {
+        case "transmission":
+            address := downloaderObject["address"]
+            port, _ := strconv.Atoi(downloaderObject["port"])
+            user, authNeeded := downloaderObject["user"]
+            password := downloaderObject["password"]
+            if !authNeeded {
+                user = ""
+                password = ""
+            }
+
+            transmissionDownloader := transmission.New(address, port, user, password)
+            newDownloaders = append(newDownloaders, transmissionDownloader)
+		default:
+			log.WithFields(log.Fields{
+				"downloaderType": name,
+			}).Warning("Unknown downloader type")
+        }
+
+		if len(newDownloaders) != 0 {
+			for _, newDownloader := range newDownloaders {
+                newDownloader.Init()
+				downloader.AddDownloader(newDownloader)
+                log.WithFields(log.Fields{
+                    "downloader": name,
+                }).Info("Downloader added to list of downloaders")
+			}
+			newDownloaders = []downloader.Downloader{}
+		}
+    }
 }
 
 func initNotifiers(config configuration.Configuration) {
@@ -110,8 +152,13 @@ func initNotifiers(config configuration.Configuration) {
 			notifier.AddNotifier(pushbulletNotifier)
 
 			log.WithFields(log.Fields{
-				"notifier": pushbulletNotifier,
+				"notifier": name,
 			}).Info("Notifier added to list of notifiers")
+
+		default:
+			log.WithFields(log.Fields{
+				"notifierType": name,
+			}).Warning("Unknown notifier type")
 		}
 	}
 }
@@ -177,13 +224,22 @@ func main() {
 	var showObjects []provider.Show
 
 	for _, show := range config.Shows {
+        showName := show
 		show, err := provider.FindShow(show)
 		if err != nil {
-			log.Warning(err)
+            log.WithFields(log.Fields{
+                "error": err,
+                "show": showName,
+            }).Warning("Unable to get show informations")
 		} else {
 			showObjects = append(showObjects, show)
 		}
 	}
+    if len(showObjects) == 0 {
+        log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
+    }
+
+    downloader.AddTorrent("test")
 
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)
@@ -195,7 +251,8 @@ func main() {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-				}).Warning("No recent episodes found for show")
+                    "show": show.Name,
+				}).Warning("No recent episodes found")
 				continue
 			}
 
