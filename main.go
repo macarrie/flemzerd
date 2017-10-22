@@ -1,28 +1,3 @@
-// TODO
-// [] Reduire les logs en mode normal
-// [] Faire une interface Downloaders et lancer un telechargement dessus (démon transmission pour commencer)
-// [] Retention pour les telechargements
-// [] Telecharger le fichier torrent dans /tmp/ (pas besoin ?)
-// [] Virer les fichiers torrents a la fin du telechargement (ou telechargement echoué)
-// [] Gerer le cas ou il y a une authentification sur Transmission
-// [] Vérifier l'espace disque libre avant d'ajouter un torrent
-// [] Configuration check/Indexers/Torznab
-// [] Configuration check/Downloaders/Transmission
-// [] Faire une boucle infinie pour regarder regulierement les nouveaux episodes et notifier si nouveaux resultats (poll_interval configurable)
-//      [] Charger poll_interval dans la conf
-//      [] Utiliser poll_interval comme intervalle de boucle
-// [] Gérer les timeouts dans les requetes
-// [] Pouvoir configurer un dossier destination
-// [] Faire des hook en fin de téléchargement (maj kodi, création d'un dossier dans un dossier destination prédéfini et copier le fichier dedans)
-// [] Tests unitaires (chiant)
-// [] Doc (aussi chiant)
-
-// TODO List de riche
-// [] Retention fichier des derniers episodes notifiés. Si le demon tombe, pas de nouvelle notif pour rien. Lire au démarrage et écrire a l'extinction
-// [] Script systemd pour transformer l'exec en démon et le gerer avec systemctl
-// [] Ajouter un autre notifier
-// [] Interface web pour voir vite fait ce qu'il se passe: nouveaux episodes, shows surveillés et telechargements en cours
-
 package main
 
 import (
