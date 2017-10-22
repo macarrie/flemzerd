@@ -1,12 +1,11 @@
 package transmission
 
 import (
-	"errors"
-	"fmt"
-	//log "flemzerd/logging"
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
