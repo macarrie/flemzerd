@@ -10,11 +10,11 @@ var customConfigFilePath string
 var customConfigFile bool
 
 type Configuration struct {
-	Providers map[string]map[string]string
-	Indexers  map[string][]map[string]string
-	Notifiers map[string]map[string]string
+	Providers   map[string]map[string]string
+	Indexers    map[string][]map[string]string
+	Notifiers   map[string]map[string]string
 	Downloaders map[string]map[string]string
-	Shows     []string
+	Shows       []string
 }
 
 func UseFile(filePath string) {

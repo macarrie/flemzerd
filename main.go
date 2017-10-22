@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	flag "github.com/ogier/pflag"
-	"time"
-    "strconv"
 	"flemzerd/configuration"
 	log "flemzerd/logging"
+	"fmt"
+	flag "github.com/ogier/pflag"
+	"strconv"
+	"time"
 
 	provider "flemzerd/providers"
 	"flemzerd/providers/tvdb"
@@ -81,38 +81,38 @@ func initIndexers(config configuration.Configuration) {
 func initDownloaders(config configuration.Configuration) {
 	log.Debug("Initializing Downloaders")
 
-    var newDownloaders []downloader.Downloader
-    for name, downloaderObject := range config.Downloaders {
-        switch name {
-        case "transmission":
-            address := downloaderObject["address"]
-            port, _ := strconv.Atoi(downloaderObject["port"])
-            user, authNeeded := downloaderObject["user"]
-            password := downloaderObject["password"]
-            if !authNeeded {
-                user = ""
-                password = ""
-            }
+	var newDownloaders []downloader.Downloader
+	for name, downloaderObject := range config.Downloaders {
+		switch name {
+		case "transmission":
+			address := downloaderObject["address"]
+			port, _ := strconv.Atoi(downloaderObject["port"])
+			user, authNeeded := downloaderObject["user"]
+			password := downloaderObject["password"]
+			if !authNeeded {
+				user = ""
+				password = ""
+			}
 
-            transmissionDownloader := transmission.New(address, port, user, password)
-            newDownloaders = append(newDownloaders, transmissionDownloader)
+			transmissionDownloader := transmission.New(address, port, user, password)
+			newDownloaders = append(newDownloaders, transmissionDownloader)
 		default:
 			log.WithFields(log.Fields{
 				"downloaderType": name,
 			}).Warning("Unknown downloader type")
-        }
+		}
 
 		if len(newDownloaders) != 0 {
 			for _, newDownloader := range newDownloaders {
-                newDownloader.Init()
+				newDownloader.Init()
 				downloader.AddDownloader(newDownloader)
-                log.WithFields(log.Fields{
-                    "downloader": name,
-                }).Info("Downloader added to list of downloaders")
+				log.WithFields(log.Fields{
+					"downloader": name,
+				}).Info("Downloader added to list of downloaders")
 			}
 			newDownloaders = []downloader.Downloader{}
 		}
-    }
+	}
 }
 
 func initNotifiers(config configuration.Configuration) {
@@ -198,22 +198,27 @@ func main() {
 	var showObjects []provider.Show
 
 	for _, show := range config.Shows {
-        showName := show
+		showName := show
 		show, err := provider.FindShow(show)
 		if err != nil {
-            log.WithFields(log.Fields{
-                "error": err,
-                "show": showName,
-            }).Warning("Unable to get show informations")
+			log.WithFields(log.Fields{
+				"error": err,
+				"show":  showName,
+			}).Warning("Unable to get show informations")
 		} else {
 			showObjects = append(showObjects, show)
 		}
 	}
-    if len(showObjects) == 0 {
-        log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
-    }
+	if len(showObjects) == 0 {
+		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
+	}
 
-    downloader.AddTorrent("test")
+	torrentErr := downloader.AddTorrent("http://localhost:9117/dl/kickasstorrent/?jackett_apikey=cigs498n8oqmtwqygegelo9hdgjd28ag&path=Wm5YUXk4bUFPdkkyQTJ2aFhSaEZlVnNIMmczc3VjdXdqZjR5dGd2R3hNVXR0ckhQdm9vWExWbnIyOXp5QXk2SGRDN3VIU00rN2s2cmN2YloraC9ZMVpRUldXRWoxeVcvbi9JYjVjRTN2N0JOc0g2c01RTHVYUjZIMnFQbXh5UTIxamVCR3UxOVpMZ0xwbXRMeWtCS3E0S2hGZDI1eTdpL1dicGJBaDhXbEZCc0toKzVwR3VsczRHUlg3NEU2UFdzOHVPcmxLOHg4eUtxQ2wzd2dXdU9MNkIydGc2RVpvcXdrMlBaaE1kKzQ2RHR6U0RYVDRHOVlZazNRbFVsNXpTaC9pZVorNitkcTJxODg5L2w2MkNOajEzSXRXbVpFMmNkNk9oeUF3RUdhajhONVJjV2RTODcrTThOUGFPQk5kVVdGQXg3ZEE5SmNxNitiejF6d1hHcGpkMzJqcWVqTWFFR0lFZ0xpZ3gvRXdrPQ2&file=Brooklyn+Nine-Nine+S05E02+The+Big+House+2+1080p+AMZN+WEB-DL+DD%2B5.1+H+264-ViSUM.torrent")
+	if torrentErr != nil {
+		log.Debug("Add torrent error: ", torrentErr)
+	} else {
+		log.Debug("Torrent added")
+	}
 
 	log.Debug("Starting polling loop")
 	loopTicker := time.NewTicker(15 * time.Second)
@@ -225,12 +230,11 @@ func main() {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-                    "show": show.Name,
+					"show":  show.Name,
 				}).Warning("No recent episodes found")
 				continue
 			}
 
-			//log.Debug("Recent episodes: ", recentEpisod)
 			for _, recentEpisode := range recentEpisodes {
 				NotifyRecentEpisode(show, recentEpisode)
 
