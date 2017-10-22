@@ -1,0 +1,8 @@
+### Go
+# Test binary, build with `go test -c`
+*.test
+flemzerd
+
+### Intellij IDEA
+.idea/
+*.iml
