@@ -1,0 +1,28 @@
+providers:
+    tvdb:
+        apikey: API_KEY
+
+notifiers:
+    pushbullet:
+        accessToken: ACCESS_TOKEN
+
+indexers:
+    torznab:
+        - name: Indexer 1
+          url: http://first-indexer:8080/torznab
+          apikey: API_KEY
+        - name: Indexer 2
+          url: http://second-indexer:9164/url/to/torznab/endpoint
+          apikey: API_KEY
+
+downloaders:
+    transmission:
+        address: localhost
+        port: 9091
+        user: USERNAME
+        password: PASSWORD
+
+shows:
+    - TV_SHOW_1
+    - TV_SHOW_2
+    - TV_SHOW_3
