@@ -65,7 +65,7 @@ func Load() (Configuration, error) {
 	if customConfigFile {
 		viper.SetConfigFile(customConfigFilePath)
 	} else {
-		viper.SetConfigName("config")
+		viper.SetConfigName("flemzerd")
 		viper.AddConfigPath(".")
 	}
 
