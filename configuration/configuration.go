@@ -37,11 +37,9 @@ func Check(config Configuration) error {
 	_, tvdb := config.Providers["tvdb"]
 	if tvdb {
 		_, tvdbapikey := config.Providers["tvdb"]["apikey"]
-		_, tvdbusername := config.Providers["tvdb"]["username"]
-		_, tvdbuserkey := config.Providers["tvdb"]["userkey"]
 
-		if !tvdbapikey || !tvdbusername || !tvdbuserkey {
-			return errors.New("Missing keys for tvdb provider (apikey, username and userkey required)")
+		if !tvdbapikey {
+			return errors.New("Missing key(s)for tvdb provider (apikey required)")
 		}
 	}
 

@@ -30,7 +30,8 @@ func initProviders(config configuration.Configuration) {
 	for providerType, providerElt := range config.Providers {
 		switch providerType {
 		case "tvdb":
-			newProviders = append(newProviders, tvdb.New(providerElt["apikey"], providerElt["username"], providerElt["userkey"]))
+			np, _ := tvdb.New(providerElt["apikey"])
+			newProviders = append(newProviders, np)
 		default:
 			log.WithFields(log.Fields{
 				"providerType": providerType,
@@ -39,7 +40,6 @@ func initProviders(config configuration.Configuration) {
 
 		if len(newProviders) != 0 {
 			for _, newProvider := range newProviders {
-				newProvider.Init()
 				provider.AddProvider(newProvider)
 				log.WithFields(log.Fields{
 					"provider": providerType,
@@ -194,7 +194,7 @@ func main() {
 	initIndexers(config)
 	initDownloaders(config)
 
-	// Load configuration objects
+	//	 Load configuration objects
 	var showObjects []provider.Show
 
 	for _, show := range config.Shows {

@@ -6,35 +6,16 @@ import (
 
 type MockProvider struct{}
 
-func (p MockProvider) Init() error {
-	return nil
-}
-
-func (p MockProvider) FindShow(query string) (Show, error) {
+func (p MockProvider) GetShow(tvShowName string) (Show, error) {
 	return Show{}, nil
 }
-
-func (p MockProvider) GetShow(id int) (Show, error) {
-	return Show{}, nil
-}
-
-func (p MockProvider) GetEpisodes(show Show) ([]Episode, error) {
+func (p MockProvider) GetEpisodes(tvShow Show) ([]Episode, error) {
 	return []Episode{}, nil
 }
-
-func (p MockProvider) FindNextAiredEpisodes(episodeList []Episode) ([]Episode, error) {
+func (p MockProvider) GetNextEpisodes(tvShow Show) ([]Episode, error) {
 	return []Episode{}, nil
 }
-
-func (p MockProvider) FindNextEpisodesForShow(show Show) ([]Episode, error) {
-	return []Episode{}, nil
-}
-
-func (p MockProvider) FindRecentlyAiredEpisodes(episodeList []Episode) ([]Episode, error) {
-	return []Episode{}, nil
-}
-
-func (p MockProvider) FindRecentlyAiredEpisodesForShow(show Show) ([]Episode, error) {
+func (p MockProvider) GetRecentlyAiredEpisodes(tvShow Show) ([]Episode, error) {
 	return []Episode{}, nil
 }
 

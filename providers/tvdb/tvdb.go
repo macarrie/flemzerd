@@ -1,390 +1,250 @@
 package tvdb
 
 import (
-	"bytes"
-	"crypto/tls"
-	"encoding/json"
 	"errors"
-	"fmt"
 	log "github.com/macarrie/flemzerd/logging"
 	provider "github.com/macarrie/flemzerd/providers"
-	"io/ioutil"
-	"net/http"
+	"github.com/pioz/tvdb"
 	"net/url"
-	"sort"
-	"strconv"
 	"time"
 )
 
-///////////////
-// Constants //
-///////////////
-
-const baseURL = "https://api.thetvdb.com/"
-
-/////////////////////////////////
-// API Structures declarations //
-/////////////////////////////////
-
 type TVDBProvider struct {
-	ApiKey   string
-	Username string
-	UserKey  string
-	Token    string
+	Client tvdb.Client
 }
 
-type Token struct {
-	Token string `json:"token"`
-}
-
-type TVDBShow struct {
-	Aliases    []string `json:"aliases"`
-	Banner     string   `json:"banner"`
-	FirstAired string   `json:"firstAired"`
-	Id         int      `json:"id"`
-	Network    string   `json:"network"`
-	Overview   string   `json:"overview"`
-	SeriesName string   `json:"seriesName"`
-	Status     string   `json:"status"`
-}
-
-type TVDBEpisode struct {
-	AbsoluteNumber     int `json:"absoluteNumber"`
-	AiredEpisodeNumber int `json:"airedEpisodeNumber"`
-	AiredSeason        int `json:"airedSeason"`
-	//DvdEpisodeNumber    int         `json:"dvdEpisodeNumber"`
-	//DvdSeason           int         `json:"dvdSeason"`
-	EpisodeName string `json:"episodeName"`
-	FirstAired  string `json:"firstAired"`
-	Id          int    `json:"id"`
-	LastUpdated int    `json:"lastUpdated"`
-	Overview    string `json:"overview"`
-}
-
-type ShowsSearchResults struct {
-	Results []TVDBShow `json:"data"`
-}
-
-type ShowSearchResult struct {
-	//data interface{} `json:"data"`
-	Result TVDBShow `json:"data"`
-}
-
-type EpisodesSearchResults struct {
-	Results []TVDBEpisode `json:"data"`
-	Pages   struct {
-		First int `json:"first"`
-		Last  int `json:"last"`
-	} `json:"links"`
-}
-
-//////////////////
-// Package vars //
-//////////////////
-
-var APIToken Token
-
-func convertShow(s TVDBShow) provider.Show {
-	return provider.Show{
-		Aliases:    s.Aliases,
-		Banner:     s.Banner,
-		FirstAired: s.FirstAired,
-		Id:         s.Id,
-		Overview:   s.Overview,
-		Name:       s.SeriesName,
-		Status:     s.Status,
-	}
-}
-
-func convertEpisode(e TVDBEpisode) provider.Episode {
-	return provider.Episode{
-		AbsoluteNumber: e.AbsoluteNumber,
-		Number:         e.AiredEpisodeNumber,
-		Season:         e.AiredSeason,
-		Name:           e.EpisodeName,
-		Date:           e.FirstAired,
-		Id:             e.Id,
-		Overview:       e.Overview,
-	}
-}
-
-func performAPIRequest(method string, path string, paramsMap map[string]string) (http.Response, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	httpClient := &http.Client{Transport: tr}
-
-	urlObject, _ := url.ParseRequestURI(baseURL)
-	urlObject.Path = path
-
-	var request *http.Request
-	var err error
-
-	if method == "GET" {
-		params := url.Values{}
-		for key, value := range paramsMap {
-			params.Add(key, value)
-		}
-		urlObject.RawQuery = params.Encode()
-
-		request, err = http.NewRequest(method, urlObject.String(), nil)
-		if err != nil {
-			return http.Response{}, err
-		}
-	} else if method == "POST" {
-		jsonParams, _ := json.Marshal(paramsMap)
-
-		request, err = http.NewRequest(method, urlObject.String(), bytes.NewReader(jsonParams))
-		if err != nil {
-			return http.Response{}, err
-		}
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", APIToken.Token))
-
-	response, err := httpClient.Do(request)
+// Create new instance of the TVDB info provider
+func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
+	client := tvdb.Client{Apikey: apiKey}
+	//clientPointer := &tvdbProvider.Client
+	err = client.Login()
+	//tvdbProvider.Client = *clientPointer
+	log.WithFields(log.Fields{
+		"provider": "THE TVDB",
+	}).Debug("Checking connection to TheTVDB")
 	if err != nil {
-		return http.Response{}, err
+		if tvdb.HaveCodeError(401, err) {
+			log.Error("Can not connect to thetvdb (API key not valid). Please check your API key and try again")
+		} else {
+			log.WithFields(log.Fields{
+				"details":  err,
+				"provider": "THE TVDB",
+			}).Error("Can not connect to thetvdb")
+		}
+		return TVDBProvider{}, err
+	} else {
+		log.Debug("Connection to TheTVDB successful")
+		return TVDBProvider{Client: client}, nil
+	}
+}
+
+// Get show from name
+func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (provider.Show, error) {
+	log.WithFields(log.Fields{
+		"name":     tvShowName,
+		"provider": "THE TVDB",
+	}).Debug("Searching show")
+
+	tvShow, err := tvdbProvider.Client.BestSearch(tvShowName)
+	if err != nil {
+		return provider.Show{}, handleTvShowNotFoundError(tvShowName, err)
+	} else {
+		log.WithFields(log.Fields{
+			"name":     tvShow.SeriesName,
+			"TVDB-ID":  tvShow.ID,
+			"provider": "THE TVDB",
+		}).Debug("TV show found")
+		return convertShow(tvShow), nil
+
+	}
+}
+
+// Get list of episodes of a given show
+func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+	log.WithFields(log.Fields{
+		"id":       tvShow.Id,
+		"name":     tvShow.Name,
+		"provider": "THE TVDB",
+	}).Debug("Retrieving episodes list for a tv show")
+
+	tvShowSearchResult, err := tvdbProvider.Client.BestSearch(tvShow.Name)
+	if err != nil {
+		return []provider.Episode{}, handleTvShowNotFoundError(tvShow.Name, err)
+	} else {
+		err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{})
+		if err != nil {
+			log.WithFields(log.Fields{
+				"TV-show-name": tvShow.Name,
+				"id":           tvShow.Id,
+				"provider":     "THE TVDB",
+			}).Warn("Can not retrieve episodes of tv show")
+			return []provider.Episode{}, err
+		} else {
+			log.WithFields(log.Fields{
+				"name":       tvShow.Name,
+				"tv show id": tvShow.Id,
+				"provider":   "THE TVDB",
+			}).Debug("Episodes found")
+
+			var retVal []provider.Episode
+			for _, episode := range tvShowSearchResult.Episodes {
+				retVal = append(retVal, convertEpisode(episode))
+
+			}
+			return retVal, nil
+		}
+	}
+}
+
+// Get all episodes of a tv show that haven't been aired yet for a given show
+func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+	episodes, err := tvdbProvider.GetEpisodes(tvShow)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"TV-show-name": tvShow.Name,
+			"id":           tvShow.Id,
+			"provider":     "THE TVDB",
+		}).Warn("Can not get next aired episodes of the tv show")
+		return []provider.Episode{}, err
+	} else {
+		log.WithFields(log.Fields{
+			"TV-show-name": tvShow.Name,
+			"id":           tvShow.Id,
+			"provider":     "THE TVDB",
+		}).Debug("Getting list of episodes that haven't be aired yet")
+		now := time.Now()
+		futureEpisodes := filterEpisodesAiredBetweenDates(episodes, &now, nil)
+
+		log.WithFields(log.Fields{
+			"TV-show-name":   tvShow.Name,
+			"id":             tvShow.Id,
+			"nb of episodes": len(futureEpisodes),
+			"provider":       "THE TVDB",
+		}).Debug("Successfully filtered list of episodes that haven't be aired yet")
+		return futureEpisodes, nil
+	}
+}
+
+// Get list of episodes of a show aired less than provider.RECENTLY_AIRED_EPISODES_INTERVAL days ago
+func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+	episodes, err := tvdbProvider.GetEpisodes(tvShow)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"TV-show-name": tvShow.Name,
+			"id":           tvShow.Id,
+			"provider":     "THE TVDB",
+		}).Warn("Can not get recently aired episodes of the tv show")
+		return []provider.Episode{}, err
+	} else {
+		log.WithFields(log.Fields{
+			"TV-show-name": tvShow.Name,
+			"id":           tvShow.Id,
+			"provider":     "THE TVDB",
+		}).Debug("Getting list of episodes that haven recently been aired")
+
+		// Current date minus RECENTLY_AIRED_EPISODES_INTERVAL days
+		oldestDate := time.Now().AddDate(0, 0, -provider.RECENTLY_AIRED_EPISODES_INTERVAL)
+		now := time.Now()
+		recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
+
+		log.WithFields(log.Fields{
+			"TV-show-name":   tvShow.Name,
+			"id":             tvShow.Id,
+			"nb of episodes": len(recentlyAiredEpisodes),
+			"provider":       "THE TVDB",
+		}).Debug("Successfully filtered list of episodes that have been recently aired")
+		return recentlyAiredEpisodes, nil
+	}
+}
+
+func filterEpisodesAiredBetweenDates(episodes []provider.Episode, beginning *time.Time, end *time.Time) []provider.Episode {
+	// Set beginning date to zero time if beginning date is nil
+	if beginning == nil {
+		*beginning = time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
+	}
+	// Set end date to year 100,000 if end date is nil
+	if end == nil {
+		*end = time.Date(100000, time.January, 1, 0, 0, 0, 0, time.UTC)
 	}
 
-	return *response, nil
+	log.WithFields(log.Fields{
+		"start-date": beginning,
+		"end-date":   end,
+	}).Debug("Filtering episodes list by airing date")
+	var retVal []provider.Episode
+	for _, episode := range episodes {
+		episodeAirDate, err := time.Parse("2006-01-02", episode.Date)
+		if err != nil {
+			if episode.Date == "" {
+				log.WithFields(log.Fields{
+					"episode-name": episode.Name,
+					"episode-id":   episode.Id,
+				}).Debug("Episode does not have a date registered in the provider database. Episode not filtered out")
+				retVal = append(retVal, episode)
+			} else {
+				log.WithFields(log.Fields{
+					"date":       episode.Date,
+					"episode-id": episode.Id,
+				}).Error("Can not parse episode air date. Omitting this episode in episodes filtering by airing date")
+			}
+		} else {
+			if episodeAirDate.After(*beginning) && episodeAirDate.Before(*end) {
+				retVal = append(retVal, episode)
+			}
+		}
+	}
+	log.WithFields(log.Fields{
+		"start date":     beginning,
+		"end date":       end,
+		"nb of episodes": len(retVal),
+	}).Debug("Successfully filtered episodes list by airing date")
+	return retVal
 }
 
-func New(apiKey string, username string, userKey string) TVDBProvider {
-	return TVDBProvider{ApiKey: apiKey, Username: username, UserKey: userKey}
-}
-
-func (tvdbProvider TVDBProvider) Init() error {
-	log.Debug("Beginning authentication process to thetvdb API")
-
-	params := map[string]string{"apikey": tvdbProvider.ApiKey, "username": tvdbProvider.Username, "userkey": tvdbProvider.UserKey}
-	response, err := performAPIRequest("POST", "login", params)
-	if err != nil {
+func handleTvShowNotFoundError(tvShowName string, err error) error {
+	if tvdb.HaveCodeError(404, err) {
+		// The request response is a 404: this means no results have been found
+		log.WithFields(log.Fields{
+			"TV-show-name": tvShowName,
+			"provider":     "THE TVDB",
+		}).Warn("TV show not found")
+		return errors.New("TV show '" + tvShowName + "' not found")
+	} else if tvdb.HaveCodeError(401, err) {
+		// The request response is a 401: Authentication failure
+		log.WithFields(log.Fields{
+			"provider": "THE TVDB",
+		}).Warn("Could not connect to provider, authentication failed for unkonwn reasons")
+		return err
+	} else {
+		log.WithFields(log.Fields{
+			"provider": "THE TVDB",
+		}).Error("Unknown error encountered while getting show information from The TVDB")
 		return err
 	}
+}
 
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		return errors.New(fmt.Sprintf("API Response read: %v", readError))
-	}
-
-	parseErr := json.Unmarshal(body, &APIToken)
-	if parseErr != nil {
-		return parseErr
-	} else {
-		log.Debug("Authentication successful")
-		return nil
+// Convert a github.com/pioz/tvdb series object to flemzerd tvShow object
+func convertShow(tvShow tvdb.Series) provider.Show {
+	return provider.Show{
+		Aliases:    tvShow.Aliases,
+		Banner:     tvShow.Banner,
+		FirstAired: tvShow.FirstAired,
+		Id:         tvShow.ID,
+		Overview:   tvShow.Overview,
+		Name:       tvShow.SeriesName,
+		Status:     tvShow.Status,
 	}
 }
 
-func (tvdbProvider TVDBProvider) FindShow(query string) (provider.Show, error) {
-	log.WithFields(log.Fields{
-		"name": query,
-	}).Debug("Searching show")
-	params := map[string]string{"name": query}
-	response, err := performAPIRequest("GET", "search/series", params)
-	if err != nil {
-		return provider.Show{}, err
+// Convert a github.com/pioz/tvdb episode object to flemzerd episode object
+func convertEpisode(episode tvdb.Episode) provider.Episode {
+	return provider.Episode{
+		AbsoluteNumber: episode.AbsoluteNumber,
+		Number:         episode.AiredEpisodeNumber,
+		Season:         episode.AiredSeason,
+		Name:           episode.EpisodeName,
+		Date:           episode.FirstAired,
+		Id:             episode.ID,
+		Overview:       episode.Overview,
 	}
-
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-	}
-
-	var searchResults ShowsSearchResults
-	parseErr := json.Unmarshal(body, &searchResults)
-	if parseErr != nil {
-		return provider.Show{}, errors.New("Cannot find show")
-	} else {
-		if len(searchResults.Results) == 0 {
-			return provider.Show{}, errors.New("No show foun")
-		}
-		showID := searchResults.Results[0].Id
-
-		log.WithFields(log.Fields{
-			"Id":   showID,
-			"name": query,
-		}).Debug("Found ID for show")
-
-		return tvdbProvider.GetShow(showID)
-	}
-}
-
-func (tvdbProvider TVDBProvider) GetShow(id int) (provider.Show, error) {
-	log.WithFields(log.Fields{
-		"Id": id,
-	}).Debug("Retrieving info for show")
-
-	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d", id), nil)
-	if err != nil {
-		return provider.Show{}, err
-	}
-
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		return provider.Show{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-	}
-
-	var searchResults ShowSearchResult
-	parseErr := json.Unmarshal(body, &searchResults)
-	if parseErr != nil {
-		return provider.Show{}, parseErr
-	} else {
-		show := searchResults.Result
-
-		return convertShow(show), nil
-	}
-}
-
-func (tvdbProvider TVDBProvider) getEpisodesByPage(show provider.Show, page int) (EpisodesSearchResults, error) {
-	params := map[string]string{"page": strconv.Itoa(page)}
-	response, err := performAPIRequest("GET", fmt.Sprintf("series/%d/episodes/query", show.Id), params)
-	if err != nil {
-		return EpisodesSearchResults{}, err
-	}
-
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		return EpisodesSearchResults{}, errors.New(fmt.Sprintf("API Response read: %v", readError))
-	}
-
-	var searchResults EpisodesSearchResults
-	parseErr := json.Unmarshal(body, &searchResults)
-	if parseErr != nil {
-		return EpisodesSearchResults{}, parseErr
-	} else {
-		return searchResults, nil
-	}
-}
-
-func (tvdbProvider TVDBProvider) GetEpisodes(show provider.Show) ([]provider.Episode, error) {
-	log.WithFields(log.Fields{
-		"Id":   show.Id,
-		"name": show.Name,
-	}).Debug("Retrieving epîsodes for show")
-
-	episodesSearchResults, err := tvdbProvider.getEpisodesByPage(show, 1)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Error": err,
-		}).Warning("Failed to retrieve episodes")
-		return []provider.Episode{}, nil
-	}
-
-	var tvdbEpisodesList []TVDBEpisode
-
-	if episodesSearchResults.Pages.Last > 1 {
-		tvdbEpisodesList = episodesSearchResults.Results
-		for i := 2; i <= episodesSearchResults.Pages.Last; i++ {
-			episodesPage, err := tvdbProvider.getEpisodesByPage(show, i)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"Error": err,
-				}).Warning("Failed to retrieve episodes")
-				return []provider.Episode{}, nil
-			}
-			tvdbEpisodesList = append(tvdbEpisodesList, episodesPage.Results...)
-		}
-	} else {
-		tvdbEpisodesList = episodesSearchResults.Results
-	}
-
-	sort.Slice(tvdbEpisodesList[:], func(i, j int) bool {
-		return tvdbEpisodesList[i].AbsoluteNumber > tvdbEpisodesList[j].AbsoluteNumber
-	})
-
-	var episodesList []provider.Episode
-	for _, e := range tvdbEpisodesList {
-		episodesList = append(episodesList, convertEpisode(e))
-	}
-
-	return episodesList, nil
-}
-
-func (tvdbProvider TVDBProvider) FindNextAiredEpisodes(episodeList []provider.Episode) ([]provider.Episode, error) {
-	log.Debug("Looking for next episode in given episodes list")
-
-	sort.Slice(episodeList[:], func(i, j int) bool {
-		return episodeList[i].Date < episodeList[j].Date
-	})
-
-	var futureEpisodes []provider.Episode
-	for _, episode := range episodeList {
-		airDate, err := time.Parse("2006-01-02", episode.Date)
-		if err != nil {
-			continue
-		}
-
-		if airDate.After(time.Now()) {
-			futureEpisodes = append(futureEpisodes, episode)
-		}
-	}
-
-	if len(futureEpisodes) == 0 {
-		return []provider.Episode{}, errors.New("All episodes in episode list have already aired")
-	}
-
-	return futureEpisodes, nil
-}
-
-func (tvdbProvider TVDBProvider) FindNextEpisodesForShow(show provider.Show) ([]provider.Episode, error) {
-	episodes, err := tvdbProvider.GetEpisodes(show)
-	if err != nil {
-		return []provider.Episode{}, err
-	}
-
-	nextEpisodes, err := tvdbProvider.FindNextAiredEpisodes(episodes)
-	if err != nil {
-		return []provider.Episode{}, err
-	}
-
-	return nextEpisodes, nil
-}
-
-func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodes(episodeList []provider.Episode) ([]provider.Episode, error) {
-	log.Debug("Looking for recent episode in given episodes list")
-
-	sort.Slice(episodeList[:], func(i, j int) bool {
-		return episodeList[i].Date < episodeList[j].Date
-	})
-
-	var recentEpisodes []provider.Episode
-	for _, episode := range episodeList {
-		airDate, err := time.Parse("2006-01-02", episode.Date)
-		if err != nil {
-			continue
-		}
-
-		if airDate.Before(time.Now()) && airDate.After(time.Now().AddDate(0, 0, -14)) {
-			episodeLogString := fmt.Sprintf("S%03dE%03d: %v", episode.Season, episode.Number, episode.Name)
-			log.WithFields(log.Fields{
-				"airDate": airDate,
-				"episode": episodeLogString,
-			}).Debug("Found recent episode")
-
-			recentEpisodes = append(recentEpisodes, episode)
-		}
-	}
-
-	if len(recentEpisodes) == 0 {
-		return []provider.Episode{}, errors.New("No recent episodes in episodes list")
-	}
-
-	return recentEpisodes, nil
-}
-
-func (tvdbProvider TVDBProvider) FindRecentlyAiredEpisodesForShow(show provider.Show) ([]provider.Episode, error) {
-	episodes, err := tvdbProvider.GetEpisodes(show)
-	if err != nil {
-		return []provider.Episode{}, err
-	}
-
-	nextEpisodes, err := tvdbProvider.FindRecentlyAiredEpisodes(episodes)
-	if err != nil {
-		return []provider.Episode{}, err
-	}
-
-	return nextEpisodes, nil
 }

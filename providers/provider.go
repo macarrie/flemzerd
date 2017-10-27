@@ -4,6 +4,8 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 )
 
+const RECENTLY_AIRED_EPISODES_INTERVAL = 14
+
 type Show struct {
 	Aliases    []string
 	Banner     string
@@ -26,29 +28,23 @@ type Episode struct {
 }
 
 type Provider interface {
-	Init() error
-	FindShow(query string) (Show, error)
-	GetShow(id int) (Show, error)
-	GetEpisodes(show Show) ([]Episode, error)
-	FindNextAiredEpisodes(episodeList []Episode) ([]Episode, error)
-	FindNextEpisodesForShow(show Show) ([]Episode, error)
-	FindRecentlyAiredEpisodes(episodeList []Episode) ([]Episode, error)
-	FindRecentlyAiredEpisodesForShow(show Show) ([]Episode, error)
+	GetShow(tvShowName string) (Show, error)
+	GetEpisodes(tvShow Show) ([]Episode, error)
+	GetNextEpisodes(tvShow Show) ([]Episode, error)
+	GetRecentlyAiredEpisodes(tvShow Show) ([]Episode, error)
 }
 
 var providers []Provider
 
 func AddProvider(provider Provider) {
 	providers = append(providers, provider)
-	log.WithFields(log.Fields{
-		"provider": provider,
-	}).Debug("Provider loaded")
+	log.Debug("The TVDB provider loaded")
 }
 
 func FindShow(query string) (Show, error) {
-	return providers[0].FindShow(query)
+	return providers[0].GetShow(query)
 }
 
 func FindRecentlyAiredEpisodesForShow(show Show) ([]Episode, error) {
-	return providers[0].FindRecentlyAiredEpisodesForShow(show)
+	return providers[0].GetRecentlyAiredEpisodes(show)
 }
