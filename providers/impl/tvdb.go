@@ -3,11 +3,11 @@ package impl
 import (
 	"errors"
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
 	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/pioz/tvdb"
 	"net/url"
 	"time"
-	. "github.com/macarrie/flemzerd/objects"
 )
 
 type TVDBProvider struct {

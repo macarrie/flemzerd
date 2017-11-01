@@ -9,4 +9,3 @@ type Episode struct {
 	Id             int
 	Overview       string
 }
-
