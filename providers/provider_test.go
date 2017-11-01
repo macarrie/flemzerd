@@ -1,5 +1,7 @@
 package provider
 
+import . "github.com/macarrie/flemzerd/objects"
+
 type MockProvider struct{}
 
 func (p MockProvider) GetShow(tvShowName string) (TvShow, error) {
