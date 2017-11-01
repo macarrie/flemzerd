@@ -1,7 +1,7 @@
 package downloader
 
 import (
-//log "github.com/macarrie/flemzerd/logging"
+	"errors"
 )
 
 var downloaders []Downloader
@@ -16,6 +16,10 @@ func AddDownloader(d Downloader) {
 }
 
 func AddTorrent(url string) error {
+	if len(downloaders) == 0 {
+		return errors.New("Cannot add torrents, no downloaders are configured")
+	}
+
 	err := downloaders[0].AddTorrent(url)
 	return err
 }
