@@ -1,4 +1,4 @@
-package tvdb
+package impl
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"github.com/pioz/tvdb"
 	"net/url"
 	"time"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 type TVDBProvider struct {
@@ -16,9 +17,7 @@ type TVDBProvider struct {
 // Create new instance of the TVDB info provider
 func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 	client := tvdb.Client{Apikey: apiKey}
-	//clientPointer := &tvdbProvider.Client
 	err = client.Login()
-	//tvdbProvider.Client = *clientPointer
 	log.WithFields(log.Fields{
 		"provider": "THE TVDB",
 	}).Debug("Checking connection to TheTVDB")
@@ -39,7 +38,7 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 }
 
 // Get show from name
-func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (provider.Show, error) {
+func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 	log.WithFields(log.Fields{
 		"name":     tvShowName,
 		"provider": "THE TVDB",
@@ -47,7 +46,7 @@ func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (provider.Show, erro
 
 	tvShow, err := tvdbProvider.Client.BestSearch(tvShowName)
 	if err != nil {
-		return provider.Show{}, handleTvShowNotFoundError(tvShowName, err)
+		return TvShow{}, handleTvShowNotFoundError(tvShowName, err)
 	} else {
 		log.WithFields(log.Fields{
 			"name":     tvShow.SeriesName,
@@ -60,7 +59,7 @@ func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (provider.Show, erro
 }
 
 // Get list of episodes of a given show
-func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+func (tvdbProvider TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 	log.WithFields(log.Fields{
 		"id":       tvShow.Id,
 		"name":     tvShow.Name,
@@ -69,7 +68,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.E
 
 	tvShowSearchResult, err := tvdbProvider.Client.BestSearch(tvShow.Name)
 	if err != nil {
-		return []provider.Episode{}, handleTvShowNotFoundError(tvShow.Name, err)
+		return []Episode{}, handleTvShowNotFoundError(tvShow.Name, err)
 	} else {
 		err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{})
 		if err != nil {
@@ -78,7 +77,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.E
 				"id":           tvShow.Id,
 				"provider":     "THE TVDB",
 			}).Warn("Can not retrieve episodes of tv show")
-			return []provider.Episode{}, err
+			return []Episode{}, err
 		} else {
 			log.WithFields(log.Fields{
 				"name":       tvShow.Name,
@@ -86,7 +85,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.E
 				"provider":   "THE TVDB",
 			}).Debug("Episodes found")
 
-			var retVal []provider.Episode
+			var retVal []Episode
 			for _, episode := range tvShowSearchResult.Episodes {
 				retVal = append(retVal, convertEpisode(episode))
 
@@ -97,7 +96,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow provider.Show) ([]provider.E
 }
 
 // Get all episodes of a tv show that haven't been aired yet for a given show
-func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -105,7 +104,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow provider.Show) ([]provid
 			"id":           tvShow.Id,
 			"provider":     "THE TVDB",
 		}).Warn("Can not get next aired episodes of the tv show")
-		return []provider.Episode{}, err
+		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{
 			"TV-show-name": tvShow.Name,
@@ -126,7 +125,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow provider.Show) ([]provid
 }
 
 // Get list of episodes of a show aired less than provider.RECENTLY_AIRED_EPISODES_INTERVAL days ago
-func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow provider.Show) ([]provider.Episode, error) {
+func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -134,7 +133,7 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow provider.Show) 
 			"id":           tvShow.Id,
 			"provider":     "THE TVDB",
 		}).Warn("Can not get recently aired episodes of the tv show")
-		return []provider.Episode{}, err
+		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{
 			"TV-show-name": tvShow.Name,
@@ -157,7 +156,7 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow provider.Show) 
 	}
 }
 
-func filterEpisodesAiredBetweenDates(episodes []provider.Episode, beginning *time.Time, end *time.Time) []provider.Episode {
+func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {
 	// Set beginning date to zero time if beginning date is nil
 	if beginning == nil {
 		*beginning = time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -171,7 +170,7 @@ func filterEpisodesAiredBetweenDates(episodes []provider.Episode, beginning *tim
 		"start-date": beginning,
 		"end-date":   end,
 	}).Debug("Filtering episodes list by airing date")
-	var retVal []provider.Episode
+	var retVal []Episode
 	for _, episode := range episodes {
 		episodeAirDate, err := time.Parse("2006-01-02", episode.Date)
 		if err != nil {
@@ -224,8 +223,8 @@ func handleTvShowNotFoundError(tvShowName string, err error) error {
 }
 
 // Convert a github.com/pioz/tvdb series object to flemzerd tvShow object
-func convertShow(tvShow tvdb.Series) provider.Show {
-	return provider.Show{
+func convertShow(tvShow tvdb.Series) TvShow {
+	return TvShow{
 		Aliases:    tvShow.Aliases,
 		Banner:     tvShow.Banner,
 		FirstAired: tvShow.FirstAired,
@@ -237,8 +236,8 @@ func convertShow(tvShow tvdb.Series) provider.Show {
 }
 
 // Convert a github.com/pioz/tvdb episode object to flemzerd episode object
-func convertEpisode(episode tvdb.Episode) provider.Episode {
-	return provider.Episode{
+func convertEpisode(episode tvdb.Episode) Episode {
+	return Episode{
 		AbsoluteNumber: episode.AbsoluteNumber,
 		Number:         episode.AiredEpisodeNumber,
 		Season:         episode.AiredSeason,
