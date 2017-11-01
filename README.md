@@ -3,15 +3,31 @@
 Flemzerd is an automation tool (like a very lightweight Sonarr) for handling TV Shows.
 It watches your tv shows for new episodes, downloads them in the client of your choices, and updates your media center library if needed.
 
-# Current status
+## Current status
 
 Flemzerd is still under heavy developpement. It is absolutely not ready for use yet.
 
-# What is it ?
+## What is it ?
 
-TODO
+Flemzerd is a daemon intended to track and handle your tv show library. We are often doing the same thing by hand: 
+* Look regularly for new episodes
+* Once an episode is available, look for a way to download it
+* Launch download in your download client and wait for the download to end
+* Move the episode wherever you store your media and manually update your media center (refresh Kodi library for example)
 
-# Setup
+Flemzerd is intended to automate these tasks.
+
+### Anatomy
+
+Flemzerd works by scheduling tasks between 4 different modules
+* **Providers**: Retrieves informations about shows and episodes (Show informations, seasons and episodes details and air dates for episodes). Providers use external services, such as thetvdb, trakt or imdb for example.
+* **Indexers**: Indexers looks for and provide torrent links for an episode. Once a new episode is found, flemzerd asks indexers to find a corresponding torrent.
+* **Downloaders**: Downloaders are responsible to download torrents provided by the indexer
+* **Notifiers**: Notifiers are responsible for alerting the user when an action is done by flemzerd. Notifications can occur when a new episode is found, has been downloaded, or when an error occurs in the episode processing chain.
+
+Each module must be configured in the configuration file for the daemon to work fully.
+
+## Setup
 
 The only way to get flemzerd yet is to build it for the sources.
 For this, you will need to have go 1.9 installed and $HOME/go/bin in your PATH
@@ -31,7 +47,7 @@ dep ensure
 go install
 ```
 
-# Usage
+## Usage
 
 ```
 Usage of flemzerd:
@@ -40,7 +56,8 @@ Usage of flemzerd:
     -d, --debug=false: Start in debug mode
 ```
 
-# Configuration
+## Configuration
 
 A sample configuration file is present in the repo (flemzerd.yaml).
-TODO: Explanation on what to put in the configuration file and available paths
+This file is written in a yaml format and is hopefully self-explanatory enough. It contains sections about each module type (providers, notifiers, indexers, downloaders) that have to filled to enable corresponding modules.
+Also, the shows sections must contain a list to shows to watch.
