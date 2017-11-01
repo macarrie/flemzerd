@@ -51,8 +51,7 @@ func NotifyRecentEpisode(episodeId int, title string, content string) error {
 	}
 
 	if alreadyNotified {
-		log.Info("Notifications already sent for episode. Nothing to do")
-		return nil
+		return errors.New("Notifications already sent for episode. Nothing to do")
 	} else {
 		err := SendNotification(title, content)
 		if err != nil {
