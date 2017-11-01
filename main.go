@@ -9,7 +9,7 @@ import (
 	"time"
 
 	provider "github.com/macarrie/flemzerd/providers"
-	"github.com/macarrie/flemzerd/providers/tvdb"
+	"github.com/macarrie/flemzerd/providers/impl"
 
 	indexer "github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/torznab"
@@ -19,6 +19,7 @@ import (
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/transmission"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 var config configuration.Configuration
@@ -30,7 +31,7 @@ func initProviders(config configuration.Configuration) {
 	for providerType, providerElt := range config.Providers {
 		switch providerType {
 		case "tvdb":
-			np, _ := tvdb.New(providerElt["apikey"])
+			np, _ := impl.New(providerElt["apikey"])
 			newProviders = append(newProviders, np)
 		default:
 			log.WithFields(log.Fields{
@@ -137,7 +138,7 @@ func initNotifiers(config configuration.Configuration) {
 	}
 }
 
-func NotifyRecentEpisode(show provider.Show, episode provider.Episode) {
+func NotifyRecentEpisode(show TvShow, episode Episode) {
 	for _, episodeId := range notifier.Retention {
 		airDate, err := time.Parse("2006-01-02", episode.Date)
 		if err != nil {
@@ -195,7 +196,7 @@ func main() {
 	initDownloaders(config)
 
 	//	 Load configuration objects
-	var showObjects []provider.Show
+	var showObjects []TvShow
 
 	for _, show := range config.Shows {
 		showName := show

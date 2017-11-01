@@ -1,4 +1,4 @@
-package tvdb
+package impl
 
 import (
 	"testing"

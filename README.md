@@ -1,4 +1,4 @@
-# Flemzerd ![Build Status](https://travis-ci.org/macarrie/flemzerd.svg?branch=master)
+# Flemzerd [![Build Status](https://travis-ci.org/macarrie/flemzerd.svg?branch=master)](https://travis-ci.org/macarrie/flemzerd/)
 
 Flemzerd is an automation tool (like a very lightweight Sonarr) for handling TV Shows.
 It watches your tv shows for new episodes, downloads them in the client of your choices, and updates your media center library if needed.
