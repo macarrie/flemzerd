@@ -1,6 +1,7 @@
 ### Go
 # Test binary, build with `go test -c`
 *.test
+vendor/
 flemzerd
 
 ### Intellij IDEA
