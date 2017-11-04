@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	flag "github.com/ogier/pflag"
-	"strconv"
-	"time"
 
 	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl"
@@ -19,16 +20,15 @@ import (
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/transmission"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
-var config configuration.Configuration
-
-func initProviders(config configuration.Configuration) {
+func initProviders() {
 	log.Debug("Initializing Providers")
 
 	var newProviders []provider.Provider
-	for providerType, providerElt := range config.Providers {
+	for providerType, providerElt := range configuration.Config.Providers {
 		switch providerType {
 		case "tvdb":
 			np, _ := impl.New(providerElt["apikey"])
@@ -51,11 +51,11 @@ func initProviders(config configuration.Configuration) {
 	}
 }
 
-func initIndexers(config configuration.Configuration) {
+func initIndexers() {
 	log.Debug("Initializing Indexers")
 
 	var newIndexers []indexer.Indexer
-	for indexerType, indexerList := range config.Indexers {
+	for indexerType, indexerList := range configuration.Config.Indexers {
 		switch indexerType {
 		case "torznab":
 			for _, indexer := range indexerList {
@@ -79,11 +79,11 @@ func initIndexers(config configuration.Configuration) {
 	}
 }
 
-func initDownloaders(config configuration.Configuration) {
+func initDownloaders() {
 	log.Debug("Initializing Downloaders")
 
 	var newDownloaders []downloader.Downloader
-	for name, downloaderObject := range config.Downloaders {
+	for name, downloaderObject := range configuration.Config.Downloaders {
 		switch name {
 		case "transmission":
 			address := downloaderObject["address"]
@@ -116,11 +116,10 @@ func initDownloaders(config configuration.Configuration) {
 	}
 }
 
-func initNotifiers(config configuration.Configuration) {
+func initNotifiers() {
 	log.Debug("Initializing Notifiers")
-	//fmt.Printf("%#v\n", config)
-	for name, notifierObject := range config.Notifiers {
-		//fmt.Printf("Name: %v, Notifier: %#v\n", name, notifierObject)
+
+	for name, notifierObject := range configuration.Config.Notifiers {
 		switch name {
 		case "pushbullet":
 			pushbulletNotifier := pushbullet.New(map[string]string{"AccessToken": notifierObject["accesstoken"]})
@@ -135,27 +134,6 @@ func initNotifiers(config configuration.Configuration) {
 				"notifierType": name,
 			}).Warning("Unknown notifier type")
 		}
-	}
-}
-
-func NotifyRecentEpisode(show TvShow, episode Episode) {
-	for _, episodeId := range notifier.Retention {
-		airDate, err := time.Parse("2006-01-02", episode.Date)
-		if err != nil {
-			continue
-		}
-
-		if airDate.Before(time.Now().AddDate(0, 0, -14)) {
-			notifier.RemoveFromRetention(episodeId)
-		}
-	}
-
-	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
-
-	err := notifier.NotifyRecentEpisode(episode.Id, notificationTitle, notificationContent)
-	if err != nil {
-		log.Warning("Failed to send all notifications")
 	}
 }
 
@@ -176,29 +154,30 @@ func main() {
 		configuration.UseFile(*configFilePath)
 	}
 
-	config, err := configuration.Load()
+	err := configuration.Load()
+	fmt.Printf("%+v\n", configuration.Config)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Cannot load configuration file")
 	}
 
-	err = configuration.Check(config)
+	err = configuration.Check()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Fatal("Errors in configuration file")
 	}
 
-	initNotifiers(config)
-	initProviders(config)
-	initIndexers(config)
-	initDownloaders(config)
+	initNotifiers()
+	initProviders()
+	initIndexers()
+	initDownloaders()
 
 	//	 Load configuration objects
 	var showObjects []TvShow
 
-	for _, show := range config.Shows {
+	for _, show := range configuration.Config.Shows {
 		showName := show
 		show, err := provider.FindShow(show)
 		if err != nil {
@@ -237,7 +216,10 @@ func main() {
 			}
 
 			for _, recentEpisode := range recentEpisodes {
-				NotifyRecentEpisode(show, recentEpisode)
+				err := notifier.NotifyRecentEpisode(show, recentEpisode)
+				if err != nil {
+					log.Warning(err)
+				}
 
 				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
 				if err != nil {

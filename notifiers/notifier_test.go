@@ -1,12 +1,27 @@
 package notifier
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/macarrie/flemzerd/configuration"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 type MockNotifier struct{}
 
 var mockNotificationCounter int
+
+func init() {
+	// go test makes a cd into package directory when testing. We must go up by one level to load our testdata
+	configuration.UseFile("../testdata/test_config.yaml")
+	err := configuration.Load()
+	configuration.Config.Notifications.Enabled = true
+
+	if err != nil {
+		fmt.Print("Could not load test configuration file: ", err)
+	}
+}
 
 func (n MockNotifier) Setup(authCredentials map[string]string) {
 	return
@@ -72,20 +87,32 @@ func TestNotifyRecentEpisode(t *testing.T) {
 	Retention = []int{}
 	notifiers = []Notifier{}
 
+	show := TvShow{
+		Id:   1,
+		Name: "Test TVShow",
+	}
+
+	episode := Episode{
+		Id:     30,
+		Season: 3,
+		Number: 4,
+		Name:   "Test Episode S03E04",
+	}
+
 	m := MockNotifier{}
 	AddNotifier(m)
 
 	mockNotificationCounter = 0
 
-	NotifyRecentEpisode(1, "Test title", "Test content")
+	NotifyRecentEpisode(show, episode)
 
 	if mockNotificationCounter != 1 {
 		t.Error("Expected 1 notification to be sent, got ", mockNotificationCounter)
 	}
 
-	err := NotifyRecentEpisode(1, "Test title", "Test content")
+	NotifyRecentEpisode(show, episode)
 
-	if mockNotificationCounter != 1 || err == nil {
+	if mockNotificationCounter != 1 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 }

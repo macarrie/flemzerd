@@ -9,12 +9,22 @@ import (
 var customConfigFilePath string
 var customConfigFile bool
 
+var Config Configuration
+
+// YAML tags do not work in viper, mapstructure tags have to be used instead
+// https://github.com/spf13/viper/issues/385
 type Configuration struct {
-	Providers   map[string]map[string]string
-	Indexers    map[string][]map[string]string
-	Notifiers   map[string]map[string]string
-	Downloaders map[string]map[string]string
-	Shows       []string
+	Providers     map[string]map[string]string
+	Indexers      map[string][]map[string]string
+	Notifiers     map[string]map[string]string
+	Downloaders   map[string]map[string]string
+	Notifications struct {
+		Enabled                bool `mapstructure:"enabled"`
+		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`
+		NotifyDownloadComplete bool `mapstructure:"notify_download_complete"`
+		NotifyFailure          bool `mapstructure:"notify_failure"`
+	}
+	Shows []string
 }
 
 func UseFile(filePath string) {
@@ -25,31 +35,31 @@ func UseFile(filePath string) {
 	customConfigFilePath = filePath
 }
 
-func Check(config Configuration) error {
-	if len(config.Shows) == 0 {
+func Check() error {
+	if len(Config.Shows) == 0 {
 		return errors.New("No Shows defined")
 	}
 
-	if len(config.Providers) == 0 {
+	if len(Config.Providers) == 0 {
 		return errors.New("No Providers defined")
 	}
 
-	_, tvdb := config.Providers["tvdb"]
+	_, tvdb := Config.Providers["tvdb"]
 	if tvdb {
-		_, tvdbapikey := config.Providers["tvdb"]["apikey"]
+		_, tvdbapikey := Config.Providers["tvdb"]["apikey"]
 
 		if !tvdbapikey {
 			return errors.New("Missing key(s)for tvdb provider (apikey required)")
 		}
 	}
 
-	if len(config.Notifiers) == 0 {
+	if len(Config.Notifiers) == 0 {
 		return errors.New("No Notifiers defined")
 	}
 
-	_, pushbullet := config.Notifiers["pushbullet"]
+	_, pushbullet := Config.Notifiers["pushbullet"]
 	if pushbullet {
-		_, pushbulletaccesstoken := config.Notifiers["pushbullet"]["accesstoken"]
+		_, pushbulletaccesstoken := Config.Notifiers["pushbullet"]["accesstoken"]
 
 		if !pushbulletaccesstoken {
 			return errors.New("Missing key for pushbullet notifier (accessToken required)")
@@ -59,30 +69,37 @@ func Check(config Configuration) error {
 	return nil
 }
 
-func Load() (Configuration, error) {
+func Load() error {
 	viper.SetConfigType("yaml")
 
 	if customConfigFile {
 		viper.SetConfigFile(customConfigFilePath)
 	} else {
 		viper.SetConfigName("flemzerd")
-		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME/.config/flemzerd/")
+		viper.AddConfigPath("/etc/flemzerd/")
 	}
 
 	readErr := viper.ReadInConfig()
 	if readErr != nil {
-		return Configuration{}, readErr
+		return readErr
 	}
 
-	var config Configuration
-	unmarshalError := viper.Unmarshal(&config)
+	viper.SetDefault("notifications.enabled", true)
+	viper.SetDefault("notifications.notify_new_episode", true)
+	viper.SetDefault("notifications.notify_download_complete", true)
+	viper.SetDefault("notifications.notify_failure", true)
+
+	var conf Configuration
+	unmarshalError := viper.Unmarshal(&conf)
 	if unmarshalError != nil {
-		return Configuration{}, unmarshalError
+		return unmarshalError
 	}
 
 	log.WithFields(log.Fields{
 		"file": viper.ConfigFileUsed(),
 	}).Info("Configuration file loaded")
 
-	return config, nil
+	Config = conf
+	return nil
 }

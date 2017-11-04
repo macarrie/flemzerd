@@ -2,7 +2,12 @@ package notifier
 
 import (
 	"errors"
+	"fmt"
+	"time"
+
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 type Notifier interface {
@@ -39,11 +44,28 @@ func RemoveFromRetention(idToRemove int) {
 	Retention = newRetention
 }
 
-func NotifyRecentEpisode(episodeId int, title string, content string) error {
-	alreadyNotified := false
+func NotifyRecentEpisode(show TvShow, episode Episode) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
+		return nil
+	}
 
+	for _, episodeId := range Retention {
+		airDate, err := time.Parse("2006-01-02", episode.Date)
+		if err != nil {
+			continue
+		}
+
+		if airDate.Before(time.Now().AddDate(0, 0, -14)) {
+			RemoveFromRetention(episodeId)
+		}
+	}
+
+	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
+
+	alreadyNotified := false
 	for _, retentionEpisodeId := range Retention {
-		if retentionEpisodeId == episodeId {
+		if retentionEpisodeId == episode.Id {
 			alreadyNotified = true
 
 			break
@@ -51,20 +73,25 @@ func NotifyRecentEpisode(episodeId int, title string, content string) error {
 	}
 
 	if alreadyNotified {
-		return errors.New("Notifications already sent for episode. Nothing to do")
+		log.Debug("Notifications already sent for episode. Nothing to do")
+		return nil
 	} else {
-		err := SendNotification(title, content)
+		err := SendNotification(notificationTitle, notificationContent)
 		if err != nil {
 			return err
 		}
 
-		Retention = append(Retention, episodeId)
+		Retention = append(Retention, episode.Id)
 
 		return nil
 	}
 }
 
 func SendNotification(title, content string) error {
+	if !configuration.Config.Notifications.Enabled {
+		return nil
+	}
+
 	var sendingErrors bool
 	for _, notifier := range notifiers {
 		err := notifier.Send(title, content)
@@ -74,7 +101,7 @@ func SendNotification(title, content string) error {
 	}
 
 	if sendingErrors {
-		return errors.New("Couldn't send all notifications")
+		return errors.New("Couldn't send notifications for all notifiers")
 	} else {
 		return nil
 	}

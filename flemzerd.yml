@@ -22,6 +22,16 @@ downloaders:
         user: USERNAME
         password: PASSWORD
 
+notifications:
+    # Enable notifications
+    enabled: false
+    # Send notification when a new episode is available
+    notify_new_episode: true
+    # Send notification when a download is complete
+    notify_download_complete: true
+    # Send notifications when a problem occurs before an episode download endend sucessfully
+    notify_failure: true
+
 shows:
     - TV_SHOW_1
     - TV_SHOW_2

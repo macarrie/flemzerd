@@ -1,0 +1,14 @@
+---
+notifications:
+    # Enable notifications
+    enabled: true
+    # Send notification when a new episode is available
+    notify_new_episode: true
+    # Send notification when a download is complete
+    notify_download_complete: true
+    # Send notifications when a problem occurs before an episode download endend sucessfully
+    notify_failure: true
+
+shows:
+    - "Test show 1"
+    - "Test show 2"

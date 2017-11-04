@@ -133,14 +133,16 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 	}).Debug("Sending Pushbullet notification")
 
 	params := map[string]string{"type": "note", "title": title, "body": content}
-	log.Debug("Pushbullet Mock: Notification sent", params)
-	//status, _ := performAPIRequest("POST", "v2/pushes", params)
+	response, err := performAPIRequest("POST", "v2/pushes", params)
+	if err != nil {
+		return err
+	}
 
-	//if status != 200 {
-	//log.WithFields(log.Fields{
-	//"http_error": status,
-	//}).Warning("Unable to send notification")
-	//}
+	if response.StatusCode != http.StatusOK {
+		log.WithFields(log.Fields{
+			"http_error": response.StatusCode,
+		}).Warning("Unable to send notification")
+	}
 
 	return nil
 }
