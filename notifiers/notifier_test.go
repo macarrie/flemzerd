@@ -3,6 +3,7 @@ package notifier
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
 	. "github.com/macarrie/flemzerd/objects"
@@ -97,6 +98,7 @@ func TestNotifyRecentEpisode(t *testing.T) {
 		Season: 3,
 		Number: 4,
 		Name:   "Test Episode S03E04",
+		Date:   time.Now(),
 	}
 
 	m := MockNotifier{}
