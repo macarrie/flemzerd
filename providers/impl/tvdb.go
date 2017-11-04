@@ -2,12 +2,13 @@ package impl
 
 import (
 	"errors"
+	"net/url"
+	"time"
+
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/pioz/tvdb"
-	"net/url"
-	"time"
 )
 
 type TVDBProvider struct {
@@ -21,6 +22,7 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 	log.WithFields(log.Fields{
 		"provider": "THE TVDB",
 	}).Debug("Checking connection to TheTVDB")
+
 	if err != nil {
 		if tvdb.HaveCodeError(401, err) {
 			log.Error("Can not connect to thetvdb (API key not valid). Please check your API key and try again")
@@ -28,7 +30,7 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 			log.WithFields(log.Fields{
 				"details":  err,
 				"provider": "THE TVDB",
-			}).Error("Can not connect to thetvdb")
+			}).Error("Cannot connect to thetvdb")
 		}
 		return TVDBProvider{}, err
 	} else {
@@ -103,7 +105,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, erro
 			"TV-show-name": tvShow.Name,
 			"id":           tvShow.Id,
 			"provider":     "THE TVDB",
-		}).Warn("Can not get next aired episodes of the tv show")
+		}).Warn("Cannot get next aired episodes of the tv show")
 		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{
@@ -172,31 +174,17 @@ func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, e
 	}).Debug("Filtering episodes list by airing date")
 	var retVal []Episode
 	for _, episode := range episodes {
-		episodeAirDate, err := time.Parse("2006-01-02", episode.Date)
-		if err != nil {
-			if episode.Date == "" {
-				log.WithFields(log.Fields{
-					"episode-name": episode.Name,
-					"episode-id":   episode.Id,
-				}).Debug("Episode does not have a date registered in the provider database. Episode not filtered out")
-				retVal = append(retVal, episode)
-			} else {
-				log.WithFields(log.Fields{
-					"date":       episode.Date,
-					"episode-id": episode.Id,
-				}).Error("Can not parse episode air date. Omitting this episode in episodes filtering by airing date")
-			}
-		} else {
-			if episodeAirDate.After(*beginning) && episodeAirDate.Before(*end) {
-				retVal = append(retVal, episode)
-			}
+		if episode.Date.After(*beginning) && episode.Date.Before(*end) {
+			retVal = append(retVal, episode)
 		}
 	}
+
 	log.WithFields(log.Fields{
 		"start date":     beginning,
 		"end date":       end,
 		"nb of episodes": len(retVal),
 	}).Debug("Successfully filtered episodes list by airing date")
+
 	return retVal
 }
 
@@ -224,10 +212,15 @@ func handleTvShowNotFoundError(tvShowName string, err error) error {
 
 // Convert a github.com/pioz/tvdb series object to flemzerd tvShow object
 func convertShow(tvShow tvdb.Series) TvShow {
+	firstAired, err := time.Parse("2006-01-02", tvShow.FirstAired)
+	if err != nil {
+		firstAired = time.Time{}
+	}
+
 	return TvShow{
 		Aliases:    tvShow.Aliases,
 		Banner:     tvShow.Banner,
-		FirstAired: tvShow.FirstAired,
+		FirstAired: firstAired,
 		Id:         tvShow.ID,
 		Overview:   tvShow.Overview,
 		Name:       tvShow.SeriesName,
@@ -237,12 +230,17 @@ func convertShow(tvShow tvdb.Series) TvShow {
 
 // Convert a github.com/pioz/tvdb episode object to flemzerd episode object
 func convertEpisode(episode tvdb.Episode) Episode {
+	firstAired, err := time.Parse("2006-01-02", episode.FirstAired)
+	if err != nil {
+		firstAired = time.Time{}
+	}
+
 	return Episode{
 		AbsoluteNumber: episode.AbsoluteNumber,
 		Number:         episode.AiredEpisodeNumber,
 		Season:         episode.AiredSeason,
 		Name:           episode.EpisodeName,
-		Date:           episode.FirstAired,
+		Date:           firstAired,
 		Id:             episode.ID,
 		Overview:       episode.Overview,
 	}

@@ -50,12 +50,7 @@ func NotifyRecentEpisode(show TvShow, episode Episode) error {
 	}
 
 	for _, episodeId := range Retention {
-		airDate, err := time.Parse("2006-01-02", episode.Date)
-		if err != nil {
-			continue
-		}
-
-		if airDate.Before(time.Now().AddDate(0, 0, -14)) {
+		if episode.Date.Before(time.Now().AddDate(0, 0, -14)) {
 			RemoveFromRetention(episodeId)
 		}
 	}

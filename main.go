@@ -155,7 +155,6 @@ func main() {
 	}
 
 	err := configuration.Load()
-	fmt.Printf("%+v\n", configuration.Config)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
