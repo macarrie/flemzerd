@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"errors"
+
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/spf13/viper"
 )
@@ -23,6 +24,9 @@ type Configuration struct {
 		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`
 		NotifyDownloadComplete bool `mapstructure:"notify_download_complete"`
 		NotifyFailure          bool `mapstructure:"notify_failure"`
+	}
+	System struct {
+		EpisodeCheckInterval int `mapstructure:"episode_check_interval"`
 	}
 	Shows []string
 }
@@ -89,6 +93,8 @@ func Load() error {
 	viper.SetDefault("notifications.notify_new_episode", true)
 	viper.SetDefault("notifications.notify_download_complete", true)
 	viper.SetDefault("notifications.notify_failure", true)
+
+	viper.SetDefault("system.episode_check_interval", 15)
 
 	var conf Configuration
 	unmarshalError := viper.Unmarshal(&conf)

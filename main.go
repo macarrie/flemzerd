@@ -201,7 +201,8 @@ func main() {
 	}
 
 	log.Debug("Starting polling loop")
-	loopTicker := time.NewTicker(15 * time.Second)
+	// TODO: Ticker interval is set in seconds for dev. Ticker interval must be changed from time.Second to time.Minute.
+	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Second)
 	for {
 		log.Debug("========== Polling loop start ==========")
 
