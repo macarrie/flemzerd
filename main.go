@@ -20,7 +20,7 @@ import (
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
-	"github.com/macarrie/flemzerd/downloaders/transmission"
+	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
