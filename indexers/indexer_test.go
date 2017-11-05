@@ -71,8 +71,8 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	}
 
 	torrentList, err := GetTorrentForEpisode("Test show", 0, 1)
-	if len(torrentList) != 0 {
-		t.Error("Expected errors during indexer search and 0 results, got %d results instead\n", len(torrentList))
+	if len(torrentList) != 0 || err != nil {
+		t.Errorf("Expected errors during indexer search and 0 results, got %d results instead\n", len(torrentList))
 	}
 
 	torrentList, err = GetTorrentForEpisode("Test show", 1, 0)
