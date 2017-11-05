@@ -12,6 +12,7 @@ import (
 type MockNotifier struct{}
 
 var mockNotificationCounter int
+var notifierInitialized bool
 
 func init() {
 	// go test makes a cd into package directory when testing. We must go up by one level to load our testdata
@@ -29,12 +30,24 @@ func (n MockNotifier) Setup(authCredentials map[string]string) {
 }
 
 func (n MockNotifier) Init() error {
+	notifierInitialized = true
 	return nil
 }
 
 func (n MockNotifier) Send(title, content string) error {
 	mockNotificationCounter += 1
 	return nil
+}
+
+func TestInit(t *testing.T) {
+	n := MockNotifier{}
+	notifiers = []Notifier{n}
+
+	notifierInitialized = false
+	Init()
+	if !notifierInitialized {
+		t.Error("Notifier has not been initialized")
+	}
 }
 
 func TestAddNotifier(t *testing.T) {
