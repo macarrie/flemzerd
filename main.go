@@ -10,7 +10,7 @@ import (
 	flag "github.com/ogier/pflag"
 
 	provider "github.com/macarrie/flemzerd/providers"
-	"github.com/macarrie/flemzerd/providers/impl"
+	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
 	indexer "github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/torznab"
