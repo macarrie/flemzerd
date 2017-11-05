@@ -16,7 +16,8 @@ import (
 	"github.com/macarrie/flemzerd/indexers/torznab"
 
 	notifier "github.com/macarrie/flemzerd/notifiers"
-	"github.com/macarrie/flemzerd/notifiers/pushbullet"
+	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
+	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/transmission"
@@ -124,6 +125,14 @@ func initNotifiers() {
 		case "pushbullet":
 			pushbulletNotifier := pushbullet.New(map[string]string{"AccessToken": notifierObject["accesstoken"]})
 			notifier.AddNotifier(pushbulletNotifier)
+
+			log.WithFields(log.Fields{
+				"notifier": name,
+			}).Info("Notifier added to list of notifiers")
+
+		case "desktop":
+			desktopNotifier := desktop.New()
+			notifier.AddNotifier(desktopNotifier)
 
 			log.WithFields(log.Fields{
 				"notifier": name,

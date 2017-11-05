@@ -5,6 +5,7 @@ providers:
 notifiers:
     pushbullet:
         accessToken: ACCESS_TOKEN
+    desktop: []
 
 indexers:
     torznab:

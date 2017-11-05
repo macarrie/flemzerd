@@ -5,10 +5,10 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	log "github.com/macarrie/flemzerd/logging"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	log "github.com/macarrie/flemzerd/logging"
 	//"github.com/macarrie/flemzerd/notifier"
 )
 
@@ -100,30 +100,33 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 func (pushbulletNotifier *PushbulletNotifier) Setup(credentials map[string]string) {
 	APIToken.Token = credentials["AccessToken"]
 	pushbulletNotifier.Name = "Pushbullet"
+
+	pushbulletNotifier.Init()
 }
 
 func (notifier *PushbulletNotifier) Init() error {
-	log.Debug("Checking Pushbullet user token validity")
+	return nil
+	//log.Debug("Checking Pushbullet user token validity")
 
-	response, err := performAPIRequest("GET", "v2/users/me", nil)
-	if err != nil {
-		return err
-	}
+	//response, err := performAPIRequest("GET", "v2/users/me", nil)
+	//if err != nil {
+	//return err
+	//}
 
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
+	//body, err := ioutil.ReadAll(response.Body)
+	//if err != nil {
+	//return err
+	//}
 
-	var authResult User
-	parseErr := json.Unmarshal(body, &authResult)
-	if parseErr != nil {
-		return parseErr
-	} else {
-		log.Debug("Pushbullet token valid")
+	//var authResult User
+	//parseErr := json.Unmarshal(body, &authResult)
+	//if parseErr != nil {
+	//return parseErr
+	//} else {
+	//log.Debug("Pushbullet token valid")
 
-		return nil
-	}
+	//return nil
+	//}
 }
 
 func (notifier *PushbulletNotifier) Send(title, content string) error {
