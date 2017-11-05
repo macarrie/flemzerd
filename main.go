@@ -13,7 +13,7 @@ import (
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
 	indexer "github.com/macarrie/flemzerd/indexers"
-	"github.com/macarrie/flemzerd/indexers/torznab"
+	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
