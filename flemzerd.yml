@@ -23,18 +23,18 @@ downloaders:
         password: PASSWORD
 
 notifications:
-    # Enable notifications
-    enabled: false
-    # Send notification when a new episode is available
+    # Enable notifications (default: true)
+    enabled: true
+    # Send notification when a new episode is available (default: true)
     notify_new_episode: true
-    # Send notification when a download is complete
+    # Send notification when a download is complete (default: true)
     notify_download_complete: true
-    # Send notifications when a problem occurs before an episode download endend sucessfully
+    # Send notifications when a problem occurs before an episode download endend sucessfully (default: true)
     notify_failure: true
 
 system:
-    # New episode check interval (in minutes)
-    episode_check_interval: 10
+    # New episode check interval (in minutes) (default: 15)
+    episode_check_interval: 15
 
 shows:
     - TV_SHOW_1

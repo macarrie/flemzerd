@@ -31,6 +31,15 @@ type Configuration struct {
 	Shows []string
 }
 
+func setDefaultValues() {
+	viper.SetDefault("notifications.enabled", true)
+	viper.SetDefault("notifications.notify_new_episode", true)
+	viper.SetDefault("notifications.notify_download_complete", true)
+	viper.SetDefault("notifications.notify_failure", true)
+
+	viper.SetDefault("system.episode_check_interval", 15)
+}
+
 func UseFile(filePath string) {
 	log.WithFields(log.Fields{
 		"file": filePath,
@@ -89,12 +98,7 @@ func Load() error {
 		return readErr
 	}
 
-	viper.SetDefault("notifications.enabled", true)
-	viper.SetDefault("notifications.notify_new_episode", true)
-	viper.SetDefault("notifications.notify_download_complete", true)
-	viper.SetDefault("notifications.notify_failure", true)
-
-	viper.SetDefault("system.episode_check_interval", 15)
+	setDefaultValues()
 
 	var conf Configuration
 	unmarshalError := viper.Unmarshal(&conf)
