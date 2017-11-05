@@ -1,8 +1,6 @@
 package desktop
 
 import (
-	"fmt"
-
 	"github.com/0xAX/notificator"
 	log "github.com/macarrie/flemzerd/logging"
 )
@@ -27,7 +25,6 @@ func (d *DesktopNotifier) Send(title, content string) error {
 		"content": content,
 	}).Debug("Sending Desktop notification")
 
-	fmt.Printf("%+v\n", d)
 	d.Notifier.Push(title, content, "", notificator.UR_NORMAL)
 
 	return nil
