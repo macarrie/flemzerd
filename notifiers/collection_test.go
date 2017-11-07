@@ -30,24 +30,6 @@ func TestAddNotifier(t *testing.T) {
 	}
 }
 
-func TestRemoveFromRetention(t *testing.T) {
-	Retention = []int{1, 2}
-	itemToRemove := 2
-
-	RemoveFromRetention(itemToRemove)
-
-	removed := true
-	for _, item := range Retention {
-		if item == itemToRemove {
-			removed = false
-		}
-	}
-
-	if !removed {
-		t.Error("Expected item \"", itemToRemove, "\" to be removed from retention but it is still present")
-	}
-}
-
 func TestSendNotification(t *testing.T) {
 	n := 2
 

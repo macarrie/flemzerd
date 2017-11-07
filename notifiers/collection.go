@@ -3,11 +3,11 @@ package notifier
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/retention"
 )
 
 var notifiersCollection []Notifier
@@ -20,51 +20,26 @@ func AddNotifier(notifier Notifier) {
 	}).Debug("Notifier loaded")
 }
 
-func RemoveFromRetention(idToRemove int) {
-	var newRetention []int
-
-	for _, episodeId := range Retention {
-		if episodeId != idToRemove {
-			newRetention = append(newRetention, episodeId)
-		}
-	}
-
-	Retention = newRetention
-}
-
 func NotifyRecentEpisode(show TvShow, episode Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
 		return nil
 	}
 
-	for _, episodeId := range Retention {
-		if episode.Date.Before(time.Now().AddDate(0, 0, -14)) {
-			RemoveFromRetention(episodeId)
-		}
-	}
+	retention.CleanOldNotifiedEpisodes()
 
-	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
-
-	alreadyNotified := false
-	for _, retentionEpisodeId := range Retention {
-		if retentionEpisodeId == episode.Id {
-			alreadyNotified = true
-
-			break
-		}
-	}
-
-	if alreadyNotified {
+	if retention.HasBeenNotified(episode) {
 		log.Debug("Notifications already sent for episode. Nothing to do")
 		return nil
 	} else {
+		notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+		notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
+
 		err := SendNotification(notificationTitle, notificationContent)
 		if err != nil {
 			return err
 		}
 
-		Retention = append(Retention, episode.Id)
+		retention.AddNotifiedEpisode(episode)
 
 		return nil
 	}
