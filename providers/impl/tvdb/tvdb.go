@@ -75,16 +75,16 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 		err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{})
 		if err != nil {
 			log.WithFields(log.Fields{
-				"TV-show-name": tvShow.Name,
-				"id":           tvShow.Id,
-				"provider":     "THE TVDB",
+				"tvshow_name": tvShow.Name,
+				"id":          tvShow.Id,
+				"provider":    "THE TVDB",
 			}).Warn("Can not retrieve episodes of tv show")
 			return []Episode{}, err
 		} else {
 			log.WithFields(log.Fields{
-				"name":       tvShow.Name,
-				"tv show id": tvShow.Id,
-				"provider":   "THE TVDB",
+				"name":      tvShow.Name,
+				"tvshow_id": tvShow.Id,
+				"provider":  "THE TVDB",
 			}).Debug("Episodes found")
 
 			var retVal []Episode
@@ -102,24 +102,24 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, erro
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"TV-show-name": tvShow.Name,
-			"id":           tvShow.Id,
-			"provider":     "THE TVDB",
+			"tvshow_name": tvShow.Name,
+			"id":          tvShow.Id,
+			"provider":    "THE TVDB",
 		}).Warn("Cannot get next aired episodes of the tv show")
 		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{
-			"TV-show-name": tvShow.Name,
-			"id":           tvShow.Id,
-			"provider":     "THE TVDB",
+			"tvshow_name": tvShow.Name,
+			"id":          tvShow.Id,
+			"provider":    "THE TVDB",
 		}).Debug("Getting list of episodes that haven't be aired yet")
 		now := time.Now()
 		futureEpisodes := filterEpisodesAiredBetweenDates(episodes, &now, nil)
 
 		log.WithFields(log.Fields{
-			"TV-show-name":   tvShow.Name,
+			"tvshow_name":    tvShow.Name,
 			"id":             tvShow.Id,
-			"nb of episodes": len(futureEpisodes),
+			"nb_of_episodes": len(futureEpisodes),
 			"provider":       "THE TVDB",
 		}).Debug("Successfully filtered list of episodes that haven't be aired yet")
 		return futureEpisodes, nil
@@ -131,16 +131,16 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"TV-show-name": tvShow.Name,
-			"id":           tvShow.Id,
-			"provider":     "THE TVDB",
+			"tvshow_name": tvShow.Name,
+			"id":          tvShow.Id,
+			"provider":    "THE TVDB",
 		}).Warn("Can not get recently aired episodes of the tv show")
 		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{
-			"TV-show-name": tvShow.Name,
-			"id":           tvShow.Id,
-			"provider":     "THE TVDB",
+			"tvshow_name": tvShow.Name,
+			"id":          tvShow.Id,
+			"provider":    "THE TVDB",
 		}).Debug("Getting list of episodes that haven recently been aired")
 
 		// Current date minus RECENTLY_AIRED_EPISODES_INTERVAL days
@@ -149,9 +149,9 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 		recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
 
 		log.WithFields(log.Fields{
-			"TV-show-name":   tvShow.Name,
+			"tvshow_name":    tvShow.Name,
 			"id":             tvShow.Id,
-			"nb of episodes": len(recentlyAiredEpisodes),
+			"nb_of_episodes": len(recentlyAiredEpisodes),
 			"provider":       "THE TVDB",
 		}).Debug("Successfully filtered list of episodes that have been recently aired")
 		return recentlyAiredEpisodes, nil
@@ -169,8 +169,8 @@ func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, e
 	}
 
 	log.WithFields(log.Fields{
-		"start-date": beginning,
-		"end-date":   end,
+		"start_date": beginning,
+		"end_date":   end,
 	}).Debug("Filtering episodes list by airing date")
 	var retVal []Episode
 	for _, episode := range episodes {
@@ -180,9 +180,9 @@ func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, e
 	}
 
 	log.WithFields(log.Fields{
-		"start date":     beginning,
-		"end date":       end,
-		"nb of episodes": len(retVal),
+		"start_date":     beginning,
+		"end_date":       end,
+		"nb_of_episodes": len(retVal),
 	}).Debug("Successfully filtered episodes list by airing date")
 
 	return retVal
@@ -192,8 +192,8 @@ func handleTvShowNotFoundError(tvShowName string, err error) error {
 	if tvdb.HaveCodeError(404, err) {
 		// The request response is a 404: this means no results have been found
 		log.WithFields(log.Fields{
-			"TV-show-name": tvShowName,
-			"provider":     "THE TVDB",
+			"tvshow_name": tvShowName,
+			"provider":    "THE TVDB",
 		}).Warn("TV show not found")
 		return errors.New("TV show '" + tvShowName + "' not found")
 	} else if tvdb.HaveCodeError(401, err) {
