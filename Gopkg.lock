@@ -32,6 +32,12 @@
   revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/odwrtw/transmission"
+  packages = ["."]
+  revision = "08885b3058e730d49a9217efbe9fb1061fa86388"
+
+[[projects]]
   name = "github.com/ogier/pflag"
   packages = ["."]
   revision = "32a05c62658bd1d7c7e75cbc8195de5d585fde0f"
@@ -112,6 +118,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c6cd1b1c02a7ddb602ab663d226ce4615d2e8809a2c12269f4286c1025578702"
+  inputs-digest = "ab772c25e84c9c3314925e78a2241fa6266e00cc8f508f87c1bcffdebefdc149"
   solver-name = "gps-cdcl"
   solver-version = 1

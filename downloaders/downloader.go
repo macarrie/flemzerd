@@ -1,6 +1,8 @@
 package downloader
 
+import . "github.com/macarrie/flemzerd/objects"
+
 type Downloader interface {
-	AddTorrent(url string) error
+	AddTorrent(t Torrent) error
 	Init() error
 }
