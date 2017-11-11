@@ -201,12 +201,12 @@ func main() {
 		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
-	torrentErr := downloader.AddTorrent("http://localhost:9117/dl/kickasstorrent/?jackett_apikey=cigs498n8oqmtwqygegelo9hdgjd28ag&path=Wm5YUXk4bUFPdkkyQTJ2aFhSaEZlVnNIMmczc3VjdXdqZjR5dGd2R3hNVXR0ckhQdm9vWExWbnIyOXp5QXk2SGRDN3VIU00rN2s2cmN2YloraC9ZMVpRUldXRWoxeVcvbi9JYjVjRTN2N0JOc0g2c01RTHVYUjZIMnFQbXh5UTIxamVCR3UxOVpMZ0xwbXRMeWtCS3E0S2hGZDI1eTdpL1dicGJBaDhXbEZCc0toKzVwR3VsczRHUlg3NEU2UFdzOHVPcmxLOHg4eUtxQ2wzd2dXdU9MNkIydGc2RVpvcXdrMlBaaE1kKzQ2RHR6U0RYVDRHOVlZazNRbFVsNXpTaC9pZVorNitkcTJxODg5L2w2MkNOajEzSXRXbVpFMmNkNk9oeUF3RUdhajhONVJjV2RTODcrTThOUGFPQk5kVVdGQXg3ZEE5SmNxNitiejF6d1hHcGpkMzJqcWVqTWFFR0lFZ0xpZ3gvRXdrPQ2&file=Brooklyn+Nine-Nine+S05E02+The+Big+House+2+1080p+AMZN+WEB-DL+DD%2B5.1+H+264-ViSUM.torrent")
-	if torrentErr != nil {
-		log.Debug("Add torrent error: ", torrentErr)
-	} else {
-		log.Debug("Torrent added")
-	}
+	//torrentErr := downloader.AddTorrent("http://localhost:9117/dl/kickasstorrent/?jackett_apikey=cigs498n8oqmtwqygegelo9hdgjd28ag&path=Wm5YUXk4bUFPdkkyQTJ2aFhSaEZlVnNIMmczc3VjdXdqZjR5dGd2R3hNVXR0ckhQdm9vWExWbnIyOXp5QXk2SGRDN3VIU00rN2s2cmN2YloraC9ZMVpRUldXRWoxeVcvbi9JYjVjRTN2N0JOc0g2c01RTHVYUjZIMnFQbXh5UTIxamVCR3UxOVpMZ0xwbXRMeWtCS3E0S2hGZDI1eTdpL1dicGJBaDhXbEZCc0toKzVwR3VsczRHUlg3NEU2UFdzOHVPcmxLOHg4eUtxQ2wzd2dXdU9MNkIydGc2RVpvcXdrMlBaaE1kKzQ2RHR6U0RYVDRHOVlZazNRbFVsNXpTaC9pZVorNitkcTJxODg5L2w2MkNOajEzSXRXbVpFMmNkNk9oeUF3RUdhajhONVJjV2RTODcrTThOUGFPQk5kVVdGQXg3ZEE5SmNxNitiejF6d1hHcGpkMzJqcWVqTWFFR0lFZ0xpZ3gvRXdrPQ2&file=Brooklyn+Nine-Nine+S05E02+The+Big+House+2+1080p+AMZN+WEB-DL+DD%2B5.1+H+264-ViSUM.torrent")
+	//if torrentErr != nil {
+	//log.Debug("Add torrent error: ", torrentErr)
+	//} else {
+	//log.Debug("Torrent added")
+	//}
 
 	log.Debug("Starting polling loop")
 	// TODO: Ticker interval is set in seconds for dev. Ticker interval must be changed from time.Second to time.Minute.
