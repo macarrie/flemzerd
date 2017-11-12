@@ -4,6 +4,7 @@ import . "github.com/macarrie/flemzerd/objects"
 
 type Downloader interface {
 	AddTorrent(t Torrent) error
+	RemoveTorrent(t Torrent) error
 	GetTorrentStatus(t Torrent) (int, error)
 	Init() error
 }

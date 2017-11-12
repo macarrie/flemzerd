@@ -44,6 +44,16 @@ func addTorrentMapping(flemzerID string, transmissionID string) {
 	torrentsMapping[flemzerID] = transmissionID
 }
 
+func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
+	for _, transmissionTorrent := range torrentList {
+		if torrentsMapping[t.Id] == transmissionTorrent.HashString {
+			return *transmissionTorrent, nil
+		}
+	}
+
+	return tr.Torrent{}, errors.New("Could not find corresponding transmission torrent")
+}
+
 func New(address string, port int, user string, password string) *TransmissionDownloader {
 	return &TransmissionDownloader{
 		Address:  address,
@@ -77,6 +87,20 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) error {
 
 	addTorrentMapping(t.Id, torrent.HashString)
 	updateTorrentList()
+	return nil
+}
+
+func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
+	transmissionTorrent, err := getTransmissionTorrent(t)
+	if err != nil {
+		return err
+	}
+
+	removeErr := transmissionClient.RemoveTorrents([]*tr.Torrent{&transmissionTorrent}, false)
+	if removeErr != nil {
+		return removeErr
+	}
+
 	return nil
 }
 

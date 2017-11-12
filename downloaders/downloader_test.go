@@ -13,6 +13,13 @@ func (d MockDownloader) AddTorrent(t Torrent) error {
 	return nil
 }
 
+func (d MockDownloader) RemoveTorrent(t Torrent) error {
+	if testTorrentsCount > 0 {
+		testTorrentsCount -= 1
+	}
+	return nil
+}
+
 func (d MockDownloader) Init() error {
 	return nil
 }

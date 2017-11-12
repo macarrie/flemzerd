@@ -30,8 +30,7 @@ func StartTorrent(t Torrent) error {
 }
 
 func RemoveTorrent(t Torrent) error {
-	// TODO
-	return nil
+	return downloadersCollection[0].RemoveTorrent(t)
 }
 
 func GetTorrentStatus(t Torrent) (int, error) {
