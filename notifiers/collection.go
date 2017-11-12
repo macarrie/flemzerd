@@ -61,7 +61,18 @@ func NotifyDownloadedEpisode(show TvShow, episode Episode) error {
 }
 
 func NotifyFailedEpisode(show TvShow, episode Episode) error {
-	// TODO
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%v: Episode download failed (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", show.Name, episode.Season, episode.Number, episode.Name)
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
