@@ -7,7 +7,6 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/pioz/tvdb"
 )
 
@@ -126,7 +125,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, erro
 	}
 }
 
-// Get list of episodes of a show aired less than provider.RECENTLY_AIRED_EPISODES_INTERVAL days ago
+// Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
 func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
@@ -144,7 +143,7 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 		}).Debug("Getting list of episodes that haven recently been aired")
 
 		// Current date minus RECENTLY_AIRED_EPISODES_INTERVAL days
-		oldestDate := time.Now().AddDate(0, 0, -provider.RECENTLY_AIRED_EPISODES_INTERVAL)
+		oldestDate := time.Now().AddDate(0, 0, -RECENTLY_AIRED_EPISODES_INTERVAL)
 		now := time.Now()
 		recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
 

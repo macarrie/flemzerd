@@ -1,11 +1,12 @@
 package indexer
 
 import (
+	"errors"
 	"fmt"
 	"sort"
-	"strconv"
 
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 var indexersCollection []Indexer
@@ -46,11 +47,12 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		}
 	}
 
-	sort.Slice(torrentList[:], func(i, j int) bool {
-		iValue, _ := strconv.Atoi(torrentList[i].Attributes["seeders"])
-		jValue, _ := strconv.Atoi(torrentList[j].Attributes["seeders"])
+	if len(torrentList) == 0 {
+		return []Torrent{}, errors.New("No torrents found for episode")
+	}
 
-		return iValue > jValue
+	sort.Slice(torrentList[:], func(i, j int) bool {
+		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
 	return torrentList, err

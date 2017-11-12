@@ -7,6 +7,7 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/retention"
 )
 
 func init() {
@@ -18,6 +19,8 @@ func init() {
 	if err != nil {
 		fmt.Print("Could not load test configuration file: ", err)
 	}
+
+	retention.InitStruct()
 }
 
 func TestAddNotifier(t *testing.T) {
@@ -50,7 +53,6 @@ func TestSendNotification(t *testing.T) {
 }
 
 func TestNotifyRecentEpisode(t *testing.T) {
-	Retention = []int{}
 	notifiersCollection = []Notifier{}
 
 	show := TvShow{

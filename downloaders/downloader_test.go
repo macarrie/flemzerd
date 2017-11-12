@@ -16,3 +16,7 @@ func (d MockDownloader) AddTorrent(t Torrent) error {
 func (d MockDownloader) Init() error {
 	return nil
 }
+
+func (d MockDownloader) GetTorrentStatus(t Torrent) (int, error) {
+	return 0, nil
+}

@@ -6,25 +6,51 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 )
 
+type DownloadingEpisode struct {
+	Episode        Episode
+	FailedTorrents map[string]Torrent
+}
+
 type RetentionData struct {
-	NotifiedEpisodes   []Episode
-	DownloadedEpisodes []Episode
+	NotifiedEpisodes    map[int]Episode
+	DownloadedEpisodes  map[int]Episode
+	DownloadingEpisodes map[int]DownloadingEpisode
 }
 
 var retentionData RetentionData
 
 func HasBeenNotified(e Episode) bool {
-	for _, episode := range retentionData.NotifiedEpisodes {
-		if e.Id == episode.Id {
-			return true
-		}
+	_, ok := retentionData.NotifiedEpisodes[e.Id]
+	return ok
+}
+
+func HasBeenDownloaded(e Episode) bool {
+	_, ok := retentionData.DownloadedEpisodes[e.Id]
+	return ok
+}
+
+func IsDownloading(e Episode) bool {
+	_, ok := retentionData.DownloadingEpisodes[e.Id]
+	return ok
+}
+
+func IsInFailedTorrents(e Episode, t Torrent) bool {
+	if !IsDownloading(e) {
+		return false
 	}
 
-	return false
+	_, ok := retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id]
+	return ok
+}
+
+func InitStruct() {
+	retentionData.NotifiedEpisodes = make(map[int]Episode)
+	retentionData.DownloadedEpisodes = make(map[int]Episode)
+	retentionData.DownloadingEpisodes = make(map[int]DownloadingEpisode)
 }
 
 func Load() {
-	// TODO: Read retention data from file
+	InitStruct()
 }
 
 func Save() {
@@ -33,8 +59,36 @@ func Save() {
 
 func AddNotifiedEpisode(e Episode) {
 	if !HasBeenNotified(e) {
-		retentionData.NotifiedEpisodes = append(retentionData.NotifiedEpisodes, e)
+		retentionData.NotifiedEpisodes[e.Id] = e
 	}
+}
+
+func AddDownloadedEpisode(e Episode) {
+	if !HasBeenDownloaded(e) {
+		retentionData.DownloadedEpisodes[e.Id] = e
+	}
+
+	delete(retentionData.DownloadingEpisodes, e.Id)
+}
+
+func AddDownloadingEpisode(e Episode) {
+	if !IsDownloading(e) {
+		retentionData.DownloadingEpisodes[e.Id] = DownloadingEpisode{
+			Episode: e,
+		}
+	}
+}
+
+func AddFailedEpisode(e Episode) {
+	// TODO
+}
+
+func AddFailedTorrent(e Episode, t Torrent) {
+	if !IsDownloading(e) {
+		AddDownloadingEpisode(e)
+	}
+
+	retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id] = t
 }
 
 func CleanOldNotifiedEpisodes() {
@@ -47,13 +101,13 @@ func CleanOldNotifiedEpisodes() {
 }
 
 func RemoveNotifiedEpisode(e Episode) {
-	var notifiedEpisodes []Episode
+	delete(retentionData.NotifiedEpisodes, e.Id)
+}
 
-	for _, episode := range retentionData.NotifiedEpisodes {
-		if episode.Id != e.Id {
-			notifiedEpisodes = append(notifiedEpisodes, episode)
-		}
-	}
+func RemoveDownloadedEpisode(e Episode) {
+	delete(retentionData.DownloadedEpisodes, e.Id)
+}
 
-	retentionData.NotifiedEpisodes = notifiedEpisodes
+func RemoveDownloadingEpisode(e Episode) {
+	delete(retentionData.DownloadingEpisodes, e.Id)
 }

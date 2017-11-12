@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"encoding/xml"
 	"errors"
-	"github.com/macarrie/flemzerd/indexers"
+
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
+	"github.com/rs/xid"
 	//"fmt"
 	"io/ioutil"
 	"net/http"
@@ -37,11 +39,22 @@ type TorznabTorrent struct {
 	} `xml:"attr"`
 }
 
+func convertTorrent(t TorznabTorrent) Torrent {
+	id := xid.New()
+	return Torrent{
+		Id:          id.String(),
+		Name:        t.Title,
+		Link:        t.Link,
+		DownloadDir: "TODO",
+		//Seeders:     t.Attributes["seeders"],
+	}
+}
+
 func New(name string, url string, apikey string) TorznabIndexer {
 	return TorznabIndexer{Name: name, Url: url, ApiKey: apikey}
 }
 
-func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]indexer.Torrent, error) {
+func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
 	baseURL := torznabIndexer.Url
 
 	tr := &http.Transport{
@@ -63,44 +76,43 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
-		return []indexer.Torrent{}, err
+		return []Torrent{}, err
 	}
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return []indexer.Torrent{}, err
+		return []Torrent{}, err
 	}
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
-		return []indexer.Torrent{}, err
+		return []Torrent{}, err
 	}
 
 	if len(body) == 0 {
-		return []indexer.Torrent{}, errors.New("Empty result")
+		return []Torrent{}, errors.New("Empty result")
 	}
 
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
 		log.Debug("ParseError: ", parseErr)
-		return []indexer.Torrent{}, parseErr
+		return []Torrent{}, parseErr
 	}
 
-	// Construct Attributes map
-	var results []indexer.Torrent
+	// Get seeders count for each torrent
+	var results []Torrent
 	for _, torrent := range searchResults.Torrents {
-		resultTorrent := &indexer.Torrent{
-			Title:       torrent.Title,
-			Description: torrent.Description,
-			Link:        torrent.Link,
+		resultTorrent := convertTorrent(torrent)
+
+		for _, attr := range torrent.Attr {
+			if attr.Name == "seeders" {
+				seedersNb, _ := strconv.Atoi(attr.Value)
+				resultTorrent.Seeders = seedersNb
+			}
 		}
 
-		resultTorrent.Attributes = make(map[string]string, len(torrent.Attr))
-		for _, attr := range torrent.Attr {
-			resultTorrent.Attributes[attr.Name] = attr.Value
-		}
-		results = append(results, *resultTorrent)
+		results = append(results, resultTorrent)
 	}
 
 	return results, nil

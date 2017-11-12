@@ -56,6 +56,12 @@
   revision = "4f8b6606bb43dc090b5e9a3681cd69f8a273e909"
 
 [[projects]]
+  name = "github.com/rs/xid"
+  packages = ["."]
+  revision = "02dd45c33376f85d1064355dc790dcc4850596b1"
+  version = "v1.1"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
@@ -118,6 +124,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ab772c25e84c9c3314925e78a2241fa6266e00cc8f508f87c1bcffdebefdc149"
+  inputs-digest = "e4df9dd06d4cfcb1a293dd44cba3908d484007c14297b460c907d948b9c9dc85"
   solver-name = "gps-cdcl"
   solver-version = 1

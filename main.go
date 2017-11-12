@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/retention"
 	flag "github.com/ogier/pflag"
 
 	provider "github.com/macarrie/flemzerd/providers"
@@ -181,6 +181,7 @@ func main() {
 	initProviders()
 	initIndexers()
 	initDownloaders()
+	retention.Load()
 
 	//	 Load configuration objects
 	var showObjects []TvShow
@@ -201,16 +202,11 @@ func main() {
 		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
-	//torrentErr := downloader.AddTorrent("http://localhost:9117/dl/kickasstorrent/?jackett_apikey=cigs498n8oqmtwqygegelo9hdgjd28ag&path=Wm5YUXk4bUFPdkkyQTJ2aFhSaEZlVnNIMmczc3VjdXdqZjR5dGd2R3hNVXR0ckhQdm9vWExWbnIyOXp5QXk2SGRDN3VIU00rN2s2cmN2YloraC9ZMVpRUldXRWoxeVcvbi9JYjVjRTN2N0JOc0g2c01RTHVYUjZIMnFQbXh5UTIxamVCR3UxOVpMZ0xwbXRMeWtCS3E0S2hGZDI1eTdpL1dicGJBaDhXbEZCc0toKzVwR3VsczRHUlg3NEU2UFdzOHVPcmxLOHg4eUtxQ2wzd2dXdU9MNkIydGc2RVpvcXdrMlBaaE1kKzQ2RHR6U0RYVDRHOVlZazNRbFVsNXpTaC9pZVorNitkcTJxODg5L2w2MkNOajEzSXRXbVpFMmNkNk9oeUF3RUdhajhONVJjV2RTODcrTThOUGFPQk5kVVdGQXg3ZEE5SmNxNitiejF6d1hHcGpkMzJqcWVqTWFFR0lFZ0xpZ3gvRXdrPQ2&file=Brooklyn+Nine-Nine+S05E02+The+Big+House+2+1080p+AMZN+WEB-DL+DD%2B5.1+H+264-ViSUM.torrent")
-	//if torrentErr != nil {
-	//log.Debug("Add torrent error: ", torrentErr)
-	//} else {
-	//log.Debug("Torrent added")
-	//}
-
-	log.Debug("Starting polling loop")
 	// TODO: Ticker interval is set in seconds for dev. Ticker interval must be changed from time.Second to time.Minute.
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Second)
+	exit := make(chan bool)
+
+	log.Debug("Starting polling loop")
 	for {
 		log.Debug("========== Polling loop start ==========")
 
@@ -230,18 +226,48 @@ func main() {
 					log.Warning(err)
 				}
 
+				if retention.HasBeenDownloaded(recentEpisode) {
+					log.WithFields(log.Fields{
+						"show":   show.Name,
+						"number": recentEpisode.Number,
+						"season": recentEpisode.Season,
+						"name":   recentEpisode.Name,
+					}).Debug("Episode already downloaded, nothing to do")
+					continue
+				}
+
+				if retention.IsDownloading(recentEpisode) {
+					log.WithFields(log.Fields{
+						"show":   show.Name,
+						"number": recentEpisode.Number,
+						"season": recentEpisode.Season,
+						"name":   recentEpisode.Name,
+					}).Debug("Episode already being downloaded, nothing to do")
+					continue
+				}
+
 				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
 				if err != nil {
 					log.Warning(err)
+					continue
 				}
 				log.Debug("Torrents found: ", len(torrentList))
-				for _, torrent := range torrentList {
-					log.Debug(fmt.Sprintf("Torrent (%04v) %v", torrent.Attributes["seeders"], torrent.Title))
+
+				// Send only download for first 10 torrents. If the first 10 don't work, the download is probably fucked, or another problem is happening and trying more torrents won't change anything
+				var toDownload []Torrent
+				if len(torrentList) < 10 {
+					toDownload = torrentList
+				} else {
+					toDownload = torrentList[:10]
 				}
+
+				go downloader.Download(show, recentEpisode, toDownload)
 			}
 		}
 
 		log.Debug("========== Polling loop end ==========\n")
 		<-loopTicker.C
 	}
+
+	<-exit
 }
