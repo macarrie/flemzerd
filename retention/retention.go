@@ -74,7 +74,8 @@ func AddDownloadedEpisode(e Episode) {
 func AddDownloadingEpisode(e Episode) {
 	if !IsDownloading(e) {
 		retentionData.DownloadingEpisodes[e.Id] = DownloadingEpisode{
-			Episode: e,
+			Episode:        e,
+			FailedTorrents: make(map[string]Torrent),
 		}
 	}
 }

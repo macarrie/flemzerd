@@ -30,6 +30,10 @@ func StartTorrent(t Torrent) error {
 }
 
 func RemoveTorrent(t Torrent) error {
+	if len(downloadersCollection) == 0 {
+		return errors.New("Cannot remove torrents, no downloaders are configured")
+	}
+
 	return downloadersCollection[0].RemoveTorrent(t)
 }
 
@@ -56,9 +60,9 @@ func WaitForDownload(t Torrent) error {
 	}
 }
 
-func Download(show TvShow, e Episode, torrentList []Torrent) {
+func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	if retention.HasBeenDownloaded(e) || retention.IsDownloading(e) {
-		return
+		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
 
 	log.WithFields(log.Fields{
@@ -119,7 +123,7 @@ func Download(show TvShow, e Episode, torrentList []Torrent) {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			return
+			return nil
 		}
 	}
 
@@ -132,4 +136,5 @@ func Download(show TvShow, e Episode, torrentList []Torrent) {
 		"name":   e.Name,
 	}).Error("Download failed, no torrents could be downloaded")
 	notifier.NotifyFailedEpisode(show, e)
+	return errors.New("Download failed, no torrents could be downloaded")
 }

@@ -1,6 +1,8 @@
 package downloader
 
 import (
+	"strconv"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -25,5 +27,6 @@ func (d MockDownloader) Init() error {
 }
 
 func (d MockDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	return 0, nil
+	status, _ := strconv.Atoi(t.Id)
+	return status, nil
 }
