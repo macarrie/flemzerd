@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"errors"
+	"path/filepath"
 
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/spf13/viper"
@@ -28,6 +29,10 @@ type Configuration struct {
 	System struct {
 		EpisodeCheckInterval int `mapstructure:"episode_check_interval"`
 	}
+	Library struct {
+		ShowPath  string `mapstructure:"show_path"`
+		MoviePath string `mapstructure:"movie_path"`
+	}
 	Shows []string
 }
 
@@ -36,6 +41,9 @@ func setDefaultValues() {
 	viper.SetDefault("notifications.notify_new_episode", true)
 	viper.SetDefault("notifications.notify_download_complete", true)
 	viper.SetDefault("notifications.notify_failure", true)
+
+	viper.SetDefault("library.show_path", "/var/lib/flemzerd/Library/Shows")
+	viper.SetDefault("library.movie_path", "/var/lib/flemzerd/Library/Movies")
 
 	viper.SetDefault("system.episode_check_interval", 15)
 }
@@ -77,6 +85,10 @@ func Check() error {
 		if !pushbulletaccesstoken {
 			return errors.New("Missing key for pushbullet notifier (accessToken required)")
 		}
+	}
+
+	if !filepath.IsAbs(Config.Library.ShowPath) {
+		return errors.New("Library show path must be an absolute path")
 	}
 
 	return nil

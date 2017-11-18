@@ -33,6 +33,10 @@ notifications:
     # Send notifications when a problem occurs before an episode download endend sucessfully (default: true)
     notify_failure: true
 
+library:
+    # Where to store TV Shows (absolute path). Folder hierarchy will be created if not existent
+    show_path: "/var/lib/flemzer/library/"
+
 system:
     # New episode check interval (in minutes) (default: 15)
     episode_check_interval: 15

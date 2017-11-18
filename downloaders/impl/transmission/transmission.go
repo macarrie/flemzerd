@@ -80,7 +80,10 @@ func (d *TransmissionDownloader) Init() error {
 }
 
 func (d TransmissionDownloader) AddTorrent(t Torrent) error {
-	torrent, err := transmissionClient.Add(t.Link)
+	torrent, err := transmissionClient.AddTorrent(tr.AddTorrentArg{
+		Filename:    t.Link,
+		DownloadDir: t.DownloadDir,
+	})
 	if err != nil {
 		return err
 	}

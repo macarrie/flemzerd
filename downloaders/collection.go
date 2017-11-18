@@ -2,8 +2,10 @@ package downloader
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
@@ -75,6 +77,7 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	retention.AddDownloadingEpisode(e)
 
 	for _, torrent := range torrentList {
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, e.Season)
 
 		if retention.IsInFailedTorrents(e, torrent) {
 			continue
