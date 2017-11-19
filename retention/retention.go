@@ -1,9 +1,18 @@
 package retention
 
 import (
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"os"
 	"time"
 
+	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+)
+
+const (
+	RETENTION_FILE_PATH = "retention.dat"
 )
 
 type DownloadingEpisode struct {
@@ -49,12 +58,51 @@ func InitStruct() {
 	retentionData.DownloadingEpisodes = make(map[int]DownloadingEpisode)
 }
 
-func Load() {
+func Load() error {
 	InitStruct()
+
+	file, err := os.Open(RETENTION_FILE_PATH)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	if !json.Valid(data) {
+		return errors.New("Retention file contains invalid data, aborting retention load")
+	}
+
+	unmarshalError := json.Unmarshal(data, &retentionData)
+	if unmarshalError != nil {
+		return unmarshalError
+	}
+
+	log.Info("Retention data successfully loaded")
+	return nil
 }
 
-func Save() {
-	// TODO: Write retention data into a file
+func Save() error {
+	file, err := os.OpenFile(RETENTION_FILE_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := json.Marshal(retentionData)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func AddNotifiedEpisode(e Episode) {

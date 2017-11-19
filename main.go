@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"os/signal"
 	"strconv"
 	"time"
 
@@ -181,7 +183,13 @@ func main() {
 	initProviders()
 	initIndexers()
 	initDownloaders()
-	retention.Load()
+
+	retentionErr := retention.Load()
+	if retentionErr != nil {
+		log.WithFields(log.Fields{
+			"error": retentionErr,
+		}).Warning("Could not load retention data. Starting daemon with empty retention")
+	}
 
 	//	 Load configuration objects
 	var showObjects []TvShow
@@ -205,66 +213,86 @@ func main() {
 	// TODO: Ticker interval is set in seconds for dev. Ticker interval must be changed from time.Second to time.Minute.
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Second)
 
-	log.Debug("Starting polling loop")
+	go func() {
+		log.Debug("Starting polling loop")
+		for {
+			log.Debug("========== Polling loop start ==========")
+
+			for _, show := range showObjects {
+				recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
+				if err != nil {
+					log.WithFields(log.Fields{
+						"error": err,
+						"show":  show.Name,
+					}).Warning("No recent episodes found")
+					continue
+				}
+
+				for _, recentEpisode := range recentEpisodes {
+					err := notifier.NotifyRecentEpisode(show, recentEpisode)
+					if err != nil {
+						log.Warning(err)
+					}
+
+					if retention.HasBeenDownloaded(recentEpisode) {
+						log.WithFields(log.Fields{
+							"show":   show.Name,
+							"number": recentEpisode.Number,
+							"season": recentEpisode.Season,
+							"name":   recentEpisode.Name,
+						}).Debug("Episode already downloaded, nothing to do")
+						continue
+					}
+
+					if retention.IsDownloading(recentEpisode) {
+						log.WithFields(log.Fields{
+							"show":   show.Name,
+							"number": recentEpisode.Number,
+							"season": recentEpisode.Season,
+							"name":   recentEpisode.Name,
+						}).Debug("Episode already being downloaded, nothing to do")
+						continue
+					}
+
+					torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
+					if err != nil {
+						log.Warning(err)
+						continue
+					}
+					log.Debug("Torrents found: ", len(torrentList))
+
+					// Send only download for first 10 torrents. If the first 10 don't work, the download is probably fucked, or another problem is happening and trying more torrents won't change anything
+					var toDownload []Torrent
+					if len(torrentList) < 10 {
+						toDownload = torrentList
+					} else {
+						toDownload = torrentList[:10]
+					}
+
+					go downloader.Download(show, recentEpisode, toDownload)
+				}
+			}
+
+			log.Debug("========== Polling loop end ==========\n")
+			<-loopTicker.C
+		}
+	}()
+
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, os.Interrupt)
+
+	// Listen for channels
 	for {
-		log.Debug("========== Polling loop start ==========")
+		<-signalChannel
+		log.Info("Shutting down...")
 
-		for _, show := range showObjects {
-			recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-					"show":  show.Name,
-				}).Warning("No recent episodes found")
-				continue
-			}
-
-			for _, recentEpisode := range recentEpisodes {
-				err := notifier.NotifyRecentEpisode(show, recentEpisode)
-				if err != nil {
-					log.Warning(err)
-				}
-
-				if retention.HasBeenDownloaded(recentEpisode) {
-					log.WithFields(log.Fields{
-						"show":   show.Name,
-						"number": recentEpisode.Number,
-						"season": recentEpisode.Season,
-						"name":   recentEpisode.Name,
-					}).Debug("Episode already downloaded, nothing to do")
-					continue
-				}
-
-				if retention.IsDownloading(recentEpisode) {
-					log.WithFields(log.Fields{
-						"show":   show.Name,
-						"number": recentEpisode.Number,
-						"season": recentEpisode.Season,
-						"name":   recentEpisode.Name,
-					}).Debug("Episode already being downloaded, nothing to do")
-					continue
-				}
-
-				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
-				if err != nil {
-					log.Warning(err)
-					continue
-				}
-				log.Debug("Torrents found: ", len(torrentList))
-
-				// Send only download for first 10 torrents. If the first 10 don't work, the download is probably fucked, or another problem is happening and trying more torrents won't change anything
-				var toDownload []Torrent
-				if len(torrentList) < 10 {
-					toDownload = torrentList
-				} else {
-					toDownload = torrentList[:10]
-				}
-
-				go downloader.Download(show, recentEpisode, toDownload)
-			}
+		err := retention.Save()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Failed to save retention data")
 		}
 
-		log.Debug("========== Polling loop end ==========\n")
-		<-loopTicker.C
+		os.Exit(0)
 	}
 }
