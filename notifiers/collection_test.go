@@ -52,7 +52,7 @@ func TestSendNotification(t *testing.T) {
 	}
 }
 
-func TestNotifyRecentEpisode(t *testing.T) {
+func TestNotifyEpisode(t *testing.T) {
 	notifiersCollection = []Notifier{}
 
 	show := TvShow{
@@ -74,14 +74,22 @@ func TestNotifyRecentEpisode(t *testing.T) {
 	mockNotificationCounter = 0
 
 	NotifyRecentEpisode(show, episode)
-
 	if mockNotificationCounter != 1 {
-		t.Error("Expected 1 notification to be sent, got ", mockNotificationCounter)
+		t.Error("Expected recent notification to be sent, got none")
+	}
+
+	NotifyDownloadedEpisode(show, episode)
+	if mockNotificationCounter != 2 {
+		t.Error("Expected downloaded notification to be sent, got none")
+	}
+
+	NotifyFailedEpisode(show, episode)
+	if mockNotificationCounter != 3 {
+		t.Error("Expected failed notification to be sent, got none")
 	}
 
 	NotifyRecentEpisode(show, episode)
-
-	if mockNotificationCounter != 1 {
+	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 }
