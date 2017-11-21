@@ -1,7 +1,6 @@
 package configuration
 
 import (
-	"errors"
 	"path/filepath"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -56,13 +55,17 @@ func UseFile(filePath string) {
 	customConfigFilePath = filePath
 }
 
-func Check() error {
+func Check() {
 	if len(Config.Shows) == 0 {
-		return errors.New("No Shows defined")
+		log.WithFields(log.Fields{
+			"error": "No shows defined",
+		}).Error("Configuration error")
 	}
 
 	if len(Config.Providers) == 0 {
-		return errors.New("No Providers defined")
+		log.WithFields(log.Fields{
+			"error": "No providers defined",
+		}).Error("Configuration error")
 	}
 
 	_, tvdb := Config.Providers["tvdb"]
@@ -70,12 +73,16 @@ func Check() error {
 		_, tvdbapikey := Config.Providers["tvdb"]["apikey"]
 
 		if !tvdbapikey {
-			return errors.New("Missing key(s)for tvdb provider (apikey required)")
+			log.WithFields(log.Fields{
+				"error": "Missing key(s)for tvdb provider (apikey required)",
+			}).Error("Configuration error")
 		}
 	}
 
-	if len(Config.Notifiers) == 0 {
-		return errors.New("No Notifiers defined")
+	if len(Config.Notifiers) == 0 && Config.Notifications.Enabled {
+		log.WithFields(log.Fields{
+			"error": "Notifications are enabled but no notifiers are defined. No notifications will be sent.",
+		}).Warning("Configuration warning")
 	}
 
 	_, pushbullet := Config.Notifiers["pushbullet"]
@@ -83,15 +90,17 @@ func Check() error {
 		_, pushbulletaccesstoken := Config.Notifiers["pushbullet"]["accesstoken"]
 
 		if !pushbulletaccesstoken {
-			return errors.New("Missing key for pushbullet notifier (accessToken required)")
+			log.WithFields(log.Fields{
+				"error": "Missing key for pushbullet notifier (accessToken required)",
+			}).Error("Configuration error")
 		}
 	}
 
 	if !filepath.IsAbs(Config.Library.ShowPath) {
-		return errors.New("Library show path must be an absolute path")
+		log.WithFields(log.Fields{
+			"error": "Library show path must be an absolute path",
+		}).Error("Configuration error")
 	}
-
-	return nil
 }
 
 func Load() error {

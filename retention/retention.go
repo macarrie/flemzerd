@@ -11,10 +11,6 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 )
 
-const (
-	RETENTION_FILE_PATH = "retention.dat"
-)
-
 type DownloadingEpisode struct {
 	Episode        Episode
 	FailedTorrents map[string]Torrent

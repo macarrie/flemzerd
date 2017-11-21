@@ -1,8 +1,9 @@
 package logging
 
 import (
-	log "github.com/sirupsen/logrus"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func Setup(debug bool) {

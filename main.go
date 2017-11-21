@@ -172,12 +172,7 @@ func main() {
 		}).Fatal("Cannot load configuration file")
 	}
 
-	err = configuration.Check()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("Errors in configuration file")
-	}
+	configuration.Check()
 
 	initNotifiers()
 	initProviders()

@@ -9,3 +9,7 @@ const (
 	TORRENT_DOWNLOAD_PENDING
 	TORRENT_UNKNOWN_STATUS
 )
+
+const (
+	RETENTION_FILE_PATH = "retention.dat"
+)
