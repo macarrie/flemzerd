@@ -16,12 +16,12 @@ chmod a+x $BIN/flemzerd
 printf "\t\t\tdone\n"
 
 printf "Creating flemzer user"
-id -u $USER 2>&1 /dev/null
-if [ $? -eq 0 ]; then
+id -u $USER > /dev/null 2>&1
+if [ $? -ne 0 ]; then
     useradd -M $USER
     printf "\t\t\tdone\n"
 else
-    printf "\t\tskipping\n"
+    printf "\t\t\tskipping\n"
 fi
 
 # Ensure file system is prepared for flemzerd
