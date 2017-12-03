@@ -1,0 +1,13 @@
+[Unit]
+Description=Flemzer daemon
+After=network.target
+
+[Service]
+Type=simple
+User=flemzer
+Group=flemzer
+ExecStart=/usr/bin/flemzerd -d
+ExecStop=/bin/killall -SIGINT flemzerd
+
+[Install]
+WantedBy=default.target

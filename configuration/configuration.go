@@ -65,7 +65,7 @@ func Check() {
 	if len(Config.Providers) == 0 {
 		log.WithFields(log.Fields{
 			"error": "No providers defined",
-		}).Error("Configuration error")
+		}).Fatal("Configuration error")
 	}
 
 	_, tvdb := Config.Providers["tvdb"]

@@ -43,8 +43,15 @@ go get -u github.com/golang/dep/cmd/dep
 # Install dependencies
 dep ensure
 
-# Install flemzerd
-go install
+# Build flemzerd binary
+go build
+
+# Install and run
+sudo ./install.sh
+systemctl start flemzerd
+
+# Enable service at startup if needed
+systemctl enable flemzerd
 ```
 
 ## Usage
@@ -60,4 +67,3 @@ Usage of flemzerd:
 
 A sample configuration file is present in the repo (flemzerd.yaml).
 This file is written in a yaml format and is hopefully self-explanatory enough. It contains sections about each module type (providers, notifiers, indexers, downloaders) that have to filled to enable corresponding modules.
-Also, the shows sections must contain a list to shows to watch.
