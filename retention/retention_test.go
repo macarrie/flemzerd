@@ -1,6 +1,7 @@
 package retention
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,7 +15,8 @@ func init() {
 func resetRetention() {
 	retentionData.NotifiedEpisodes = make(map[int]Episode)
 	retentionData.DownloadedEpisodes = make(map[int]Episode)
-	retentionData.DownloadingEpisodes = make(map[int]DownloadingEpisode)
+	retentionData.DownloadingEpisodes = make(map[int]*DownloadingEpisode)
+	retentionData.FailedEpisodes = make(map[int]Episode)
 }
 
 func TestLoad(t *testing.T) {
@@ -37,8 +39,11 @@ func TestElementInRetention(t *testing.T) {
 	if HasBeenDownloaded(testEpisode) {
 		t.Error("Expected episode not to be in downloaded episodes retention")
 	}
-	if IsDownloading(testEpisode) {
+	if IsInDownloadProcess(testEpisode) {
 		t.Error("Expected episode not to be in downloading episodes retention")
+	}
+	if HasDownloadFailed(testEpisode) {
+		t.Error("Expected episode not to be in failed torrents retention")
 	}
 
 	retentionData = RetentionData{
@@ -48,10 +53,13 @@ func TestElementInRetention(t *testing.T) {
 		DownloadedEpisodes: map[int]Episode{
 			testEpisode.Id: testEpisode,
 		},
-		DownloadingEpisodes: map[int]DownloadingEpisode{
-			testEpisode.Id: DownloadingEpisode{
+		DownloadingEpisodes: map[int]*DownloadingEpisode{
+			testEpisode.Id: &DownloadingEpisode{
 				Episode: testEpisode,
 			},
+		},
+		FailedEpisodes: map[int]Episode{
+			testEpisode.Id: testEpisode,
 		},
 	}
 
@@ -61,8 +69,11 @@ func TestElementInRetention(t *testing.T) {
 	if !HasBeenDownloaded(testEpisode) {
 		t.Error("Expected test episode to be present in downloaded episodes retention")
 	}
-	if !IsDownloading(testEpisode) {
+	if !IsInDownloadProcess(testEpisode) {
 		t.Error("Expected test episode to be present in downloading episodes retention")
+	}
+	if !HasDownloadFailed(testEpisode) {
+		t.Error("Expected test episode to be present in failed torrents retention")
 	}
 }
 
@@ -103,7 +114,7 @@ func TestCleanOldNotifiedEpisodes(t *testing.T) {
 	}
 }
 
-func TestRemoveNotifiedEpisode(t *testing.T) {
+func TestRemoveElementFromRetention(t *testing.T) {
 	e1 := Episode{
 		Id: 1,
 	}
@@ -113,12 +124,75 @@ func TestRemoveNotifiedEpisode(t *testing.T) {
 
 	AddNotifiedEpisode(e1)
 	AddNotifiedEpisode(e2)
+	AddDownloadedEpisode(e1)
+	AddDownloadedEpisode(e2)
+	AddDownloadingEpisode(e1)
+	AddDownloadingEpisode(e2)
+	AddFailedEpisode(e1)
+	AddFailedEpisode(e2)
 
 	itemToRemove := 2
 
 	RemoveNotifiedEpisode(e2)
+	RemoveDownloadingEpisode(e2)
+	RemoveDownloadedEpisode(e2)
+	RemoveFailedEpisode(e2)
 
 	if HasBeenNotified(e2) {
-		t.Error("Expected item \"", itemToRemove, "\" to be removed from retention but it is still present")
+		t.Error("Expected item \"", itemToRemove, "\" to be removed from notified episodes retention but it is still present")
+	}
+	if HasBeenDownloaded(e2) {
+		t.Error("Expected item \"", itemToRemove, "\" to be removed from downloaded episodes retention but it is still present")
+	}
+	if IsInDownloadProcess(e2) {
+		t.Error("Expected item \"", itemToRemove, "\" to be removed from downloading episodes retention but it is still present")
+	}
+	if HasDownloadFailed(e2) {
+		t.Error("Expected item \"", itemToRemove, "\" to be removed from failed episodes retention but it is still present")
+	}
+}
+
+func TestTorrentsHandling(t *testing.T) {
+	resetRetention()
+	testEpisode := Episode{
+		Id: 1000,
+	}
+	testTorrent := Torrent{
+		Id: "id",
+	}
+
+	retentionData = RetentionData{
+		DownloadingEpisodes: map[int]*DownloadingEpisode{
+			testEpisode.Id: &DownloadingEpisode{
+				Episode:     testEpisode,
+				Downloading: true,
+			},
+		},
+	}
+	//retentionData.DownloadingEpisodes[testEpisode.Id].FailedTorrents = make(map[string]Torrent)
+	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
+
+	if !IsDownloading(testEpisode) {
+		t.Error("Episode is supposed to be downloading")
+	}
+
+	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
+	ChangeDownloadingState(testEpisode, false)
+
+	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
+	if IsDownloading(testEpisode) {
+		t.Error("Episode should not be downloading")
+	}
+
+	AddFailedTorrent(testEpisode, testTorrent)
+
+	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
+	if !IsInFailedTorrents(testEpisode, testTorrent) {
+		t.Error("Expected torrent to be in failed torrents")
+	}
+	failedTorrentsCount := GetFailedTorrentsCount(testEpisode)
+	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
+	if failedTorrentsCount != 1 {
+		t.Error("Expected failed torrents count to be 1, got ", failedTorrentsCount, " instead")
 	}
 }

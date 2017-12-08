@@ -13,13 +13,15 @@ import (
 
 type DownloadingEpisode struct {
 	Episode        Episode
-	FailedTorrents map[string]Torrent
+	Downloading    bool
+	FailedTorrents map[string]*Torrent
 }
 
 type RetentionData struct {
 	NotifiedEpisodes    map[int]Episode
 	DownloadedEpisodes  map[int]Episode
-	DownloadingEpisodes map[int]DownloadingEpisode
+	DownloadingEpisodes map[int]*DownloadingEpisode
+	FailedEpisodes      map[int]Episode
 }
 
 var retentionData RetentionData
@@ -34,9 +36,18 @@ func HasBeenDownloaded(e Episode) bool {
 	return ok
 }
 
-func IsDownloading(e Episode) bool {
+func IsInDownloadProcess(e Episode) bool {
 	_, ok := retentionData.DownloadingEpisodes[e.Id]
 	return ok
+}
+
+func IsDownloading(e Episode) bool {
+	if !IsInDownloadProcess(e) {
+		return false
+	}
+
+	ep, _ := retentionData.DownloadingEpisodes[e.Id]
+	return ep.Downloading
 }
 
 func IsInFailedTorrents(e Episode, t Torrent) bool {
@@ -48,10 +59,25 @@ func IsInFailedTorrents(e Episode, t Torrent) bool {
 	return ok
 }
 
+func GetFailedTorrentsCount(e Episode) int {
+	if !IsDownloading(e) {
+		return 0
+	}
+
+	return len(retentionData.DownloadingEpisodes[e.Id].FailedTorrents)
+}
+
+func HasDownloadFailed(e Episode) bool {
+	_, present := retentionData.FailedEpisodes[e.Id]
+
+	return present
+}
+
 func InitStruct() {
 	retentionData.NotifiedEpisodes = make(map[int]Episode)
 	retentionData.DownloadedEpisodes = make(map[int]Episode)
-	retentionData.DownloadingEpisodes = make(map[int]DownloadingEpisode)
+	retentionData.DownloadingEpisodes = make(map[int]*DownloadingEpisode)
+	retentionData.FailedEpisodes = make(map[int]Episode)
 }
 
 func Load() error {
@@ -98,6 +124,8 @@ func Save() error {
 		return err
 	}
 
+	log.Debug("Retention data saved")
+
 	return nil
 }
 
@@ -117,23 +145,34 @@ func AddDownloadedEpisode(e Episode) {
 
 func AddDownloadingEpisode(e Episode) {
 	if !IsDownloading(e) {
-		retentionData.DownloadingEpisodes[e.Id] = DownloadingEpisode{
+		retentionData.DownloadingEpisodes[e.Id] = &DownloadingEpisode{
 			Episode:        e,
-			FailedTorrents: make(map[string]Torrent),
+			Downloading:    true,
+			FailedTorrents: make(map[string]*Torrent),
 		}
 	}
 }
 
 func AddFailedEpisode(e Episode) {
-	// TODO
+	if !HasDownloadFailed(e) {
+		retentionData.FailedEpisodes[e.Id] = e
+	}
 }
 
 func AddFailedTorrent(e Episode, t Torrent) {
 	if !IsDownloading(e) {
 		AddDownloadingEpisode(e)
 	}
+	retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id] = &t
+}
 
-	retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id] = t
+func ChangeDownloadingState(e Episode, state bool) {
+	if !IsInDownloadProcess(e) {
+		return
+	}
+
+	downloadingEpisode := retentionData.DownloadingEpisodes[e.Id]
+	downloadingEpisode.Downloading = state
 }
 
 func CleanOldNotifiedEpisodes() {
@@ -155,4 +194,8 @@ func RemoveDownloadedEpisode(e Episode) {
 
 func RemoveDownloadingEpisode(e Episode) {
 	delete(retentionData.DownloadingEpisodes, e.Id)
+}
+
+func RemoveFailedEpisode(e Episode) {
+	delete(retentionData.FailedEpisodes, e.Id)
 }

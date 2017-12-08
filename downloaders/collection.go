@@ -75,6 +75,7 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	}).Info("Starting download process")
 
 	retention.AddDownloadingEpisode(e)
+	retention.ChangeDownloadingState(e, true)
 
 	for _, torrent := range torrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, e.Season)
@@ -131,13 +132,35 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	}
 
 	// If function has not returned yet, it means the download failed
-	retention.AddFailedEpisode(e)
-	log.WithFields(log.Fields{
-		"show":   show.Name,
-		"season": e.Season,
-		"number": e.Number,
-		"name":   e.Name,
-	}).Error("Download failed, no torrents could be downloaded")
-	notifier.NotifyFailedEpisode(show, e)
-	return errors.New("Download failed, no torrents could be downloaded")
+	if retention.GetFailedTorrentsCount(e) > configuration.Config.System.TorrentDownloadAttemptsLimit {
+		retention.AddFailedEpisode(e)
+		log.WithFields(log.Fields{
+			"show":   show.Name,
+			"season": e.Season,
+			"number": e.Number,
+			"name":   e.Name,
+		}).Error("Download failed, no torrents could be downloaded")
+
+		notifier.NotifyFailedEpisode(show, e)
+		retention.ChangeDownloadingState(e, false)
+
+		return errors.New("Download failed, no torrents could be downloaded")
+	}
+
+	return nil
+}
+
+func FillToDownloadTorrentList(e Episode, list []Torrent) []Torrent {
+	var torrentList []Torrent
+	for _, torrent := range list {
+		if !retention.IsInFailedTorrents(e, torrent) {
+			torrentList = append(torrentList, torrent)
+		}
+	}
+
+	if len(torrentList) < 10 {
+		return torrentList
+	} else {
+		return torrentList[:10]
+	}
 }

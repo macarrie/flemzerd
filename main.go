@@ -205,9 +205,7 @@ func main() {
 		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
-	// TODO: Ticker interval is set in seconds for dev. Ticker interval must be changed from time.Second to time.Minute.
-	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Second)
-
+	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting polling loop")
 		for {
@@ -257,13 +255,11 @@ func main() {
 					log.Debug("Torrents found: ", len(torrentList))
 
 					// Send only download for first 10 torrents. If the first 10 don't work, the download is probably fucked, or another problem is happening and trying more torrents won't change anything
-					var toDownload []Torrent
-					if len(torrentList) < 10 {
-						toDownload = torrentList
-					} else {
-						toDownload = torrentList[:10]
+					toDownload := downloader.FillToDownloadTorrentList(recentEpisode, torrentList)
+					if len(toDownload) == 0 {
+						retention.ChangeDownloadingState(recentEpisode, false)
+						continue
 					}
-
 					go downloader.Download(show, recentEpisode, toDownload)
 				}
 			}
