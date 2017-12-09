@@ -1,54 +1,28 @@
 #!/bin/bash
 
-echo "--------------- FLEMZERD INSTALL ---------------"
+. common.sh
 
-RUN=/var/run/flemzerd
-ETC=/etc/flemzerd
-BIN=/usr/bin
+printf "$CHAR_CORNER_TOP_LEFT"
+printf "%0.s$CHAR_HBAR" {1..48}
+printf "$CHAR_CORNER_TOP_RIGHT\n"
+printf "$CHAR_VBAR               ${GREEN}FLEMZERD INSTALLER${RESET}               $CHAR_VBAR\n"
+printf "$CHAR_CORNER_BOTTOM_LEFT"
+printf "%0.s$CHAR_HBAR" {1..48}
+printf "$CHAR_CORNER_BOTTOM_RIGHT\n"
 
-USER=flemzer
-GROUP=flemzer
-
-# Copy exec file
-printf "Copying flemzerd binary"
-cp flemzerd $BIN/flemzerd
-chmod a+x $BIN/flemzerd
-printf "\t\t\tdone\n"
-
-printf "Creating flemzer user"
-id -u $USER > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    useradd -M $USER
-    printf "\t\t\tdone\n"
-else
-    printf "\t\t\tskipping\n"
-fi
-
+# Copy flemzerd executable
+copy_binary
+# Create flemzerd user
+create_user
 # Ensure file system is prepared for flemzerd
-printf "Creating folder hierarchy"
-mkdir -p $RUN
-mkdir -p $ETC
-chown $USER:$GROUP $ETC
-chown $USER:$GROUP $RUN
-mkdir -p /var/lib/flemzerd/Library/Shows
-mkdir -p /var/lib/flemzerd/Library/Movies
-printf "\t\tdone\n"
-
-printf "Copying default configuration file"
-if [ ! -f $ETC/flemzerd.yml ]; then
-    cp install/flemzerd.yml $ETC
-    printf "\tdone\n"
-else
-    printf "\tskipping\n"
-fi
-
-printf "Creating systemd unit"
+create_folder_structure
+# Copy default configuration files
+copy_config_files
 # Create systemd unit
-cp install/flemzerd.service /etc/systemd/system/
-chmod 0644 /etc/systemd/system/flemzerd.service
-printf "\t\t\tdone\n"
-
-# Reload systemd units
-systemctl daemon-reload
+create_systemd_unit
+# Reload systemd units configuration
+reload_systemd_units
+# Start flemzerd daemon
+start_flemzerd
 
 exit 0
