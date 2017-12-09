@@ -205,6 +205,8 @@ func main() {
 		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
+	downloader.RecoverFromRetention()
+
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting polling loop")

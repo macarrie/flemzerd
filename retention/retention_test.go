@@ -1,7 +1,6 @@
 package retention
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -169,29 +168,24 @@ func TestTorrentsHandling(t *testing.T) {
 			},
 		},
 	}
-	//retentionData.DownloadingEpisodes[testEpisode.Id].FailedTorrents = make(map[string]Torrent)
-	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
 
 	if !IsDownloading(testEpisode) {
 		t.Error("Episode is supposed to be downloading")
 	}
 
-	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
 	ChangeDownloadingState(testEpisode, false)
 
-	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
 	if IsDownloading(testEpisode) {
 		t.Error("Episode should not be downloading")
 	}
 
 	AddFailedTorrent(testEpisode, testTorrent)
 
-	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
 	if !IsInFailedTorrents(testEpisode, testTorrent) {
 		t.Error("Expected torrent to be in failed torrents")
 	}
+
 	failedTorrentsCount := GetFailedTorrentsCount(testEpisode)
-	fmt.Printf("%+v\n", retentionData.DownloadingEpisodes)
 	if failedTorrentsCount != 1 {
 		t.Error("Expected failed torrents count to be 1, got ", failedTorrentsCount, " instead")
 	}

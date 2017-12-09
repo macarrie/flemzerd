@@ -27,7 +27,7 @@ func TestAddTorrentWhenNoDownloadersAdded(t *testing.T) {
 	torrent := Torrent{
 		Link: "test",
 	}
-	err := AddTorrent(torrent)
+	_, err := AddTorrent(torrent)
 	if err == nil {
 		t.Error("Got no downloaders configured, expected to have error when adding torrent")
 	}

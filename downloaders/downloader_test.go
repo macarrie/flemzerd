@@ -10,9 +10,13 @@ type MockDownloader struct{}
 
 var testTorrentsCount int
 
-func (d MockDownloader) AddTorrent(t Torrent) error {
+func (d MockDownloader) AddTorrent(t Torrent) (string, error) {
 	testTorrentsCount += 1
-	return nil
+	return "id", nil
+}
+
+func (d MockDownloader) AddTorrentMapping(flemzerId string, downloaderId string) {
+	return
 }
 
 func (d MockDownloader) RemoveTorrent(t Torrent) error {

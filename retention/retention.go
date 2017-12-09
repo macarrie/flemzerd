@@ -12,9 +12,13 @@ import (
 )
 
 type DownloadingEpisode struct {
-	Episode        Episode
-	Downloading    bool
-	FailedTorrents map[string]*Torrent
+	Episode         Episode
+	Downloading     bool
+	FailedTorrents  map[string]*Torrent
+	CurrentDownload struct {
+		Torrent      Torrent
+		DownloaderId string
+	}
 }
 
 type RetentionData struct {
@@ -25,53 +29,6 @@ type RetentionData struct {
 }
 
 var retentionData RetentionData
-
-func HasBeenNotified(e Episode) bool {
-	_, ok := retentionData.NotifiedEpisodes[e.Id]
-	return ok
-}
-
-func HasBeenDownloaded(e Episode) bool {
-	_, ok := retentionData.DownloadedEpisodes[e.Id]
-	return ok
-}
-
-func IsInDownloadProcess(e Episode) bool {
-	_, ok := retentionData.DownloadingEpisodes[e.Id]
-	return ok
-}
-
-func IsDownloading(e Episode) bool {
-	if !IsInDownloadProcess(e) {
-		return false
-	}
-
-	ep, _ := retentionData.DownloadingEpisodes[e.Id]
-	return ep.Downloading
-}
-
-func IsInFailedTorrents(e Episode, t Torrent) bool {
-	if !IsDownloading(e) {
-		return false
-	}
-
-	_, ok := retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id]
-	return ok
-}
-
-func GetFailedTorrentsCount(e Episode) int {
-	if !IsDownloading(e) {
-		return 0
-	}
-
-	return len(retentionData.DownloadingEpisodes[e.Id].FailedTorrents)
-}
-
-func HasDownloadFailed(e Episode) bool {
-	_, present := retentionData.FailedEpisodes[e.Id]
-
-	return present
-}
 
 func InitStruct() {
 	retentionData.NotifiedEpisodes = make(map[int]Episode)
@@ -129,6 +86,53 @@ func Save() error {
 	return nil
 }
 
+func HasBeenNotified(e Episode) bool {
+	_, ok := retentionData.NotifiedEpisodes[e.Id]
+	return ok
+}
+
+func HasBeenDownloaded(e Episode) bool {
+	_, ok := retentionData.DownloadedEpisodes[e.Id]
+	return ok
+}
+
+func IsInDownloadProcess(e Episode) bool {
+	_, ok := retentionData.DownloadingEpisodes[e.Id]
+	return ok
+}
+
+func IsDownloading(e Episode) bool {
+	if !IsInDownloadProcess(e) {
+		return false
+	}
+
+	ep, _ := retentionData.DownloadingEpisodes[e.Id]
+	return ep.Downloading
+}
+
+func IsInFailedTorrents(e Episode, t Torrent) bool {
+	if !IsDownloading(e) {
+		return false
+	}
+
+	_, ok := retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id]
+	return ok
+}
+
+func GetFailedTorrentsCount(e Episode) int {
+	if !IsDownloading(e) {
+		return 0
+	}
+
+	return len(retentionData.DownloadingEpisodes[e.Id].FailedTorrents)
+}
+
+func HasDownloadFailed(e Episode) bool {
+	_, present := retentionData.FailedEpisodes[e.Id]
+
+	return present
+}
+
 func AddNotifiedEpisode(e Episode) {
 	if !HasBeenNotified(e) {
 		retentionData.NotifiedEpisodes[e.Id] = e
@@ -164,6 +168,30 @@ func AddFailedTorrent(e Episode, t Torrent) {
 		AddDownloadingEpisode(e)
 	}
 	retentionData.DownloadingEpisodes[e.Id].FailedTorrents[t.Id] = &t
+}
+
+func SetCurrentDownload(e Episode, t Torrent, downloaderId string) {
+	if !IsDownloading(e) {
+		return
+	}
+	retentionData.DownloadingEpisodes[e.Id].CurrentDownload.Torrent = t
+	retentionData.DownloadingEpisodes[e.Id].CurrentDownload.DownloaderId = downloaderId
+}
+
+func GetDownloadingEpisodes() ([]Episode, error) {
+	var episodesList []Episode
+	for _, val := range retentionData.DownloadingEpisodes {
+		episodesList = append(episodesList, val.Episode)
+	}
+	return episodesList, nil
+}
+
+func GetCurrentDownloadFromRetention(e Episode) (Torrent, string, error) {
+	if !IsDownloading(e) {
+		return Torrent{}, "", errors.New("Episode is not getting downloaded, no torrents to fetch")
+	}
+	currentDownload := retentionData.DownloadingEpisodes[e.Id].CurrentDownload
+	return currentDownload.Torrent, currentDownload.DownloaderId, nil
 }
 
 func ChangeDownloadingState(e Episode, state bool) {
