@@ -160,21 +160,24 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 
 	// If function has not returned yet, it means the download failed
 	if retention.GetFailedTorrentsCount(e) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		retention.AddFailedEpisode(e)
-		log.WithFields(log.Fields{
-			"show":   show.Name,
-			"season": e.Season,
-			"number": e.Number,
-			"name":   e.Name,
-		}).Error("Download failed, no torrents could be downloaded")
-
-		notifier.NotifyFailedEpisode(show, e)
-		retention.ChangeDownloadingState(e, false)
-
+		MarkFailedDownload(show, e)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
 	return nil
+}
+
+func MarkFailedDownload(show TvShow, e Episode) {
+	retention.AddFailedEpisode(e)
+	log.WithFields(log.Fields{
+		"show":   show.Name,
+		"season": e.Season,
+		"number": e.Number,
+		"name":   e.Name,
+	}).Error("Download failed, no torrents could be downloaded")
+
+	notifier.NotifyFailedEpisode(show, e)
+	retention.ChangeDownloadingState(e, false)
 }
 
 func FillToDownloadTorrentList(e Episode, list []Torrent) []Torrent {

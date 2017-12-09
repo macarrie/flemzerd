@@ -256,10 +256,9 @@ func main() {
 					}
 					log.Debug("Torrents found: ", len(torrentList))
 
-					// Send only download for first 10 torrents. If the first 10 don't work, the download is probably fucked, or another problem is happening and trying more torrents won't change anything
 					toDownload := downloader.FillToDownloadTorrentList(recentEpisode, torrentList)
 					if len(toDownload) == 0 {
-						retention.ChangeDownloadingState(recentEpisode, false)
+						downloader.MarkFailedDownload(show, recentEpisode)
 						continue
 					}
 					go downloader.Download(show, recentEpisode, toDownload)
