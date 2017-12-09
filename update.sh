@@ -11,7 +11,7 @@ printf "%0.s$CHAR_HBAR" {1..46}
 printf "$CHAR_CORNER_BOTTOM_RIGHT\n"
 
 if [ ! -f $BIN/flemzerd ]; then
-    printf -- "${RED}Flemzerd is not installed. Use the install script instead${RESET}"
+    printf -- "${RED}Flemzerd is not installed. Use the install script instead${RESET}\n"
     exit 1
 fi
 

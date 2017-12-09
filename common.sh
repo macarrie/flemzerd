@@ -10,11 +10,11 @@ CHAR_CORNER_BOTTOM_LEFT='└'
 CHAR_CORNER_BOTTOM_RIGHT='┘'
 
 # Color escape codes
-BLUE="\033[0;34m"
+BLUE="\033[0;94m"
 GREEN="\033[92m"
 GRAY="\033[0;37m"
-PURPLE="\033[0;35m"
-RED="\033[0;31m"
+PURPLE="\033[0;95m"
+RED="\033[0;91m"
 RESET="\033[0m"
 
 # Helper functions
