@@ -7,7 +7,9 @@ Type=simple
 User=flemzer
 Group=flemzer
 ExecStart=/usr/bin/flemzerd -d
-ExecStop=/bin/killall -SIGINT flemzerd
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=20
 
 [Install]
 WantedBy=default.target

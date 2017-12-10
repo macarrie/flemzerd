@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"syscall"
 	"strconv"
 	"time"
 
@@ -271,7 +272,7 @@ func main() {
 	}()
 
 	signalChannel := make(chan os.Signal, 1)
-	signal.Notify(signalChannel, os.Interrupt)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 
 	// Listen for channels
 	for {
@@ -284,6 +285,7 @@ func main() {
 				"error": err,
 			}).Error("Failed to save retention data")
 		}
+		log.Info("Retention saved function called")
 
 		os.Exit(0)
 	}
