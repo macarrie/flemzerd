@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"os/signal"
-	"syscall"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -266,6 +266,12 @@ func main() {
 				}
 			}
 
+			err := retention.Save()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Failed to save retention data")
+			}
 			log.Debug("========== Polling loop end ==========\n")
 			<-loopTicker.C
 		}
@@ -285,7 +291,6 @@ func main() {
 				"error": err,
 			}).Error("Failed to save retention data")
 		}
-		log.Info("Retention saved function called")
 
 		os.Exit(0)
 	}
