@@ -26,6 +26,10 @@ function print_skipping {
     printf "${GRAY}skip${RESET}\n"
 }
 
+function log_line {
+    printf "%-50s" "$1"
+}
+
 # Setup vars
 RUN=/var/run/flemzerd
 ETC=/etc/flemzerd
@@ -37,14 +41,14 @@ GROUP=flemzer
 
 function copy_binary {
     # Copy exec file
-    printf -- "- Copying flemzerd binary\t\t"
+    log_line "- Copying flemzerd binary"
     cp flemzerd $BIN/flemzerd
     chmod a+x $BIN/flemzerd
     print_done
 }
 
 function create_user {
-    printf -- "- Creating flemzer user\t\t\t"
+    log_line "- Creating flemzer user"
     id -u $USER > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         useradd -M $USER
@@ -55,7 +59,7 @@ function create_user {
 }
 
 function create_folder_structure {
-    printf -- "- Creating folder hierarchy\t\t"
+    log_line "- Creating folder hierarchy"
     mkdir -p $RUN
     mkdir -p $ETC
     chown $USER:$GROUP $ETC
@@ -66,7 +70,7 @@ function create_folder_structure {
 }
 
 function copy_config_files {
-    printf -- "- Copying default configuration file\t"
+    log_line "- Copying default configuration file"
     if [ ! -f $ETC/flemzerd.yml ]; then
         cp install/flemzerd.yml $ETC
         print_done
@@ -76,7 +80,7 @@ function copy_config_files {
 }
 
 function create_systemd_unit {
-    printf -- "- Creating systemd unit\t\t\t"
+    log_line "- Creating systemd unit"
     # Create systemd unit
     cp install/flemzerd.service /etc/systemd/system/
     chmod 0644 /etc/systemd/system/flemzerd.service
@@ -84,19 +88,19 @@ function create_systemd_unit {
 }
 
 function reload_systemd_units {
-    printf -- "- Reloading systemd units\t\t"
+    log_line "- Reloading systemd units"
     systemctl daemon-reload
     print_done
 }
 
 function start_flemzerd {
-    printf -- "- Starting flemzerd service\t\t"
+    log_line "- Starting flemzerd service"
     systemctl start flemzerd
     print_done
 }
 
 function stop_flemzerd {
-    printf -- "- Stopping flemzerd service\t\t"
+    log_line "- Stopping flemzerd service"
     systemctl stop flemzerd
     print_done
 }
