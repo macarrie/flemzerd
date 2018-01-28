@@ -5,6 +5,10 @@ type MockNotifier struct{}
 var mockNotificationCounter int
 var notifierInitialized bool
 
+func (n MockNotifier) IsAlive() error {
+	return nil
+}
+
 func (n MockNotifier) Setup(authCredentials map[string]string) {
 	return
 }

@@ -18,6 +18,21 @@ func AddIndexer(indexer Indexer) {
 	}).Debug("Indexer loaded")
 }
 
+func IsAlive() error {
+	var indexerAliveError error
+	for _, indexer := range indexersCollection {
+		indexerAliveError = indexer.IsAlive()
+		if indexerAliveError == nil {
+			return nil
+		} else {
+			log.WithFields(log.Fields{
+				"error": indexerAliveError,
+			}).Warning("Indexer is not alive")
+		}
+	}
+	return indexerAliveError
+}
+
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
 	var torrentList []Torrent
 	var err error

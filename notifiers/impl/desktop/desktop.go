@@ -19,6 +19,12 @@ func (d *DesktopNotifier) Init() error {
 	return nil
 }
 
+func (d *DesktopNotifier) IsAlive() error {
+	// TODO
+	log.Debug("Checking desktop notifier status")
+	return nil
+}
+
 func (d *DesktopNotifier) Send(title, content string) error {
 	log.WithFields(log.Fields{
 		"title":   title,

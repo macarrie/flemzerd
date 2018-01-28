@@ -149,6 +149,81 @@ func initNotifiers() {
 	}
 }
 
+func getTvShowsInfoFromProvider() []TvShow {
+	var showObjects []TvShow
+	for _, show := range configuration.Config.Shows {
+		showName := show
+		show, err := provider.FindShow(show)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"show":  showName,
+			}).Warning("Unable to get show informations")
+		} else {
+			showObjects = append(showObjects, show)
+		}
+	}
+	if len(showObjects) == 0 {
+		log.Error("Impossible to get show informations for shows defined in configuration. Shutting down")
+	}
+
+	return showObjects
+}
+
+func downloadChainFunc(TVShows []TvShow) {
+	for _, show := range TVShows {
+		recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"show":  show.Name,
+			}).Warning("No recent episodes found")
+			continue
+		}
+
+		for _, recentEpisode := range recentEpisodes {
+			err := notifier.NotifyRecentEpisode(show, recentEpisode)
+			if err != nil {
+				log.Warning(err)
+			}
+
+			if retention.HasBeenDownloaded(recentEpisode) {
+				log.WithFields(log.Fields{
+					"show":   show.Name,
+					"number": recentEpisode.Number,
+					"season": recentEpisode.Season,
+					"name":   recentEpisode.Name,
+				}).Debug("Episode already downloaded, nothing to do")
+				continue
+			}
+
+			if retention.IsDownloading(recentEpisode) {
+				log.WithFields(log.Fields{
+					"show":   show.Name,
+					"number": recentEpisode.Number,
+					"season": recentEpisode.Season,
+					"name":   recentEpisode.Name,
+				}).Debug("Episode already being downloaded, nothing to do")
+				continue
+			}
+
+			torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
+			if err != nil {
+				log.Warning(err)
+				continue
+			}
+			log.Debug("Torrents found: ", len(torrentList))
+
+			toDownload := downloader.FillToDownloadTorrentList(recentEpisode, torrentList)
+			if len(toDownload) == 0 {
+				downloader.MarkFailedDownload(show, recentEpisode)
+				continue
+			}
+			go downloader.Download(show, recentEpisode, toDownload)
+		}
+	}
+}
+
 func main() {
 	debugMode := flag.BoolP("debug", "d", false, "Start in debug mode")
 	configFilePath := flag.StringP("config", "c", "", "Configuration file path to use")
@@ -188,89 +263,53 @@ func main() {
 	}
 
 	//	 Load configuration objects
-	var showObjects []TvShow
-
-	for _, show := range configuration.Config.Shows {
-		showName := show
-		show, err := provider.FindShow(show)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"show":  showName,
-			}).Warning("Unable to get show informations")
-		} else {
-			showObjects = append(showObjects, show)
-		}
-	}
-	if len(showObjects) == 0 {
-		log.Fatal("Impossible to get show informations for shows defined in configuration. Shutting down")
-	}
-
-	downloader.RecoverFromRetention()
+	var TVShows []TvShow
+	var recovery bool = true
 
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting polling loop")
 		for {
+			var executeDownloadChain bool = true
 			log.Debug("========== Polling loop start ==========")
 
-			for _, show := range showObjects {
-				recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
+			if notifier.IsAlive() != nil {
+				log.Error("No notifier alive. No notifications will be sent until next polling.")
+			}
+
+			if provider.IsAlive() != nil {
+				log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
+				executeDownloadChain = false
+			}
+
+			if indexer.IsAlive() != nil {
+				log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
+				executeDownloadChain = false
+			}
+
+			if downloader.IsAlive() != nil {
+				log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
+				executeDownloadChain = false
+			}
+
+			if executeDownloadChain {
+				if len(TVShows) == 0 {
+					TVShows = getTvShowsInfoFromProvider()
+				}
+
+				if recovery {
+					downloader.RecoverFromRetention()
+					recovery = false
+				}
+
+				downloadChainFunc(TVShows)
+
+				err := retention.Save()
 				if err != nil {
 					log.WithFields(log.Fields{
 						"error": err,
-						"show":  show.Name,
-					}).Warning("No recent episodes found")
-					continue
+					}).Error("Failed to save retention data")
 				}
-
-				for _, recentEpisode := range recentEpisodes {
-					err := notifier.NotifyRecentEpisode(show, recentEpisode)
-					if err != nil {
-						log.Warning(err)
-					}
-
-					if retention.HasBeenDownloaded(recentEpisode) {
-						log.WithFields(log.Fields{
-							"show":   show.Name,
-							"number": recentEpisode.Number,
-							"season": recentEpisode.Season,
-							"name":   recentEpisode.Name,
-						}).Debug("Episode already downloaded, nothing to do")
-						continue
-					}
-
-					if retention.IsDownloading(recentEpisode) {
-						log.WithFields(log.Fields{
-							"show":   show.Name,
-							"number": recentEpisode.Number,
-							"season": recentEpisode.Season,
-							"name":   recentEpisode.Name,
-						}).Debug("Episode already being downloaded, nothing to do")
-						continue
-					}
-
-					torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
-					if err != nil {
-						log.Warning(err)
-						continue
-					}
-					log.Debug("Torrents found: ", len(torrentList))
-
-					toDownload := downloader.FillToDownloadTorrentList(recentEpisode, torrentList)
-					if len(toDownload) == 0 {
-						downloader.MarkFailedDownload(show, recentEpisode)
-						continue
-					}
-					go downloader.Download(show, recentEpisode, toDownload)
-				}
-			}
-
-			err := retention.Save()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Failed to save retention data")
 			}
 			log.Debug("========== Polling loop end ==========\n")
 			<-loopTicker.C
@@ -280,7 +319,6 @@ func main() {
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 
-	// Listen for channels
 	for {
 		<-signalChannel
 		log.Info("Shutting down...")

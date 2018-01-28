@@ -31,7 +31,7 @@ function log_line {
 }
 
 # Setup vars
-RUN=/var/run/flemzerd
+LIB=/var/lib/flemzerd
 ETC=/etc/flemzerd
 BIN=/usr/bin
 
@@ -60,10 +60,10 @@ function create_user {
 
 function create_folder_structure {
     log_line "- Creating folder hierarchy"
-    mkdir -p $RUN
+    mkdir -p $LIB
     mkdir -p $ETC
     chown $USER:$GROUP $ETC
-    chown $USER:$GROUP $RUN
+    chown $USER:$GROUP $LIB
     mkdir -p /var/lib/flemzerd/Library/Shows
     mkdir -p /var/lib/flemzerd/Library/Movies
     print_done

@@ -24,11 +24,12 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 
 	if err != nil {
 		if tvdb.HaveCodeError(401, err) {
-			log.Error("Can not connect to thetvdb (API key not valid). Please check your API key and try again")
+			log.Error("Cannot connect to thetvdb (API key not valid). Please check your API key and try again")
 		} else {
 			log.WithFields(log.Fields{
 				"details":  err,
 				"provider": "THE TVDB",
+				"error":    err,
 			}).Error("Cannot connect to thetvdb")
 		}
 		return TVDBProvider{}, err
@@ -36,6 +37,12 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 		log.Debug("Connection to TheTVDB successful")
 		return TVDBProvider{Client: client}, nil
 	}
+}
+
+// Check if Provider is alive
+func (tvdbProvider TVDBProvider) IsAlive() error {
+	log.Debug("Checking TVDB provider status")
+	return tvdbProvider.Client.Login()
 }
 
 // Get show from name
@@ -77,7 +84,8 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 				"tvshow_name": tvShow.Name,
 				"id":          tvShow.Id,
 				"provider":    "THE TVDB",
-			}).Warn("Can not retrieve episodes of tv show")
+				"error":       err,
+			}).Warn("Cannot retrieve episodes of tv show")
 			return []Episode{}, err
 		} else {
 			log.WithFields(log.Fields{
@@ -104,6 +112,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, erro
 			"tvshow_name": tvShow.Name,
 			"id":          tvShow.Id,
 			"provider":    "THE TVDB",
+			"error":       err,
 		}).Warn("Cannot get next aired episodes of the tv show")
 		return []Episode{}, err
 	} else {
@@ -133,7 +142,8 @@ func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 			"tvshow_name": tvShow.Name,
 			"id":          tvShow.Id,
 			"provider":    "THE TVDB",
-		}).Warn("Can not get recently aired episodes of the tv show")
+			"error":       err,
+		}).Warn("Cannot get recently aired episodes of the tv show")
 		return []Episode{}, err
 	} else {
 		log.WithFields(log.Fields{

@@ -10,6 +10,10 @@ type MockDownloader struct{}
 
 var testTorrentsCount int
 
+func (d MockDownloader) IsAlive() error {
+	return nil
+}
+
 func (d MockDownloader) AddTorrent(t Torrent) (string, error) {
 	testTorrentsCount += 1
 	return "id", nil

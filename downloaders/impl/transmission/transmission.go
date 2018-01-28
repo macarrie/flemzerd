@@ -3,7 +3,9 @@ package transmission
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
+	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tr "github.com/odwrtw/transmission"
 	"github.com/rs/xid"
@@ -72,6 +74,12 @@ func (d *TransmissionDownloader) Init() error {
 	torrentsMapping = make(map[string]string)
 
 	return nil
+}
+
+func (d *TransmissionDownloader) IsAlive() error {
+	log.Debug("Checking transmission downloader status")
+	_, err := http.Get(fmt.Sprintf("http://%s:%d", d.Address, d.Port))
+	return err
 }
 
 func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {

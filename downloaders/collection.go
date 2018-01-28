@@ -18,6 +18,21 @@ func AddDownloader(d Downloader) {
 	downloadersCollection = append(downloadersCollection, d)
 }
 
+func IsAlive() error {
+	var downloaderAliveError error
+	for _, downloader := range downloadersCollection {
+		downloaderAliveError = downloader.IsAlive()
+		if downloaderAliveError == nil {
+			return nil
+		} else {
+			log.WithFields(log.Fields{
+				"error": downloaderAliveError,
+			}).Warning("Downloader not alive")
+		}
+	}
+	return downloaderAliveError
+}
+
 func AddTorrent(t Torrent) (string, error) {
 	if len(downloadersCollection) == 0 {
 		return "", errors.New("Cannot add torrents, no downloaders are configured")
@@ -200,8 +215,12 @@ func RecoverFromRetention() {
 	downloadingEpisodesFromRetention, err := retention.GetDownloadingEpisodes()
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
+	if len(downloadingEpisodesFromRetention) != 0 {
+		log.Debug("Launching watch threads for downloading episodes found in retention")
+	}
 	for _, ep := range downloadingEpisodesFromRetention {
 		torrent, downloaderId, err := retention.GetCurrentDownloadFromRetention(ep)
 		if err != nil {
@@ -209,6 +228,13 @@ func RecoverFromRetention() {
 			continue
 		}
 		AddTorrentMapping(torrent.Id, downloaderId)
+
+		log.WithFields(log.Fields{
+			"episode": ep.Name,
+			"season":  ep.Season,
+			"number":  ep.Number,
+		}).Debug("Launched download processing recovery")
+
 		go HandleTorrentDownload(ep, torrent, true)
 	}
 }

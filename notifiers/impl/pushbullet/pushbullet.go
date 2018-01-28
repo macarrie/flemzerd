@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -127,6 +128,20 @@ func (notifier *PushbulletNotifier) Init() error {
 
 	//return nil
 	//}
+}
+
+func (notifier *PushbulletNotifier) IsAlive() error {
+	log.Debug("Checking Pushbullet notifier status")
+	response, err := performAPIRequest("GET", "v2/users/me", nil)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 200 {
+		return errors.New(fmt.Sprintf("Pushbullet request return %d status code", response.StatusCode))
+	}
+
+	return nil
 }
 
 func (notifier *PushbulletNotifier) Send(title, content string) error {

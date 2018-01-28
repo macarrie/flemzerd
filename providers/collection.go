@@ -7,6 +7,10 @@ import (
 
 var providersCollection []Provider
 
+func IsAlive() error {
+	return providersCollection[0].IsAlive()
+}
+
 func AddProvider(provider Provider) {
 	providersCollection = append(providersCollection, provider)
 	log.Debug("The TVDB provider loaded")

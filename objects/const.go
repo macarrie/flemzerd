@@ -11,5 +11,5 @@ const (
 )
 
 const (
-	RETENTION_FILE_PATH = "/var/run/flemzerd/retention.dat"
+	RETENTION_FILE_PATH = "/var/lib/flemzerd/retention.dat"
 )

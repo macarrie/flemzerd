@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/xml"
 	"errors"
+	"fmt"
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
@@ -52,6 +53,42 @@ func convertTorrent(t TorznabTorrent) Torrent {
 
 func New(name string, url string, apikey string) TorznabIndexer {
 	return TorznabIndexer{Name: name, Url: url, ApiKey: apikey}
+}
+
+func (torznabIndexer TorznabIndexer) IsAlive() error {
+	log.WithFields(log.Fields{
+		"name": torznabIndexer.GetName(),
+	}).Debug("Checking torznab indexer status")
+
+	baseURL := torznabIndexer.Url
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	httpClient := &http.Client{Transport: tr}
+	urlObject, _ := url.ParseRequestURI(baseURL)
+
+	var request *http.Request
+
+	params := url.Values{}
+	params.Add("apikey", torznabIndexer.ApiKey)
+	urlObject.RawQuery = params.Encode()
+
+	request, err := http.NewRequest("GET", urlObject.String(), nil)
+	if err != nil {
+		return err
+	}
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 200 {
+		return errors.New(fmt.Sprintf("Pushbullet request return %d status code", response.StatusCode))
+	}
+
+	return nil
 }
 
 func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {

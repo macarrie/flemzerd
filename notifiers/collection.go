@@ -20,6 +20,19 @@ func AddNotifier(notifier Notifier) {
 	}).Debug("Notifier loaded")
 }
 
+func IsAlive() error {
+	var notifierAliveError error
+	for _, notifier := range notifiersCollection {
+		notifierAliveError = notifier.IsAlive()
+		if notifierAliveError != nil {
+			log.WithFields(log.Fields{
+				"error": notifierAliveError,
+			}).Warning("Notifier not alive")
+		}
+	}
+	return notifierAliveError
+}
+
 func NotifyRecentEpisode(show TvShow, episode Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
 		return nil
