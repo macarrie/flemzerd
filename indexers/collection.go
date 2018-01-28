@@ -22,9 +22,7 @@ func IsAlive() error {
 	var indexerAliveError error
 	for _, indexer := range indexersCollection {
 		indexerAliveError = indexer.IsAlive()
-		if indexerAliveError == nil {
-			return nil
-		} else {
+		if indexerAliveError != nil {
 			log.WithFields(log.Fields{
 				"error": indexerAliveError,
 			}).Warning("Indexer is not alive")

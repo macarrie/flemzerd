@@ -211,7 +211,6 @@ func FillToDownloadTorrentList(e Episode, list []Torrent) []Torrent {
 }
 
 func RecoverFromRetention() {
-	log.Debug("Launching watch threads for downloading episodes found in retention")
 	downloadingEpisodesFromRetention, err := retention.GetDownloadingEpisodes()
 	if err != nil {
 		log.Error(err)
