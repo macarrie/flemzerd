@@ -168,7 +168,9 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			notifier.NotifyDownloadedEpisode(show, e)
+			if !retention.HasBeenDownloaded(e) {
+				notifier.NotifyDownloadedEpisode(show, e)
+			}
 		}
 		continue
 	}
