@@ -115,11 +115,13 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	if err != nil {
 		return []Torrent{}, err
 	}
+	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return []Torrent{}, err
 	}
+	defer response.Body.Close()
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
