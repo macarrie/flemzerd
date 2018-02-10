@@ -138,7 +138,7 @@ func (notifier *PushbulletNotifier) IsAlive() error {
 	}
 
 	if response.StatusCode != 200 {
-		return errors.New(fmt.Sprintf("Pushbullet request return %d status code", response.StatusCode))
+		return errors.New(fmt.Sprintf("Pushbullet notifier request returned %d status code", response.StatusCode))
 	}
 
 	return nil

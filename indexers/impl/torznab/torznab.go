@@ -78,14 +78,16 @@ func (torznabIndexer TorznabIndexer) IsAlive() error {
 	if err != nil {
 		return err
 	}
+	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return err
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return errors.New(fmt.Sprintf("Pushbullet request return %d status code", response.StatusCode))
+		return errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
 	}
 
 	return nil
