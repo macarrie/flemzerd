@@ -89,11 +89,13 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Access-Token", fmt.Sprintf("%s", APIToken.Token))
+	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return http.Response{}, err
 	}
+	defer response.Body.Close()
 
 	return *response, nil
 }
