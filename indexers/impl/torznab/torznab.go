@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"time"
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
@@ -65,7 +66,10 @@ func (torznabIndexer TorznabIndexer) IsAlive() error {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	httpClient := &http.Client{Transport: tr}
+	httpClient := &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
+	}
 	urlObject, _ := url.ParseRequestURI(baseURL)
 
 	var request *http.Request
@@ -99,7 +103,10 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	httpClient := &http.Client{Transport: tr}
+	httpClient := &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
+	}
 
 	urlObject, _ := url.ParseRequestURI(baseURL)
 

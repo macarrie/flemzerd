@@ -1,6 +1,7 @@
 package objects
 
 const RECENTLY_AIRED_EPISODES_INTERVAL = 7
+const HTTP_TIMEOUT = 10
 
 const (
 	TORRENT_DOWNLOADING = iota

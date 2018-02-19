@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
@@ -78,7 +79,10 @@ func (d *TransmissionDownloader) Init() error {
 
 func (d *TransmissionDownloader) IsAlive() error {
 	log.Debug("Checking transmission downloader status")
-	_, err := http.Get(fmt.Sprintf("http://%s:%d", d.Address, d.Port))
+	client := &http.Client{
+		Timeout: time.Duration(HTTP_TIMEOUT * time.Second),
+	}
+	_, err := client.Get(fmt.Sprintf("http://%s:%d", d.Address, d.Port))
 	return err
 }
 

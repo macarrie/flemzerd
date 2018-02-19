@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	log "github.com/macarrie/flemzerd/logging"
-	//"github.com/macarrie/flemzerd/notifier"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 ///////////////
@@ -53,7 +54,10 @@ func performAPIRequest(method string, path string, paramsMap map[string]string) 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	httpClient := &http.Client{Transport: tr}
+	httpClient := &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
+	}
 
 	urlObject, _ := url.ParseRequestURI(baseURL)
 	urlObject.Path = path
