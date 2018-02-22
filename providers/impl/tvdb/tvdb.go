@@ -11,7 +11,8 @@ import (
 )
 
 type TVDBProvider struct {
-	Client tvdb.Client
+	Client          tvdb.Client
+	LastTokenUpdate time.Time
 }
 
 // Create new instance of the TVDB info provider
@@ -35,13 +36,19 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 		return TVDBProvider{}, err
 	} else {
 		log.Debug("Connection to TheTVDB successful")
-		return TVDBProvider{Client: client}, nil
+		return TVDBProvider{Client: client, LastTokenUpdate: time.Now()}, nil
 	}
 }
 
 // Check if Provider is alive
 func (tvdbProvider TVDBProvider) IsAlive() error {
 	log.Debug("Checking TVDB provider status")
+	// Token expires every 24h. Refresh it if needed
+	now := time.Now()
+	yesterday := now.AddDate(0, 0, -1)
+	if tvdbProvider.LastTokenUpdate.Before(yesterday) {
+		tvdbProvider.Client.RefreshToken()
+	}
 	return tvdbProvider.Client.Login()
 }
 
