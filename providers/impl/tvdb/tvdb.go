@@ -16,7 +16,7 @@ type TVDBProvider struct {
 }
 
 // Create new instance of the TVDB info provider
-func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
+func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 	client := tvdb.Client{Apikey: apiKey}
 	err = client.Login()
 	log.WithFields(log.Fields{
@@ -33,27 +33,32 @@ func New(apiKey string) (tvdbProvider TVDBProvider, err error) {
 				"error":    err,
 			}).Error("Cannot connect to thetvdb")
 		}
-		return TVDBProvider{}, err
+		return &TVDBProvider{}, err
 	} else {
 		log.Debug("Connection to TheTVDB successful")
-		return TVDBProvider{Client: client, LastTokenUpdate: time.Now()}, nil
+		return &TVDBProvider{Client: client, LastTokenUpdate: time.Now()}, nil
 	}
 }
 
 // Check if Provider is alive
-func (tvdbProvider TVDBProvider) IsAlive() error {
+func (tvdbProvider *TVDBProvider) IsAlive() error {
 	log.Debug("Checking TVDB provider status")
+
 	// Token expires every 24h. Refresh it if needed
 	now := time.Now()
 	yesterday := now.AddDate(0, 0, -1)
+
 	if tvdbProvider.LastTokenUpdate.Before(yesterday) {
+		log.Debug("Refreshing TVDB token")
 		tvdbProvider.Client.RefreshToken()
+		tvdbProvider.LastTokenUpdate = now
 	}
+
 	return tvdbProvider.Client.Login()
 }
 
 // Get show from name
-func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
+func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 	log.WithFields(log.Fields{
 		"name":     tvShowName,
 		"provider": "THE TVDB",
@@ -74,7 +79,7 @@ func (tvdbProvider TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 }
 
 // Get list of episodes of a given show
-func (tvdbProvider TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
+func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 	log.WithFields(log.Fields{
 		"id":       tvShow.Id,
 		"name":     tvShow.Name,
@@ -112,7 +117,7 @@ func (tvdbProvider TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 }
 
 // Get all episodes of a tv show that haven't been aired yet for a given show
-func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
+func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -142,7 +147,7 @@ func (tvdbProvider TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, erro
 }
 
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
-func (tvdbProvider TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
+func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
