@@ -77,13 +77,30 @@ func (d *TransmissionDownloader) Init() error {
 	return nil
 }
 
-func (d *TransmissionDownloader) IsAlive() error {
+func (d *TransmissionDownloader) Status() (Module, error) {
 	log.Debug("Checking transmission downloader status")
 	client := &http.Client{
 		Timeout: time.Duration(HTTP_TIMEOUT * time.Second),
 	}
+
+	msg := ""
+	var alive bool
 	_, err := client.Get(fmt.Sprintf("http://%s:%d", d.Address, d.Port))
-	return err
+	if err != nil {
+		alive = false
+		msg = err.Error()
+	} else {
+		alive = true
+	}
+
+	return Module{
+		Name: "transmission",
+		Type: "downloader",
+		Status: ModuleStatus{
+			Alive:   alive,
+			Message: msg,
+		},
+	}, err
 }
 
 func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {

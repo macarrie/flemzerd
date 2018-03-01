@@ -7,8 +7,9 @@ import (
 
 var providersCollection []Provider
 
-func IsAlive() error {
-	return providersCollection[0].IsAlive()
+func Status() ([]Module, error) {
+	mod, err := providersCollection[0].Status()
+	return []Module{mod}, err
 }
 
 func AddProvider(provider Provider) {

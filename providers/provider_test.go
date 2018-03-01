@@ -4,8 +4,8 @@ import . "github.com/macarrie/flemzerd/objects"
 
 type MockProvider struct{}
 
-func (p MockProvider) IsAlive() error {
-	return nil
+func (p MockProvider) Status() (Module, error) {
+	return Module{}, nil
 }
 
 func (p MockProvider) GetShow(tvShowName string) (TvShow, error) {

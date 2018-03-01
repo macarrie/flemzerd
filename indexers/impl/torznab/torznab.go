@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"time"
 
-	log "github.com/macarrie/flemzerd/logging"
-	. "github.com/macarrie/flemzerd/objects"
-	"github.com/rs/xid"
-	//"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
+	"github.com/rs/xid"
 )
 
 type TorznabIndexer struct {
@@ -56,7 +56,15 @@ func New(name string, url string, apikey string) TorznabIndexer {
 	return TorznabIndexer{Name: name, Url: url, ApiKey: apikey}
 }
 
-func (torznabIndexer TorznabIndexer) IsAlive() error {
+func (torznabIndexer TorznabIndexer) Status() (Module, error) {
+	returnStruct := Module{
+		Name: torznabIndexer.GetName(),
+		Type: "indexer",
+		Status: ModuleStatus{
+			Alive: false,
+		},
+	}
+
 	log.WithFields(log.Fields{
 		"name": torznabIndexer.GetName(),
 	}).Debug("Checking torznab indexer status")
@@ -80,21 +88,25 @@ func (torznabIndexer TorznabIndexer) IsAlive() error {
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
-		return err
+		returnStruct.Status.Message = err.Error()
+		return returnStruct, err
 	}
 	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return err
+		returnStruct.Status.Message = err.Error()
+		return returnStruct, err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
+		returnStruct.Status.Message = err.Error()
+		return returnStruct, errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
 	}
 
-	return nil
+	returnStruct.Status.Alive = true
+	return returnStruct, nil
 }
 
 func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {

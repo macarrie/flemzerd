@@ -10,8 +10,8 @@ func (m MockIndexer) GetName() string {
 	return "MockIndexer"
 }
 
-func (m MockIndexer) IsAlive() error {
-	return nil
+func (m MockIndexer) Status() (Module, error) {
+	return Module{}, nil
 }
 
 func (m MockIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {

@@ -10,6 +10,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/retention"
+	"github.com/macarrie/flemzerd/server"
 	flag "github.com/ogier/pflag"
 
 	provider "github.com/macarrie/flemzerd/providers"
@@ -262,6 +263,11 @@ func main() {
 		}).Warning("Could not load retention data. Starting daemon with empty retention")
 	}
 
+	if configuration.Config.Interface.Enabled {
+		// Start HTTP server
+		go server.Start(configuration.Config.Interface.Port, *debugMode)
+	}
+
 	//	 Load configuration objects
 	var TVShows []TvShow
 	var recovery bool = true
@@ -273,21 +279,21 @@ func main() {
 			var executeDownloadChain bool = true
 			log.Debug("========== Polling loop start ==========")
 
-			if notifier.IsAlive() != nil {
+			if _, err := notifier.Status(); err != nil {
 				log.Error("No notifier alive. No notifications will be sent until next polling.")
 			}
 
-			if provider.IsAlive() != nil {
+			if _, err := provider.Status(); err != nil {
 				log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
 				executeDownloadChain = false
 			}
 
-			if indexer.IsAlive() != nil {
+			if _, err := indexer.Status(); err != nil {
 				log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
 				executeDownloadChain = false
 			}
 
-			if downloader.IsAlive() != nil {
+			if _, err := downloader.Status(); err != nil {
 				log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
 				executeDownloadChain = false
 			}
@@ -322,6 +328,8 @@ func main() {
 	for {
 		<-signalChannel
 		log.Info("Shutting down...")
+
+		server.Stop()
 
 		err := retention.Save()
 		if err != nil {

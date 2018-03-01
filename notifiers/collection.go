@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 
@@ -20,17 +21,29 @@ func AddNotifier(notifier Notifier) {
 	}).Debug("Notifier loaded")
 }
 
-func IsAlive() error {
-	var notifierAliveError error
+func Status() ([]Module, error) {
+	var modList []Module
+	var aggregatedErrorMessage bytes.Buffer
+
 	for _, notifier := range notifiersCollection {
-		notifierAliveError = notifier.IsAlive()
+		mod, notifierAliveError := notifier.Status()
 		if notifierAliveError != nil {
 			log.WithFields(log.Fields{
 				"error": notifierAliveError,
-			}).Warning("Notifier not alive")
+			}).Warning("Notifier is not alive")
+			aggregatedErrorMessage.WriteString(notifierAliveError.Error())
+			aggregatedErrorMessage.WriteString("\n")
 		}
+		modList = append(modList, mod)
 	}
-	return notifierAliveError
+
+	var retError error
+	if aggregatedErrorMessage.Len() == 0 {
+		retError = nil
+	} else {
+		retError = errors.New(aggregatedErrorMessage.String())
+	}
+	return modList, retError
 }
 
 func NotifyRecentEpisode(show TvShow, episode Episode) error {

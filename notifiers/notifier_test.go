@@ -1,12 +1,16 @@
 package notifier
 
+import (
+	. "github.com/macarrie/flemzerd/objects"
+)
+
 type MockNotifier struct{}
 
 var mockNotificationCounter int
 var notifierInitialized bool
 
-func (n MockNotifier) IsAlive() error {
-	return nil
+func (n MockNotifier) Status() (Module, error) {
+	return Module{}, nil
 }
 
 func (n MockNotifier) Setup(authCredentials map[string]string) {

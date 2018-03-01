@@ -136,18 +136,29 @@ func (notifier *PushbulletNotifier) Init() error {
 	//}
 }
 
-func (notifier *PushbulletNotifier) IsAlive() error {
+func (notifier *PushbulletNotifier) Status() (Module, error) {
+	returnStruct := Module{
+		Name: "Pushbullet",
+		Type: "notifier",
+		Status: ModuleStatus{
+			Alive: false,
+		},
+	}
+
 	log.Debug("Checking Pushbullet notifier status")
 	response, err := performAPIRequest("GET", "v2/users/me", nil)
 	if err != nil {
-		return err
+		returnStruct.Status.Message = err.Error()
+		return returnStruct, err
 	}
 
 	if response.StatusCode != 200 {
-		return errors.New(fmt.Sprintf("Pushbullet notifier request returned %d status code", response.StatusCode))
+		returnStruct.Status.Message = err.Error()
+		return returnStruct, errors.New(fmt.Sprintf("Pushbullet notifier request returned %d status code", response.StatusCode))
 	}
 
-	return nil
+	returnStruct.Status.Alive = true
+	return returnStruct, nil
 }
 
 func (notifier *PushbulletNotifier) Send(title, content string) error {

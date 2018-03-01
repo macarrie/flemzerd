@@ -6,6 +6,6 @@ import (
 
 type Indexer interface {
 	GetName() string
-	IsAlive() error
+	Status() (Module, error)
 	GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error)
 }

@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"time"
@@ -18,19 +19,29 @@ func AddDownloader(d Downloader) {
 	downloadersCollection = append(downloadersCollection, d)
 }
 
-func IsAlive() error {
-	var downloaderAliveError error
+func Status() ([]Module, error) {
+	var modList []Module
+	var aggregatedErrorMessage bytes.Buffer
+
 	for _, downloader := range downloadersCollection {
-		downloaderAliveError = downloader.IsAlive()
-		if downloaderAliveError == nil {
-			return nil
-		} else {
+		mod, downloaderAliveError := downloader.Status()
+		if downloaderAliveError != nil {
 			log.WithFields(log.Fields{
 				"error": downloaderAliveError,
-			}).Warning("Downloader not alive")
+			}).Warning("Downloader is not alive")
+			aggregatedErrorMessage.WriteString(downloaderAliveError.Error())
+			aggregatedErrorMessage.WriteString("\n")
 		}
+		modList = append(modList, mod)
 	}
-	return downloaderAliveError
+
+	var retError error
+	if aggregatedErrorMessage.Len() == 0 {
+		retError = nil
+	} else {
+		retError = errors.New(aggregatedErrorMessage.String())
+	}
+	return modList, retError
 }
 
 func AddTorrent(t Torrent) (string, error) {

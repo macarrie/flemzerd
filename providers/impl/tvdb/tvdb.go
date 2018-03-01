@@ -41,7 +41,7 @@ func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 }
 
 // Check if Provider is alive
-func (tvdbProvider *TVDBProvider) IsAlive() error {
+func (tvdbProvider *TVDBProvider) Status() (Module, error) {
 	log.Debug("Checking TVDB provider status")
 
 	// Token expires every 24h. Refresh it if needed
@@ -54,7 +54,24 @@ func (tvdbProvider *TVDBProvider) IsAlive() error {
 		tvdbProvider.LastTokenUpdate = now
 	}
 
-	return tvdbProvider.Client.Login()
+	msg := ""
+	var alive bool
+	err := tvdbProvider.Client.Login()
+	if err != nil {
+		alive = false
+		msg = err.Error()
+	} else {
+		alive = true
+	}
+
+	return Module{
+		Name: "TVDB",
+		Type: "provider",
+		Status: ModuleStatus{
+			Alive:   alive,
+			Message: msg,
+		},
+	}, err
 }
 
 // Get show from name

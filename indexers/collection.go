@@ -1,6 +1,7 @@
 package indexer
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"sort"
@@ -18,17 +19,29 @@ func AddIndexer(indexer Indexer) {
 	}).Debug("Indexer loaded")
 }
 
-func IsAlive() error {
-	var indexerAliveError error
+func Status() ([]Module, error) {
+	var modList []Module
+	var aggregatedErrorMessage bytes.Buffer
+
 	for _, indexer := range indexersCollection {
-		indexerAliveError = indexer.IsAlive()
+		mod, indexerAliveError := indexer.Status()
 		if indexerAliveError != nil {
 			log.WithFields(log.Fields{
 				"error": indexerAliveError,
 			}).Warning("Indexer is not alive")
+			aggregatedErrorMessage.WriteString(indexerAliveError.Error())
+			aggregatedErrorMessage.WriteString("\n")
 		}
+		modList = append(modList, mod)
 	}
-	return indexerAliveError
+
+	var retError error
+	if aggregatedErrorMessage.Len() == 0 {
+		retError = nil
+	} else {
+		retError = errors.New(aggregatedErrorMessage.String())
+	}
+	return modList, retError
 }
 
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {

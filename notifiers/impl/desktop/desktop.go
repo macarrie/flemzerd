@@ -3,6 +3,7 @@ package desktop
 import (
 	"github.com/0xAX/notificator"
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 type DesktopNotifier struct {
@@ -19,10 +20,18 @@ func (d *DesktopNotifier) Init() error {
 	return nil
 }
 
-func (d *DesktopNotifier) IsAlive() error {
+func (d *DesktopNotifier) Status() (Module, error) {
 	// TODO
 	log.Debug("Checking desktop notifier status")
-	return nil
+
+	return Module{
+		Name: "Desktop",
+		Type: "notifier",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}, nil
 }
 
 func (d *DesktopNotifier) Send(title, content string) error {

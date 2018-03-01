@@ -1,12 +1,29 @@
+# Global app parameters
+system:
+    # New episode check interval (in minutes) (default: 15)
+    episode_check_interval: 15
+    # Number of different torrents to try to download before declaring download as failed (default: 20)
+    torrent_download_attempts_limit: 20
+
+# WebUI settings
+interface:
+    # Enable web interface
+    enabled: true
+    # Port used for web interface
+    port: 8080
+
+# Provider used to retrieve media info
 providers:
     tvdb:
         apikey: API_KEY
 
+# List of different notification ways
 notifiers:
     pushbullet:
         accessToken: ACCESS_TOKEN
     desktop: []
 
+# List of indexers used to search torrents
 indexers:
     torznab:
         - name: Indexer 1
@@ -16,6 +33,7 @@ indexers:
           url: http://second-indexer:9164/url/to/torznab/endpoint
           apikey: API_KEY
 
+# Download client to use
 downloaders:
     transmission:
         address: localhost
@@ -23,6 +41,7 @@ downloaders:
         user: USERNAME
         password: PASSWORD
 
+# Notifications parameters
 notifications:
     # Enable notifications (default: true)
     enabled: true
@@ -35,13 +54,7 @@ notifications:
 
 library:
     # Where to store TV Shows (absolute path). Folder hierarchy will be created if not existent
-    show_path: "/var/lib/flemzer/library/"
-
-system:
-    # New episode check interval (in minutes) (default: 15)
-    episode_check_interval: 15
-    # Number of different torrents to try to download before declaring download as failed (default: 20)
-    torrent_download_attempts_limit: 20
+    show_path: "/var/lib/flemzer/library/shows"
 
 shows:
     - TV_SHOW_1

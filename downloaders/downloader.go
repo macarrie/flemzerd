@@ -4,7 +4,7 @@ import . "github.com/macarrie/flemzerd/objects"
 
 type Downloader interface {
 	Init() error
-	IsAlive() error
+	Status() (Module, error)
 	AddTorrent(t Torrent) (string, error)
 	AddTorrentMapping(string, string)
 	RemoveTorrent(t Torrent) error

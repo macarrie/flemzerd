@@ -15,6 +15,10 @@ var Config Configuration
 // YAML tags do not work in viper, mapstructure tags have to be used instead
 // https://github.com/spf13/viper/issues/385
 type Configuration struct {
+	Interface struct {
+		Enabled bool
+		Port    int
+	}
 	Providers     map[string]map[string]string
 	Indexers      map[string][]map[string]string
 	Notifiers     map[string]map[string]string
@@ -37,13 +41,16 @@ type Configuration struct {
 }
 
 func setDefaultValues() {
+	viper.SetDefault("interface.enabled", true)
+	viper.SetDefault("interface.port", 8080)
+
 	viper.SetDefault("notifications.enabled", true)
 	viper.SetDefault("notifications.notify_new_episode", true)
 	viper.SetDefault("notifications.notify_download_complete", true)
 	viper.SetDefault("notifications.notify_failure", true)
 
-	viper.SetDefault("library.show_path", "/var/lib/flemzerd/Library/Shows")
-	viper.SetDefault("library.movie_path", "/var/lib/flemzerd/Library/Movies")
+	viper.SetDefault("library.show_path", "/var/lib/flemzerd/library/shows")
+	viper.SetDefault("library.movie_path", "/var/lib/flemzerd/library/movies")
 
 	viper.SetDefault("system.episode_check_interval", 15)
 	viper.SetDefault("torrent_download_attempts_limit", 20)
