@@ -1,16 +1,57 @@
 <!doctype html>
 <html lang="en" ng-app="flemzer">
-	<head>
-		<meta charset="utf-8">
-		<title>Flemzer</title>
-		<!--<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />-->
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-		<script src="static/app.module.js"></script>
-		<script src="static/tvshows/tvshows.module.js"></script>
-		<script src="static/tvshows/tvshows.component.js"></script>
-	</head>
-	<body>
-        <h2>Flemzer</h2>
-        <tvshows></tvshows>
-	</body>
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
+        <link rel="stylesheet" href="static/css/flemzer.css">
+
+        <title>Flemzer</title>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <script src="static/libs/angular.min.js"></script>
+        <script src="static/libs/angular-route.min.js"></script>
+        <script src="static/app.module.js"></script>
+        <script src="static/app.config.js"></script>
+        <script src="static/home/home.controller.js"></script>
+        <script src="static/tvshows/tvshows.controller.js"></script>
+        <script src="static/status/status.controller.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark topbar">
+            <div class="container">
+                <a class="navbar-brand" href="#">flemzer</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav">
+                        <a class="nav-item nav-link" href="#!tvshows"><i class="fas fa-desktop"></i>TVShows</a>
+                        <a class="nav-item nav-link" href="#!movies"><i class="fas fa-film"></i>Movies</a>
+                        <a class="nav-item nav-link" href="#!status"><i class="fas fa-heartbeat"></i>Status</a>
+                        <a class="nav-item nav-link" href="#!settings"><i class="fas fa-cogs"></i>Settings</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="ng-view"></div>
+
+        <nav class="navbar navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">flemzer</a>
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="https://github.com/macarrie/flemzerd">
+                        <i class="fab fa-github"></i>GitHub
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </body>
 </html>

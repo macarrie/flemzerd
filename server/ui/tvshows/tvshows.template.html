@@ -1,5 +1,26 @@
+<div class="container">
+    <div class="row">
+        <div class="p-2 w-50" ng-repeat="tvshow in ctrl.tvshows">
+            <div class="card" >
+                <img class="card-img-top" src="https://www.thetvdb.com/banners/{{ tvshow.Banner }}" alt="">
+                <div class="card-body">
+                    <div class="card-title">
+                        <span class="h3">{{ tvshow.Name }} </span> <span class="badge badge-success">{{ tvshow.Status }}</span>
+                    </div>
+                    <!--<p class="card-subtitle text-muted">Status continued</p>-->
+                    <p class="card-text">{{ tvshow.Overview }}</p>
+
+                    <a class="card-link" href="">IMDB</a>
+                    <a class="card-link" href="">TVDB</a>
+                    <a class="card-link" href="">Trakt</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div>
     <ul>
-        <li ng-repeat="tvshow in $ctrl.tvshows">{{ tvshow }}<li>
+        <li ng-repeat="tvshow in ctrl.tvshows">{{ tvshow }}</li>
     </ul>
 </div>

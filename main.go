@@ -25,8 +25,6 @@ import (
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
-
-	. "github.com/macarrie/flemzerd/objects"
 )
 
 func initProviders() {
@@ -150,29 +148,8 @@ func initNotifiers() {
 	}
 }
 
-func getTvShowsInfoFromProvider() []TvShow {
-	var showObjects []TvShow
-	for _, show := range configuration.Config.Shows {
-		showName := show
-		show, err := provider.FindShow(show)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"show":  showName,
-			}).Warning("Unable to get show informations")
-		} else {
-			showObjects = append(showObjects, show)
-		}
-	}
-	if len(showObjects) == 0 {
-		log.Error("Impossible to get show informations for shows defined in configuration. Shutting down")
-	}
-
-	return showObjects
-}
-
-func downloadChainFunc(TVShows []TvShow) {
-	for _, show := range TVShows {
+func downloadChainFunc() {
+	for _, show := range provider.TVShows {
 		recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -269,7 +246,6 @@ func main() {
 	}
 
 	//	 Load configuration objects
-	var TVShows []TvShow
 	var recovery bool = true
 
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
@@ -286,6 +262,9 @@ func main() {
 			if _, err := provider.Status(); err != nil {
 				log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
 				executeDownloadChain = false
+			} else {
+				//Even if not able to download, retrieve media info for UI
+				provider.GetTVShowsInfoFromConfig()
 			}
 
 			if _, err := indexer.Status(); err != nil {
@@ -299,8 +278,8 @@ func main() {
 			}
 
 			if executeDownloadChain {
-				if len(TVShows) == 0 {
-					TVShows = getTvShowsInfoFromProvider()
+				if len(provider.TVShows) == 0 {
+					provider.GetTVShowsInfoFromConfig()
 				}
 
 				if recovery {
@@ -308,7 +287,7 @@ func main() {
 					recovery = false
 				}
 
-				downloadChainFunc(TVShows)
+				downloadChainFunc()
 
 				err := retention.Save()
 				if err != nil {

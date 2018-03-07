@@ -1,3 +1,3 @@
 angular.module('flemzer', [
-    'tvshows'
+    'ngRoute',
 ]);

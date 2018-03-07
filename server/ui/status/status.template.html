@@ -1,0 +1,29 @@
+<div class="container">
+    <h2>Providers</h2>
+    <div class="card" ng-repeat="provider in ctrl.providers">
+        <div class="card-body">
+            <div class="card-title">
+                <span class="badge badge-success module-status"
+                    ng-if="{{ provider.Status }}">OK</span>
+                <span class="badge badge-error module-status"
+                    ng-if="provider.Status">ERROR</span>
+                <span class="h4">{{ provider.Name }}</span>
+            </div>
+        </div>
+    </div>
+    <ul>
+        <li ng-repeat="provider in ctrl.providers">{{ provider }}</li>
+    </ul>
+    <h2>Notifiers</h2>
+    <ul>
+        <li ng-repeat="notifier in ctrl.notifiers">{{ notifier }}</li>
+    </ul>
+    <h2>Indexers</h2>
+    <ul>
+        <li ng-repeat="indexer in ctrl.indexers">{{ indexer}}</li>
+    </ul>
+    <h2>Downloaders</h2>
+    <ul>
+        <li ng-repeat="downloader in ctrl.downloaders">{{ downloader}}</li>
+    </ul>
+</div>
