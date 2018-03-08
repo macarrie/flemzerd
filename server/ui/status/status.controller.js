@@ -3,6 +3,7 @@ angular.module('flemzer')
 
 function StatusCtrl($routeParams, $http) {
     var self = this;
+
     $http.get('/api/v1/modules/providers/status').then(function(response) {
         if (response.status == 200) {
             self.providers = response.data;
