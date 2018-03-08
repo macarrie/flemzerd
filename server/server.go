@@ -109,7 +109,7 @@ func Start(port int, debug bool) {
 	initRouter()
 
 	srv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", port),
 		Handler: router,
 	}
 
