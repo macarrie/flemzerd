@@ -47,6 +47,13 @@ function copy_binary {
     print_done
 }
 
+function copy_server_files {
+     log_line "- Copying UI files"
+     mkdir -p $LIB/server/ui
+     cp -r server/ui/* $LIB/server/ui
+     print_done
+}
+
 function create_user {
     log_line "- Creating flemzer user"
     id -u $USER > /dev/null 2>&1

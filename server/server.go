@@ -24,12 +24,12 @@ var router *gin.Engine
 func initRouter() {
 	router = gin.Default()
 
-	router.Static("/static", "server/ui/")
+	router.Static("/static", "/var/lib/flemzerd/server/ui/")
 	//router.GET("/", func(c *gin.Context) {
 	//c.Redirect(http.StatusMovedPermanently, "/ui")
 	//})
 
-	router.LoadHTMLFiles("server/ui/index.html")
+	router.LoadHTMLFiles("/var/lib/flemzerd/server/ui/index.html")
 	router.GET("/ui", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})

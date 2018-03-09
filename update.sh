@@ -15,11 +15,11 @@ if [ ! -f $BIN/flemzerd ]; then
     exit 1
 fi
 
-# Stop flemzerd daemon
 stop_flemzerd
-# Copy new binary
+
 copy_binary
-# Start daemon
+copy_server_files
+
 start_flemzerd
 
 exit 0
