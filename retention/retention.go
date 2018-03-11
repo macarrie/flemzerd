@@ -26,6 +26,8 @@ type RetentionData struct {
 	DownloadedEpisodes  map[int]Episode
 	DownloadingEpisodes map[int]*DownloadingEpisode
 	FailedEpisodes      map[int]Episode
+	TraktToken          string
+	Watchlists          map[string][]string
 }
 
 var retentionData RetentionData
@@ -226,4 +228,24 @@ func RemoveDownloadingEpisode(e Episode) {
 
 func RemoveFailedEpisode(e Episode) {
 	delete(retentionData.FailedEpisodes, e.Id)
+}
+
+func SaveTraktToken(token string) {
+	retentionData.TraktToken = token
+}
+
+func LoadTraktToken() string {
+	return retentionData.TraktToken
+}
+
+func AddShowToWatchlistRetention(watchlistName string, show string) {
+	retentionData.Watchlists[watchlistName] = append(retentionData.Watchlists[watchlistName], show)
+}
+
+func GetShowsFromWatchlist(watchlistName string) []string {
+	if _, ok := retentionData.Watchlists[watchlistName]; ok {
+		return retentionData.Watchlists[watchlistName]
+	} else {
+		return []string{}
+	}
 }

@@ -23,6 +23,7 @@ type Configuration struct {
 	Indexers      map[string][]map[string]string
 	Notifiers     map[string]map[string]string
 	Downloaders   map[string]map[string]string
+	Watchlists    map[string]interface{}
 	Notifications struct {
 		Enabled                bool `mapstructure:"enabled"`
 		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`
@@ -65,9 +66,9 @@ func UseFile(filePath string) {
 }
 
 func Check() {
-	if len(Config.Shows) == 0 {
+	if len(Config.Watchlists) == 0 {
 		log.WithFields(log.Fields{
-			"error": "No shows defined",
+			"error": "No watchlists defined",
 		}).Error("Configuration error")
 	}
 

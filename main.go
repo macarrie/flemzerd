@@ -25,6 +25,10 @@ import (
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
+
+	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/watchlists/impl/manual"
+	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 )
 
 func initProviders() {
@@ -34,7 +38,7 @@ func initProviders() {
 	for providerType, providerElt := range configuration.Config.Providers {
 		switch providerType {
 		case "tvdb":
-			np, _ := impl.New(providerElt["apikey"])
+			np, _ := tvdb.New(providerElt["apikey"])
 			newProviders = append(newProviders, np)
 		default:
 			log.WithFields(log.Fields{
@@ -148,6 +152,36 @@ func initNotifiers() {
 	}
 }
 
+func initWatchlists() {
+	log.Debug("Initializing Watchlists")
+
+	var newWatchlists []watchlist.Watchlist
+	for watchlistType, _ := range configuration.Config.Watchlists {
+		switch watchlistType {
+		case "trakt":
+			w, _ := trakt.New()
+			newWatchlists = append(newWatchlists, w)
+		case "manual":
+			w, _ := manual.New()
+			newWatchlists = append(newWatchlists, w)
+		default:
+			log.WithFields(log.Fields{
+				"watchlistType": watchlistType,
+			}).Warning("Unknown watchlist type")
+		}
+
+		if len(newWatchlists) != 0 {
+			for _, newWatchlist := range newWatchlists {
+				watchlist.AddWatchlist(newWatchlist)
+				log.WithFields(log.Fields{
+					"watchlist": watchlistType,
+				}).Info("Watchlist added to list of watchlists")
+			}
+			newWatchlists = []watchlist.Watchlist{}
+		}
+	}
+}
+
 func downloadChainFunc() {
 	for _, show := range provider.TVShows {
 		recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
@@ -228,17 +262,18 @@ func main() {
 
 	configuration.Check()
 
-	initNotifiers()
-	initProviders()
-	initIndexers()
-	initDownloaders()
-
 	retentionErr := retention.Load()
 	if retentionErr != nil {
 		log.WithFields(log.Fields{
 			"error": retentionErr,
 		}).Warning("Could not load retention data. Starting daemon with empty retention")
 	}
+
+	initNotifiers()
+	initProviders()
+	initIndexers()
+	initDownloaders()
+	initWatchlists()
 
 	if configuration.Config.Interface.Enabled {
 		// Start HTTP server

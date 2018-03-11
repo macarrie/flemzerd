@@ -1,9 +1,10 @@
 package provider
 
 import (
-	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 )
 
 var providersCollection []Provider
@@ -29,7 +30,12 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 
 func GetTVShowsInfoFromConfig() {
 	var showObjects []TvShow
-	for _, show := range configuration.Config.Shows {
+	var showList []string
+
+	showsFromWatchlists, _ := watchlist.GetTvShows()
+	showList = append(showList, showsFromWatchlists...)
+
+	for _, show := range showList {
 		showName := show
 		show, err := FindShow(show)
 		if err != nil {

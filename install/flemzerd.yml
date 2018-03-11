@@ -41,6 +41,14 @@ downloaders:
         user: USERNAME
         password: PASSWORD
 
+# List of watchlists
+watchlists:
+    trakt: []
+    manual:
+        - TV_SHOW_1
+        - TV_SHOW_2
+        - TV_SHOW_3
+
 # Notifications parameters
 notifications:
     # Enable notifications (default: true)
@@ -55,8 +63,3 @@ notifications:
 library:
     # Where to store TV Shows (absolute path). Folder hierarchy will be created if not existent
     show_path: "/var/lib/flemzer/library/shows"
-
-shows:
-    - TV_SHOW_1
-    - TV_SHOW_2
-    - TV_SHOW_3

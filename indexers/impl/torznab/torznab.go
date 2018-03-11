@@ -101,8 +101,9 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
+		err := errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
 		returnStruct.Status.Message = err.Error()
-		return returnStruct, errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
+		return returnStruct, err
 	}
 
 	returnStruct.Status.Alive = true
