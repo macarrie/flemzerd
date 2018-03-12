@@ -3,6 +3,7 @@ package watchlist
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"sort"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -79,4 +80,16 @@ func removeDuplicates(array []string) []string {
 	}
 
 	return ret
+}
+
+func GetWatchlist(name string) (Watchlist, error) {
+	log.Error("GetWatchlist")
+	for _, w := range watchlistsCollection {
+		mod, _ := w.Status()
+		if mod.Name == name {
+			return w, nil
+		}
+	}
+
+	return nil, errors.New(fmt.Sprintf("Watchlist %s not found in configuration", name))
 }

@@ -28,4 +28,10 @@ function StatusCtrl($routeParams, $http) {
             return;
         }
     });
+    $http.get('/api/v1/modules/watchlists/status').then(function(response) {
+        if (response.status == 200) {
+            self.watchlists = response.data;
+            return;
+        }
+    });
 }

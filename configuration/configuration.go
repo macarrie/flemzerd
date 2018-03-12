@@ -38,7 +38,6 @@ type Configuration struct {
 		ShowPath  string `mapstructure:"show_path"`
 		MoviePath string `mapstructure:"movie_path"`
 	}
-	Shows []string
 }
 
 func setDefaultValues() {

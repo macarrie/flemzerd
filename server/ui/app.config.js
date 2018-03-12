@@ -16,6 +16,11 @@ angular.
                 controller: "StatusCtrl",
                 controllerAs: "ctrl"
             })
+            .when('/settings', {
+                templateUrl: 'static/settings/settings.template.html',
+                controller: "SettingsCtrl",
+                controllerAs: "ctrl"
+            })
             .otherwise('/');
         }
     ]);

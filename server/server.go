@@ -8,12 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
 	"github.com/macarrie/flemzerd/configuration"
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	indexer "github.com/macarrie/flemzerd/indexers"
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	provider "github.com/macarrie/flemzerd/providers"
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -92,6 +94,66 @@ func initRouter() {
 					mods, _ := downloader.Status()
 					c.JSON(http.StatusOK, mods)
 				})
+			}
+
+			watchlists := modules.Group("/watchlists")
+			{
+				watchlists.GET("/status", func(c *gin.Context) {
+					mods, _ := watchlist.Status()
+					c.JSON(http.StatusOK, mods)
+				})
+
+				traktRoutes := watchlists.Group("/trakt")
+				{
+
+					traktRoutes.GET("/auth", func(c *gin.Context) {
+						w, err := watchlist.GetWatchlist("Trakt")
+						t := w.(*trakt.TraktWatchlist)
+						if err == nil {
+							if err := t.IsAuthenticated(); err == nil {
+								c.JSON(http.StatusNoContent, gin.H{})
+								return
+							}
+
+							go t.Auth()
+							c.JSON(http.StatusOK, gin.H{})
+							return
+						}
+						c.JSON(http.StatusNotFound, err)
+					})
+
+					traktRoutes.GET("/auth_errors", func(c *gin.Context) {
+						w, err := watchlist.GetWatchlist("Trakt")
+						t := w.(*trakt.TraktWatchlist)
+						if err != nil {
+							c.JSON(http.StatusInternalServerError, err)
+							return
+						}
+
+						c.JSON(http.StatusOK, t.GetAuthErrors())
+					})
+
+					traktRoutes.GET("/token", func(c *gin.Context) {
+						w, err := watchlist.GetWatchlist("Trakt")
+						t := w.(*trakt.TraktWatchlist)
+						if err != nil {
+							c.JSON(http.StatusInternalServerError, err)
+							return
+						}
+
+						c.JSON(http.StatusOK, t.Token)
+					})
+
+					traktRoutes.GET("/devicecode", func(c *gin.Context) {
+						w, err := watchlist.GetWatchlist("Trakt")
+						t := w.(*trakt.TraktWatchlist)
+						if err == nil {
+							c.JSON(http.StatusOK, t.DeviceCode)
+							return
+						}
+						c.JSON(http.StatusNotFound, err)
+					})
+				}
 			}
 		}
 

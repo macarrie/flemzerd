@@ -1,0 +1,97 @@
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h4>Global settings</h4>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
+                <li class="list-group-item">Interface enabled {{ ctrl.config.Interface.Enabled }}</li>
+                <li class="list-group-item">Interface port {{ ctrl.config.Interface.Port }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
+                <li class="list-group-item"> Polling interval {{ ctrl.config.System.EpisodeCheckInterval }}mn</li>
+                <li class="list-group-item">Interface port {{ ctrl.config.Interface.Port }}</li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
+                <li class="list-group-item"> TV Shows library path {{ ctrl.config.Library.ShowPath }}</li>
+                <li class="list-group-item"> Movies library path {{ ctrl.config.Library.MoviePath }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h4>Notifications</h4>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
+                <li class="list-group-item"> Notifications enabled {{ ctrl.config.Notifications.Enabled }}</li>
+                <li class="list-group-item"> Notify on new episode {{ ctrl.config.Notifications.NotifyNewEpisode }}</li>
+                <li class="list-group-item"> Notify on download complete {{ ctrl.config.Notifications.NotifyDownloadComplete }}</li>
+                <li class="list-group-item"> Notify on download failure {{ ctrl.config.Notifications.NotifyFailure }}</li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h4>Modules</h4>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Watchlists</h6>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="(watchlist, content) in ctrl.config.Watchlists">
+                    {{ watchlist }}
+                    <span ng-if="watchlist == 'trakt' && ctrl.trakt_auth"
+                          class="text-success float-right font-weight-light font-italic">
+                        configured
+                    </span>
+                    <button ng-if="watchlist == 'trakt' && !ctrl.trakt_auth"
+                            class="btn btn-outline-danger btn-sm float-right font-weight-light"
+                            ng-click="ctrl.startTraktAuth()">
+                        Connect to trakt.tv
+                    </button>
+                    <div ng-if="watchlist == 'trakt'">
+                        <div ng-if="!ctrl.trakt_auth && ctrl.trakt_device_code.device_code">
+                            <hr />
+
+                            Enter the following validation code into <a target="_blank" href="{{ ctrl.trakt_device_code.verification_url }}">{{ ctrl.trakt_device_code.verification_url }}</a>
+                            <h5 class="font-weight-bold text-center text-primary mt-2">{{ ctrl.trakt_device_code.user_code }}</h5>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Providers</h6>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="(provider, cfg) in ctrl.config.Providers"> {{ provider }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Notifiers</h6>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="(notifier, cfg) in ctrl.config.Notifiers"> {{ notifier }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Indexers <span class="text-muted">(torznab)</span></h6>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="indexer in ctrl.config.Indexers.torznab"> {{ indexer.name }} {{ indexer.url }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Downloaders</h6>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="(downloader, cfg) in ctrl.config.Downloaders"> {{ downloader }}</li>
+            </ul>
+        </div>
+    </div>
+
+    {{ ctrl.config }}
+</div>

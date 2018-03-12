@@ -65,6 +65,7 @@ type traktWatchlistRequestResult struct {
 }
 
 var module Module
+var authErrors []error
 
 func (t *TraktWatchlist) performAPIRequest(method string, path string, paramsMap map[string]string) (http.Response, error) {
 	tr := &http.Transport{
@@ -189,21 +190,22 @@ func (t *TraktWatchlist) RequestToken() (http.Response, error) {
 	return response, nil
 }
 
-func (t *TraktWatchlist) Auth() error {
+func (t *TraktWatchlist) Auth() {
+	authErrors = []error{}
+
 	if t.DeviceCode.DeviceCode != "" {
 		log.Debug("Trakt auth process already in progress. Skipping")
-		return nil
+		return
 	}
 	if t.Token.AccessToken != "" {
 		log.Debug("Trakt app already authorized")
-		return nil
+		return
 	}
 
 	err := t.RequestDeviceCode()
-	fmt.Printf("%+v\n", t)
 	if err != nil {
 		log.Error("RequestDeviceError: ", err)
-		return err
+		return
 	}
 
 	errorsChannel := make(chan error, 1)
@@ -215,6 +217,7 @@ func (t *TraktWatchlist) Auth() error {
 			response, err := t.RequestToken()
 			if err != nil {
 				log.Error(err)
+				continue
 			}
 			defer response.Body.Close()
 
@@ -290,34 +293,55 @@ func (t *TraktWatchlist) Auth() error {
 	select {
 	case err := <-errorsChannel:
 		log.Error("TRAKT ERROR: ", err)
-		return err
+		authErrors = append(authErrors, err)
+
+		return
 	default:
 		log.Info("Trakt auth ok")
 		t.DeviceCode = TraktDeviceCode{}
 		retention.SaveTraktToken(t.Token.AccessToken)
-		return nil
+		authErrors = []error{}
+
+		return
 	}
+}
+
+func (t *TraktWatchlist) GetAuthErrors() []error {
+	return authErrors
+}
+
+func (t *TraktWatchlist) IsAuthenticated() error {
+	if t.Token.AccessToken == "" {
+		return errors.New("No trakt token found")
+	}
+
+	response, err := t.performAPIRequest("GET", "/users/settings", nil)
+	log.Warning(response.StatusCode)
+	if err != nil {
+		return err
+	} else {
+		if response.StatusCode != http.StatusOK {
+			t.DeviceCode = TraktDeviceCode{}
+			t.Token = TraktToken{}
+
+			return errors.New("Not authenticated into Trakt")
+		} else {
+			return nil
+		}
+	}
+
 }
 
 func (t *TraktWatchlist) Status() (Module, error) {
 	log.Warning("Checking Trakt watchlist status")
 
-	response, err := t.performAPIRequest("GET", "/users/settings", nil)
-	log.Warning(response.StatusCode)
+	err := t.IsAuthenticated()
 	if err != nil {
 		module.Status.Alive = false
 		module.Status.Message = err.Error()
 	} else {
-		if response.StatusCode != http.StatusOK {
-			log.Error("Not alive")
-			t.DeviceCode = TraktDeviceCode{}
-			t.Token = TraktToken{}
-
-			module.Status.Alive = false
-			module.Status.Message = "Not authenticated into Trakt"
-		} else {
-			module.Status.Alive = true
-		}
+		module.Status.Alive = true
+		module.Status.Message = ""
 	}
 
 	return module, err
@@ -361,6 +385,7 @@ func (t *TraktWatchlist) GetTvShows() ([]string, error) {
 	}
 	return []string{}, errors.New("Unknown HTTP return code from trakt watchlist call")
 }
+
 func (t *TraktWatchlist) GetMovies() ([]string, error) {
 	log.WithFields(log.Fields{
 		"watchlist": "trakt",
