@@ -28,6 +28,20 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 	return providersCollection[0].GetRecentlyAiredEpisodes(show)
 }
 
+func removeDuplicates(array []TvShow) []TvShow {
+	occurences := make(map[int]bool)
+	var ret []TvShow
+
+	for _, show := range array {
+		if !occurences[show.Id] {
+			occurences[show.Id] = true
+			ret = append(ret, show)
+		}
+	}
+
+	return ret
+}
+
 func GetTVShowsInfoFromConfig() {
 	var showObjects []TvShow
 	var showList []string
@@ -51,5 +65,5 @@ func GetTVShowsInfoFromConfig() {
 		log.Error("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
-	TVShows = showObjects
+	TVShows = removeDuplicates(showObjects)
 }

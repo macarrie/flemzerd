@@ -83,7 +83,6 @@ func removeDuplicates(array []string) []string {
 }
 
 func GetWatchlist(name string) (Watchlist, error) {
-	log.Error("GetWatchlist")
 	for _, w := range watchlistsCollection {
 		mod, _ := w.Status()
 		if mod.Name == name {
