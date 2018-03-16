@@ -14,6 +14,8 @@ interface:
 
 # Provider used to retrieve media info
 providers:
+    tmdb:
+        apikey: API_KEY
     tvdb:
         apikey: API_KEY
 

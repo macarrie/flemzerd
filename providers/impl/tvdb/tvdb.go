@@ -174,26 +174,25 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 			"error":       err,
 		}).Warn("Cannot get recently aired episodes of the tv show")
 		return []Episode{}, err
-	} else {
-		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.Name,
-			"id":          tvShow.Id,
-			"provider":    "THE TVDB",
-		}).Debug("Getting list of episodes that haven recently been aired")
-
-		// Current date minus RECENTLY_AIRED_EPISODES_INTERVAL days
-		oldestDate := time.Now().AddDate(0, 0, -RECENTLY_AIRED_EPISODES_INTERVAL)
-		now := time.Now()
-		recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
-
-		log.WithFields(log.Fields{
-			"tvshow_name":    tvShow.Name,
-			"id":             tvShow.Id,
-			"nb_of_episodes": len(recentlyAiredEpisodes),
-			"provider":       "THE TVDB",
-		}).Debug("Successfully filtered list of episodes that have been recently aired")
-		return recentlyAiredEpisodes, nil
 	}
+	log.WithFields(log.Fields{
+		"tvshow_name": tvShow.Name,
+		"id":          tvShow.Id,
+		"provider":    "THE TVDB",
+	}).Debug("Getting list of episodes that haven recently been aired")
+
+	// Current date minus RECENTLY_AIRED_EPISODES_INTERVAL days
+	oldestDate := time.Now().AddDate(0, 0, -RECENTLY_AIRED_EPISODES_INTERVAL)
+	now := time.Now()
+	recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
+
+	log.WithFields(log.Fields{
+		"tvshow_name":    tvShow.Name,
+		"id":             tvShow.Id,
+		"nb_of_episodes": len(recentlyAiredEpisodes),
+		"provider":       "THE TVDB",
+	}).Debug("Successfully filtered list of episodes that have been recently aired")
+	return recentlyAiredEpisodes, nil
 }
 
 func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {
@@ -232,13 +231,13 @@ func handleTvShowNotFoundError(tvShowName string, err error) error {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShowName,
 			"provider":    "THE TVDB",
-		}).Warn("TV show not found")
+		}).Warning("TV show not found")
 		return errors.New("TV show '" + tvShowName + "' not found")
 	} else if tvdb.HaveCodeError(401, err) {
 		// The request response is a 401: Authentication failure
 		log.WithFields(log.Fields{
 			"provider": "THE TVDB",
-		}).Warn("Could not connect to provider, authentication failed for unkonwn reasons")
+		}).Warning("Could not connect to provider, authentication failed for unkonwn reasons")
 		return err
 	} else {
 		log.WithFields(log.Fields{
@@ -256,7 +255,6 @@ func convertShow(tvShow tvdb.Series) TvShow {
 	}
 
 	return TvShow{
-		Aliases:    tvShow.Aliases,
 		Banner:     tvShow.Banner,
 		FirstAired: firstAired,
 		Id:         tvShow.ID,
@@ -274,12 +272,12 @@ func convertEpisode(episode tvdb.Episode) Episode {
 	}
 
 	return Episode{
-		AbsoluteNumber: episode.AbsoluteNumber,
-		Number:         episode.AiredEpisodeNumber,
-		Season:         episode.AiredSeason,
-		Name:           episode.EpisodeName,
-		Date:           firstAired,
-		Id:             episode.ID,
-		Overview:       episode.Overview,
+		//AbsoluteNumber: episode.AbsoluteNumber,
+		Number:   episode.AiredEpisodeNumber,
+		Season:   episode.AiredSeason,
+		Name:     episode.EpisodeName,
+		Date:     firstAired,
+		Id:       episode.ID,
+		Overview: episode.Overview,
 	}
 }

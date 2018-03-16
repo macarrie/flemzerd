@@ -14,6 +14,7 @@ import (
 	flag "github.com/ogier/pflag"
 
 	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
 	indexer "github.com/macarrie/flemzerd/indexers"
@@ -37,6 +38,9 @@ func initProviders() {
 	var newProviders []provider.Provider
 	for providerType, providerElt := range configuration.Config.Providers {
 		switch providerType {
+		case "tmdb":
+			np, _ := tmdb.New(providerElt["apikey"])
+			newProviders = append(newProviders, np)
 		case "tvdb":
 			np, _ := tvdb.New(providerElt["apikey"])
 			newProviders = append(newProviders, np)

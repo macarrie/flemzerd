@@ -2,6 +2,9 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Watchlists</h3>
+            <ul class="list-group" ng-if="!ctrl.watchlists">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="watchlist in ctrl.watchlists"
                     ng-class="watchlist.Status.Alive ? 'border-success' : 'border-danger'">
@@ -22,6 +25,9 @@
 
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Providers</h3>
+            <ul class="list-group" ng-if="!ctrl.providers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="provider in ctrl.providers"
                     ng-class="provider.Status.Alive ? 'border-success' : 'border-danger'">
@@ -44,6 +50,9 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Notifiers</h3>
+            <ul class="list-group" ng-if="!ctrl.notifiers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
             <ul class="list-group">
                 <li class="list-group-item border" 
                     ng-repeat="notifier in ctrl.notifiers"
@@ -64,6 +73,9 @@
         </div>
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Indexers</h3>
+            <ul class="list-group" ng-if="!ctrl.indexers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="indexer in ctrl.indexers"
                     ng-class="indexer.Status.Alive ? 'border-success' : 'border-danger'">
@@ -86,6 +98,9 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Downloaders</h3>
+            <ul class="list-group" ng-if="!ctrl.downloaders">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="downloader in ctrl.downloaders"
                     ng-class="downloader.Status.Alive ? 'border-success' : 'border-danger'">

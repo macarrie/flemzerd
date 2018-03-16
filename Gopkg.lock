@@ -86,6 +86,12 @@
   version = "v1.1"
 
 [[projects]]
+  name = "github.com/ryanbradynd05/go-tmdb"
+  packages = ["."]
+  revision = "5ab02a0655163a69d643172556bda2b05c676e44"
+  version = "1.0.0"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
@@ -160,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "19a0a852e29f612ab60469aac250cfe6964a3e1c378eae0b1cc4862f067b45a6"
+  inputs-digest = "ff2e51c2d00c338bad0093094f84a64bbdb04d56a274b28251eda00016210fd7"
   solver-name = "gps-cdcl"
   solver-version = 1
