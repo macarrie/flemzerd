@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/coreos/go-systemd/daemon"
+
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/retention"
@@ -283,6 +285,7 @@ func main() {
 		// Start HTTP server
 		go server.Start(configuration.Config.Interface.Port, *debugMode)
 	}
+	daemon.SdNotify(false, "READY=1")
 
 	//	 Load configuration objects
 	var recovery bool = true
