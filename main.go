@@ -304,6 +304,7 @@ func main() {
 			} else {
 				//Even if not able to download, retrieve media info for UI
 				provider.GetTVShowsInfoFromConfig()
+				provider.GetMoviesInfoFromConfig()
 			}
 
 			if _, err := indexer.Status(); err != nil {
@@ -319,6 +320,9 @@ func main() {
 			if executeDownloadChain {
 				if len(provider.TVShows) == 0 {
 					provider.GetTVShowsInfoFromConfig()
+				}
+				if len(provider.Movies) == 0 {
+					provider.GetMoviesInfoFromConfig()
 				}
 
 				if recovery {

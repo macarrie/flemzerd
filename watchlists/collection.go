@@ -65,7 +65,23 @@ func GetTvShows() ([]string, error) {
 }
 
 func GetMovies() ([]string, error) {
-	return []string{}, nil
+	movieWatchlist := []string{}
+	for _, watchlist := range watchlistsCollection {
+		movies, err := watchlist.GetMovies()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"watchlist": watchlist,
+				"error":     err,
+			}).Warning("Couldn't get movies from watchlist")
+			continue
+		}
+		movieWatchlist = append(movieWatchlist, movies...)
+	}
+
+	movieWatchlist = removeDuplicates(movieWatchlist)
+	sort.Strings(movieWatchlist)
+
+	return movieWatchlist, nil
 }
 
 func removeDuplicates(array []string) []string {

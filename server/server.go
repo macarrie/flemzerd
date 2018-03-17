@@ -46,6 +46,10 @@ func initRouter() {
 			c.JSON(http.StatusOK, provider.TVShows)
 		})
 
+		v1.GET("/movies", func(c *gin.Context) {
+			c.JSON(http.StatusOK, provider.Movies)
+		})
+
 		modules := v1.Group("/modules")
 		{
 			modules.GET("/status", func(c *gin.Context) {

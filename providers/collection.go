@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"errors"
+
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -9,37 +11,43 @@ import (
 
 var providersCollection []Provider
 var TVShows []TvShow
+var Movies []Movie
 
 func Status() ([]Module, error) {
+	// TODO: get aggregated status of all providers
 	mod, err := providersCollection[0].Status()
 	return []Module{mod}, err
 }
 
 func AddProvider(provider Provider) {
 	providersCollection = append(providersCollection, provider)
-	log.Debug("The TVDB provider loaded")
 }
 
 func FindShow(query string) (TvShow, error) {
-	return providersCollection[0].GetShow(query)
+	p := getTVProvider()
+	if p != nil {
+		return p.GetShow(query)
+	}
+
+	return TvShow{}, errors.New("Cannot find any TV provider in configuration")
+}
+
+func FindMovie(query string) (Movie, error) {
+	p := getMovieProvider()
+	if p != nil {
+		return p.GetMovie(query)
+	}
+
+	return Movie{}, errors.New("Cannot find any movie provider in configuration")
 }
 
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
-	return providersCollection[0].GetRecentlyAiredEpisodes(show)
-}
-
-func removeDuplicates(array []TvShow) []TvShow {
-	occurences := make(map[int]bool)
-	var ret []TvShow
-
-	for _, show := range array {
-		if !occurences[show.Id] {
-			occurences[show.Id] = true
-			ret = append(ret, show)
-		}
+	p := getTVProvider()
+	if p != nil {
+		return p.GetRecentlyAiredEpisodes(show)
 	}
 
-	return ret
+	return []Episode{}, errors.New("Cannot find any TV provider in configuration")
 }
 
 func GetTVShowsInfoFromConfig() {
@@ -65,5 +73,79 @@ func GetTVShowsInfoFromConfig() {
 		log.Error("Impossible to get show informations for shows defined in configuration. Shutting down")
 	}
 
-	TVShows = removeDuplicates(showObjects)
+	TVShows = removeDuplicateShows(showObjects)
+}
+
+func GetMoviesInfoFromConfig() {
+	var movieObjects []Movie
+	var movieList []string
+
+	moviesFromWatchlists, _ := watchlist.GetMovies()
+	movieList = append(movieList, moviesFromWatchlists...)
+
+	for _, movie := range movieList {
+		movieName := movie
+		movie, err := FindMovie(movie)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"movie": movieName,
+			}).Warning("Unable to get movie informations")
+		} else {
+			movieObjects = append(movieObjects, movie)
+		}
+	}
+	if len(movieObjects) == 0 {
+		log.Error("Impossible to get movie informations for movies defined in configuration. Shutting down")
+	}
+
+	Movies = removeDuplicateMovies(movieObjects)
+}
+
+func removeDuplicateShows(array []TvShow) []TvShow {
+	occurences := make(map[int]bool)
+	var ret []TvShow
+
+	for _, show := range array {
+		if !occurences[show.Id] {
+			occurences[show.Id] = true
+			ret = append(ret, show)
+		}
+	}
+
+	return ret
+}
+
+func removeDuplicateMovies(array []Movie) []Movie {
+	occurences := make(map[int]bool)
+	var ret []Movie
+
+	for _, movie := range array {
+		if !occurences[movie.Id] {
+			occurences[movie.Id] = true
+			ret = append(ret, movie)
+		}
+	}
+
+	return ret
+}
+
+func getTVProvider() TVProvider {
+	for _, p := range providersCollection {
+		tvProvider, ok := p.(TVProvider)
+		if ok {
+			return tvProvider
+		}
+	}
+	return nil
+}
+
+func getMovieProvider() MovieProvider {
+	for _, p := range providersCollection {
+		movieProvider, ok := p.(MovieProvider)
+		if ok {
+			return movieProvider
+		}
+	}
+	return nil
 }

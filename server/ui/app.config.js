@@ -11,6 +11,11 @@ angular.
                 controller: "TVShowsCtrl",
                 controllerAs: "ctrl"
             })
+            .when('/movies', {
+                templateUrl: 'static/movies/movies.template.html',
+                controller: "MoviesCtrl",
+                controllerAs: "ctrl"
+            })
             .when('/status', {
                 templateUrl: 'static/status/status.template.html',
                 controller: "StatusCtrl",

@@ -57,11 +57,29 @@ type TraktShow struct {
 	} `json:"ids"`
 }
 
-type traktWatchlistRequestResult struct {
+type TraktMovie struct {
+	Title string `json:"title"`
+	Year  int    `json:"year"`
+	Ids   struct {
+		Trakt int    `json:"trakt"`
+		Slug  string `json:"slug"`
+		Imdb  string `json:"imdb"`
+		Tmdb  int    `json:"tmdb"`
+	} `json:"ids"`
+}
+
+type traktTVWatchlistRequestResult struct {
 	Rank     int       `json:"rank"`
 	ListedAt string    `json:"listed_at"`
 	Type     string    `json:"type"`
 	Show     TraktShow `json:"show"`
+}
+
+type traktMoviesWatchlistRequestResult struct {
+	Rank     int        `json:"rank"`
+	ListedAt string     `json:"listed_at"`
+	Type     string     `json:"type"`
+	Movie    TraktMovie `json:"movie"`
 }
 
 var module Module
@@ -366,7 +384,7 @@ func (t *TraktWatchlist) GetTvShows() ([]string, error) {
 		return []string{}, err
 	}
 
-	var results []traktWatchlistRequestResult
+	var results []traktTVWatchlistRequestResult
 	if response.StatusCode == http.StatusOK {
 		parseErr := json.Unmarshal(body, &results)
 		if parseErr != nil {
@@ -391,5 +409,34 @@ func (t *TraktWatchlist) GetMovies() ([]string, error) {
 		"watchlist": "trakt",
 	}).Debug("Getting movies from watchlist")
 
-	return []string{}, nil
+	if t.Token.AccessToken == "" {
+		return []string{}, errors.New("Not authenticated into Trakt")
+	}
+
+	response, err := t.performAPIRequest("GET", "/users/me/watchlist/movies", nil)
+	if err != nil {
+		return []string{}, err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []string{}, err
+	}
+
+	var results []traktMoviesWatchlistRequestResult
+	if response.StatusCode == http.StatusOK {
+		parseErr := json.Unmarshal(body, &results)
+		if parseErr != nil {
+			log.Error("JSON Unmarshal error: ", err)
+			return []string{}, err
+		}
+
+		var toReturn []string
+		for _, val := range results {
+			toReturn = append(toReturn, val.Movie.Title)
+		}
+
+		return toReturn, nil
+	}
+	return []string{}, errors.New("Unknown HTTP return code from trakt watchlist call")
 }

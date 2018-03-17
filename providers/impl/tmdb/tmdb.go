@@ -44,7 +44,7 @@ func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 func (tmdbProvider *TMDBProvider) GetShow(tvShowName string) (TvShow, error) {
 	log.WithFields(log.Fields{
 		"name":     tvShowName,
-		"provider": "tmdb",
+		"provider": module.Name,
 	}).Debug("Searching show")
 
 	results, err := tmdbProvider.Client.SearchTv(tvShowName, nil)
@@ -60,7 +60,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShowName string) (TvShow, error) {
 	} else {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShowName,
-			"provider":    "tmdb",
+			"provider":    module.Name,
 		}).Warning("TV show not found")
 		return TvShow{}, errors.New("TV show not found")
 	}
@@ -75,7 +75,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
 			"id":          tvShow.Id,
-			"provider":    "tmdb",
+			"provider":    module.Name,
 			"season":      show.NumberOfSeasons,
 			"error":       err,
 		}).Warning("Cannot get recently aired episodes of the tv show")
@@ -97,6 +97,20 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	}
 
 	return filteredEpisodes, nil
+}
+
+func (tmdbProvider *TMDBProvider) GetMovie(movieName string) (Movie, error) {
+	results, err := tmdbProvider.Client.SearchMovie(movieName, nil)
+	if err != nil {
+		return Movie{}, err
+	}
+	if len(results.Results) > 0 {
+		movie, _ := tmdbProvider.Client.GetMovieInfo(results.Results[0].ID, nil)
+
+		return convertMovie(*movie), nil
+	} else {
+		return Movie{}, errors.New(fmt.Sprintf("Could not find any results for movie %s", movieName))
+	}
 }
 
 func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {
@@ -130,7 +144,6 @@ func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, e
 	return retVal
 }
 
-// Convert a github.com/pioz/tmdb series object to flemzerd tvShow object
 func convertShow(tvShow tmdb.TV) TvShow {
 	firstAired, err := time.Parse("2006-01-02", tvShow.FirstAirDate)
 	if err != nil {
@@ -147,7 +160,6 @@ func convertShow(tvShow tmdb.TV) TvShow {
 	}
 }
 
-// Convert a github.com/pioz/tmdb episode object to flemzerd episode object
 func convertEpisode(episode tmdb.TvEpisode) Episode {
 	firstAired, err := time.Parse("2006-01-02", episode.AirDate)
 	if err != nil {
@@ -160,5 +172,21 @@ func convertEpisode(episode tmdb.TvEpisode) Episode {
 		Date:     firstAired,
 		Id:       episode.ID,
 		Overview: episode.Overview,
+	}
+}
+
+func convertMovie(movie tmdb.Movie) Movie {
+	releaseDate, err := time.Parse("2006-01-02", movie.ReleaseDate)
+	if err != nil {
+		releaseDate = time.Time{}
+	}
+
+	return Movie{
+		Poster:        fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", movie.PosterPath),
+		Title:         movie.Title,
+		OriginalTitle: movie.OriginalTitle,
+		Overview:      movie.Overview,
+		Date:          releaseDate,
+		Id:            movie.ID,
 	}
 }
