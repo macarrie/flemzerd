@@ -53,7 +53,7 @@ func NotifyRecentEpisode(show TvShow, episode Episode) error {
 
 	retention.CleanOldNotifiedEpisodes()
 
-	if retention.HasBeenNotified(episode) {
+	if retention.EpisodeHasBeenNotified(episode) {
 		return nil
 	}
 
@@ -66,6 +66,28 @@ func NotifyRecentEpisode(show TvShow, episode Episode) error {
 	}
 
 	retention.AddNotifiedEpisode(episode)
+
+	return nil
+}
+
+func NotifyMovieDownload(m Movie) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewMovie {
+		return nil
+	}
+
+	if retention.MovieHasBeenNotified(m) {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%s", m.Title)
+	notificationContent := "Movie found in watchlist, starting download process"
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
+	retention.AddNotifiedMovie(m)
 
 	return nil
 }
@@ -86,6 +108,22 @@ func NotifyDownloadedEpisode(show TvShow, episode Episode) error {
 	return nil
 }
 
+func NotifyDownloadedMovie(m Movie) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%v: Movie downloaded", m.Title)
+	notificationContent := "New movie downloaded\n"
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NotifyFailedEpisode(show TvShow, episode Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
@@ -93,6 +131,22 @@ func NotifyFailedEpisode(show TvShow, episode Episode) error {
 
 	notificationTitle := fmt.Sprintf("%v: Episode download failed (S%03dE%03d)", show.Name, episode.Season, episode.Number)
 	notificationContent := fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", show.Name, episode.Season, episode.Number, episode.Name)
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NotifyFailedMovie(m Movie) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%v: Movie download failed", m.Title)
+	notificationContent := "Failed to download movie\n"
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {

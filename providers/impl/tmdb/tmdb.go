@@ -92,14 +92,19 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	filteredEpisodes := filterEpisodesAiredBetweenDates(episodeList, &oldestDate, &now)
 
 	// Set season number on episodes
-	for _, e := range episodeList {
-		e.Season = season.SeasonNumber
+	for i := range filteredEpisodes {
+		filteredEpisodes[i].Season = season.SeasonNumber
 	}
 
 	return filteredEpisodes, nil
 }
 
 func (tmdbProvider *TMDBProvider) GetMovie(movieName string) (Movie, error) {
+	log.WithFields(log.Fields{
+		"name":     movieName,
+		"provider": module.Name,
+	}).Debug("Searching movie")
+
 	results, err := tmdbProvider.Client.SearchMovie(movieName, nil)
 	if err != nil {
 		return Movie{}, err

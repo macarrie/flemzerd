@@ -157,7 +157,72 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
-		log.Debug("ParseError: ", parseErr)
+		return []Torrent{}, parseErr
+	}
+
+	// Get seeders count for each torrent
+	var results []Torrent
+	for _, torrent := range searchResults.Torrents {
+		resultTorrent := convertTorrent(torrent)
+
+		for _, attr := range torrent.Attr {
+			if attr.Name == "seeders" {
+				seedersNb, _ := strconv.Atoi(attr.Value)
+				resultTorrent.Seeders = seedersNb
+			}
+		}
+
+		results = append(results, resultTorrent)
+	}
+
+	return results, nil
+}
+
+func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
+	baseURL := torznabIndexer.Url
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	httpClient := &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
+	}
+
+	urlObject, _ := url.ParseRequestURI(baseURL)
+
+	var request *http.Request
+
+	params := url.Values{}
+	params.Add("apikey", torznabIndexer.ApiKey)
+	params.Add("t", "movie")
+	params.Add("q", movieName)
+	urlObject.RawQuery = params.Encode()
+
+	request, err := http.NewRequest("GET", urlObject.String(), nil)
+	if err != nil {
+		return []Torrent{}, err
+	}
+	request.Close = true
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return []Torrent{}, err
+	}
+	defer response.Body.Close()
+
+	body, readError := ioutil.ReadAll(response.Body)
+	if readError != nil {
+		return []Torrent{}, err
+	}
+
+	if len(body) == 0 {
+		return []Torrent{}, errors.New("Empty result")
+	}
+
+	var searchResults TorrentSearchResults
+	parseErr := xml.Unmarshal(body, &searchResults)
+	if parseErr != nil {
 		return []Torrent{}, parseErr
 	}
 

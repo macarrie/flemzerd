@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"errors"
 	"strconv"
 
 	. "github.com/macarrie/flemzerd/objects"
@@ -11,7 +12,7 @@ type MockDownloader struct{}
 var testTorrentsCount int
 
 func (d MockDownloader) Status() (Module, error) {
-	return Module{}, nil
+	return Module{}, errors.New("Module error")
 }
 
 func (d MockDownloader) AddTorrent(t Torrent) (string, error) {

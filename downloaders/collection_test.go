@@ -12,6 +12,21 @@ func init() {
 	retention.InitStruct()
 }
 
+func TestStatus(t *testing.T) {
+	m1 := MockDownloader{}
+	m2 := MockDownloader{}
+	AddDownloader(m1)
+	AddDownloader(m2)
+
+	mods, err := Status()
+	if len(mods) != 2 {
+		t.Errorf("Expected status module length to be 2, got %d instead", len(mods))
+	}
+	if err == nil {
+		t.Error("Expected to have an error, got none instead")
+	}
+}
+
 func TestAddDownloader(t *testing.T) {
 	downloadersLength := len(downloadersCollection)
 	m := MockDownloader{}
@@ -108,7 +123,7 @@ func TestWaitForDownload(t *testing.T) {
 	}
 }
 
-func TestDownload(t *testing.T) {
+func TestDownloadEpisode(t *testing.T) {
 	show := TvShow{
 		Name: "test show",
 	}
@@ -126,7 +141,7 @@ func TestDownload(t *testing.T) {
 		Link: "test.torrent",
 	}
 
-	err := Download(show, episode, []Torrent{testTorrent})
+	err := DownloadEpisode(show, episode, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
@@ -134,8 +149,71 @@ func TestDownload(t *testing.T) {
 	retention.RemoveDownloadedEpisode(episode)
 	retention.RemoveDownloadingEpisode(episode)
 	testTorrent.Id = strconv.Itoa(TORRENT_SEEDING)
-	err = Download(show, episode, []Torrent{testTorrent})
+	err = DownloadEpisode(show, episode, []Torrent{testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
+}
+
+func TestDownloadMovie(t *testing.T) {
+	testMovie := Movie{
+		Id:    1000,
+		Title: "test movie",
+	}
+
+	testTorrent := Torrent{
+		Id:   strconv.Itoa(TORRENT_STOPPED),
+		Name: "Test torrent",
+		Link: "test.torrent",
+	}
+
+	err := DownloadMovie(testMovie, []Torrent{testTorrent})
+	if err == nil {
+		t.Error("Expected stopped torrent to generate a download error, got none instead")
+	}
+
+	retention.RemoveDownloadedMovie(testMovie)
+	retention.RemoveDownloadingMovie(testMovie)
+	testTorrent.Id = strconv.Itoa(TORRENT_SEEDING)
+	err = DownloadMovie(testMovie, []Torrent{testTorrent})
+	if err != nil {
+		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
+	}
+}
+
+func TestFillEpisodeToDownload(t *testing.T) {
+	// TODO
+}
+
+func TestFillMovieToDownload(t *testing.T) {
+	// TODO
+}
+
+func TestRecoverFromRetention(t *testing.T) {
+	testEpisode := Episode{
+		Id:     1000,
+		Name:   "testEpisode",
+		Season: 1,
+		Number: 4,
+	}
+	testTorrent := Torrent{
+		Id: "1000",
+	}
+
+	testMovie := Movie{
+		Id:    1001,
+		Title: "testMovie",
+	}
+	testTorrent2 := Torrent{
+		Id: "1001",
+	}
+
+	retention.AddDownloadingEpisode(testEpisode)
+	retention.AddDownloadingMovie(testMovie)
+	retention.SetCurrentEpisodeDownload(testEpisode, testTorrent, "id")
+	retention.SetCurrentMovieDownload(testMovie, testTorrent2, "id")
+
+	RecoverFromRetention()
+
+	// TODO: check objects states is correct
 }

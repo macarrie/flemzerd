@@ -77,13 +77,13 @@ func GetTorrentStatus(t Torrent) (int, error) {
 	return downloadersCollection[0].GetTorrentStatus(t)
 }
 
-func HandleTorrentDownload(e Episode, torrent Torrent, recovery bool) error {
+func EpisodeHandleTorrentDownload(e Episode, torrent Torrent, recovery bool) error {
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
 			return errors.New("Couldn't add torrent in downloader. Skipping to next torrent in list")
 		}
-		retention.SetCurrentDownload(e, torrent, torrentId)
+		retention.SetCurrentEpisodeDownload(e, torrent, torrentId)
 	}
 
 	StartTorrent(torrent)
@@ -104,7 +104,7 @@ func HandleTorrentDownload(e Episode, torrent Torrent, recovery bool) error {
 		retryErr := WaitForDownload(torrent)
 		if retryErr != nil {
 			RemoveTorrent(torrent)
-			retention.AddFailedTorrent(e, torrent)
+			retention.AddFailedEpisodeTorrent(e, torrent)
 
 			log.WithFields(log.Fields{
 				"error":   downloadErr,
@@ -117,6 +117,50 @@ func HandleTorrentDownload(e Episode, torrent Torrent, recovery bool) error {
 
 	// If function has not returned yet, download ended with no errors !
 	retention.AddDownloadedEpisode(e)
+	RemoveTorrent(torrent)
+	return nil
+}
+
+func MovieHandleTorrentDownload(m Movie, torrent Torrent, recovery bool) error {
+	if !recovery {
+		torrentId, err := AddTorrent(torrent)
+		if err != nil {
+			return errors.New("Couldn't add torrent in downloader. Skipping to next torrent in list")
+		}
+		retention.SetCurrentMovieDownload(m, torrent, torrentId)
+	}
+
+	StartTorrent(torrent)
+
+	retryCount := 0
+
+	// Try twice to download a torrent before marking it as rubbish
+	downloadErr := WaitForDownload(torrent)
+	if downloadErr != nil {
+		log.WithFields(log.Fields{
+			"error":   downloadErr,
+			"torrent": torrent.Name,
+		}).Debug("Error during torrent download. Retrying download")
+
+		RemoveTorrent(torrent)
+		AddTorrent(torrent)
+		retryCount++
+		retryErr := WaitForDownload(torrent)
+		if retryErr != nil {
+			RemoveTorrent(torrent)
+			retention.AddFailedMovieTorrent(m, torrent)
+
+			log.WithFields(log.Fields{
+				"error":   downloadErr,
+				"torrent": torrent.Name,
+			}).Debug("Error during torrent download. Finish current torrent download")
+
+			return retryErr
+		}
+	}
+
+	// If function has not returned yet, download ended with no errors !
+	retention.AddDownloadedMovie(m)
 	RemoveTorrent(torrent)
 	return nil
 }
@@ -144,8 +188,8 @@ func WaitForDownload(t Torrent) error {
 	}
 }
 
-func Download(show TvShow, e Episode, torrentList []Torrent) error {
-	if retention.HasBeenDownloaded(e) || retention.IsDownloading(e) {
+func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
+	if retention.EpisodeHasBeenDownloaded(e) || retention.EpisodeIsDownloading(e) {
 		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
 
@@ -157,16 +201,16 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	}).Info("Starting download process")
 
 	retention.AddDownloadingEpisode(e)
-	retention.ChangeDownloadingState(e, true)
+	retention.ChangeEpisodeDownloadingState(e, true)
 
 	for _, torrent := range torrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, e.Season)
 
-		if retention.IsInFailedTorrents(e, torrent) {
+		if retention.EpisodeIsInFailedTorrents(e, torrent) {
 			continue
 		}
 
-		torrentDownload := HandleTorrentDownload(e, torrent, false)
+		torrentDownload := EpisodeHandleTorrentDownload(e, torrent, false)
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -179,7 +223,7 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			if !retention.HasBeenDownloaded(e) {
+			if !retention.EpisodeHasBeenDownloaded(e) {
 				notifier.NotifyDownloadedEpisode(show, e)
 			}
 		}
@@ -187,15 +231,60 @@ func Download(show TvShow, e Episode, torrentList []Torrent) error {
 	}
 
 	// If function has not returned yet, it means the download failed
-	if retention.GetFailedTorrentsCount(e) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		MarkFailedDownload(show, e)
+	if retention.EpisodeGetFailedTorrentsCount(e) > configuration.Config.System.TorrentDownloadAttemptsLimit {
+		MarkEpisodeFailedDownload(show, e)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
 	return nil
 }
 
-func MarkFailedDownload(show TvShow, e Episode) {
+func DownloadMovie(m Movie, torrentList []Torrent) error {
+	if retention.MovieHasBeenDownloaded(m) || retention.MovieIsDownloading(m) {
+		return errors.New("Movie downloading or already downloaded. Skipping")
+	}
+
+	log.WithFields(log.Fields{
+		"name": m.Title,
+	}).Info("Starting download process")
+
+	retention.AddDownloadingMovie(m)
+	retention.ChangeMovieDownloadingState(m, true)
+
+	for _, torrent := range torrentList {
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, m.Title)
+
+		if retention.MovieIsInFailedTorrents(m, torrent) {
+			continue
+		}
+
+		torrentDownload := MovieHandleTorrentDownload(m, torrent, false)
+		if torrentDownload != nil {
+			log.WithFields(log.Fields{
+				"err":     torrentDownload,
+				"torrent": torrent.Name,
+			}).Warning("Couldn't download torrent. Skipping to next torrent in list")
+		} else {
+			log.WithFields(log.Fields{
+				"name": m.Title,
+			}).Info("Movie successfully downloaded")
+			if !retention.MovieHasBeenDownloaded(m) {
+				notifier.NotifyDownloadedMovie(m)
+			}
+		}
+		continue
+	}
+
+	// If function has not returned yet, it means the download failed
+	if retention.MovieGetFailedTorrentsCount(m) > configuration.Config.System.TorrentDownloadAttemptsLimit {
+		MarkMovieFailedDownload(m)
+		return errors.New("Download failed, no torrents could be downloaded")
+	}
+
+	return nil
+}
+
+func MarkEpisodeFailedDownload(show TvShow, e Episode) {
 	retention.AddFailedEpisode(e)
 	log.WithFields(log.Fields{
 		"show":   show.Name,
@@ -205,13 +294,38 @@ func MarkFailedDownload(show TvShow, e Episode) {
 	}).Error("Download failed, no torrents could be downloaded")
 
 	notifier.NotifyFailedEpisode(show, e)
-	retention.ChangeDownloadingState(e, false)
+	retention.ChangeEpisodeDownloadingState(e, false)
 }
 
-func FillToDownloadTorrentList(e Episode, list []Torrent) []Torrent {
+func MarkMovieFailedDownload(m Movie) {
+	retention.AddFailedMovie(m)
+	log.WithFields(log.Fields{
+		"movie": m.Title,
+	}).Error("Download failed, no torrents could be downloaded")
+
+	notifier.NotifyFailedMovie(m)
+	retention.ChangeMovieDownloadingState(m, false)
+}
+
+func FillEpisodeToDownloadTorrentList(e Episode, list []Torrent) []Torrent {
 	var torrentList []Torrent
 	for _, torrent := range list {
-		if !retention.IsInFailedTorrents(e, torrent) {
+		if !retention.EpisodeIsInFailedTorrents(e, torrent) {
+			torrentList = append(torrentList, torrent)
+		}
+	}
+
+	if len(torrentList) < 10 {
+		return torrentList
+	} else {
+		return torrentList[:10]
+	}
+}
+
+func FillMovieToDownloadTorrentList(m Movie, list []Torrent) []Torrent {
+	var torrentList []Torrent
+	for _, torrent := range list {
+		if !retention.MovieIsInFailedTorrents(m, torrent) {
 			torrentList = append(torrentList, torrent)
 		}
 	}
@@ -229,12 +343,17 @@ func RecoverFromRetention() {
 		log.Error(err)
 		return
 	}
+	downloadingMoviesFromRetention, err := retention.GetDownloadingMovies()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	if len(downloadingEpisodesFromRetention) != 0 {
 		log.Debug("Launching watch threads for downloading episodes found in retention")
 	}
 	for _, ep := range downloadingEpisodesFromRetention {
-		torrent, downloaderId, err := retention.GetCurrentDownloadFromRetention(ep)
+		torrent, downloaderId, err := retention.GetCurrentDownloadEpisodeFromRetention(ep)
 		if err != nil {
 			log.Error(nil)
 			continue
@@ -247,6 +366,24 @@ func RecoverFromRetention() {
 			"number":  ep.Number,
 		}).Debug("Launched download processing recovery")
 
-		go HandleTorrentDownload(ep, torrent, true)
+		go EpisodeHandleTorrentDownload(ep, torrent, true)
+	}
+
+	if len(downloadingMoviesFromRetention) != 0 {
+		log.Debug("Launching watch threads for downloading movies found in retention")
+	}
+	for _, m := range downloadingMoviesFromRetention {
+		torrent, downloaderId, err := retention.GetCurrentDownloadMovieFromRetention(m)
+		if err != nil {
+			log.Error(nil)
+			continue
+		}
+		AddTorrentMapping(torrent.Id, downloaderId)
+
+		log.WithFields(log.Fields{
+			"name": m.Title,
+		}).Debug("Launched download processing recovery")
+
+		go MovieHandleTorrentDownload(m, torrent, true)
 	}
 }

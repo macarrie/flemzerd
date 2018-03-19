@@ -205,7 +205,7 @@ func downloadChainFunc() {
 				log.Warning(err)
 			}
 
-			if retention.HasBeenDownloaded(recentEpisode) {
+			if retention.EpisodeHasBeenDownloaded(recentEpisode) {
 				log.WithFields(log.Fields{
 					"show":   show.Name,
 					"number": recentEpisode.Number,
@@ -215,7 +215,7 @@ func downloadChainFunc() {
 				continue
 			}
 
-			if retention.IsDownloading(recentEpisode) {
+			if retention.EpisodeIsDownloading(recentEpisode) {
 				log.WithFields(log.Fields{
 					"show":   show.Name,
 					"number": recentEpisode.Number,
@@ -232,13 +232,56 @@ func downloadChainFunc() {
 			}
 			log.Debug("Torrents found: ", len(torrentList))
 
-			toDownload := downloader.FillToDownloadTorrentList(recentEpisode, torrentList)
+			toDownload := downloader.FillEpisodeToDownloadTorrentList(recentEpisode, torrentList)
 			if len(toDownload) == 0 {
-				downloader.MarkFailedDownload(show, recentEpisode)
+				downloader.MarkEpisodeFailedDownload(show, recentEpisode)
 				continue
 			}
-			go downloader.Download(show, recentEpisode, toDownload)
+			go downloader.DownloadEpisode(show, recentEpisode, toDownload)
 		}
+	}
+
+	for _, movie := range provider.Movies {
+		if movie.Date.After(time.Now()) {
+			log.WithFields(log.Fields{
+				"movie":        movie.Title,
+				"release_date": movie.Date,
+			}).Debug("Movie not yet released, ignoring")
+			continue
+		}
+
+		err := notifier.NotifyMovieDownload(movie)
+		if err != nil {
+			log.Warning(err)
+		}
+
+		if retention.MovieHasBeenDownloaded(movie) {
+			log.WithFields(log.Fields{
+				"movie": movie.Title,
+			}).Debug("Movie already downloaded, nothing to do")
+			continue
+		}
+
+		if retention.MovieIsDownloading(movie) {
+			log.WithFields(log.Fields{
+				"movie": movie.Title,
+			}).Debug("Movie already being downloaded, nothing to do")
+			continue
+		}
+
+		torrentList, err := indexer.GetTorrentForMovie(movie.Title)
+		if err != nil {
+			log.Warning(err)
+			continue
+		}
+		log.Debug("Torrents found: ", len(torrentList))
+
+		toDownload := downloader.FillMovieToDownloadTorrentList(movie, torrentList)
+		if len(toDownload) == 0 {
+			downloader.MarkMovieFailedDownload(movie)
+			continue
+		}
+		go downloader.DownloadMovie(movie, toDownload)
 	}
 }
 
