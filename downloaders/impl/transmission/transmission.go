@@ -1,6 +1,8 @@
 package transmission
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 	"github.com/rs/xid"
 )
 
+var module Module
 var transmissionClient tr.Client
 
 // Since torrents in transmission have specific ID and torrent objects in flemzer have their own ID, we need to know which transmission torrent correspond to which flemzer torrent
@@ -53,6 +56,15 @@ func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
 }
 
 func New(address string, port int, user string, password string) *TransmissionDownloader {
+	module = Module{
+		Name: "transmission",
+		Type: "downloader",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}
+
 	return &TransmissionDownloader{
 		Address:  address,
 		Port:     port,
@@ -82,25 +94,42 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 	client := &http.Client{
 		Timeout: time.Duration(HTTP_TIMEOUT * time.Second),
 	}
-
-	msg := ""
-	var alive bool
-	_, err := client.Get(fmt.Sprintf("http://%s:%d", d.Address, d.Port))
-	if err != nil {
-		alive = false
-		msg = err.Error()
-	} else {
-		alive = true
+	url := fmt.Sprintf("http://%s:%d/transmission/rpc", d.Address, d.Port)
+	params := map[string]string{
+		"method":    "port-test",
+		"arguments": "",
 	}
 
-	return Module{
-		Name: "transmission",
-		Type: "downloader",
-		Status: ModuleStatus{
-			Alive:   alive,
-			Message: msg,
-		},
-	}, err
+	jsonParams, _ := json.Marshal(params)
+
+	request, err := http.NewRequest("POST", url, bytes.NewReader(jsonParams))
+	if err != nil {
+		return module, fmt.Errorf("Could not perform request to transmission: %v", err.Error())
+	}
+	request.SetBasicAuth(d.User, d.Password)
+
+	res, err := client.Do(request)
+	if err != nil {
+		module.Status.Alive = false
+		module.Status.Message = err.Error()
+
+		return module, err
+	} else if res.StatusCode == http.StatusUnauthorized {
+		module.Status.Alive = false
+		module.Status.Message = "Credentials refused when attempting to connect to transmission daemon"
+
+		return module, fmt.Errorf(module.Status.Message)
+	} else if res.StatusCode == http.StatusOK || res.StatusCode == http.StatusConflict {
+		module.Status.Alive = true
+		module.Status.Message = ""
+
+		return module, nil
+	} else {
+		module.Status.Alive = false
+		module.Status.Message = fmt.Sprintf("Unknow return status code: %d", res.StatusCode)
+
+		return module, fmt.Errorf(module.Status.Message)
+	}
 }
 
 func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {

@@ -3,7 +3,6 @@ package retention
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
@@ -212,9 +211,7 @@ func AddNotifiedEpisode(e Episode) {
 
 func AddNotifiedMovie(m Movie) {
 	if !MovieHasBeenNotified(m) {
-		fmt.Printf("RetentionData before: %+v\n", retentionData.NotifiedMovies)
 		retentionData.NotifiedMovies[m.Id] = m
-		fmt.Printf("RetentionData after: %+v\n", retentionData.NotifiedMovies)
 		return
 	}
 }
