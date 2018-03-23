@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tr "github.com/odwrtw/transmission"
@@ -123,7 +124,25 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 		module.Status.Alive = true
 		module.Status.Message = ""
 
-		return module, nil
+		var retError error = nil
+		_, err := transmissionClient.FreeSpace(configuration.Config.Library.ShowPath)
+		if err != nil {
+			retError = fmt.Errorf("Error while checking access to show library path %s: %s", configuration.Config.Library.ShowPath, err.Error())
+			module.Status.Alive = false
+			module.Status.Message = retError.Error()
+		}
+		_, err = transmissionClient.FreeSpace(configuration.Config.Library.MoviePath)
+		if err != nil {
+			retError = fmt.Errorf("Error while checking access to movie library path %s: %s", configuration.Config.Library.MoviePath, err.Error())
+			module.Status.Alive = false
+			module.Status.Message = retError.Error()
+		}
+
+		if retError != nil {
+			return module, retError
+		} else {
+			return module, nil
+		}
 	} else {
 		module.Status.Alive = false
 		module.Status.Message = fmt.Sprintf("Unknow return status code: %d", res.StatusCode)
