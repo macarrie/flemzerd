@@ -47,6 +47,7 @@ type RetentionData struct {
 }
 
 var retentionData RetentionData
+var retentionPath = RETENTION_FILE_PATH
 
 func InitStruct() {
 	retentionData.NotifiedEpisodes = make(map[int]Episode)
@@ -58,12 +59,14 @@ func InitStruct() {
 	retentionData.DownloadedMovies = make(map[int]Movie)
 	retentionData.DownloadingMovies = make(map[int]*DownloadingMovie)
 	retentionData.FailedMovies = make(map[int]Movie)
+
+	retentionData.Watchlists = make(map[string][]string)
 }
 
 func Load() error {
 	InitStruct()
 
-	file, err := os.Open(RETENTION_FILE_PATH)
+	file, err := os.Open(retentionPath)
 	if err != nil {
 		return err
 	}
@@ -88,7 +91,7 @@ func Load() error {
 }
 
 func Save() error {
-	file, err := os.OpenFile(RETENTION_FILE_PATH, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
+	file, err := os.OpenFile(retentionPath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}

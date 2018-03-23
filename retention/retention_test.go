@@ -5,11 +5,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 func init() {
 	resetRetention()
+	retentionPath = "/tmp/flemzerd_retention_test.dat"
 }
 
 func resetRetention() {
@@ -22,14 +24,25 @@ func resetRetention() {
 	retentionData.DownloadedMovies = make(map[int]Movie)
 	retentionData.DownloadingMovies = make(map[int]*DownloadingMovie)
 	retentionData.FailedMovies = make(map[int]Movie)
-}
 
-func TestLoad(t *testing.T) {
-	// TODO
+	retentionData.Watchlists = make(map[string][]string)
 }
 
 func TestSave(t *testing.T) {
-	// TODO
+	resetRetention()
+
+	retentionSave := retentionData
+	err := Save()
+	if err != nil {
+		t.Errorf("An error occured during retention save: %s", err.Error())
+	}
+	Load()
+
+	fmt.Printf("Save: %+v\n", retentionSave)
+	fmt.Printf("Load: %+v\n", retentionData)
+	if !cmp.Equal(retentionData, retentionSave) {
+		t.Error("Retention data loaded from file is not the same as retention data saved beforehand")
+	}
 }
 
 func TestElementInRetention(t *testing.T) {
@@ -379,5 +392,33 @@ func TestGetDownloadingItems(t *testing.T) {
 	}
 	if len(movieList) != 2 {
 		t.Errorf("Expected 2 items in downloading episodes list, got %d instead", len(movieList))
+	}
+}
+
+func TestTraktToken(t *testing.T) {
+	token := "test"
+
+	SaveTraktToken(token)
+
+	savedToken := LoadTraktToken()
+	if savedToken != token {
+		t.Errorf("Expected token from retention to be %s, got %s instead", token, savedToken)
+	}
+}
+
+func TestWatchlistRetention(t *testing.T) {
+	show := "test"
+	watchlist := "trakt"
+
+	shows := GetShowsFromWatchlist(watchlist)
+	if len(shows) != 0 {
+		t.Error("Expected watchlist in retention to be empty")
+	}
+
+	AddShowToWatchlistRetention(watchlist, show)
+
+	shows = GetShowsFromWatchlist(watchlist)
+	if shows[0] != show {
+		t.Errorf("Expected show from watchlist retention to be %s, got %s instead", show, shows[0])
 	}
 }

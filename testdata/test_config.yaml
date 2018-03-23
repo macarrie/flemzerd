@@ -1,14 +1,52 @@
----
-notifications:
-    # Enable notifications
+system:
+    episode_check_interval: 15
+    torrent_download_attempts_limit: 20
+
+interface:
     enabled: true
-    # Send notification when a new episode is available
+    port: 8080
+
+providers:
+    tmdb:
+        apikey: API_KEY
+    tvdb:
+        apikey: API_KEY
+
+notifiers:
+    pushbullet:
+        accessToken: ACCESS_TOKEN
+    desktop: []
+
+indexers:
+    torznab:
+        - name: Indexer 1
+          url: http://first-indexer:8080/torznab
+          apikey: API_KEY
+        - name: Indexer 2
+          url: http://second-indexer:9164/url/to/torznab/endpoint
+          apikey: API_KEY
+
+downloaders:
+    transmission:
+        address: localhost
+        port: 9091
+        user: USERNAME
+        password: PASSWORD
+
+watchlists:
+    trakt: []
+    manual:
+        - TV_SHOW_1
+        - TV_SHOW_2
+        - TV_SHOW_3
+
+notifications:
+    enabled: true
     notify_new_episode: true
-    # Send notification when a download is complete
+    notify_new_movie: true
     notify_download_complete: true
-    # Send notifications when a problem occurs before an episode download endend sucessfully
     notify_failure: true
 
-shows:
-    - "Test show 1"
-    - "Test show 2"
+library:
+    show_path: "/var/lib/flemzer/library/shows"
+    movie_path: "/var/lib/flemzer/library/movies"

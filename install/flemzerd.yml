@@ -67,3 +67,5 @@ notifications:
 library:
     # Where to store TV Shows (absolute path). Folder hierarchy will be created if not existent
     show_path: "/var/lib/flemzer/library/shows"
+    # Where to store movies (absolute path). Folder hierarchy will be created if not existent
+    movie_path: "/var/lib/flemzer/library/movies"
