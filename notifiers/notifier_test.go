@@ -1,6 +1,8 @@
 package notifier
 
 import (
+	"fmt"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -10,7 +12,15 @@ var mockNotificationCounter int
 var notifierInitialized bool
 
 func (n MockNotifier) Status() (Module, error) {
-	return Module{}, nil
+	var err error = fmt.Errorf("Notifier error")
+	return Module{
+		Name: "MockNotifier",
+		Type: "notifier",
+		Status: ModuleStatus{
+			Alive:   false,
+			Message: err.Error(),
+		},
+	}, err
 }
 
 func (n MockNotifier) Setup(authCredentials map[string]string) {

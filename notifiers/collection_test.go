@@ -23,6 +23,21 @@ func init() {
 	retention.InitStruct()
 }
 
+func TestStatus(t *testing.T) {
+	n1 := MockNotifier{}
+	n2 := MockNotifier{}
+
+	notifiersCollection = []Notifier{n1, n2}
+
+	mods, err := Status()
+	if len(mods) != 2 {
+		t.Errorf("Expected to have 2 notifier modules status, got %d instead", len(mods))
+	}
+	if err == nil {
+		t.Error("Expected to have aggregated error for notifier status")
+	}
+}
+
 func TestAddNotifier(t *testing.T) {
 	notifiersLength := len(notifiersCollection)
 	m := MockNotifier{}
@@ -92,4 +107,64 @@ func TestNotifyEpisode(t *testing.T) {
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
+
+	configuration.Config.Notifications.Enabled = false
+
+	NotifyRecentEpisode(show, episode)
+	NotifyDownloadedEpisode(show, episode)
+	NotifyFailedEpisode(show, episode)
+	NotifyRecentEpisode(show, episode)
+
+	if mockNotificationCounter != 3 {
+		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
+	}
+
+	configuration.Config.Notifications.Enabled = true
+}
+
+func TestNotifyMovie(t *testing.T) {
+	notifiersCollection = []Notifier{}
+
+	movie := Movie{
+		Id:    1,
+		Title: "Test movie",
+	}
+
+	m := MockNotifier{}
+	AddNotifier(m)
+
+	mockNotificationCounter = 0
+
+	NotifyMovieDownload(movie)
+	if mockNotificationCounter != 1 {
+		t.Error("Expected movie notification to be sent, got none")
+	}
+
+	NotifyDownloadedMovie(movie)
+	if mockNotificationCounter != 2 {
+		t.Error("Expected downloaded movie notification to be sent, got none")
+	}
+
+	NotifyFailedMovie(movie)
+	if mockNotificationCounter != 3 {
+		t.Error("Expected failed notification to be sent, got none")
+	}
+
+	NotifyMovieDownload(movie)
+	if mockNotificationCounter != 3 {
+		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
+	}
+
+	configuration.Config.Notifications.Enabled = false
+
+	NotifyMovieDownload(movie)
+	NotifyDownloadedMovie(movie)
+	NotifyFailedMovie(movie)
+	NotifyMovieDownload(movie)
+
+	if mockNotificationCounter != 3 {
+		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
+	}
+
+	configuration.Config.Notifications.Enabled = true
 }
