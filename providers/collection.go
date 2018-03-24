@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"bytes"
 	"errors"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -14,9 +15,28 @@ var TVShows []TvShow
 var Movies []Movie
 
 func Status() ([]Module, error) {
-	// TODO: get aggregated status of all providers
-	mod, err := providersCollection[0].Status()
-	return []Module{mod}, err
+	var modList []Module
+	var aggregatedErrorMessage bytes.Buffer
+
+	for _, provider := range providersCollection {
+		mod, providerAliveError := provider.Status()
+		if providerAliveError != nil {
+			log.WithFields(log.Fields{
+				"error": providerAliveError,
+			}).Warning("Provider is not alive")
+			aggregatedErrorMessage.WriteString(providerAliveError.Error())
+			aggregatedErrorMessage.WriteString("\n")
+		}
+		modList = append(modList, mod)
+	}
+
+	var retError error
+	if aggregatedErrorMessage.Len() == 0 {
+		retError = nil
+	} else {
+		retError = errors.New(aggregatedErrorMessage.String())
+	}
+	return modList, retError
 }
 
 func AddProvider(provider Provider) {
