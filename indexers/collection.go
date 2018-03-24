@@ -49,7 +49,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	var err error
 
 	for _, indexer := range indexersCollection {
-		_, ok := indexer.(TVIndexer)
+		ind, ok := indexer.(TVIndexer)
 		if !ok {
 			log.WithFields(log.Fields{
 				"indexer": indexer.GetName(),
@@ -57,10 +57,10 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 			continue
 		}
 
-		indexerSearch, err := indexer.GetTorrentForEpisode(show, season, episode)
+		indexerSearch, err := ind.GetTorrentForEpisode(show, season, episode)
 		if err != nil {
 			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
+				"indexer": ind.GetName(),
 				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
@@ -70,12 +70,12 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		if len(indexerSearch) != 0 {
 			torrentList = append(torrentList, indexerSearch...)
 			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
+				"indexer": ind.GetName(),
 				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
+				"indexer": ind.GetName(),
 				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
 			}).Info("No torrents found")
 		}

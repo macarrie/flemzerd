@@ -182,11 +182,41 @@ func TestDownloadMovie(t *testing.T) {
 }
 
 func TestFillEpisodeToDownload(t *testing.T) {
-	// TODO
+	torrent1 := Torrent{
+		Id: "1",
+	}
+	torrent2 := Torrent{
+		Id: "2",
+	}
+
+	episode := Episode{
+		Id: 1000,
+	}
+
+	retention.AddFailedEpisodeTorrent(episode, torrent1)
+	torrentList := FillEpisodeToDownloadTorrentList(episode, []Torrent{torrent1, torrent2})
+	if len(torrentList) != 1 {
+		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
+	}
 }
 
 func TestFillMovieToDownload(t *testing.T) {
-	// TODO
+	torrent1 := Torrent{
+		Id: "1",
+	}
+	torrent2 := Torrent{
+		Id: "2",
+	}
+
+	movie := Movie{
+		Id: 1000,
+	}
+
+	retention.AddFailedMovieTorrent(movie, torrent1)
+	torrentList := FillMovieToDownloadTorrentList(movie, []Torrent{torrent1, torrent2})
+	if len(torrentList) != 1 {
+		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
+	}
 }
 
 func TestRecoverFromRetention(t *testing.T) {
