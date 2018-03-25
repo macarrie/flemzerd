@@ -47,17 +47,17 @@ func (m MockTVIndexer) GetTorrentForEpisode(show string, season int, episode int
 
 	return []Torrent{
 		Torrent{
-			Name:    "Torrent1",
+			Name:    "Torrent1.s01.e01",
 			Link:    "torrent1.torrent",
 			Seeders: 1,
 		},
 		Torrent{
-			Name:    "Torrent2",
+			Name:    "Torrent2.s01.e01",
 			Link:    "torrent2.torrent",
 			Seeders: 2,
 		},
 		Torrent{
-			Name:    "Torrent3",
+			Name:    "Torrent3.s01.e01",
 			Link:    "torrent3.torrent",
 			Seeders: 3,
 		},

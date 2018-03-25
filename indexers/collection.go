@@ -88,9 +88,11 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	})
 
 	// Get only torrentdownloadattempslimit * 2 to avoid having to work too much
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList[:configuration.Config.System.TorrentDownloadAttemptsLimit*2])
-	torrentList = FilterBadTorrentsForEpisode(torrentList[:configuration.Config.System.TorrentDownloadAttemptsLimit*2], season, episode)
+	length := min(len(torrentList), configuration.Config.System.TorrentDownloadAttemptsLimit*2)
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList[:length])
+	torrentList = FilterBadTorrentsForEpisode(torrentList[:length], season, episode)
 
+	log.Warning("PreferredMediaQuality: ", configuration.Config.System.PreferredMediaQuality)
 	if len(torrentList) == 0 {
 		return []Torrent{}, errors.New("No torrents found for episode")
 	}
@@ -162,6 +164,10 @@ func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
 		qualityFilter = ""
 	}
 
+	if qualityFilter == "" {
+		return list
+	}
+
 	for _, torrent := range list {
 		mediaInfo, err := guessit.GetInfo(torrent.Name)
 		if err != nil {
@@ -204,4 +210,12 @@ func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torr
 	}
 
 	return returnList
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
 }

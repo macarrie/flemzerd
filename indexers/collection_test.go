@@ -1,8 +1,20 @@
 package indexer
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/macarrie/flemzerd/configuration"
 )
+
+func init() {
+	// go test makes a cd into package directory when testing. We must go up by one level to load our testdata
+	configuration.UseFile("../testdata/test_config.yaml")
+	err := configuration.Load()
+	if err != nil {
+		fmt.Print("Could not load test configuration file: ", err)
+	}
+}
 
 func TestAddIndexer(t *testing.T) {
 	AddIndexer(MockTVIndexer{})
@@ -37,6 +49,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	torrentList, _ := GetTorrentForEpisode("Test show", 1, 1)
 	if len(torrentList) != 6 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
+		return
 	}
 
 	if torrentList[0].Seeders != 3 {
