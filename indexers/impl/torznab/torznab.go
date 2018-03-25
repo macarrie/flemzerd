@@ -147,7 +147,7 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
-		return []Torrent{}, err
+		return []Torrent{}, readError
 	}
 
 	if len(body) == 0 {

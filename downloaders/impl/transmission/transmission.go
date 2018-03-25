@@ -11,7 +11,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	tr "github.com/odwrtw/transmission"
+	tr "github.com/macarrie/transmission"
 	"github.com/rs/xid"
 )
 

@@ -50,6 +50,12 @@
   revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/macarrie/transmission"
+  packages = ["."]
+  revision = "fbd7627f3fbde8bd5fa1f67d2ef146a8cf95503b"
+
+[[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
   revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
@@ -66,12 +72,6 @@
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/odwrtw/transmission"
-  packages = ["."]
-  revision = "08885b3058e730d49a9217efbe9fb1061fa86388"
 
 [[projects]]
   name = "github.com/ogier/pflag"
@@ -178,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a13c749d767cc3f05c36a6dd13692ab6593960cb5d8b4bde76b0cedb93de223e"
+  inputs-digest = "e9a41146b3fb8e56d8bd1253c471a4843507bdf76960e344b8c430e21ccc2659"
   solver-name = "gps-cdcl"
   solver-version = 1

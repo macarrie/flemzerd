@@ -189,99 +189,103 @@ func initWatchlists() {
 }
 
 func downloadChainFunc() {
-	for _, show := range provider.TVShows {
-		recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"show":  show.Name,
-			}).Warning("No recent episodes found")
-			continue
-		}
+	if configuration.Config.System.TrackShows {
+		for _, show := range provider.TVShows {
+			recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"show":  show.Name,
+				}).Warning("No recent episodes found")
+				continue
+			}
 
-		for _, recentEpisode := range recentEpisodes {
-			err := notifier.NotifyRecentEpisode(show, recentEpisode)
+			for _, recentEpisode := range recentEpisodes {
+				err := notifier.NotifyRecentEpisode(show, recentEpisode)
+				if err != nil {
+					log.Warning(err)
+				}
+
+				if retention.EpisodeHasBeenDownloaded(recentEpisode) {
+					log.WithFields(log.Fields{
+						"show":   show.Name,
+						"number": recentEpisode.Number,
+						"season": recentEpisode.Season,
+						"name":   recentEpisode.Name,
+					}).Debug("Episode already downloaded, nothing to do")
+					continue
+				}
+
+				if retention.EpisodeIsDownloading(recentEpisode) {
+					log.WithFields(log.Fields{
+						"show":   show.Name,
+						"number": recentEpisode.Number,
+						"season": recentEpisode.Season,
+						"name":   recentEpisode.Name,
+					}).Debug("Episode already being downloaded, nothing to do")
+					continue
+				}
+
+				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
+				if err != nil {
+					log.Warning(err)
+					continue
+				}
+				log.Debug("Torrents found: ", len(torrentList))
+
+				toDownload := downloader.FillEpisodeToDownloadTorrentList(recentEpisode, torrentList)
+				if len(toDownload) == 0 {
+					downloader.MarkEpisodeFailedDownload(show, recentEpisode)
+					continue
+				}
+				go downloader.DownloadEpisode(show, recentEpisode, toDownload)
+			}
+		}
+	}
+
+	if configuration.Config.System.TrackMovies {
+		for _, movie := range provider.Movies {
+			if movie.Date.After(time.Now()) {
+				log.WithFields(log.Fields{
+					"movie":        movie.Title,
+					"release_date": movie.Date,
+				}).Debug("Movie not yet released, ignoring")
+				continue
+			}
+
+			err := notifier.NotifyMovieDownload(movie)
 			if err != nil {
 				log.Warning(err)
 			}
 
-			if retention.EpisodeHasBeenDownloaded(recentEpisode) {
+			if retention.MovieHasBeenDownloaded(movie) {
 				log.WithFields(log.Fields{
-					"show":   show.Name,
-					"number": recentEpisode.Number,
-					"season": recentEpisode.Season,
-					"name":   recentEpisode.Name,
-				}).Debug("Episode already downloaded, nothing to do")
+					"movie": movie.Title,
+				}).Debug("Movie already downloaded, nothing to do")
 				continue
 			}
 
-			if retention.EpisodeIsDownloading(recentEpisode) {
+			if retention.MovieIsDownloading(movie) {
 				log.WithFields(log.Fields{
-					"show":   show.Name,
-					"number": recentEpisode.Number,
-					"season": recentEpisode.Season,
-					"name":   recentEpisode.Name,
-				}).Debug("Episode already being downloaded, nothing to do")
+					"movie": movie.Title,
+				}).Debug("Movie already being downloaded, nothing to do")
 				continue
 			}
 
-			torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
+			torrentList, err := indexer.GetTorrentForMovie(movie.Title)
 			if err != nil {
 				log.Warning(err)
 				continue
 			}
 			log.Debug("Torrents found: ", len(torrentList))
 
-			toDownload := downloader.FillEpisodeToDownloadTorrentList(recentEpisode, torrentList)
+			toDownload := downloader.FillMovieToDownloadTorrentList(movie, torrentList)
 			if len(toDownload) == 0 {
-				downloader.MarkEpisodeFailedDownload(show, recentEpisode)
+				downloader.MarkMovieFailedDownload(movie)
 				continue
 			}
-			go downloader.DownloadEpisode(show, recentEpisode, toDownload)
+			go downloader.DownloadMovie(movie, toDownload)
 		}
-	}
-
-	for _, movie := range provider.Movies {
-		if movie.Date.After(time.Now()) {
-			log.WithFields(log.Fields{
-				"movie":        movie.Title,
-				"release_date": movie.Date,
-			}).Debug("Movie not yet released, ignoring")
-			continue
-		}
-
-		err := notifier.NotifyMovieDownload(movie)
-		if err != nil {
-			log.Warning(err)
-		}
-
-		if retention.MovieHasBeenDownloaded(movie) {
-			log.WithFields(log.Fields{
-				"movie": movie.Title,
-			}).Debug("Movie already downloaded, nothing to do")
-			continue
-		}
-
-		if retention.MovieIsDownloading(movie) {
-			log.WithFields(log.Fields{
-				"movie": movie.Title,
-			}).Debug("Movie already being downloaded, nothing to do")
-			continue
-		}
-
-		torrentList, err := indexer.GetTorrentForMovie(movie.Title)
-		if err != nil {
-			log.Warning(err)
-			continue
-		}
-		log.Debug("Torrents found: ", len(torrentList))
-
-		toDownload := downloader.FillMovieToDownloadTorrentList(movie, torrentList)
-		if len(toDownload) == 0 {
-			downloader.MarkMovieFailedDownload(movie)
-			continue
-		}
-		go downloader.DownloadMovie(movie, toDownload)
 	}
 }
 
@@ -364,10 +368,10 @@ func main() {
 			}
 
 			if executeDownloadChain {
-				if len(provider.TVShows) == 0 {
+				if configuration.Config.System.TrackShows {
 					provider.GetTVShowsInfoFromConfig()
 				}
-				if len(provider.Movies) == 0 {
+				if configuration.Config.System.TrackShows {
 					provider.GetMoviesInfoFromConfig()
 				}
 

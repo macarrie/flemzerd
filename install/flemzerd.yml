@@ -4,6 +4,12 @@ system:
     episode_check_interval: 15
     # Number of different torrents to try to download before declaring download as failed (default: 20)
     torrent_download_attempts_limit: 20
+    # Enable tvshows tracking
+    track_shows: true
+    # Enable movie tracking
+    track_movies: true
+    # Preferred quality (specified quality will be first in list of to download torrents) (possible values: 720p, 1080p)
+    preferred_media_quality: ""
 
 # WebUI settings
 interface:

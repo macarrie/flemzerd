@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/guessit"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -89,6 +91,8 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+
 	return torrentList, err
 }
 
@@ -137,5 +141,40 @@ func GetTorrentForMovie(movieName string) ([]Torrent, error) {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+
 	return torrentList, err
+}
+
+func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
+	var qualityFilteredList []Torrent
+	var otherTorrents []Torrent
+	var qualityFilter string
+
+	switch configuration.Config.System.PreferredMediaQuality {
+	case "720p", "1080p":
+		qualityFilter = configuration.Config.System.PreferredMediaQuality
+	default:
+		qualityFilter = ""
+	}
+
+	for _, torrent := range list {
+		mediaInfo, err := guessit.GetInfo(torrent.Name)
+		if err != nil {
+			log.Warning("An error occured during guessit request: %s", err.Error())
+			otherTorrents = append(otherTorrents, torrent)
+
+			continue
+		}
+
+		if mediaInfo.ScreenSize == qualityFilter {
+			qualityFilteredList = append(qualityFilteredList, torrent)
+		} else {
+			otherTorrents = append(otherTorrents, torrent)
+		}
+	}
+
+	retList := append(qualityFilteredList, otherTorrents...)
+
+	return retList
 }
