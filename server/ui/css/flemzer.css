@@ -28,3 +28,9 @@ body {
         width: 15px;
         margin-right: 5px;
     }
+
+.h3-badge {
+     position: relative;
+     top: -5px;
+     font-weight: normal;
+}

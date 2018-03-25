@@ -7,7 +7,7 @@ function SettingsCtrl($routeParams, $http) {
     self.trakt_device_code = {};
     self.trakt_token = {};
     self.trakt_auth_errors = [];
-    self.config
+    self.config = {};
 
     self.LoadConfig = function() {
         $http.get("/api/v1/config").then(function(response) {

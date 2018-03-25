@@ -155,13 +155,26 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		firstAired = time.Time{}
 	}
 
+	var status int
+
+	switch tvShow.Status {
+	case "Returning Series":
+		status = TVSHOW_RETURNING
+	case "Planned", "In Production":
+		status = TVSHOW_PLANNED
+	case "Ended", "Canceled":
+		status = TVSHOW_ENDED
+	default:
+		status = TVSHOW_UNKNOWN
+	}
+
 	return TvShow{
 		Poster:     fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
 		FirstAired: firstAired,
 		Id:         tvShow.ID,
 		Overview:   tvShow.Overview,
 		Name:       tvShow.Name,
-		Status:     tvShow.Status,
+		Status:     status,
 	}
 }
 

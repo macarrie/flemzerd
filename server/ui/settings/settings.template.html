@@ -7,23 +7,6 @@
         <div class="col-lg-6 col-sm-12">
             <ul class="list-group mb-3">
                 <li class="list-group-item">
-                    <b> Interface enabled </b>
-                    <span class="float-right text-danger"
-                        ng-if="!ctrl.config.Interface.Enabled"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="ctrl.config.Interface.Enabled"><i class="fas fa-check-circle"></i></span>
-                </li>
-                <li class="list-group-item">
-                    <b> Interface port </b>
-                    <span class="float-right">
-                        {{ ctrl.config.Interface.Port }}
-                    </span>
-                </li>
-            </ul>
-        </div>
-        <div class="col-lg-6 col-sm-12">
-            <ul class="list-group mb-3">
-                <li class="list-group-item">
                     <b> Polling interval </b>
                     <span class="float-right text-primary">
                         {{ ctrl.config.System.EpisodeCheckInterval }}mn
@@ -40,6 +23,52 @@
 
         <div class="col-lg-6 col-sm-12">
             <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> Interface enabled </b>
+                    <span class="float-right text-danger"
+                        ng-if="!ctrl.config.Interface.Enabled"><i class="fas fa-times-circle"></i></span>
+                    <span class="float-right text-success"
+                        ng-if="ctrl.config.Interface.Enabled"><i class="fas fa-check-circle"></i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Interface port </b>
+                    <span class="float-right">
+                        {{ ctrl.config.Interface.Port }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> TV Shows tracking enabled </b>
+                    <span class="float-right text-danger"
+                        ng-if="!ctrl.config.System.TrackShows"><i class="fas fa-times-circle"></i></span>
+                    <span class="float-right text-success"
+                        ng-if="ctrl.config.System.TrackShows"><i class="fas fa-check-circle"></i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Movie tracking enabled </b>
+                    <span class="float-right text-danger"
+                        ng-if="!ctrl.config.System.TrackMovies"><i class="fas fa-times-circle"></i></span>
+                    <span class="float-right text-success"
+                        ng-if="ctrl.config.System.TrackMovies"><i class="fas fa-check-circle"></i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Preferred media quality </b>
+                    <span class="float-right" ng-if="!ctrl.config.System.PreferredMediaQuality">
+                        None
+                    </span>
+                    <span class="float-right" ng-if="ctrl.config.System.PreferredMediaQuality">
+                        {{ ctrl.config.System.PreferredMediaQuality }}
+                    </span>
+                </li>
+            <ul class="list-group">
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
                 <li class="list-group-item">
                     <b> TV Shows library path </b>
                     <span class="float-right font-italic text-primary">
@@ -156,6 +185,4 @@
             </ul>
         </div>
     </div>
-
-    {{ ctrl.config }}
 </div>

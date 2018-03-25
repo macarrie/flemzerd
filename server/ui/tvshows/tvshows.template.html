@@ -7,7 +7,7 @@
                         <img class="rounded-left" width="100%" src="{{ tvshow.Poster }}" alt="">
                     </div>
                     <div class="col-8 pl-0 pr-5 pt-2">
-                        <span class="h3">{{ tvshow.Name }} </span> <span class="badge badge-success">{{ tvshow.Status }}</span>
+                        <span class="h3">{{ tvshow.Name }} </span> <span class="badge h3-badge" ng-class="{'badge-success': tvshow.Status <= 2, 'badge-danger': tvshow.Status == 3, 'badge-warning': tvshow.Status == 4}">{{ tvshow.StatusText }}</span>
                         <p class="card-text">{{ tvshow.Overview }}</p>
                     </div>
                 </div>

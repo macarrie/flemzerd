@@ -263,7 +263,8 @@ func convertShow(tvShow tvdb.Series) TvShow {
 		Id:         tvShow.ID,
 		Overview:   tvShow.Overview,
 		Name:       tvShow.SeriesName,
-		Status:     tvShow.Status,
+		// TODO: Update with correct status
+		Status: TVSHOW_UNKNOWN,
 	}
 }
 
