@@ -352,9 +352,13 @@ func main() {
 				log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
 				executeDownloadChain = false
 			} else {
-				//Even if not able to download, retrieve media info for UI
-				provider.GetTVShowsInfoFromConfig()
-				provider.GetMoviesInfoFromConfig()
+				//Even if not able to download, retrieve media info for UI if enabled
+				if configuration.Config.System.TrackShows {
+					provider.GetTVShowsInfoFromConfig()
+				}
+				if configuration.Config.System.TrackMovies {
+					provider.GetMoviesInfoFromConfig()
+				}
 			}
 
 			if _, err := indexer.Status(); err != nil {
@@ -371,7 +375,7 @@ func main() {
 				if configuration.Config.System.TrackShows {
 					provider.GetTVShowsInfoFromConfig()
 				}
-				if configuration.Config.System.TrackShows {
+				if configuration.Config.System.TrackMovies {
 					provider.GetMoviesInfoFromConfig()
 				}
 

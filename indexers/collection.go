@@ -83,15 +83,17 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		}
 	}
 
-	if len(torrentList) == 0 {
-		return []Torrent{}, errors.New("No torrents found for episode")
-	}
-
 	sort.Slice(torrentList[:], func(i, j int) bool {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+	// Get only torrentdownloadattempslimit * 2 to avoid having to work too much
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList[:configuration.Config.System.TorrentDownloadAttemptsLimit*2])
+	torrentList = FilterBadTorrentsForEpisode(torrentList[:configuration.Config.System.TorrentDownloadAttemptsLimit*2], season, episode)
+
+	if len(torrentList) == 0 {
+		return []Torrent{}, errors.New("No torrents found for episode")
+	}
 
 	return torrentList, err
 }
@@ -147,6 +149,8 @@ func GetTorrentForMovie(movieName string) ([]Torrent, error) {
 }
 
 func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
+	log.Debug("Sorting list according to quality preferences")
+
 	var qualityFilteredList []Torrent
 	var otherTorrents []Torrent
 	var qualityFilter string
@@ -177,4 +181,27 @@ func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
 	retList := append(qualityFilteredList, otherTorrents...)
 
 	return retList
+}
+
+func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torrent {
+	log.Debug("Checking torrent list for bad episodes")
+	var returnList []Torrent
+
+	for _, torrent := range list {
+		episodeInfo, err := guessit.GetEpisodeInfo(torrent.Name, season, episode)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"torrent": torrent.Name,
+			}).Warning("Error while getting media info for torrent: ", err)
+
+			returnList = append(returnList, torrent)
+			continue
+		}
+
+		if episodeInfo.Season != 0 && episodeInfo.Season == season && episodeInfo.Episode != 0 && episodeInfo.Episode == episode {
+			returnList = append(returnList, torrent)
+		}
+	}
+
+	return returnList
 }

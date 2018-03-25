@@ -14,3 +14,16 @@ type MediaInfo struct {
 	SubtitleLanguage string `json:"subtitle_language"`
 	Size             string `json:"size"`
 }
+
+type EpisodeTorrentInfo struct {
+	Type           string `json:"type"`
+	Title          string `json:"title"`
+	Year           int    `json:"year"`
+	Season         int    `json:"season"`
+	Episode        int    `json:"episode"`
+	EpisodeCount   int    `json:"episode_count"`
+	EpisodeDetails string `json:"episode_details"`
+	EpisodeFormat  string `json:"episode_format"`
+	Part           int    `json:"part"`
+	Version        string `json:"version"`
+}
