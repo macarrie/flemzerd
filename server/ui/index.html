@@ -16,15 +16,15 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
         <script src="static/libs/angular.min.js"></script>
-        <script src="static/libs/angular-route.min.js"></script>
-        <script src="static/app.module.js"></script>
+        <script src="static/libs/angular-ui-router.min.js"></script>
         <script src="static/app.config.js"></script>
-        <script src="static/home/home.controller.js"></script>
-        <script src="static/tvshows/tvshows.controller.js"></script>
-        <script src="static/movies/movies.controller.js"></script>
-        <script src="static/status/status.controller.js"></script>
-        <script src="static/settings/settings.controller.js"></script>
+        <script src="static/components/home.component.js"></script>
+        <script src="static/components/tvshows.component.js"></script>
+        <script src="static/components/movies.component.js"></script>
+        <script src="static/components/status.component.js"></script>
+        <script src="static/components/settings.component.js"></script>
     </head>
+
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark topbar">
             <div class="container">
@@ -36,15 +36,15 @@
                     <div class="navbar-nav">
                         <a class="nav-item nav-link" 
                             href="#!"><i class="fas fa-home"></i>Home</a>
-                        <a class="nav-item nav-link" href="#!tvshows"><i class="fas fa-desktop"></i>TVShows</a>
-                        <a class="nav-item nav-link" href="#!movies"><i class="fas fa-film"></i>Movies</a>
-                        <a class="nav-item nav-link" href="#!status"><i class="fas fa-heartbeat"></i>Status</a>
-                        <a class="nav-item nav-link" href="#!settings"><i class="fas fa-cogs"></i>Settings</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="tvshows"><i class="fas fa-desktop"></i>TVShows</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="movies"><i class="fas fa-film"></i>Movies</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="status"><i class="fas fa-heartbeat"></i>Status</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="settings"><i class="fas fa-cogs"></i>Settings</a>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <div class="ng-view"></div>
+        <ui-view></ui-view>
     </body>
 </html>
