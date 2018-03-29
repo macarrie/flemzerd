@@ -10,13 +10,22 @@ body {
 
 .topbar {
     margin-bottom: 30px;
+    border-bottom: 1px solid #bf3a30;
+    border-image: linear-gradient(315deg, #bf3a30 0%, #864ba2 74%);
+    border-image-slice: 1;
 }
 
     .navbar-brand {
         font-size: 50px;
-        line-height: 15px;
+		line-height: 30px;
         font-family: "Alex Brush";
         margin-right: 30px;
+		padding-left: 15px;
+		padding-right: 15px;
+		color: transparent !important;
+		background-color: #bf3a30;
+		background-image: linear-gradient(315deg, #bf3a30 0%, #864ba2 74%);
+		background-clip: text;
     }
 
     .nav-link {

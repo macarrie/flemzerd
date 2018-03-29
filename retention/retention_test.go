@@ -25,7 +25,7 @@ func resetRetention() {
 	retentionData.DownloadingMovies = make(map[int]*DownloadingMovie)
 	retentionData.FailedMovies = make(map[int]Movie)
 
-	retentionData.Watchlists = make(map[string][]string)
+	retentionData.Watchlists = make(map[string][]MediaIds)
 }
 
 func TestSave(t *testing.T) {
@@ -418,7 +418,7 @@ func TestWatchlistRetention(t *testing.T) {
 	AddShowToWatchlistRetention(watchlist, show)
 
 	shows = GetShowsFromWatchlist(watchlist)
-	if shows[0] != show {
-		t.Errorf("Expected show from watchlist retention to be %s, got %s instead", show, shows[0])
+	if shows[0].Name != show {
+		t.Errorf("Expected show from watchlist retention to be %s, got %s instead", show, shows[0].Name)
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"sort"
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
@@ -44,8 +43,8 @@ func AddWatchlist(watchlist Watchlist) {
 	}).Debug("Watchlist loaded")
 }
 
-func GetTvShows() ([]string, error) {
-	tvshows := []string{}
+func GetTvShows() ([]MediaIds, error) {
+	tvshows := []MediaIds{}
 	for _, watchlist := range watchlistsCollection {
 		shows, err := watchlist.GetTvShows()
 		if err != nil {
@@ -59,13 +58,14 @@ func GetTvShows() ([]string, error) {
 	}
 
 	tvshows = removeDuplicates(tvshows)
-	sort.Strings(tvshows)
+	// TODO: Sort mediaids
+	//sort.Strings(tvshows)
 
 	return tvshows, nil
 }
 
-func GetMovies() ([]string, error) {
-	movieWatchlist := []string{}
+func GetMovies() ([]MediaIds, error) {
+	movieWatchlist := []MediaIds{}
 	for _, watchlist := range watchlistsCollection {
 		movies, err := watchlist.GetMovies()
 		if err != nil {
@@ -79,19 +79,20 @@ func GetMovies() ([]string, error) {
 	}
 
 	movieWatchlist = removeDuplicates(movieWatchlist)
-	sort.Strings(movieWatchlist)
+	// TODO: Sort movieIds
+	//sort.Strings(movieWatchlist)
 
 	return movieWatchlist, nil
 }
 
-func removeDuplicates(array []string) []string {
+func removeDuplicates(array []MediaIds) []MediaIds {
 	occurences := make(map[string]bool)
-	var ret []string
+	var ret []MediaIds
 
-	for _, str := range array {
-		if !occurences[str] {
-			occurences[str] = true
-			ret = append(ret, str)
+	for _, media := range array {
+		if !occurences[media.Name] {
+			occurences[media.Name] = true
+			ret = append(ret, media)
 		}
 	}
 

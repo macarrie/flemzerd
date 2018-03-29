@@ -32,7 +32,7 @@ func (p MockMovieProvider) Status() (Module, error) {
 	}, err
 }
 
-func (p MockTVProvider) GetShow(tvShowName string) (TvShow, error) {
+func (p MockTVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	return TvShow{
 		Id:   1000,
 		Name: "Test show",
@@ -54,7 +54,7 @@ func (p MockTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, erro
 		},
 	}, nil
 }
-func (p MockMovieProvider) GetMovie(movieName string) (Movie, error) {
+func (p MockMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
 		Id:    1000,
 		Title: "Test Movie",
@@ -79,10 +79,18 @@ func (w MockWatchlist) Status() (Module, error) {
 	}, err
 }
 
-func (w MockWatchlist) GetTvShows() ([]string, error) {
-	return []string{"test show"}, nil
+func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {
+	return []MediaIds{
+		MediaIds{
+			Name: "test show",
+		},
+	}, nil
 }
 
-func (w MockWatchlist) GetMovies() ([]string, error) {
-	return []string{"test movie"}, nil
+func (w MockWatchlist) GetMovies() ([]MediaIds, error) {
+	return []MediaIds{
+		MediaIds{
+			Name: "test movie",
+		},
+	}, nil
 }

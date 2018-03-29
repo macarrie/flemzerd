@@ -365,23 +365,23 @@ func (t *TraktWatchlist) Status() (Module, error) {
 	return module, err
 }
 
-func (t *TraktWatchlist) GetTvShows() ([]string, error) {
+func (t *TraktWatchlist) GetTvShows() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
 		"watchlist": "trakt",
 	}).Debug("Getting TV shows from watchlist")
 
 	if t.Token.AccessToken == "" {
-		return []string{}, errors.New("Not authenticated into Trakt")
+		return []MediaIds{}, errors.New("Not authenticated into Trakt")
 	}
 
 	response, err := t.performAPIRequest("GET", "/users/me/watchlist/shows", nil)
 	if err != nil {
-		return []string{}, err
+		return []MediaIds{}, err
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return []string{}, err
+		return []MediaIds{}, err
 	}
 
 	var results []traktTVWatchlistRequestResult
@@ -389,38 +389,44 @@ func (t *TraktWatchlist) GetTvShows() ([]string, error) {
 		parseErr := json.Unmarshal(body, &results)
 		if parseErr != nil {
 			log.Error("JSON Unmarshal error: ", err)
-			return []string{}, err
+			return []MediaIds{}, err
 		}
 
-		var toReturn []string
+		var toReturn []MediaIds
 		for _, val := range results {
-			toReturn = append(toReturn, val.Show.Title)
+			toReturn = append(toReturn, MediaIds{
+				Name:  val.Show.Title,
+				Trakt: val.Show.Ids.Trakt,
+				Tmdb:  val.Show.Ids.Tmdb,
+				Imdb:  val.Show.Ids.Imdb,
+				Tvdb:  val.Show.Ids.Tvdb,
+			})
 		}
 
 		toReturn = append(toReturn, retention.GetShowsFromWatchlist("trakt")...)
 
 		return toReturn, nil
 	}
-	return []string{}, errors.New("Unknown HTTP return code from trakt watchlist call")
+	return []MediaIds{}, errors.New("Unknown HTTP return code from trakt watchlist call")
 }
 
-func (t *TraktWatchlist) GetMovies() ([]string, error) {
+func (t *TraktWatchlist) GetMovies() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
 		"watchlist": "trakt",
 	}).Debug("Getting movies from watchlist")
 
 	if t.Token.AccessToken == "" {
-		return []string{}, errors.New("Not authenticated into Trakt")
+		return []MediaIds{}, errors.New("Not authenticated into Trakt")
 	}
 
 	response, err := t.performAPIRequest("GET", "/users/me/watchlist/movies", nil)
 	if err != nil {
-		return []string{}, err
+		return []MediaIds{}, err
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return []string{}, err
+		return []MediaIds{}, err
 	}
 
 	var results []traktMoviesWatchlistRequestResult
@@ -428,15 +434,20 @@ func (t *TraktWatchlist) GetMovies() ([]string, error) {
 		parseErr := json.Unmarshal(body, &results)
 		if parseErr != nil {
 			log.Error("JSON Unmarshal error: ", err)
-			return []string{}, err
+			return []MediaIds{}, err
 		}
 
-		var toReturn []string
+		var toReturn []MediaIds
 		for _, val := range results {
-			toReturn = append(toReturn, val.Movie.Title)
+			toReturn = append(toReturn, MediaIds{
+				Name:  val.Movie.Title,
+				Trakt: val.Movie.Ids.Trakt,
+				Tmdb:  val.Movie.Ids.Tmdb,
+				Imdb:  val.Movie.Ids.Imdb,
+			})
 		}
 
 		return toReturn, nil
 	}
-	return []string{}, errors.New("Unknown HTTP return code from trakt watchlist call")
+	return []MediaIds{}, errors.New("Unknown HTTP return code from trakt watchlist call")
 }

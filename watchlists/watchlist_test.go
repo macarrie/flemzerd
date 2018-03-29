@@ -20,10 +20,18 @@ func (w MockWatchlist) Status() (Module, error) {
 	}, err
 }
 
-func (w MockWatchlist) GetTvShows() ([]string, error) {
-	return []string{"test show"}, nil
+func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {
+	return []MediaIds{
+		MediaIds{
+			Name: "test show",
+		},
+	}, nil
 }
 
-func (w MockWatchlist) GetMovies() ([]string, error) {
-	return []string{"test movie"}, nil
+func (w MockWatchlist) GetMovies() ([]MediaIds, error) {
+	return []MediaIds{
+		MediaIds{
+			Name: "test movie",
+		},
+	}, nil
 }

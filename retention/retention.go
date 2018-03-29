@@ -43,7 +43,7 @@ type RetentionData struct {
 	FailedMovies      map[int]Movie
 
 	TraktToken string
-	Watchlists map[string][]string
+	Watchlists map[string][]MediaIds
 }
 
 var retentionData RetentionData
@@ -60,7 +60,7 @@ func InitStruct() {
 	retentionData.DownloadingMovies = make(map[int]*DownloadingMovie)
 	retentionData.FailedMovies = make(map[int]Movie)
 
-	retentionData.Watchlists = make(map[string][]string)
+	retentionData.Watchlists = make(map[string][]MediaIds)
 }
 
 func Load() error {
@@ -406,13 +406,15 @@ func LoadTraktToken() string {
 }
 
 func AddShowToWatchlistRetention(watchlistName string, show string) {
-	retentionData.Watchlists[watchlistName] = append(retentionData.Watchlists[watchlistName], show)
+	retentionData.Watchlists[watchlistName] = append(retentionData.Watchlists[watchlistName], MediaIds{
+		Name: show,
+	})
 }
 
-func GetShowsFromWatchlist(watchlistName string) []string {
+func GetShowsFromWatchlist(watchlistName string) []MediaIds {
 	if _, ok := retentionData.Watchlists[watchlistName]; ok {
 		return retentionData.Watchlists[watchlistName]
 	} else {
-		return []string{}
+		return []MediaIds{}
 	}
 }

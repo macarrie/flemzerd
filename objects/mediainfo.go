@@ -27,3 +27,11 @@ type EpisodeTorrentInfo struct {
 	Part           int    `json:"part"`
 	Version        string `json:"version"`
 }
+
+type MediaIds struct {
+	Name  string
+	Trakt int
+	Tmdb  int
+	Imdb  string
+	Tvdb  int
+}

@@ -1,7 +1,6 @@
 package tmdb
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -41,29 +40,32 @@ func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 }
 
 // Get show from name
-func (tmdbProvider *TMDBProvider) GetShow(tvShowName string) (TvShow, error) {
+func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	log.WithFields(log.Fields{
-		"name":     tvShowName,
+		"name":     tvShow.Name,
 		"provider": module.Name,
 	}).Debug("Searching show")
 
-	results, err := tmdbProvider.Client.SearchTv(tvShowName, nil)
-	if err != nil {
-		return TvShow{}, err
-	}
-	if len(results.Results) > 0 {
-		show, err := tmdbProvider.Client.GetTvInfo(results.Results[0].ID, nil)
+	var id int
+	if tvShow.Tmdb != 0 {
+		id = tvShow.Tmdb
+	} else {
+		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
 		if err != nil {
 			return TvShow{}, err
 		}
-		return convertShow(*show), nil
-	} else {
-		log.WithFields(log.Fields{
-			"tvshow_name": tvShowName,
-			"provider":    module.Name,
-		}).Warning("TV show not found")
-		return TvShow{}, errors.New("TV show not found")
+
+		if len(results.Results) > 0 {
+			id = results.Results[0].ID
+		}
 	}
+
+	show, err := tmdbProvider.Client.GetTvInfo(id, nil)
+	if err != nil {
+		return TvShow{}, err
+	}
+
+	return convertShow(*show), nil
 }
 
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
@@ -99,23 +101,28 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	return filteredEpisodes, nil
 }
 
-func (tmdbProvider *TMDBProvider) GetMovie(movieName string) (Movie, error) {
+func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 	log.WithFields(log.Fields{
-		"name":     movieName,
+		"name":     m.Name,
 		"provider": module.Name,
 	}).Debug("Searching movie")
 
-	results, err := tmdbProvider.Client.SearchMovie(movieName, nil)
-	if err != nil {
-		return Movie{}, err
-	}
-	if len(results.Results) > 0 {
-		movie, _ := tmdbProvider.Client.GetMovieInfo(results.Results[0].ID, nil)
-
-		return convertMovie(*movie), nil
+	var id int
+	if m.Tmdb != 0 {
+		id = m.Tmdb
 	} else {
-		return Movie{}, errors.New(fmt.Sprintf("Could not find any results for movie %s", movieName))
+		results, err := tmdbProvider.Client.SearchMovie(m.Name, nil)
+		if err != nil {
+			return Movie{}, err
+		}
+		if len(results.Results) > 0 {
+			id = results.Results[0].ID
+		}
+
 	}
+
+	movie, _ := tmdbProvider.Client.GetMovieInfo(id, nil)
+	return convertMovie(*movie), nil
 }
 
 func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {

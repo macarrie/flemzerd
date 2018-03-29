@@ -33,22 +33,24 @@ func (t *ManualWatchlist) Status() (Module, error) {
 	return module, nil
 }
 
-func (t *ManualWatchlist) GetTvShows() ([]string, error) {
+func (t *ManualWatchlist) GetTvShows() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
 		"watchlist": "manual",
 	}).Debug("Getting TV shows from watchlist")
 
-	var shows []string
+	var shows []MediaIds
 	for _, show := range configuration.Config.Watchlists["manual"].([]interface{}) {
-		shows = append(shows, show.(string))
+		shows = append(shows, MediaIds{
+			Name: show.(string),
+		})
 	}
 
 	return shows, nil
 }
-func (t *ManualWatchlist) GetMovies() ([]string, error) {
+func (t *ManualWatchlist) GetMovies() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
 		"watchlist": "manual",
 	}).Debug("Getting movies from watchlist")
 
-	return []string{}, nil
+	return []MediaIds{}, nil
 }

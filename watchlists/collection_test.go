@@ -2,7 +2,8 @@ package watchlist
 
 import (
 	"testing"
-	//. "github.com/macarrie/flemzerd/objects"
+
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 func TestAddWatchlist(t *testing.T) {
@@ -63,7 +64,17 @@ func TestGetMovies(t *testing.T) {
 }
 
 func TestRemoveDuplicates(t *testing.T) {
-	uniqueList := removeDuplicates([]string{"test1", "test2", "test1"})
+	uniqueList := removeDuplicates([]MediaIds{
+		MediaIds{
+			Name: "test1",
+		},
+		MediaIds{
+			Name: "test2",
+		},
+		MediaIds{
+			Name: "test1",
+		},
+	})
 
 	if len(uniqueList) != 2 {
 		t.Errorf("Expected to have 2 element in list after removing duplicates, got %d instead", len(uniqueList))

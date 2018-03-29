@@ -43,7 +43,7 @@ func AddProvider(provider Provider) {
 	providersCollection = append(providersCollection, provider)
 }
 
-func FindShow(query string) (TvShow, error) {
+func FindShow(query MediaIds) (TvShow, error) {
 	p := getTVProvider()
 	if p != nil {
 		return p.GetShow(query)
@@ -52,7 +52,7 @@ func FindShow(query string) (TvShow, error) {
 	return TvShow{}, errors.New("Cannot find any TV provider in configuration")
 }
 
-func FindMovie(query string) (Movie, error) {
+func FindMovie(query MediaIds) (Movie, error) {
 	p := getMovieProvider()
 	if p != nil {
 		return p.GetMovie(query)
@@ -72,7 +72,7 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 
 func GetTVShowsInfoFromConfig() {
 	var showObjects []TvShow
-	var showList []string
+	var showList []MediaIds
 
 	showsFromWatchlists, _ := watchlist.GetTvShows()
 	showList = append(showList, showsFromWatchlists...)
@@ -98,7 +98,7 @@ func GetTVShowsInfoFromConfig() {
 
 func GetMoviesInfoFromConfig() {
 	var movieObjects []Movie
-	var movieList []string
+	var movieList []MediaIds
 
 	moviesFromWatchlists, _ := watchlist.GetMovies()
 	movieList = append(movieList, moviesFromWatchlists...)

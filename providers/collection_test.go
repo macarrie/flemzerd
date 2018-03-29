@@ -36,7 +36,9 @@ func TestFindShow(t *testing.T) {
 	p := MockTVProvider{}
 	providersCollection = []Provider{p}
 
-	show, err := FindShow("Test show")
+	show, err := FindShow(MediaIds{
+		Name: "Test show",
+	})
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}
@@ -49,7 +51,9 @@ func TestFindMovie(t *testing.T) {
 	p := MockMovieProvider{}
 	providersCollection = []Provider{p}
 
-	movie, err := FindMovie("Test Movie")
+	movie, err := FindMovie(MediaIds{
+		Name: "Test Movie",
+	})
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}

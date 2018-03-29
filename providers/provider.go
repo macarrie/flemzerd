@@ -8,11 +8,11 @@ type Provider interface {
 
 type TVProvider interface {
 	Status() (Module, error)
-	GetShow(tvShowName string) (TvShow, error)
+	GetShow(tvShow MediaIds) (TvShow, error)
 	GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error)
 }
 
 type MovieProvider interface {
 	Status() (Module, error)
-	GetMovie(movieName string) (Movie, error)
+	GetMovie(movie MediaIds) (Movie, error)
 }
