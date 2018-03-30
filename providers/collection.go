@@ -90,7 +90,7 @@ func GetTVShowsInfoFromConfig() {
 		}
 	}
 	if len(showObjects) == 0 {
-		log.Error("Impossible to get show informations for shows defined in configuration. Shutting down")
+		log.Warning("No tvshows found in watchlists")
 	}
 
 	TVShows = removeDuplicateShows(showObjects)
@@ -116,7 +116,7 @@ func GetMoviesInfoFromConfig() {
 		}
 	}
 	if len(movieObjects) == 0 {
-		log.Error("Impossible to get movie informations for movies defined in configuration. Shutting down")
+		log.Warning("No movies found in watchlists")
 	}
 
 	Movies = removeDuplicateMovies(movieObjects)

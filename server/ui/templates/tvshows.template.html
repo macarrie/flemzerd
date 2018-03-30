@@ -1,14 +1,21 @@
 <div class="container" ng-if="!$ctrl.config.System.TrackShows">
     <div class="row">
-    <div class="col-12 py-5 text-center">
-        <span class="text-muted h4">
-            TV Show tracking disabled
-        </span>
-    </div>
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                TV Show tracking disabled
+            </span>
+        </div>
     </div>
 </div>
 
 <div class="container" ng-if="$ctrl.config.System.TrackShows">
+    <div class="row" ng-show="{{ $ctrl.GetShowCount() == 0 }}">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                TV Show tracking disabled
+            </span>
+        </div>
+    </div>
     <div class="row">
         <div class="p-2 col-lg-6 col-sm-12" ng-repeat="tvshow in $ctrl.tvshows">
             <div class="container no-gutters px-0 bg-white border border-light rounded">

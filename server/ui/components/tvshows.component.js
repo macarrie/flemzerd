@@ -13,6 +13,10 @@ flemzerd.component("tvshows", {
         };
         self.LoadConfig();
 
+        self.GetShowCount = function() {
+            return Object.keys(self.tvshows).length;
+        }
+
         $http.get("/api/v1/tvshows").then(function(response) {
             if (response.status == 200) {
                 shows = response.data;

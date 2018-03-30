@@ -3,6 +3,7 @@ flemzerd.component("movies", {
     controller: function MoviesCtrl($http) {
         var self = this;
         self.config = {};
+        self.movies = {};
 
         self.LoadConfig = function() {
             $http.get("/api/v1/config").then(function(response) {
@@ -11,8 +12,11 @@ flemzerd.component("movies", {
                 }
             });
         };
-
         self.LoadConfig();
+
+        self.GetMovieCount = function() {
+            return Object.keys(self.movies).length;
+        }
 
         $http.get("/api/v1/movies").then(function(response) {
             if (response.status == 200) {
