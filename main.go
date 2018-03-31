@@ -34,8 +34,34 @@ import (
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 )
 
+func initConfiguration(debug bool) {
+	daemon.SdNotify(false, "READY=0")
+	err := configuration.Load()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("Cannot load configuration file")
+	}
+
+	configuration.Check()
+
+	initNotifiers()
+	initProviders()
+	initIndexers()
+	initDownloaders()
+	initWatchlists()
+
+	server.Stop()
+	if configuration.Config.Interface.Enabled {
+		// Start HTTP server
+		go server.Start(configuration.Config.Interface.Port, debug)
+	}
+	daemon.SdNotify(false, "READY=1")
+}
+
 func initProviders() {
 	log.Debug("Initializing Providers")
+	provider.Reset()
 
 	var newProviders []provider.Provider
 	for providerType, providerElt := range configuration.Config.Providers {
@@ -66,6 +92,7 @@ func initProviders() {
 
 func initIndexers() {
 	log.Debug("Initializing Indexers")
+	indexer.Reset()
 
 	var newIndexers []indexer.Indexer
 	for indexerType, indexerList := range configuration.Config.Indexers {
@@ -94,6 +121,7 @@ func initIndexers() {
 
 func initDownloaders() {
 	log.Debug("Initializing Downloaders")
+	downloader.Reset()
 
 	var newDownloaders []downloader.Downloader
 	for name, downloaderObject := range configuration.Config.Downloaders {
@@ -131,6 +159,7 @@ func initDownloaders() {
 
 func initNotifiers() {
 	log.Debug("Initializing Notifiers")
+	notifier.Reset()
 
 	for name, notifierObject := range configuration.Config.Notifiers {
 		switch name {
@@ -160,6 +189,7 @@ func initNotifiers() {
 
 func initWatchlists() {
 	log.Debug("Initializing Watchlists")
+	watchlist.Reset()
 
 	var newWatchlists []watchlist.Watchlist
 	for watchlistType, _ := range configuration.Config.Watchlists {
@@ -306,15 +336,6 @@ func main() {
 		configuration.UseFile(*configFilePath)
 	}
 
-	err := configuration.Load()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("Cannot load configuration file")
-	}
-
-	configuration.Check()
-
 	retentionErr := retention.Load()
 	if retentionErr != nil {
 		log.WithFields(log.Fields{
@@ -322,17 +343,7 @@ func main() {
 		}).Warning("Could not load retention data. Starting daemon with empty retention")
 	}
 
-	initNotifiers()
-	initProviders()
-	initIndexers()
-	initDownloaders()
-	initWatchlists()
-
-	if configuration.Config.Interface.Enabled {
-		// Start HTTP server
-		go server.Start(configuration.Config.Interface.Port, *debugMode)
-	}
-	daemon.SdNotify(false, "READY=1")
+	initConfiguration(*debugMode)
 
 	//	 Load configuration objects
 	var recovery bool = true
@@ -399,21 +410,26 @@ func main() {
 	}()
 
 	signalChannel := make(chan os.Signal, 1)
-	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
 
 	for {
-		<-signalChannel
-		log.Info("Shutting down...")
+		switch sig := <-signalChannel; sig {
+		case syscall.SIGINT, syscall.SIGTERM:
+			log.Info("Shutting down...")
 
-		server.Stop()
+			server.Stop()
 
-		err := retention.Save()
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Failed to save retention data")
+			err := retention.Save()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Failed to save retention data")
+			}
+
+			os.Exit(0)
+		case syscall.SIGUSR1:
+			log.Error("SIGUSR1: Reload conf")
+			initConfiguration(*debugMode)
 		}
-
-		os.Exit(0)
 	}
 }

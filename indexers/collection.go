@@ -46,6 +46,10 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+func Reset() {
+	indexersCollection = []Indexer{}
+}
+
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
 	var torrentList []Torrent
 	var err error

@@ -44,6 +44,10 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+func Reset() {
+	downloadersCollection = []Downloader{}
+}
+
 func AddTorrent(t Torrent) (string, error) {
 	if len(downloadersCollection) == 0 {
 		return "", errors.New("Cannot add torrents, no downloaders are configured")

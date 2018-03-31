@@ -12,7 +12,6 @@ import (
 )
 
 var notifiersCollection []Notifier
-var Retention []int
 
 func AddNotifier(notifier Notifier) {
 	notifiersCollection = append(notifiersCollection, notifier)
@@ -44,6 +43,10 @@ func Status() ([]Module, error) {
 		retError = errors.New(aggregatedErrorMessage.String())
 	}
 	return modList, retError
+}
+
+func Reset() {
+	notifiersCollection = []Notifier{}
 }
 
 func NotifyRecentEpisode(show TvShow, episode Episode) error {

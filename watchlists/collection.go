@@ -36,6 +36,10 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+func Reset() {
+	watchlistsCollection = []Watchlist{}
+}
+
 func AddWatchlist(watchlist Watchlist) {
 	watchlistsCollection = append(watchlistsCollection, watchlist)
 	log.WithFields(log.Fields{

@@ -39,6 +39,10 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+func Reset() {
+	providersCollection = []Provider{}
+}
+
 func AddProvider(provider Provider) {
 	providersCollection = append(providersCollection, provider)
 }

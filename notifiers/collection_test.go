@@ -38,6 +38,16 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	n := MockNotifier{}
+	AddNotifier(n)
+	Reset()
+
+	if len(notifiersCollection) != 0 {
+		t.Error("Expected notifier collection to be empty after reset")
+	}
+}
+
 func TestAddNotifier(t *testing.T) {
 	notifiersLength := len(notifiersCollection)
 	m := MockNotifier{}

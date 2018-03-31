@@ -22,6 +22,11 @@ import (
 
 var srv *http.Server
 var router *gin.Engine
+var serverStarted bool
+
+func init() {
+	serverStarted = false
+}
 
 func initRouter() {
 	router = gin.Default()
@@ -182,15 +187,26 @@ func Start(port int, debug bool) {
 	log.WithFields(log.Fields{
 		"port": port,
 	}).Info("Starting HTTP server")
+
+	serverStarted = true
+
 	err := srv.ListenAndServe()
 	if err != nil {
-		log.Debug(fmt.Sprintf("listen: %s\n", err))
+		log.Error(fmt.Sprintf("listen: %s\n", err))
+		serverStarted = false
+		return
 	}
 }
 
 func Stop() {
+	if !serverStarted {
+		log.Debug("No webserver to stop")
+		return
+	}
+
 	log.Info("Stopping HTTP server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	cancel()
 	srv.Shutdown(ctx)
+	serverStarted = false
 }

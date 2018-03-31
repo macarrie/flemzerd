@@ -27,6 +27,16 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	d := MockDownloader{}
+	AddDownloader(d)
+	Reset()
+
+	if len(downloadersCollection) != 0 {
+		t.Error("Expected downloader collection to be empty after reset")
+	}
+}
+
 func TestAddDownloader(t *testing.T) {
 	downloadersLength := len(downloadersCollection)
 	m := MockDownloader{}

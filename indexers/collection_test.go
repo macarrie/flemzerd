@@ -38,6 +38,16 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	ind := MockMovieIndexer{}
+	AddIndexer(ind)
+	Reset()
+
+	if len(indexersCollection) != 0 {
+		t.Error("Expected indexer collection to be empty after reset")
+	}
+}
+
 func TestGetTorrentForEpisode(t *testing.T) {
 	ind1 := MockTVIndexer{}
 	ind2 := MockTVIndexer{}

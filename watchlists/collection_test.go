@@ -31,6 +31,16 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	w := MockWatchlist{}
+	AddWatchlist(w)
+	Reset()
+
+	if len(watchlistsCollection) != 0 {
+		t.Error("Expected watchlist collection to be empty after reset")
+	}
+}
+
 func TestGetShows(t *testing.T) {
 	w1 := MockWatchlist{}
 	w2 := MockWatchlist{}

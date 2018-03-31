@@ -32,6 +32,16 @@ func TestStatus(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	p := MockMovieProvider{}
+	AddProvider(p)
+	Reset()
+
+	if len(providersCollection) != 0 {
+		t.Error("Expected provider collection to be empty after reset")
+	}
+}
+
 func TestFindShow(t *testing.T) {
 	p := MockTVProvider{}
 	providersCollection = []Provider{p}
