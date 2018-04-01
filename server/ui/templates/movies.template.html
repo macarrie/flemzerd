@@ -1,4 +1,4 @@
-<div class="container" ng-if="!$ctrl.config.System.TrackMovies">
+<div class="container" ng-if="!config.System.TrackMovies">
     <div class="row">
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
@@ -8,8 +8,8 @@
     </div>
 </div>
 
-<div class="container" ng-if="$ctrl.config.System.TrackMovies">
-    <div class="row" ng-show="{{ $ctrl.GetMovieCount() == 0 }}">
+<div class="container" ng-if="config.System.TrackMovies">
+    <div class="row" ng-if="!movies_found">
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
                 No movies found
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="movie in $ctrl.movies">
+        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="movie in movies">
             <div class="container no-gutters px-0 bg-white border border-light rounded">
                 <div class="row">
                     <div class="col-4">

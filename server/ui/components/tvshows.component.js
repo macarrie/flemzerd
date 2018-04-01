@@ -1,21 +1,19 @@
 flemzerd.component("tvshows", {
     templateUrl: "/static/templates/tvshows.template.html",
-    controller: function TVShowsCtrl($http) {
+    controller: function TVShowsCtrl($scope, $http) {
         var self = this;
-        self.tvshows = {};
+        $scope.tvshows = {};
+        $scope.config = {};
+        $scope.tvshows_found = false;
 
         self.LoadConfig = function() {
             $http.get("/api/v1/config").then(function(response) {
                 if (response.status == 200) {
-                    self.config = response.data;
+                    $scope.config = response.data;
                 }
             });
         };
         self.LoadConfig();
-
-        self.GetShowCount = function() {
-            return Object.keys(self.tvshows).length;
-        }
 
         $http.get("/api/v1/tvshows").then(function(response) {
             if (response.status == 200) {
@@ -35,9 +33,13 @@ flemzerd.component("tvshows", {
                             shows[show]["StatusText"] = "Unknown";
                             break;
                     }
-                    console.log(shows[show]);
                 }
-                self.tvshows = shows;
+
+                if (shows != null) {
+                     $scope.tvshows_found = true;
+                }
+
+                $scope.tvshows = shows;
                 return;
             }
         });
