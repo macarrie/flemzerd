@@ -53,6 +53,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	ind2 := MockTVIndexer{}
 	ind3 := MockMovieIndexer{}
 	ind4 := MockMovieIndexer{}
+	configuration.Config.System.PreferredMediaQuality = "720p"
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
@@ -80,6 +81,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 	ind2 := MockTVIndexer{}
 	ind3 := MockMovieIndexer{}
 	ind4 := MockMovieIndexer{}
+	configuration.Config.System.PreferredMediaQuality = "720p"
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
