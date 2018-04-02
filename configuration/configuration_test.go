@@ -17,7 +17,16 @@ func TestUseFile(t *testing.T) {
 }
 
 func TestCheck(t *testing.T) {
+	customConfigFile = false
+	customConfigFilePath = ""
+	Load()
+	Check()
+
 	UseFile("../testdata/test_config.yaml")
+	Load()
+	Check()
+
+	UseFile("../testdata/test_config_bad.yaml")
 	Load()
 	Check()
 }
