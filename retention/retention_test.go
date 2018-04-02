@@ -38,8 +38,6 @@ func TestSave(t *testing.T) {
 	}
 	Load()
 
-	fmt.Printf("Save: %+v\n", retentionSave)
-	fmt.Printf("Load: %+v\n", retentionData)
 	if !cmp.Equal(retentionData, retentionSave) {
 		t.Error("Retention data loaded from file is not the same as retention data saved beforehand")
 	}
@@ -151,7 +149,6 @@ func TestAddElementInRetention(t *testing.T) {
 	AddDownloadedMovie(testMovie)
 	AddDownloadingEpisode(testEpisode)
 	AddDownloadingMovie(testMovie)
-	fmt.Printf("%+v\n", retentionData)
 
 	if len(retentionData.NotifiedEpisodes) != 1 {
 		t.Error("Expected to have 1 item in notified episodes retention, got ", len(retentionData.NotifiedEpisodes), " items instead")

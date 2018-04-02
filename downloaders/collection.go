@@ -194,7 +194,7 @@ func WaitForDownload(t Torrent) error {
 
 func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 	if retention.EpisodeHasBeenDownloaded(e) || retention.EpisodeIsDownloading(e) {
-		return errors.New(msg)
+		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
 
 	log.WithFields(log.Fields{
