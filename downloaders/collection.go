@@ -194,7 +194,7 @@ func WaitForDownload(t Torrent) error {
 
 func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 	if retention.EpisodeHasBeenDownloaded(e) || retention.EpisodeIsDownloading(e) {
-		return errors.New("Episode downloading or already downloaded. Skipping")
+		return errors.New(msg)
 	}
 
 	log.WithFields(log.Fields{
@@ -227,9 +227,8 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			if !retention.EpisodeHasBeenDownloaded(e) {
-				notifier.NotifyDownloadedEpisode(show, e)
-			}
+			notifier.NotifyDownloadedEpisode(show, e)
+			return nil
 		}
 		continue
 	}
@@ -272,9 +271,8 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 			log.WithFields(log.Fields{
 				"name": m.Title,
 			}).Info("Movie successfully downloaded")
-			if !retention.MovieHasBeenDownloaded(m) {
-				notifier.NotifyDownloadedMovie(m)
-			}
+			notifier.NotifyDownloadedMovie(m)
+			return nil
 		}
 		continue
 	}

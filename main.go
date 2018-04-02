@@ -428,7 +428,7 @@ func main() {
 
 			os.Exit(0)
 		case syscall.SIGUSR1:
-			log.Error("SIGUSR1: Reload conf")
+			log.Info("Signal received: reloading configuration")
 			initConfiguration(*debugMode)
 		}
 	}

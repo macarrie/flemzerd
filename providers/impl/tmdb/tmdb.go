@@ -135,23 +135,12 @@ func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, e
 		*end = time.Date(100000, time.January, 1, 0, 0, 0, 0, time.UTC)
 	}
 
-	log.WithFields(log.Fields{
-		"start_date": beginning,
-		"end_date":   end,
-	}).Debug("Filtering episodes list by airing date")
-
 	var retVal []Episode
 	for _, episode := range episodes {
 		if episode.Date.After(*beginning) && episode.Date.Before(*end) {
 			retVal = append(retVal, episode)
 		}
 	}
-
-	log.WithFields(log.Fields{
-		"start_date":     beginning,
-		"end_date":       end,
-		"nb_of_episodes": len(retVal),
-	}).Debug("Successfully filtered episodes list by airing date")
 
 	return retVal
 }
