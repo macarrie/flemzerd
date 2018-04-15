@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/retention"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -47,13 +48,53 @@ func initRouter() {
 			c.JSON(http.StatusOK, configuration.Config)
 		})
 
-		v1.GET("/tvshows", func(c *gin.Context) {
-			c.JSON(http.StatusOK, provider.TVShows)
-		})
+		tvshowsRoute := v1.Group("/tvshows")
+		{
+			tvshowsRoute.GET("/", func(c *gin.Context) {
+				c.JSON(http.StatusOK, provider.TVShows)
+			})
+			tvshowsRoute.GET("/tracked", func(c *gin.Context) {
+				c.JSON(http.StatusOK, provider.TVShows)
+			})
+			tvshowsRoute.GET("/downloading", func(c *gin.Context) {
+				episodes, err := retention.GetDownloadingEpisodes()
+				if err != nil {
+					log.Error("Error while getting downloading movies from retention: ", err)
+				}
+				c.JSON(http.StatusOK, episodes)
+			})
+			tvshowsRoute.GET("/downloaded", func(c *gin.Context) {
+				episodes, err := retention.GetDownloadedEpisodes()
+				if err != nil {
+					log.Error("Error while getting downloaded movies from retention: ", err)
+				}
+				c.JSON(http.StatusOK, episodes)
+			})
+		}
 
-		v1.GET("/movies", func(c *gin.Context) {
-			c.JSON(http.StatusOK, provider.Movies)
-		})
+		moviesRoute := v1.Group("/movies")
+		{
+			moviesRoute.GET("/", func(c *gin.Context) {
+				c.JSON(http.StatusOK, provider.Movies)
+			})
+			moviesRoute.GET("/tracked", func(c *gin.Context) {
+				c.JSON(http.StatusOK, provider.Movies)
+			})
+			moviesRoute.GET("/downloading", func(c *gin.Context) {
+				movies, err := retention.GetDownloadingMoviesDetails()
+				if err != nil {
+					log.Error("Error while getting downloading movies from retention: ", err)
+				}
+				c.JSON(http.StatusOK, movies)
+			})
+			moviesRoute.GET("/downloaded", func(c *gin.Context) {
+				movies, err := retention.GetDownloadedMovies()
+				if err != nil {
+					log.Error("Error while getting downloaded movies from retention: ", err)
+				}
+				c.JSON(http.StatusOK, movies)
+			})
+		}
 
 		modules := v1.Group("/modules")
 		{

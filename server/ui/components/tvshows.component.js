@@ -1,47 +1,18 @@
 flemzerd.component("tvshows", {
     templateUrl: "/static/templates/tvshows.template.html",
-    controller: function TVShowsCtrl($scope, $http) {
+    controller: function TVShowsCtrl($rootScope, $scope, $interval, $http, config, tvshows) {
         var self = this;
-        $scope.tvshows = {};
         $scope.config = {};
-        $scope.tvshows_found = false;
+        $scope.tvshows = {};
 
-        self.LoadConfig = function() {
-            $http.get("/api/v1/config").then(function(response) {
-                if (response.status == 200) {
-                    $scope.config = response.data;
-                }
-            });
+        self.refresh = function() {
+            $scope.config = $rootScope.config;
+            $scope.tvshows = $rootScope.tvshows;
         };
-        self.LoadConfig();
 
-        $http.get("/api/v1/tvshows").then(function(response) {
-            if (response.status == 200) {
-                shows = response.data;
-                for (var show in shows) {
-                    switch (shows[show]["Status"]) {
-                        case 1:
-                            shows[show]["StatusText"] = "Continuing";
-                            break;
-                        case 2:
-                            shows[show]["StatusText"] = "Planned";
-                            break;
-                        case 3:
-                            shows[show]["StatusText"] = "Ended";
-                            break;
-                        default:
-                            shows[show]["StatusText"] = "Unknown";
-                            break;
-                    }
-                }
+        self.refresh();
+        $interval(self.refresh, 1000);
 
-                if (shows != null) {
-                     $scope.tvshows_found = true;
-                }
-
-                $scope.tvshows = shows;
-                return;
-            }
-        });
+        return;
     }
 });

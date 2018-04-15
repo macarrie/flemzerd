@@ -2,11 +2,11 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Watchlists</h3>
-            <ul class="list-group" ng-if="!$ctrl.watchlists">
+            <ul class="list-group" ng-if="!modules.watchlists">
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="watchlist in $ctrl.watchlists"
+                <li class="list-group-item" ng-repeat="watchlist in modules.watchlists"
                     ng-class="watchlist.Status.Alive ? 'border-success' : 'border-danger'">
                     <span>{{ watchlist.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
@@ -25,11 +25,11 @@
 
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Providers</h3>
-            <ul class="list-group" ng-if="!$ctrl.providers">
+            <ul class="list-group" ng-if="!modules.providers">
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="provider in $ctrl.providers"
+                <li class="list-group-item" ng-repeat="provider in modules.providers"
                     ng-class="provider.Status.Alive ? 'border-success' : 'border-danger'">
                     <span>{{ provider.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
@@ -50,12 +50,12 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Notifiers</h3>
-            <ul class="list-group" ng-if="!$ctrl.notifiers">
+            <ul class="list-group" ng-if="!modules.notifiers">
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
                 <li class="list-group-item border" 
-                    ng-repeat="notifier in $ctrl.notifiers"
+                    ng-repeat="notifier in modules.notifiers"
                     ng-class="notifier.Status.Alive ? 'border-success' : 'border-danger'">
                     <span>{{ notifier.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
@@ -73,11 +73,11 @@
         </div>
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Indexers</h3>
-            <ul class="list-group" ng-if="!$ctrl.indexers">
+            <ul class="list-group" ng-if="!modules.indexers">
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="indexer in $ctrl.indexers"
+                <li class="list-group-item" ng-repeat="indexer in modules.indexers"
                     ng-class="indexer.Status.Alive ? 'border-success' : 'border-danger'">
                     <span>{{ indexer.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
@@ -98,11 +98,11 @@
     <div class="row">
         <div class="col-lg-6 col-sm-12 mt-2">
             <h3>Downloaders</h3>
-            <ul class="list-group" ng-if="!$ctrl.downloaders">
+            <ul class="list-group" ng-if="!modules.downloaders">
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="downloader in $ctrl.downloaders"
+                <li class="list-group-item" ng-repeat="downloader in modules.downloaders"
                     ng-class="downloader.Status.Alive ? 'border-success' : 'border-danger'">
                     <span>{{ downloader.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"

@@ -10,6 +10,28 @@
         <link rel="stylesheet" href="static/css/flemzer.css">
 
         <title>Flemzer</title>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light topbar">
+            <div class="container">
+                <span class="navbar-brand" href="#">flemzer</span>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav">
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="home"><i class="fas fa-home"></i>Home</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="tvshows"><i class="fas fa-desktop"></i>TVShows</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="movies"><i class="fas fa-film"></i>Movies</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="status"><i class="fas fa-heartbeat"></i>Status</a>
+                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="settings"><i class="fas fa-cogs"></i>Settings</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <ui-view></ui-view>
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -23,28 +45,10 @@
         <script src="static/components/movies.component.js"></script>
         <script src="static/components/status.component.js"></script>
         <script src="static/components/settings.component.js"></script>
-    </head>
 
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light topbar">
-            <div class="container">
-                <span class="navbar-brand" href="#">flemzer</span>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <div class="navbar-nav">
-                        <a class="nav-item nav-link" 
-                            href="#!"><i class="fas fa-home"></i>Home</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="tvshows"><i class="fas fa-desktop"></i>TVShows</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="movies"><i class="fas fa-film"></i>Movies</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="status"><i class="fas fa-heartbeat"></i>Status</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="settings"><i class="fas fa-cogs"></i>Settings</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <ui-view></ui-view>
+        <script src="static/services/config.service.js"></script>
+        <script src="static/services/movies.service.js"></script>
+        <script src="static/services/tvshows.service.js"></script>
+        <script src="static/services/modules.service.js"></script>
     </body>
 </html>

@@ -1,3 +1,47 @@
-<div>
-    Home tpl
+<div class="container">
+    <div class="row" ng-if="config.System.TrackShows">
+        <!--TVShows: {{ tvshows }}-->
+        <div class="card-group col-12">
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-primary">
+                <span class="h3">
+                    {{ tvshows.tracked.length > 0 ? tvshows.tracked.length : 0 }}
+                </span>
+                Tracked shows
+            </div>
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-warning">
+                <span class="h3">
+                    {{ tvshows.downloading.length > 0 ? tvshows.downloading.length : 0 }}
+                </span>
+                Downloading episodes
+            </div>
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-success">
+                <span class="h3">
+                    {{ tvshows.downloaded.length > 0 ? tvshows.downloaded.length : 0 }}
+                </span>
+                Downloaded episodes
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4" ng-if="config.System.TrackMovies">
+        <div class="card-group col-12">
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-primary">
+                <span class="h3">
+                    {{ movies.tracked.length > 0 ? movies.tracked.length : 0 }}
+                </span>
+                Tracked movies
+            </div>
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-warning">
+                <span class="h3">
+                    {{ movies.downloading.length > 0 ? movies.downloading.length : 0 }}
+                </span>
+                Downloading movies
+            </div>
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-success">
+                <span class="h3">
+                    {{ movies.downloaded.length > 0 ? movies.downloaded.length : 0 }}
+                </span>
+                Downloaded movies
+            </div>
+        </div>
+    </div>
 </div>

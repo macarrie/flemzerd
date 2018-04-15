@@ -2,6 +2,11 @@ var flemzerd = angular.module('flemzer', ['ui.router'])
 
 flemzerd.config(function config($stateProvider) {
     $stateProvider.state({
+        name: "home",
+        url: "/",
+        component: "home"
+    });
+    $stateProvider.state({
         name: "tvshows",
         url: "/tvshows",
         component: "tvshows"

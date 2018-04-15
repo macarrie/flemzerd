@@ -9,13 +9,13 @@
                 <li class="list-group-item">
                     <b> Polling interval </b>
                     <span class="float-right text-primary">
-                        {{ $ctrl.config.System.EpisodeCheckInterval }}mn
+                        {{ config.System.EpisodeCheckInterval }}mn
                     </span>
                 </li>
                 <li class="list-group-item">
                     <b> Torrent download attempts limit </b>
                     <span class="float-right text-primary">
-                        {{ $ctrl.config.System.TorrentDownloadAttemptsLimit }}
+                        {{ config.System.TorrentDownloadAttemptsLimit }}
                     </span>
                 </li>
             </ul>
@@ -26,14 +26,14 @@
                 <li class="list-group-item">
                     <b> Interface enabled </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.Interface.Enabled"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.Interface.Enabled"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.Interface.Enabled"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.Interface.Enabled"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Interface port </b>
                     <span class="float-right">
-                        {{ $ctrl.config.Interface.Port }}
+                        {{ config.Interface.Port }}
                     </span>
                 </li>
             </ul>
@@ -44,24 +44,24 @@
                 <li class="list-group-item">
                     <b> TV Shows tracking enabled </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.System.TrackShows"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.System.TrackShows"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.System.TrackShows"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.System.TrackShows"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Movie tracking enabled </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.System.TrackMovies"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.System.TrackMovies"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.System.TrackMovies"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.System.TrackMovies"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Preferred media quality </b>
-                    <span class="float-right text-muted" ng-if="!$ctrl.config.System.PreferredMediaQuality">
+                    <span class="float-right text-muted" ng-if="!config.System.PreferredMediaQuality">
                         None
                     </span>
-                    <span class="float-right text-primary" ng-if="$ctrl.config.System.PreferredMediaQuality">
-                        {{ $ctrl.config.System.PreferredMediaQuality }}
+                    <span class="float-right text-primary" ng-if="config.System.PreferredMediaQuality">
+                        {{ config.System.PreferredMediaQuality }}
                     </span>
                 </li>
             <ul class="list-group">
@@ -72,13 +72,13 @@
                 <li class="list-group-item">
                     <b> TV Shows library path </b>
                     <span class="float-right font-italic text-primary">
-                        {{ $ctrl.config.Library.ShowPath }}
+                        {{ config.Library.ShowPath }}
                     </span>
                 </li>
                 <li class="list-group-item">
                     <b> Movies library path </b>
                     <span class="float-right font-italic text-primary">
-                        {{ $ctrl.config.Library.MoviePath }}
+                        {{ config.Library.MoviePath }}
                     </span>
                 </li>
             </ul>
@@ -93,30 +93,30 @@
                 <li class="list-group-item">
                     <b> Notifications enabled </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.Notifications.Enabled"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.Notifications.Enabled"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.Notifications.Enabled"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.Notifications.Enabled"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on new episode </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.Notifications.NotifyNewEpisode"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.Notifications.NotifyNewEpisode"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.Notifications.NotifyNewEpisode"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.Notifications.NotifyNewEpisode"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on download complete </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.Notifications.NotifyDownloadComplete"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.Notifications.NotifyDownloadComplete"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.Notifications.NotifyDownloadComplete"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.Notifications.NotifyDownloadComplete"><i class="fas fa-check-circle"></i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on download failure </b>
                     <span class="float-right text-danger"
-                        ng-if="!$ctrl.config.Notifications.NotifyFailure"><i class="fas fa-times-circle"></i></span>
+                        ng-if="!config.Notifications.NotifyFailure"><i class="fas fa-times-circle"></i></span>
                     <span class="float-right text-success"
-                        ng-if="$ctrl.config.Notifications.NotifyFailure"><i class="fas fa-check-circle"></i></span>
+                        ng-if="config.Notifications.NotifyFailure"><i class="fas fa-check-circle"></i></span>
                 </li>
             </ul>
         </div>
@@ -129,7 +129,7 @@
         <div class="col-lg-6 col-sm-12">
             <h6>Watchlists</h6>
             <ul class="list-group mb-3">
-                <li class="list-group-item" ng-repeat="(watchlist, content) in $ctrl.config.Watchlists">
+                <li class="list-group-item" ng-repeat="(watchlist, content) in config.Watchlists">
                     <b> {{ watchlist }} </b>
                     <span ng-if="watchlist == 'trakt' && $ctrl.trakt_auth"
                           class="text-success float-right font-weight-light font-italic">
@@ -154,7 +154,7 @@
         <div class="col-lg-6 col-sm-12">
             <h6>Providers</h6>
             <ul class="list-group mb-3">
-                <li class="list-group-item" ng-repeat="(provider, cfg) in $ctrl.config.Providers">
+                <li class="list-group-item" ng-repeat="(provider, cfg) in config.Providers">
                     <b> {{ provider }} </b>
                 </li>
             </ul>
@@ -162,7 +162,7 @@
         <div class="col-lg-6 col-sm-12">
             <h6>Notifiers</h6>
             <ul class="list-group mb-3">
-                <li class="list-group-item" ng-repeat="(notifier, cfg) in $ctrl.config.Notifiers">
+                <li class="list-group-item" ng-repeat="(notifier, cfg) in config.Notifiers">
                     <b> {{ notifier }} </b>
                 </li>
             </ul>
@@ -170,7 +170,7 @@
         <div class="col-lg-6 col-sm-12">
             <h6>Indexers <span class="text-muted">(torznab)</span></h6>
             <ul class="list-group mb-3">
-                <li class="list-group-item" ng-repeat="indexer in $ctrl.config.Indexers.torznab">
+                <li class="list-group-item" ng-repeat="indexer in config.Indexers.torznab">
                     <b> {{ indexer.name }} </b>
                     <span class="float-right text-muted"><small> {{ indexer.url }} </small></span>
                 </li>
@@ -179,7 +179,7 @@
         <div class="col-lg-6 col-sm-12">
             <h6>Downloaders</h6>
             <ul class="list-group mb-3">
-                <li class="list-group-item" ng-repeat="(downloader, cfg) in $ctrl.config.Downloaders">
+                <li class="list-group-item" ng-repeat="(downloader, cfg) in config.Downloaders">
                     <b> {{ downloader }} </b>
                 </li>
             </ul>

@@ -313,6 +313,32 @@ func GetDownloadingMovies() ([]Movie, error) {
 	return moviesList, nil
 }
 
+func GetDownloadingMoviesDetails() ([]DownloadingMovie, error) {
+	//var moviesList []Movie
+	var retList []DownloadingMovie
+	for _, val := range retentionData.DownloadingMovies {
+		//moviesList = append(moviesList, val.Movie)
+		retList = append(retList, *val)
+	}
+	return retList, nil
+}
+
+func GetDownloadedEpisodes() ([]Episode, error) {
+	var episodesList []Episode
+	for _, episode := range retentionData.DownloadedEpisodes {
+		episodesList = append(episodesList, episode)
+	}
+	return episodesList, nil
+}
+
+func GetDownloadedMovies() ([]Movie, error) {
+	var moviesList []Movie
+	for _, movie := range retentionData.DownloadedMovies {
+		moviesList = append(moviesList, movie)
+	}
+	return moviesList, nil
+}
+
 func GetCurrentDownloadEpisodeFromRetention(e Episode) (Torrent, string, error) {
 	if !EpisodeIsDownloading(e) {
 		return Torrent{}, "", errors.New("Episode is not getting downloaded, no torrents to fetch")

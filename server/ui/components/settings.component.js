@@ -1,20 +1,12 @@
 flemzerd.component("settings", {
     templateUrl: "/static/templates/settings.template.html",
-    controller: function SettingsCtrl($http) {
+    controller: function SettingsCtrl($rootScope, $scope, $interval, $http, config) {
         var self = this;
         self.trakt_auth = false;
         self.trakt_device_code = {};
         self.trakt_token = {};
         self.trakt_auth_errors = [];
-        self.config = {};
-
-        self.LoadConfig = function() {
-            $http.get("/api/v1/config").then(function(response) {
-                if (response.status == 200) {
-                    self.config = response.data;
-                }
-            });
-        };
+        $scope.config = {};
 
         self.startTraktAuth = function() {
             $http.get("/api/v1/modules/watchlists/trakt/auth").then(function(response) {
@@ -80,7 +72,15 @@ flemzerd.component("settings", {
             });
         };
 
-        self.LoadConfig();
+
+        self.refresh = function() {
+            $scope.config = $rootScope.config;
+        };
+
         self.GetTraktToken();
+        self.refresh();
+        $interval(self.refresh, 1000);
+
+        return;
     }
 });

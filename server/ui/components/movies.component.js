@@ -1,30 +1,22 @@
 flemzerd.component("movies", {
     templateUrl: "/static/templates/movies.template.html",
-    controller: function MoviesCtrl($scope, $http, $timeout) {
+    controller: function MoviesCtrl($rootScope, $scope, $http, $interval, config, movies) {
         var self = this;
         $scope.config = {};
         $scope.movies = {};
-        $scope.movies_found = false;
 
-        self.LoadConfig = function() {
-            $http.get("/api/v1/config").then(function(response) {
-                if (response.status == 200) {
-                    $scope.config = response.data;
-                }
-            });
+        $scope.getFailedTorrentsNb = function(dl) {
+            return Object.keys(dl.FailedTorrents).length;
         };
-        self.LoadConfig();
 
-        $http.get("/api/v1/movies").then(function(response) {
-            if (response.status == 200) {
-                $scope.movies = response.data;
+        self.refresh = function() {
+            $scope.config = $rootScope.config;
+            $scope.movies = $rootScope.movies;
+        };
 
-                if ($scope.movies != null) {
-                    $scope.movies_found = true;
-                }
+        self.refresh();
+        $interval(self.refresh, 1000);
 
-                return;
-            }
-        });
+        return;
     }
 });

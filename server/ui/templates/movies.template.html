@@ -9,22 +9,105 @@
 </div>
 
 <div class="container" ng-if="config.System.TrackMovies">
-    <div class="row" ng-if="!movies_found">
+    <div class="row" ng-if="!movies.tracked.length">
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
-                No movies found
+                No tracked movies
             </span>
         </div>
     </div>
-    <div class="row">
-        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="movie in movies">
+
+    <div class="row" ng-if="movies.downloading">
+        <div class="col-12">
+            <h3>Downloading movies</h3>
+        </div>
+        <div class="p-2 col-lg-12 col-sm-12" ng-repeat="dl in movies.downloading">
+            <div class="container no-gutters px-0 bg-white border border-light rounded">
+                <div class="row">
+                    <div class="col-sm-4 col-lg-2">
+                        <img class="rounded-left" width="100%" src="{{ dl.Movie.Poster }}" alt="">
+                    </div>
+                    <div class="col-sm-8 col-lg-10 pl-0 pr-5 pt-2">
+                        <span class="h4">{{ dl.Movie.Title }} </span> <span class="badge badge-success"></span>
+                        <span class="text-muted">( {{ dl.Movie.OriginalTitle }} )</span>
+                        <p class="card-text">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-12 col-lg-5">
+                                    {{ dl.Movie.Overview }}
+                                </div>
+                                <div class="col-sm-12 col-lg-7">
+                                    <table>
+                                        <tr>
+                                            <td>Downloading</td>
+                                            <td>
+                                                <span class="text-danger"
+                                                      ng-if="!dl.Downloading"><i class="fas fa-times-circle"></i></span>
+                                                <span class="text-success"
+                                                      ng-if="dl.Downloading"><i class="fas fa-check-circle"></i></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Current download</td>
+                                            <td class="font-italic text-muted">
+                                                {{ dl.CurrentDownload.Torrent.Name }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Download directory</td>
+                                            <td class="text-muted font-italic">
+                                                {{ dl.CurrentDownload.Torrent.DownloadDir }}
+                                            </td>
+                                        </tr>
+                                        <tr ng-class="getFailedTorrentsNb(dl) > 0 ? 'text-danger' : 'text-success'">
+                                            <td>Failed torrents</td>
+                                            <td>
+                                                {{ getFailedTorrentsNb(dl) }}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4" ng-if="movies.downloaded">
+        <div class="col-12">
+            <h3>Downloaded movies</h3>
+        </div>
+        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="movie in movies.downloaded">
             <div class="container no-gutters px-0 bg-white border border-light rounded">
                 <div class="row">
                     <div class="col-4">
                         <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
                     </div>
                     <div class="col-8 pl-0 pr-5 pt-2">
-                        <span class="h3">{{ movie.Title }} </span> <span class="badge badge-success"></span>
+                        <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
+                        <span class="text-muted">( {{ movie.OriginalTitle }} )</span>
+                        <p class="card-text">{{ movie.Overview }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-4">
+            <h3>Tracked movies</h3>
+        </div>
+        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="movie in movies.tracked">
+            <div class="container no-gutters px-0 bg-white border border-light rounded">
+                <div class="row">
+                    <div class="col-4">
+                        <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
+                    </div>
+                    <div class="col-8 pl-0 pr-5 pt-2">
+                        <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
                         <span class="text-muted">( {{ movie.OriginalTitle }} )</span>
                         <p class="card-text">{{ movie.Overview }}</p>
                     </div>

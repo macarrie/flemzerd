@@ -9,15 +9,15 @@
 </div>
 
 <div class="container" ng-if="config.System.TrackShows">
-    <div class="row" ng-if="!tvshows_found">
+    <div class="row" ng-if="!tvshows.tracked">
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
-                Not TV shows found
+                No tracked TV shows
             </span>
         </div>
     </div>
     <div class="row">
-        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="tvshow in tvshows">
+        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="tvshow in tvshows.tracked">
             <div class="container no-gutters px-0 bg-white border border-light rounded">
                 <div class="row">
                     <div class="col-4">
