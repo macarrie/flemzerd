@@ -3,7 +3,9 @@ package provider
 import (
 	"bytes"
 	"errors"
+	"fmt"
 
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -47,10 +49,21 @@ func AddProvider(provider Provider) {
 	providersCollection = append(providersCollection, provider)
 }
 
-func FindShow(query MediaIds) (TvShow, error) {
+func FindShow(ids MediaIds) (TvShow, error) {
 	p := getTVProvider()
 	if p != nil {
-		return p.GetShow(query)
+		show, err := p.GetShow(ids)
+		show.MediaIds = ids
+		if err != nil {
+			return TvShow{}, err
+		}
+		showReq := TvShow{}
+		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
+		if req.RecordNotFound() {
+			fmt.Printf("[DB] Show created\n")
+			db.Client.Create(&show)
+		}
+		return show, nil
 	}
 
 	return TvShow{}, errors.New("Cannot find any TV provider in configuration")
@@ -59,7 +72,19 @@ func FindShow(query MediaIds) (TvShow, error) {
 func FindMovie(query MediaIds) (Movie, error) {
 	p := getMovieProvider()
 	if p != nil {
-		return p.GetMovie(query)
+		movie, err := p.GetMovie(query)
+		if err != nil {
+			return Movie{}, err
+		}
+		movieReq := Movie{}
+		req := db.Client.Where(&movie).First(&movieReq)
+		if req.RecordNotFound() {
+			fmt.Printf("[DB] Movie created\n")
+			db.Client.Create(&movie)
+			return movie, nil
+		}
+
+		return movieReq, nil
 	}
 
 	return Movie{}, errors.New("Cannot find any movie provider in configuration")
@@ -81,9 +106,9 @@ func GetTVShowsInfoFromConfig() {
 	showsFromWatchlists, _ := watchlist.GetTvShows()
 	showList = append(showList, showsFromWatchlists...)
 
-	for _, show := range showList {
-		showName := show
-		show, err := FindShow(show)
+	for _, showIds := range showList {
+		showName := showIds.Name
+		show, err := FindShow(showIds)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
@@ -127,12 +152,12 @@ func GetMoviesInfoFromConfig() {
 }
 
 func removeDuplicateShows(array []TvShow) []TvShow {
-	occurences := make(map[int]bool)
+	occurences := make(map[string]bool)
 	var ret []TvShow
 
 	for _, show := range array {
-		if !occurences[show.Id] {
-			occurences[show.Id] = true
+		if !occurences[show.Name] {
+			occurences[show.Name] = true
 			ret = append(ret, show)
 		}
 	}
@@ -141,12 +166,12 @@ func removeDuplicateShows(array []TvShow) []TvShow {
 }
 
 func removeDuplicateMovies(array []Movie) []Movie {
-	occurences := make(map[int]bool)
+	occurences := make(map[string]bool)
 	var ret []Movie
 
 	for _, movie := range array {
-		if !occurences[movie.Id] {
-			occurences[movie.Id] = true
+		if !occurences[movie.Title] {
+			occurences[movie.Title] = true
 			ret = append(ret, movie)
 		}
 	}

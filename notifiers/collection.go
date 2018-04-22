@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	"github.com/macarrie/flemzerd/retention"
 )
 
 var notifiersCollection []Notifier
@@ -49,14 +49,12 @@ func Reset() {
 	notifiersCollection = []Notifier{}
 }
 
-func NotifyRecentEpisode(show TvShow, episode Episode) error {
+func NotifyRecentEpisode(show TvShow, episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
 		return nil
 	}
 
-	retention.CleanOldNotifiedEpisodes()
-
-	if retention.EpisodeHasBeenNotified(episode) {
+	if episode.Notified {
 		return nil
 	}
 
@@ -68,17 +66,18 @@ func NotifyRecentEpisode(show TvShow, episode Episode) error {
 		return err
 	}
 
-	retention.AddNotifiedEpisode(episode)
+	episode.Notified = true
+	db.Client.Save(&episode)
 
 	return nil
 }
 
-func NotifyMovieDownload(m Movie) error {
+func NotifyMovieDownload(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewMovie {
 		return nil
 	}
 
-	if retention.MovieHasBeenNotified(m) {
+	if m.Notified {
 		return nil
 	}
 
@@ -90,12 +89,13 @@ func NotifyMovieDownload(m Movie) error {
 		return err
 	}
 
-	retention.AddNotifiedMovie(m)
+	m.Notified = true
+	db.Client.Save(&m)
 
 	return nil
 }
 
-func NotifyDownloadedEpisode(show TvShow, episode Episode) error {
+func NotifyDownloadedEpisode(show *TvShow, episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
@@ -111,7 +111,7 @@ func NotifyDownloadedEpisode(show TvShow, episode Episode) error {
 	return nil
 }
 
-func NotifyDownloadedMovie(m Movie) error {
+func NotifyDownloadedMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
@@ -127,7 +127,7 @@ func NotifyDownloadedMovie(m Movie) error {
 	return nil
 }
 
-func NotifyFailedEpisode(show TvShow, episode Episode) error {
+func NotifyFailedEpisode(show *TvShow, episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}
@@ -143,7 +143,7 @@ func NotifyFailedEpisode(show TvShow, episode Episode) error {
 	return nil
 }
 
-func NotifyFailedMovie(m Movie) error {
+func NotifyFailedMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}

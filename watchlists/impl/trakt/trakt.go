@@ -11,9 +11,9 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	"github.com/macarrie/flemzerd/retention"
 )
 
 const (
@@ -149,7 +149,7 @@ func (t *TraktWatchlist) performAPIRequest(method string, path string, paramsMap
 func New() (t *TraktWatchlist, err error) {
 	t = &TraktWatchlist{}
 
-	token := retention.LoadTraktToken()
+	token := db.Session.TraktToken
 	if token != "" {
 		t.Token.AccessToken = token
 	} else {
@@ -317,7 +317,7 @@ func (t *TraktWatchlist) Auth() {
 	default:
 		log.Info("Trakt auth ok")
 		t.DeviceCode = TraktDeviceCode{}
-		retention.SaveTraktToken(t.Token.AccessToken)
+		db.SaveTraktToken(t.Token.AccessToken)
 		authErrors = []error{}
 
 		return
@@ -402,8 +402,6 @@ func (t *TraktWatchlist) GetTvShows() ([]MediaIds, error) {
 				Tvdb:  val.Show.Ids.Tvdb,
 			})
 		}
-
-		toReturn = append(toReturn, retention.GetShowsFromWatchlist("trakt")...)
 
 		return toReturn, nil
 	}

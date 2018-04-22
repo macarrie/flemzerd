@@ -36,6 +36,6 @@ func (d MockDownloader) Init() error {
 }
 
 func (d MockDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	status, _ := strconv.Atoi(t.Id)
+	status, _ := strconv.Atoi(t.TorrentId)
 	return status, nil
 }

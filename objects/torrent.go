@@ -1,9 +1,13 @@
 package objects
 
+import "github.com/jinzhu/gorm"
+
 type Torrent struct {
-	Id          string
-	Name        string
-	Link        string
-	DownloadDir string
-	Seeders     int
+	gorm.Model
+	DownloadingItemID int
+	TorrentId         string
+	Name              string
+	Link              string
+	DownloadDir       string
+	Seeders           int
 }

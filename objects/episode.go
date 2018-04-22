@@ -1,13 +1,24 @@
 package objects
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 type Episode struct {
-	AbsoluteNumber int
-	Number         int
-	Season         int
-	Name           string
-	Date           time.Time
-	Id             int
-	Overview       string
+	gorm.Model
+	MediaIds          MediaIds
+	MediaIdsID        int
+	TvShowID          int
+	AbsoluteNumber    int
+	Number            int
+	Season            int
+	Name              string
+	Date              time.Time
+	Overview          string
+	Notified          bool
+	Downloaded        bool
+	DownloadingItem   DownloadingItem
+	DownloadingItemID int
 }

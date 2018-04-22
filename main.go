@@ -10,8 +10,8 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/retention"
 	"github.com/macarrie/flemzerd/server"
 	flag "github.com/ogier/pflag"
 
@@ -32,6 +32,8 @@ import (
 	watchlist "github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
+
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 func initConfiguration(debug bool) {
@@ -231,12 +233,24 @@ func downloadChainFunc() {
 			}
 
 			for _, recentEpisode := range recentEpisodes {
-				err := notifier.NotifyRecentEpisode(show, recentEpisode)
+				reqEpisode := Episode{}
+				req := db.Client.Preload("MediaIds").Preload("DownloadingItem").Where(Episode{
+					Name:   recentEpisode.Name,
+					Season: recentEpisode.Season,
+					Number: recentEpisode.Number,
+				}).Find(&reqEpisode)
+				if req.RecordNotFound() {
+					db.Client.Create(&recentEpisode)
+				} else {
+					recentEpisode = reqEpisode
+				}
+
+				err := notifier.NotifyRecentEpisode(show, &recentEpisode)
 				if err != nil {
 					log.Warning(err)
 				}
 
-				if retention.EpisodeHasBeenDownloaded(recentEpisode) {
+				if recentEpisode.Downloaded {
 					log.WithFields(log.Fields{
 						"show":   show.Name,
 						"number": recentEpisode.Number,
@@ -246,7 +260,7 @@ func downloadChainFunc() {
 					continue
 				}
 
-				if retention.EpisodeIsDownloading(recentEpisode) {
+				if recentEpisode.DownloadingItem.Downloading {
 					log.WithFields(log.Fields{
 						"show":   show.Name,
 						"number": recentEpisode.Number,
@@ -263,12 +277,12 @@ func downloadChainFunc() {
 				}
 				log.Debug("Torrents found: ", len(torrentList))
 
-				toDownload := downloader.FillEpisodeToDownloadTorrentList(recentEpisode, torrentList)
+				toDownload := downloader.FillEpisodeToDownloadTorrentList(&recentEpisode, torrentList)
 				if len(toDownload) == 0 {
-					downloader.MarkEpisodeFailedDownload(show, recentEpisode)
+					downloader.MarkEpisodeFailedDownload(&show, &recentEpisode)
 					continue
 				}
-				go downloader.DownloadEpisode(show, recentEpisode, toDownload)
+				go downloader.DownloadEpisode(&show, &recentEpisode, toDownload)
 			}
 		}
 	}
@@ -283,19 +297,19 @@ func downloadChainFunc() {
 				continue
 			}
 
-			err := notifier.NotifyMovieDownload(movie)
+			err := notifier.NotifyMovieDownload(&movie)
 			if err != nil {
 				log.Warning(err)
 			}
 
-			if retention.MovieHasBeenDownloaded(movie) {
+			if movie.Downloaded {
 				log.WithFields(log.Fields{
 					"movie": movie.Title,
 				}).Debug("Movie already downloaded, nothing to do")
 				continue
 			}
 
-			if retention.MovieIsDownloading(movie) {
+			if movie.DownloadingItem.Downloading {
 				log.WithFields(log.Fields{
 					"movie": movie.Title,
 				}).Debug("Movie already being downloaded, nothing to do")
@@ -309,12 +323,12 @@ func downloadChainFunc() {
 			}
 			log.Debug("Torrents found: ", len(torrentList))
 
-			toDownload := downloader.FillMovieToDownloadTorrentList(movie, torrentList)
+			toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
 			if len(toDownload) == 0 {
-				downloader.MarkMovieFailedDownload(movie)
+				downloader.MarkMovieFailedDownload(&movie)
 				continue
 			}
-			go downloader.DownloadMovie(movie, toDownload)
+			go downloader.DownloadMovie(&movie, toDownload)
 		}
 	}
 }
@@ -336,10 +350,10 @@ func main() {
 		configuration.UseFile(*configFilePath)
 	}
 
-	retentionErr := retention.Load()
-	if retentionErr != nil {
+	dbErr := db.Load()
+	if dbErr != nil {
 		log.WithFields(log.Fields{
-			"error": retentionErr,
+			"error": dbErr,
 		}).Warning("Could not load retention data. Starting daemon with empty retention")
 	}
 
@@ -396,14 +410,8 @@ func main() {
 				}
 
 				downloadChainFunc()
-
-				err := retention.Save()
-				if err != nil {
-					log.WithFields(log.Fields{
-						"error": err,
-					}).Error("Failed to save retention data")
-				}
 			}
+
 			log.Debug("========== Polling loop end ==========\n")
 			<-loopTicker.C
 		}
@@ -419,12 +427,8 @@ func main() {
 
 			server.Stop()
 
-			err := retention.Save()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Failed to save retention data")
-			}
+			log.Info("Closing DB connection")
+			db.Client.Close()
 
 			os.Exit(0)
 		case syscall.SIGUSR1:

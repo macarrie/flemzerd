@@ -101,7 +101,7 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 // Get list of episodes of a given show
 func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 	log.WithFields(log.Fields{
-		"id":       tvShow.Id,
+		"id":       tvShow.Model.ID,
 		"name":     tvShow.Name,
 		"provider": module.Name,
 	}).Debug("Retrieving episodes list for a tv show")
@@ -114,7 +114,7 @@ func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) 
 		if err != nil {
 			log.WithFields(log.Fields{
 				"tvshow_name": tvShow.Name,
-				"id":          tvShow.Id,
+				"id":          tvShow.Model.ID,
 				"provider":    module.Name,
 				"error":       err,
 			}).Warn("Cannot retrieve episodes of tv show")
@@ -122,7 +122,7 @@ func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) 
 		} else {
 			log.WithFields(log.Fields{
 				"name":      tvShow.Name,
-				"tvshow_id": tvShow.Id,
+				"tvshow_id": tvShow.Model.ID,
 				"provider":  module.Name,
 			}).Debug("Episodes found")
 
@@ -142,7 +142,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 	if err != nil {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
-			"id":          tvShow.Id,
+			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"error":       err,
 		}).Warn("Cannot get next aired episodes of the tv show")
@@ -150,7 +150,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 	} else {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
-			"id":          tvShow.Id,
+			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 		}).Debug("Getting list of episodes that haven't be aired yet")
 		now := time.Now()
@@ -158,7 +158,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 
 		log.WithFields(log.Fields{
 			"tvshow_name":    tvShow.Name,
-			"id":             tvShow.Id,
+			"id":             tvShow.Model.ID,
 			"nb_of_episodes": len(futureEpisodes),
 			"provider":       module.Name,
 		}).Debug("Successfully filtered list of episodes that haven't be aired yet")
@@ -172,7 +172,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	if err != nil {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
-			"id":          tvShow.Id,
+			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"error":       err,
 		}).Warn("Cannot get recently aired episodes of the tv show")
@@ -180,7 +180,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	}
 	log.WithFields(log.Fields{
 		"tvshow_name": tvShow.Name,
-		"id":          tvShow.Id,
+		"id":          tvShow.Model.ID,
 		"provider":    module.Name,
 	}).Debug("Getting list of episodes that haven recently been aired")
 
@@ -191,7 +191,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 
 	log.WithFields(log.Fields{
 		"tvshow_name":    tvShow.Name,
-		"id":             tvShow.Id,
+		"id":             tvShow.Model.ID,
 		"nb_of_episodes": len(recentlyAiredEpisodes),
 		"provider":       module.Name,
 	}).Debug("Successfully filtered list of episodes that have been recently aired")
@@ -260,7 +260,6 @@ func convertShow(tvShow tvdb.Series) TvShow {
 	return TvShow{
 		Banner:     tvShow.Banner,
 		FirstAired: firstAired,
-		Id:         tvShow.ID,
 		Overview:   tvShow.Overview,
 		Name:       tvShow.SeriesName,
 		// TODO: Update with correct status
@@ -281,7 +280,6 @@ func convertEpisode(episode tvdb.Episode) Episode {
 		Season:   episode.AiredSeason,
 		Name:     episode.EpisodeName,
 		Date:     firstAired,
-		Id:       episode.ID,
 		Overview: episode.Overview,
 	}
 }

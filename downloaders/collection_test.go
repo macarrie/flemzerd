@@ -4,12 +4,14 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/jinzhu/gorm"
+	"github.com/macarrie/flemzerd/db"
 	. "github.com/macarrie/flemzerd/objects"
-	"github.com/macarrie/flemzerd/retention"
 )
 
 func init() {
-	retention.InitStruct()
+	db.DbPath = "/tmp/flemzerd.db"
+	db.Load()
 }
 
 func TestStatus(t *testing.T) {
@@ -104,7 +106,7 @@ func TestRemoveTorrentWhenDownloadersAdded(t *testing.T) {
 
 func TestGetTorrentStatus(t *testing.T) {
 	testTorrent := Torrent{
-		Id: strconv.Itoa(TORRENT_DOWNLOADING),
+		TorrentId: strconv.Itoa(TORRENT_DOWNLOADING),
 	}
 
 	status, _ := GetTorrentStatus(testTorrent)
@@ -116,9 +118,9 @@ func TestGetTorrentStatus(t *testing.T) {
 
 func TestWaitForDownload(t *testing.T) {
 	testTorrent := Torrent{
-		Id:   strconv.Itoa(TORRENT_STOPPED),
-		Name: "Test torrent",
-		Link: "test.torrent",
+		TorrentId: strconv.Itoa(TORRENT_STOPPED),
+		Name:      "Test torrent",
+		Link:      "test.torrent",
 	}
 
 	err := WaitForDownload(testTorrent)
@@ -126,7 +128,7 @@ func TestWaitForDownload(t *testing.T) {
 		t.Error("Expected to get an error when download is stopped, got none instead")
 	}
 
-	testTorrent.Id = strconv.Itoa(TORRENT_SEEDING)
+	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
 	err = WaitForDownload(testTorrent)
 	if err != nil {
 		t.Error("Expected nil error to return when download is complete, got \"", err, "\" instead")
@@ -139,27 +141,27 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	episode := Episode{
-		Id:     1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Name:   "Test episode",
 		Season: 4,
 		Number: 10,
 	}
 
 	testTorrent := Torrent{
-		Id:   strconv.Itoa(TORRENT_STOPPED),
-		Name: "Test torrent",
-		Link: "test.torrent",
+		TorrentId: strconv.Itoa(TORRENT_STOPPED),
+		Name:      "Test torrent",
+		Link:      "test.torrent",
 	}
 
-	err := DownloadEpisode(show, episode, []Torrent{testTorrent})
+	err := DownloadEpisode(&show, &episode, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
-	retention.RemoveDownloadedEpisode(episode)
-	retention.RemoveDownloadingEpisode(episode)
-	testTorrent.Id = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(show, episode, []Torrent{testTorrent})
+	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
+	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
@@ -167,25 +169,25 @@ func TestDownloadEpisode(t *testing.T) {
 
 func TestDownloadMovie(t *testing.T) {
 	testMovie := Movie{
-		Id:    1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Title: "test movie",
 	}
 
 	testTorrent := Torrent{
-		Id:   strconv.Itoa(TORRENT_STOPPED),
-		Name: "Test torrent",
-		Link: "test.torrent",
+		TorrentId: strconv.Itoa(TORRENT_STOPPED),
+		Name:      "Test torrent",
+		Link:      "test.torrent",
 	}
 
-	err := DownloadMovie(testMovie, []Torrent{testTorrent})
+	err := DownloadMovie(&testMovie, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
-	retention.RemoveDownloadedMovie(testMovie)
-	retention.RemoveDownloadingMovie(testMovie)
-	testTorrent.Id = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(testMovie, []Torrent{testTorrent})
+	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
+	err = DownloadMovie(&testMovie, []Torrent{testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
@@ -193,18 +195,23 @@ func TestDownloadMovie(t *testing.T) {
 
 func TestFillEpisodeToDownload(t *testing.T) {
 	torrent1 := Torrent{
-		Id: "1",
+		TorrentId: "1",
 	}
 	torrent2 := Torrent{
-		Id: "2",
+		TorrentId: "2",
 	}
 
 	episode := Episode{
-		Id: 1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		DownloadingItem: DownloadingItem{
+			Downloading: true,
+		},
 	}
 
-	retention.AddFailedEpisodeTorrent(episode, torrent1)
-	torrentList := FillEpisodeToDownloadTorrentList(episode, []Torrent{torrent1, torrent2})
+	episode.DownloadingItem.FailedTorrents = append(episode.DownloadingItem.FailedTorrents, torrent1)
+	torrentList := FillEpisodeToDownloadTorrentList(&episode, []Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
@@ -212,48 +219,67 @@ func TestFillEpisodeToDownload(t *testing.T) {
 
 func TestFillMovieToDownload(t *testing.T) {
 	torrent1 := Torrent{
-		Id: "1",
+		TorrentId: "1",
 	}
 	torrent2 := Torrent{
-		Id: "2",
+		TorrentId: "2",
 	}
 
 	movie := Movie{
-		Id: 1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		DownloadingItem: DownloadingItem{
+			Downloading: true,
+		},
 	}
 
-	retention.AddFailedMovieTorrent(movie, torrent1)
-	torrentList := FillMovieToDownloadTorrentList(movie, []Torrent{torrent1, torrent2})
+	movie.DownloadingItem.FailedTorrents = append(movie.DownloadingItem.FailedTorrents, torrent1)
+	torrentList := FillMovieToDownloadTorrentList(&movie, []Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
 }
 
 func TestRecoverFromRetention(t *testing.T) {
+	db.ResetDb()
+
+	testTorrent := Torrent{
+		TorrentId: "1000",
+	}
+	testTorrent2 := Torrent{
+		TorrentId: "1001",
+	}
+
 	testEpisode := Episode{
-		Id:     1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Name:   "testEpisode",
 		Season: 1,
 		Number: 4,
-	}
-	testTorrent := Torrent{
-		Id: "1000",
+		DownloadingItem: DownloadingItem{
+			Downloading:         true,
+			CurrentTorrent:      testTorrent,
+			CurrentDownloaderId: "id",
+		},
 	}
 
 	testMovie := Movie{
-		Id:    1001,
+		Model: gorm.Model{
+			ID: 1001,
+		},
 		Title: "testMovie",
-	}
-	testTorrent2 := Torrent{
-		Id: "1001",
+		DownloadingItem: DownloadingItem{
+			Downloading:         true,
+			CurrentTorrent:      testTorrent2,
+			CurrentDownloaderId: "id",
+		},
 	}
 
-	retention.AddDownloadingEpisode(testEpisode)
-	retention.AddDownloadingMovie(testMovie)
-	retention.SetCurrentEpisodeDownload(testEpisode, testTorrent, "id")
-	retention.SetCurrentMovieDownload(testMovie, testTorrent2, "id")
+	db.Client.Create(&testEpisode)
+	db.Client.Create(&testMovie)
 
 	RecoverFromRetention()
-
 	// TODO: check objects states is correct
 }

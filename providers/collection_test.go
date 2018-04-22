@@ -3,9 +3,16 @@ package provider
 import (
 	"testing"
 
+	"github.com/jinzhu/gorm"
+	"github.com/macarrie/flemzerd/db"
 	. "github.com/macarrie/flemzerd/objects"
 	watchlist "github.com/macarrie/flemzerd/watchlists"
 )
+
+func init() {
+	db.DbPath = "/tmp/flemzerd.db"
+	db.Load()
+}
 
 func TestAddProvider(t *testing.T) {
 	providersLength := len(providersCollection)
@@ -43,6 +50,8 @@ func TestReset(t *testing.T) {
 }
 
 func TestFindShow(t *testing.T) {
+	db.ResetDb()
+
 	p := MockTVProvider{}
 	providersCollection = []Provider{p}
 
@@ -52,12 +61,14 @@ func TestFindShow(t *testing.T) {
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}
-	if show.Id != 1000 {
-		t.Errorf("Expected show with id 1000, got id %v instead\n", show.Id)
+	if show.Model.ID != 1000 {
+		t.Errorf("Expected show with id 1000, got id %v instead\n", show.Model.ID)
 	}
 }
 
 func TestFindMovie(t *testing.T) {
+	db.ResetDb()
+
 	p := MockMovieProvider{}
 	providersCollection = []Provider{p}
 
@@ -67,8 +78,8 @@ func TestFindMovie(t *testing.T) {
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}
-	if movie.Id != 1000 {
-		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Id)
+	if movie.Model.ID != 1000 {
+		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Model.ID)
 	}
 }
 
@@ -82,8 +93,8 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	if err != nil {
 		t.Error("Got error during FindRecentlyAiredEpisodesForShow: ", err)
 	}
-	if episodeList[0].Id != 1000 {
-		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Id)
+	if episodeList[0].Model.ID != 1000 {
+		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
 	}
 }
 
@@ -104,6 +115,8 @@ func TestGetInfoFromConfig(t *testing.T) {
 		t.Error("Expected to have no elements in movies from watchlists")
 	}
 
+	db.ResetDb()
+
 	w1 := MockWatchlist{}
 	w2 := MockWatchlist{}
 	watchlist.AddWatchlist(w1)
@@ -123,12 +136,16 @@ func TestGetInfoFromConfig(t *testing.T) {
 
 func TestRemoveDuplicate(t *testing.T) {
 	testShow := TvShow{
-		Id:   1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Name: "test",
 	}
 
 	testMovie := Movie{
-		Id:    1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Title: "test",
 	}
 

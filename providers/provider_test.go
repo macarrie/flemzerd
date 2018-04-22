@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -34,7 +35,9 @@ func (p MockMovieProvider) Status() (Module, error) {
 
 func (p MockTVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	return TvShow{
-		Id:   1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Name: "Test show",
 	}, nil
 }
@@ -50,13 +53,17 @@ func (p MockTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, erro
 			Number: 1,
 			Season: 1,
 			Name:   "Test episode",
-			Id:     1000,
+			Model: gorm.Model{
+				ID: 1000,
+			},
 		},
 	}, nil
 }
 func (p MockMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
-		Id:    1000,
+		Model: gorm.Model{
+			ID: 1000,
+		},
 		Title: "Test Movie",
 	}, nil
 }

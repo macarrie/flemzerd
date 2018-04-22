@@ -8,10 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/retention"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	indexer "github.com/macarrie/flemzerd/indexers"
 	notifier "github.com/macarrie/flemzerd/notifiers"
@@ -57,16 +57,16 @@ func initRouter() {
 				c.JSON(http.StatusOK, provider.TVShows)
 			})
 			tvshowsRoute.GET("/downloading", func(c *gin.Context) {
-				episodes, err := retention.GetDownloadingEpisodes()
+				episodes, err := db.GetDownloadingEpisodes()
 				if err != nil {
-					log.Error("Error while getting downloading movies from retention: ", err)
+					log.Error("Error while getting downloading movies from db: ", err)
 				}
 				c.JSON(http.StatusOK, episodes)
 			})
 			tvshowsRoute.GET("/downloaded", func(c *gin.Context) {
-				episodes, err := retention.GetDownloadedEpisodes()
+				episodes, err := db.GetDownloadedEpisodes()
 				if err != nil {
-					log.Error("Error while getting downloaded movies from retention: ", err)
+					log.Error("Error while getting downloaded movies from db: ", err)
 				}
 				c.JSON(http.StatusOK, episodes)
 			})
@@ -81,16 +81,16 @@ func initRouter() {
 				c.JSON(http.StatusOK, provider.Movies)
 			})
 			moviesRoute.GET("/downloading", func(c *gin.Context) {
-				movies, err := retention.GetDownloadingMoviesDetails()
+				movies, err := db.GetDownloadingMovies()
 				if err != nil {
-					log.Error("Error while getting downloading movies from retention: ", err)
+					log.Error("Error while getting downloading movies from db: ", err)
 				}
 				c.JSON(http.StatusOK, movies)
 			})
 			moviesRoute.GET("/downloaded", func(c *gin.Context) {
-				movies, err := retention.GetDownloadedMovies()
+				movies, err := db.GetDownloadedMovies()
 				if err != nil {
-					log.Error("Error while getting downloaded movies from retention: ", err)
+					log.Error("Error while getting downloaded movies from db: ", err)
 				}
 				c.JSON(http.StatusOK, movies)
 			})

@@ -1,6 +1,10 @@
 package objects
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 const (
 	TVSHOW_RETURNING = 1
@@ -10,10 +14,13 @@ const (
 )
 
 type TvShow struct {
+	gorm.Model
+	MediaIds   MediaIds
+	MediaIdsID int
+	Episodes   []Episode
 	Banner     string
 	Poster     string
 	FirstAired time.Time
-	Id         int
 	Overview   string
 	Name       string
 	Status     int

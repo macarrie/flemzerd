@@ -1,12 +1,22 @@
 package objects
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 type Movie struct {
-	Id            int
-	Title         string
-	OriginalTitle string
-	Overview      string
-	Poster        string
-	Date          time.Time
+	gorm.Model
+	MediaIds          MediaIds
+	MediaIdsID        int
+	Title             string
+	OriginalTitle     string
+	Overview          string
+	Poster            string
+	Date              time.Time
+	Notified          bool
+	Downloaded        bool
+	DownloadingItem   DownloadingItem
+	DownloadingItemID int
 }

@@ -3,8 +3,14 @@ package watchlist
 import (
 	"testing"
 
+	"github.com/macarrie/flemzerd/db"
 	. "github.com/macarrie/flemzerd/objects"
 )
+
+func init() {
+	db.DbPath = "/tmp/flemzerd.db"
+	db.Load()
+}
 
 func TestAddWatchlist(t *testing.T) {
 	watchlistLength := len(watchlistsCollection)

@@ -1,6 +1,7 @@
 package tmdb
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -70,13 +71,26 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
 func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
-	show, _ := tmdbProvider.Client.GetTvInfo(tvShow.Id, nil)
+	if tvShow.MediaIds.Tmdb == 0 {
+		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
+		if err != nil {
+			return []Episode{}, err
+		}
+
+		if results.TotalResults != 0 {
+			tvShow.MediaIds.Tmdb = results.Results[0].ID
+		} else {
+			return []Episode{}, errors.New("Cannot find show in TMDB")
+		}
+	}
+
+	show, _ := tmdbProvider.Client.GetTvInfo(int(tvShow.MediaIds.Tmdb), nil)
 
 	season, err := tmdbProvider.Client.GetTvSeasonInfo(show.ID, show.NumberOfSeasons, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
-			"id":          tvShow.Id,
+			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"season":      show.NumberOfSeasons,
 			"error":       err,
@@ -167,7 +181,6 @@ func convertShow(tvShow tmdb.TV) TvShow {
 	return TvShow{
 		Poster:     fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
 		FirstAired: firstAired,
-		Id:         tvShow.ID,
 		Overview:   tvShow.Overview,
 		Name:       tvShow.Name,
 		Status:     status,
@@ -184,7 +197,6 @@ func convertEpisode(episode tmdb.TvEpisode) Episode {
 		Number:   episode.EpisodeNumber,
 		Name:     episode.Name,
 		Date:     firstAired,
-		Id:       episode.ID,
 		Overview: episode.Overview,
 	}
 }
@@ -201,6 +213,5 @@ func convertMovie(movie tmdb.Movie) Movie {
 		OriginalTitle: movie.OriginalTitle,
 		Overview:      movie.Overview,
 		Date:          releaseDate,
-		Id:            movie.ID,
 	}
 }

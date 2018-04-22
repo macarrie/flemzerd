@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
 	. "github.com/macarrie/flemzerd/objects"
-	"github.com/macarrie/flemzerd/retention"
 )
 
 func init() {
@@ -20,7 +21,8 @@ func init() {
 		fmt.Print("Could not load test configuration file: ", err)
 	}
 
-	retention.InitStruct()
+	db.DbPath = "/tmp/flemzerd.db"
+	db.Load()
 }
 
 func TestStatus(t *testing.T) {
@@ -81,12 +83,16 @@ func TestNotifyEpisode(t *testing.T) {
 	notifiersCollection = []Notifier{}
 
 	show := TvShow{
-		Id:   1,
+		Model: gorm.Model{
+			ID: 1,
+		},
 		Name: "Test TVShow",
 	}
 
 	episode := Episode{
-		Id:     30,
+		Model: gorm.Model{
+			ID: 30,
+		},
 		Season: 3,
 		Number: 4,
 		Name:   "Test Episode S03E04",
@@ -98,32 +104,32 @@ func TestNotifyEpisode(t *testing.T) {
 
 	mockNotificationCounter = 0
 
-	NotifyRecentEpisode(show, episode)
+	NotifyRecentEpisode(show, &episode)
 	if mockNotificationCounter != 1 {
 		t.Error("Expected recent notification to be sent, got none")
 	}
 
-	NotifyDownloadedEpisode(show, episode)
+	NotifyDownloadedEpisode(&show, &episode)
 	if mockNotificationCounter != 2 {
 		t.Error("Expected downloaded notification to be sent, got none")
 	}
 
-	NotifyFailedEpisode(show, episode)
+	NotifyFailedEpisode(&show, &episode)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
 
-	NotifyRecentEpisode(show, episode)
+	NotifyRecentEpisode(show, &episode)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 
 	configuration.Config.Notifications.Enabled = false
 
-	NotifyRecentEpisode(show, episode)
-	NotifyDownloadedEpisode(show, episode)
-	NotifyFailedEpisode(show, episode)
-	NotifyRecentEpisode(show, episode)
+	NotifyRecentEpisode(show, &episode)
+	NotifyDownloadedEpisode(&show, &episode)
+	NotifyFailedEpisode(&show, &episode)
+	NotifyRecentEpisode(show, &episode)
 
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
@@ -136,7 +142,9 @@ func TestNotifyMovie(t *testing.T) {
 	notifiersCollection = []Notifier{}
 
 	movie := Movie{
-		Id:    1,
+		Model: gorm.Model{
+			ID: 1,
+		},
 		Title: "Test movie",
 	}
 
@@ -145,32 +153,32 @@ func TestNotifyMovie(t *testing.T) {
 
 	mockNotificationCounter = 0
 
-	NotifyMovieDownload(movie)
+	NotifyMovieDownload(&movie)
 	if mockNotificationCounter != 1 {
 		t.Error("Expected movie notification to be sent, got none")
 	}
 
-	NotifyDownloadedMovie(movie)
+	NotifyDownloadedMovie(&movie)
 	if mockNotificationCounter != 2 {
 		t.Error("Expected downloaded movie notification to be sent, got none")
 	}
 
-	NotifyFailedMovie(movie)
+	NotifyFailedMovie(&movie)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
 
-	NotifyMovieDownload(movie)
+	NotifyMovieDownload(&movie)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 
 	configuration.Config.Notifications.Enabled = false
 
-	NotifyMovieDownload(movie)
-	NotifyDownloadedMovie(movie)
-	NotifyFailedMovie(movie)
-	NotifyMovieDownload(movie)
+	NotifyMovieDownload(&movie)
+	NotifyDownloadedMovie(&movie)
+	NotifyFailedMovie(&movie)
+	NotifyMovieDownload(&movie)
 
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")

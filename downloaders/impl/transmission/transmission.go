@@ -34,7 +34,7 @@ type TransmissionDownloader struct {
 func convertTorrent(t tr.Torrent) Torrent {
 	id := xid.New()
 	return Torrent{
-		Id:          id.String(),
+		TorrentId:   id.String(),
 		Name:        t.Name,
 		Link:        t.TorrentFile,
 		DownloadDir: t.DownloadDir,
@@ -48,7 +48,7 @@ func updateTorrentList() {
 
 func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
 	for _, transmissionTorrent := range torrentList {
-		if torrentsMapping[t.Id] == transmissionTorrent.HashString {
+		if torrentsMapping[t.TorrentId] == transmissionTorrent.HashString {
 			return *transmissionTorrent, nil
 		}
 	}
@@ -160,7 +160,7 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {
 		return "", err
 	}
 
-	d.AddTorrentMapping(t.Id, torrent.HashString)
+	d.AddTorrentMapping(t.TorrentId, torrent.HashString)
 	updateTorrentList()
 	return torrent.HashString, nil
 }
@@ -186,7 +186,7 @@ func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
 func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
 	updateTorrentList()
 	for _, torrent := range torrentList {
-		if torrentsMapping[t.Id] == torrent.HashString {
+		if torrentsMapping[t.TorrentId] == torrent.HashString {
 			torrent.Update()
 
 			switch (*torrent).Status {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -61,11 +62,33 @@ func GetTvShows() ([]MediaIds, error) {
 		tvshows = append(tvshows, shows...)
 	}
 
+	idsFromDb := []MediaIds{}
+	showsFromDb := []TvShow{}
+	db.Client.Preload("MediaIds").Find(&showsFromDb)
+	for _, show := range showsFromDb {
+		idsFromDb = append(idsFromDb, show.MediaIds)
+	}
+
+	tvshows = append(tvshows, idsFromDb...)
+
 	tvshows = removeDuplicates(tvshows)
 	// TODO: Sort mediaids
 	//sort.Strings(tvshows)
 
-	return tvshows, nil
+	//Return elements saved into Db
+	retList := []MediaIds{}
+	for _, showIds := range tvshows {
+		idsFromDb := MediaIds{}
+		req := db.Client.Where("name = ?", showIds.Name).Find(&idsFromDb)
+		if req.RecordNotFound() {
+			db.Client.Create(&showIds)
+			retList = append(retList, showIds)
+		} else {
+			retList = append(retList, idsFromDb)
+		}
+	}
+
+	return retList, nil
 }
 
 func GetMovies() ([]MediaIds, error) {
@@ -86,7 +109,20 @@ func GetMovies() ([]MediaIds, error) {
 	// TODO: Sort movieIds
 	//sort.Strings(movieWatchlist)
 
-	return movieWatchlist, nil
+	//Return elements saved into Db
+	retList := []MediaIds{}
+	for _, movieIds := range movieWatchlist {
+		idsFromDb := MediaIds{}
+		req := db.Client.Where("name = ?", movieIds.Name).Find(&idsFromDb)
+		if req.RecordNotFound() {
+			db.Client.Create(&movieIds)
+			retList = append(retList, movieIds)
+		} else {
+			retList = append(retList, idsFromDb)
+		}
+	}
+
+	return retList, nil
 }
 
 func removeDuplicates(array []MediaIds) []MediaIds {

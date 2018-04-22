@@ -1,5 +1,7 @@
 package objects
 
+import "github.com/jinzhu/gorm"
+
 type MediaInfo struct {
 	Type             string `json:"type"`
 	Title            string `json:"title"`
@@ -29,6 +31,7 @@ type EpisodeTorrentInfo struct {
 }
 
 type MediaIds struct {
+	gorm.Model
 	Name  string
 	Trakt int
 	Tmdb  int
