@@ -77,7 +77,7 @@ func FindMovie(query MediaIds) (Movie, error) {
 			return Movie{}, err
 		}
 		movieReq := Movie{}
-		req := db.Client.Where(&movie).First(&movieReq)
+		req := db.Client.Preload("DownloadingItem").Preload("MediaIds").Where(&movie).First(&movieReq)
 		if req.RecordNotFound() {
 			fmt.Printf("[DB] Movie created\n")
 			db.Client.Create(&movie)
@@ -141,6 +141,7 @@ func GetMoviesInfoFromConfig() {
 				"movie": movieName,
 			}).Warning("Unable to get movie informations")
 		} else {
+			fmt.Printf("GET MOVIE INFO FROM PROVIDER: %+v\n", movie)
 			movieObjects = append(movieObjects, movie)
 		}
 	}
