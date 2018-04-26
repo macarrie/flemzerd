@@ -104,7 +104,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	return torrentList, err
 }
 
-func GetTorrentForMovie(movieName string) ([]Torrent, error) {
+func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	var torrentList []Torrent
 	var err error
 
@@ -117,11 +117,11 @@ func GetTorrentForMovie(movieName string) ([]Torrent, error) {
 			continue
 		}
 
-		indexerSearch, err := ind.GetTorrentForMovie(movieName)
+		indexerSearch, err := ind.GetTorrentForMovie(movie.Title)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"indexer": indexer.GetName(),
-				"movie":   movieName,
+				"movie":   movie.Title,
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			continue
@@ -131,12 +131,12 @@ func GetTorrentForMovie(movieName string) ([]Torrent, error) {
 			torrentList = append(torrentList, indexerSearch...)
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movieName,
+				"movie":   movie.Title,
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movieName,
+				"movie":   movie.Title,
 			}).Info("No torrents found")
 		}
 	}
@@ -150,6 +150,7 @@ func GetTorrentForMovie(movieName string) ([]Torrent, error) {
 	})
 
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
 
 	return torrentList, err
 }
@@ -209,6 +210,29 @@ func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torr
 		}
 
 		if episodeInfo.Season != 0 && episodeInfo.Season == season && episodeInfo.Episode != 0 && episodeInfo.Episode == episode {
+			returnList = append(returnList, torrent)
+		}
+	}
+
+	return returnList
+}
+
+func CheckYearOfTorrents(list []Torrent, year int) []Torrent {
+	log.Debug("Checking torrent list for bad movie torrents (wrong year)")
+	var returnList []Torrent
+
+	for _, torrent := range list {
+		movieInfo, err := guessit.GetInfo(torrent.Name)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"torrent": torrent.Name,
+			}).Warning("Error while getting media info for torrent: ", err)
+
+			returnList = append(returnList, torrent)
+			continue
+		}
+
+		if movieInfo.Year != 0 && movieInfo.Year == year {
 			returnList = append(returnList, torrent)
 		}
 	}

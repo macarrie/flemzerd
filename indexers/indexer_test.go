@@ -71,17 +71,17 @@ func (m MockMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error
 
 	return []Torrent{
 		Torrent{
-			Name:    "Torrent1.720p",
+			Name:    "Torrent1.720p.2018",
 			Link:    "torrent1.torrent",
 			Seeders: 1,
 		},
 		Torrent{
-			Name:    "Torrent2.720p",
+			Name:    "Torrent2.720p.2018",
 			Link:    "torrent2.torrent",
 			Seeders: 2,
 		},
 		Torrent{
-			Name:    "Torrent3.720p",
+			Name:    "Torrent3.720p.2018",
 			Link:    "torrent3.torrent",
 			Seeders: 3,
 		},

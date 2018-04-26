@@ -316,7 +316,7 @@ func downloadChainFunc() {
 				continue
 			}
 
-			torrentList, err := indexer.GetTorrentForMovie(movie.Title)
+			torrentList, err := indexer.GetTorrentForMovie(movie)
 			if err != nil {
 				log.Warning(err)
 				continue

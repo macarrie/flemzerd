@@ -3,8 +3,10 @@ package indexer
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 func init() {
@@ -82,10 +84,14 @@ func TestGetTorrentForMovie(t *testing.T) {
 	ind3 := MockMovieIndexer{}
 	ind4 := MockMovieIndexer{}
 	configuration.Config.System.PreferredMediaQuality = "720p"
+	movieDate := time.Date(2018, time.January, 10, 13, 0, 0, 0, time.UTC)
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
-	torrentList, _ := GetTorrentForMovie("Test movie")
+	torrentList, _ := GetTorrentForMovie(Movie{
+		Title: "Test movie",
+		Date:  movieDate,
+	})
 	if len(torrentList) != 6 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
 	}
@@ -94,7 +100,9 @@ func TestGetTorrentForMovie(t *testing.T) {
 		t.Error("Torrent list is not sorted by seeders")
 	}
 
-	torrentList, err := GetTorrentForMovie("")
+	torrentList, err := GetTorrentForMovie(Movie{
+		Date: movieDate,
+	})
 	if err == nil {
 		t.Error("Expected to have zero results and an error, go no error instead: ")
 	}
