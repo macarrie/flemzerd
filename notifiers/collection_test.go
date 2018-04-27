@@ -27,8 +27,13 @@ func init() {
 
 func TestStatus(t *testing.T) {
 	n1 := MockNotifier{}
-	n2 := MockNotifier{}
+	notifiersCollection = []Notifier{n1}
+	_, err := Status()
+	if err != nil {
+		t.Error("Expected to have no error for notifier status")
+	}
 
+	n2 := MockErrorNotifier{}
 	notifiersCollection = []Notifier{n1, n2}
 
 	mods, err := Status()
@@ -77,6 +82,20 @@ func TestSendNotification(t *testing.T) {
 	if mockNotificationCounter != n {
 		t.Error("Expected to send ", n, " notifications, but ", mockNotificationCounter, " notifications have been sent")
 	}
+
+	AddNotifier(MockErrorNotifier{})
+	err := SendNotification("Title", "Content")
+	if err == nil {
+		t.Error("Expected to have error when sending notifications")
+	}
+
+	prev := mockNotificationCounter
+	configuration.Config.Notifications.Enabled = false
+	SendNotification("Title", "Content")
+	if mockNotificationCounter != prev {
+		t.Error("Expected notifications not to be sent because notifications are disabled in configuration")
+	}
+	configuration.Config.Notifications.Enabled = true
 }
 
 func TestNotifyEpisode(t *testing.T) {
@@ -136,6 +155,22 @@ func TestNotifyEpisode(t *testing.T) {
 	}
 
 	configuration.Config.Notifications.Enabled = true
+
+	AddNotifier(MockErrorNotifier{})
+
+	episode.Notified = false
+	err := NotifyRecentEpisode(show, &episode)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for recent episode, got none")
+	}
+	err = NotifyDownloadedEpisode(&show, &episode)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for downloaded episode, got none")
+	}
+	err = NotifyFailedEpisode(&show, &episode)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for failed episode, got none")
+	}
 }
 
 func TestNotifyMovie(t *testing.T) {
@@ -184,5 +219,20 @@ func TestNotifyMovie(t *testing.T) {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
 	}
 
+	AddNotifier(MockErrorNotifier{})
 	configuration.Config.Notifications.Enabled = true
+
+	movie.Notified = false
+	err := NotifyMovieDownload(&movie)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for recent movie, got none")
+	}
+	err = NotifyDownloadedMovie(&movie)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for downloaded movie, got none")
+	}
+	err = NotifyFailedMovie(&movie)
+	if err == nil {
+		t.Error("Expected to have error while sending notification for failed movie, got none")
+	}
 }
