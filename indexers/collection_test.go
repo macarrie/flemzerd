@@ -38,6 +38,14 @@ func TestStatus(t *testing.T) {
 	if err == nil {
 		t.Error("Expected to have aggregated error for indexer status")
 	}
+
+
+	ind3 := MockOkTVIndexer{}
+	indexersCollection = []Indexer{ind3}
+	mods, err = Status()
+	if err != nil {
+		t.Error("Expected to have no errors when getting status from ok indexers")
+	}
 }
 
 func TestReset(t *testing.T) {
@@ -76,6 +84,18 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	if len(torrentList) != 0 {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
 	}
+
+	torrentList, _ = GetTorrentForEpisode("Test show", 0, 1)
+	if len(torrentList) > 0 {
+		t.Error("Expected to have no torrents when getting torrents for episode")
+	}
+
+	configuration.Config.System.PreferredMediaQuality = ""
+	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
+	if len(torrentList) != 6 {
+		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
+		return
+	}
 }
 
 func TestGetTorrentForMovie(t *testing.T) {
@@ -108,5 +128,23 @@ func TestGetTorrentForMovie(t *testing.T) {
 	}
 	if len(torrentList) != 0 {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
+	}
+
+	torrentList, _ = GetTorrentForMovie(Movie{
+		Title: "error",
+	})
+	if len(torrentList) > 0 {
+		t.Error("Expected to have no torrents when getting torrents for movie")
+	}
+
+}
+
+func TestMin(t *testing.T) {
+	if min(1, 2) != 1 {
+		t.Errorf("Expected min(1, 2) to be 1, got %d instead", min(1, 2))
+	}
+
+	if min(3, 2) != 2 {
+		t.Errorf("Expected min(3, 2) to be 2, got %d instead", min(3, 2))
 	}
 }

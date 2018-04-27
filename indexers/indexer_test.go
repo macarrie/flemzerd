@@ -8,6 +8,7 @@ import (
 
 type MockTVIndexer struct{}
 type MockMovieIndexer struct{}
+type MockOkTVIndexer struct{}
 
 func (m MockTVIndexer) GetName() string {
 	return "MockIndexer"
@@ -45,6 +46,10 @@ func (m MockTVIndexer) GetTorrentForEpisode(show string, season int, episode int
 		return []Torrent{}, nil
 	}
 
+	if season == 0 {
+		return []Torrent{}, fmt.Errorf("Mock error")
+	}
+
 	return []Torrent{
 		Torrent{
 			Name:    "Torrent1.s01.e01.720p",
@@ -61,6 +66,11 @@ func (m MockTVIndexer) GetTorrentForEpisode(show string, season int, episode int
 			Link:    "torrent3.torrent",
 			Seeders: 3,
 		},
+		Torrent{
+			Name:    "Torrent4.s02.e02",
+			Link:    "torrent4.torrent",
+			Seeders: 4,
+		},
 	}, nil
 }
 
@@ -68,6 +78,11 @@ func (m MockMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error
 	if movieName == "" {
 		return []Torrent{}, nil
 	}
+
+	if movieName == "error" {
+		return []Torrent{}, fmt.Errorf("Mock error")
+	}
+
 
 	return []Torrent{
 		Torrent{
@@ -84,6 +99,25 @@ func (m MockMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error
 			Name:    "Torrent3.720p.2018",
 			Link:    "torrent3.torrent",
 			Seeders: 3,
+		},
+		Torrent{
+			Name:    "Torrent4",
+			Link:    "torrent4.torrent",
+			Seeders: 4,
+		},
+	}, nil
+}
+
+func (m MockOkTVIndexer) GetName() string {
+	return "MockIndexer"
+}
+func (m MockOkTVIndexer) Status() (Module, error) {
+	return Module{
+		Name: "MockOkTVIndexer",
+		Type: "indexer",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
 		},
 	}, nil
 }
