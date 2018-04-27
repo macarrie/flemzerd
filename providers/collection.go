@@ -52,7 +52,7 @@ func AddProvider(provider Provider) {
 func FindShow(ids MediaIds) (TvShow, error) {
 	p := getTVProvider()
 	if p != nil {
-		show, err := p.GetShow(ids)
+		show, err := (*p).GetShow(ids)
 		show.MediaIds = ids
 		if err != nil {
 			return TvShow{}, err
@@ -72,7 +72,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 func FindMovie(query MediaIds) (Movie, error) {
 	p := getMovieProvider()
 	if p != nil {
-		movie, err := p.GetMovie(query)
+		movie, err := (*p).GetMovie(query)
 		if err != nil {
 			return Movie{}, err
 		}
@@ -93,7 +93,7 @@ func FindMovie(query MediaIds) (Movie, error) {
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 	p := getTVProvider()
 	if p != nil {
-		return p.GetRecentlyAiredEpisodes(show)
+		return (*p).GetRecentlyAiredEpisodes(show)
 	}
 
 	return []Episode{}, errors.New("Cannot find any TV provider in configuration")
@@ -180,21 +180,21 @@ func removeDuplicateMovies(array []Movie) []Movie {
 	return ret
 }
 
-func getTVProvider() TVProvider {
+func getTVProvider() *TVProvider {
 	for _, p := range providersCollection {
 		tvProvider, ok := p.(TVProvider)
 		if ok {
-			return tvProvider
+			return &tvProvider
 		}
 	}
 	return nil
 }
 
-func getMovieProvider() MovieProvider {
+func getMovieProvider() *MovieProvider {
 	for _, p := range providersCollection {
 		movieProvider, ok := p.(MovieProvider)
 		if ok {
-			return movieProvider
+			return &movieProvider
 		}
 	}
 	return nil

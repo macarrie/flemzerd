@@ -9,22 +9,32 @@ import (
 
 type MockTVProvider struct{}
 type MockMovieProvider struct{}
+type MockErrorProvider struct{}
 
 func (p MockTVProvider) Status() (Module, error) {
-	var err error = fmt.Errorf("Provider error")
 	return Module{
 		Name: "MockTVProvider",
 		Type: "provider",
 		Status: ModuleStatus{
-			Alive:   false,
-			Message: err.Error(),
+			Alive:   true,
+			Message: "",
 		},
-	}, err
+	}, nil
 }
 func (p MockMovieProvider) Status() (Module, error) {
+	return Module{
+		Name: "MockMovieProvider",
+		Type: "provider",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}, nil
+}
+func (p MockErrorProvider) Status() (Module, error) {
 	var err error = fmt.Errorf("Provider error")
 	return Module{
-		Name: "MockTVProvider",
+		Name: "MockErrorProvider",
 		Type: "provider",
 		Status: ModuleStatus{
 			Alive:   false,
@@ -66,6 +76,22 @@ func (p MockMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 		},
 		Title: "Test Movie",
 	}, nil
+}
+
+func (p MockErrorProvider) GetShow(tvShow MediaIds) (TvShow, error) {
+	return TvShow{}, fmt.Errorf("Provider error")
+}
+func (p MockErrorProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, fmt.Errorf("Provider error")
+}
+func (p MockErrorProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, fmt.Errorf("Provider error")
+}
+func (p MockErrorProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, fmt.Errorf("Provider error")
+}
+func (p MockErrorProvider) GetMovie(movie MediaIds) (Movie, error) {
+	return Movie{}, fmt.Errorf("Provider error")
 }
 
 /////////////////////////////////////////////////////

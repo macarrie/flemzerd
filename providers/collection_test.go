@@ -34,6 +34,12 @@ func TestStatus(t *testing.T) {
 	if len(mods) != 2 {
 		t.Errorf("Expected to have 2 provider modules status, got %d instead", len(mods))
 	}
+	if err != nil {
+		t.Error("Expected not to have error for provider status")
+	}
+
+	AddProvider(MockErrorProvider{})
+	_, err = Status()
 	if err == nil {
 		t.Error("Expected to have aggregated error for provider status")
 	}
@@ -51,45 +57,90 @@ func TestReset(t *testing.T) {
 
 func TestFindShow(t *testing.T) {
 	db.ResetDb()
+	testShow := MediaIds{
+		Name: "Test show",
+	}
+
+	providersCollection = []Provider{}
+	_, err := FindShow(testShow)
+	if err == nil {
+		t.Error("Expected to have error when calling FindShow with no TV providers in collection")
+	}
 
 	p := MockTVProvider{}
 	providersCollection = []Provider{p}
 
-	show, err := FindShow(MediaIds{
-		Name: "Test show",
-	})
+	show, err := FindShow(testShow)
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}
 	if show.Model.ID != 1000 {
 		t.Errorf("Expected show with id 1000, got id %v instead\n", show.Model.ID)
 	}
+
+	providersCollection = []Provider{MockErrorProvider{}}
+
+	_, err = FindShow(testShow)
+	if err == nil {
+		t.Error("Expected to have error when calling FindShow with MockErrorProvider")
+	}
 }
 
 func TestFindMovie(t *testing.T) {
 	db.ResetDb()
+	testMovie := MediaIds{
+		Name: "Test Movie",
+	}
+
+	providersCollection = []Provider{}
+	_, err := FindMovie(testMovie)
+	if err == nil {
+		t.Error("Expected to have error when calling FindMovie with no TV providers in collection")
+	}
 
 	p := MockMovieProvider{}
 	providersCollection = []Provider{p}
 
-	movie, err := FindMovie(MediaIds{
-		Name: "Test Movie",
-	})
+	movie, err := FindMovie(testMovie)
 	if err != nil {
-		t.Error("Got error during FindShow: ", err)
+		t.Error("Got error during FindMovie: ", err)
 	}
 	if movie.Model.ID != 1000 {
 		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Model.ID)
 	}
+
+	//Calling find movie a second should get object from Db
+	movie, err = FindMovie(testMovie)
+	if err != nil {
+		t.Error("Got error during FindMovie: ", err)
+	}
+	if movie.Model.ID != 1000 {
+		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Model.ID)
+	}
+
+	providersCollection = []Provider{MockErrorProvider{}}
+
+	_, err = FindMovie(testMovie)
+	if err == nil {
+		t.Error("Expected to have error when calling FindMovie with MockErrorProvider")
+	}
 }
 
 func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
+	testShow := TvShow{
+		Name: "Test show",
+	}
+
+	providersCollection = []Provider{}
+	_, err := FindRecentlyAiredEpisodesForShow(testShow)
+	if err == nil {
+		t.Error("Expected to have error when calling FindRecentlyAiredEpisodesForShow with no TV providers in collection")
+	}
+
 	p := MockTVProvider{}
 	providersCollection = []Provider{p}
 
-	episodeList, err := FindRecentlyAiredEpisodesForShow(TvShow{
-		Name: "Test show",
-	})
+	episodeList, err := FindRecentlyAiredEpisodesForShow(testShow)
 	if err != nil {
 		t.Error("Got error during FindRecentlyAiredEpisodesForShow: ", err)
 	}
@@ -121,6 +172,21 @@ func TestGetInfoFromConfig(t *testing.T) {
 	w2 := MockWatchlist{}
 	watchlist.AddWatchlist(w1)
 	watchlist.AddWatchlist(w2)
+
+	providersCollection = []Provider{MockErrorProvider{}}
+
+	GetTVShowsInfoFromConfig()
+	GetMoviesInfoFromConfig()
+
+	if len(TVShows) != 0 {
+		t.Error("Expected to have no elements in tvshows from watchlists because only MockErrorProvider is defined")
+	}
+
+	if len(Movies) != 0 {
+		t.Error("Expected to have no elements in movies from watchlists because only MockErrorProvider is defined")
+	}
+
+	providersCollection = []Provider{pr1, pr2}
 
 	GetTVShowsInfoFromConfig()
 	GetMoviesInfoFromConfig()
@@ -186,10 +252,10 @@ func TestGetProvider(t *testing.T) {
 		t.Error("Expected to be able to retrieve movie provider")
 	}
 
-	if _, ok := tvProvider.(TVProvider); !ok {
+	if _, ok := (*tvProvider).(TVProvider); !ok {
 		t.Error("TvProvider retrieved from getTvProvider is not of type TVProvider")
 	}
-	if _, ok := movieProvider.(MovieProvider); !ok {
+	if _, ok := (*movieProvider).(MovieProvider); !ok {
 		t.Error("MovieProvider retrieved from getMovieProvider is not of type MovieProvider")
 	}
 }
