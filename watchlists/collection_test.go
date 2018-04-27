@@ -29,9 +29,15 @@ func TestStatus(t *testing.T) {
 	watchlistsCollection = []Watchlist{w1, w2}
 
 	mods, err := Status()
+	if err != nil {
+		t.Error("Expected not to have error for watchlist status")
+	}
 	if len(mods) != 2 {
 		t.Errorf("Expected to have 2 watchlist modules status, got %d instead", len(mods))
 	}
+
+	AddWatchlist(MockErrorWatchlist{})
+	_, err = Status()
 	if err == nil {
 		t.Error("Expected to have aggregated error for watchlist status")
 	}
@@ -48,12 +54,25 @@ func TestReset(t *testing.T) {
 }
 
 func TestGetShows(t *testing.T) {
+	db.ResetDb()
+
 	w1 := MockWatchlist{}
 	w2 := MockWatchlist{}
+	w3 := MockErrorWatchlist{}
 
-	watchlistsCollection = []Watchlist{w1, w2}
+	watchlistsCollection = []Watchlist{w1, w2, w3}
 
 	shows, err := GetTvShows()
+	if err != nil {
+		t.Errorf("Got error when getting tvshows from watchlist: %s", err.Error())
+	}
+
+	if len(shows) != 1 {
+		t.Errorf("Expected 1 show in watchlists, got %d instead", len(shows))
+	}
+
+	//When getting movies a second time, results are fetched from db
+	shows, err = GetTvShows()
 	if err != nil {
 		t.Errorf("Got error when getting tvshows from watchlist: %s", err.Error())
 	}
@@ -64,12 +83,25 @@ func TestGetShows(t *testing.T) {
 }
 
 func TestGetMovies(t *testing.T) {
+	db.ResetDb()
+
 	w1 := MockWatchlist{}
 	w2 := MockWatchlist{}
+	w3 := MockErrorWatchlist{}
 
-	watchlistsCollection = []Watchlist{w1, w2}
+	watchlistsCollection = []Watchlist{w1, w2, w3}
 
 	movies, err := GetMovies()
+	if err != nil {
+		t.Errorf("Got error when getting movies from watchlist: %s", err.Error())
+	}
+
+	if len(movies) != 1 {
+		t.Errorf("Expected 1 movie in watchlists, got %d instead", len(movies))
+	}
+
+	//When getting movies a second time, results are fetched from db
+	movies, err = GetMovies()
 	if err != nil {
 		t.Errorf("Got error when getting movies from watchlist: %s", err.Error())
 	}
