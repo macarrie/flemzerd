@@ -15,17 +15,21 @@ func init() {
 }
 
 func TestStatus(t *testing.T) {
-	m1 := MockDownloader{}
-	m2 := MockDownloader{}
-	AddDownloader(m1)
-	AddDownloader(m2)
+	AddDownloader(MockDownloader{})
+	AddDownloader(MockDownloader{})
 
 	mods, err := Status()
 	if len(mods) != 2 {
 		t.Errorf("Expected status module length to be 2, got %d instead", len(mods))
 	}
+	if err != nil {
+		t.Error("Expected not to have an error, got one instead")
+	}
+
+	AddDownloader(MockErrorDownloader{})
+	_, err = Status()
 	if err == nil {
-		t.Error("Expected to have an error, got none instead")
+		t.Error("Expected to have error whenchecking status of MockErrorDownloader")
 	}
 }
 
@@ -74,6 +78,12 @@ func TestAddTorrentWhenDownloadersAdded(t *testing.T) {
 	if testTorrentsCount != count+1 {
 		t.Error("Expected ", count+1, " torrents, got ", testTorrentsCount)
 	}
+
+	downloadersCollection = []Downloader{MockErrorDownloader{}}
+	_, err := AddTorrent(torrent)
+	if err == nil {
+		t.Error("Expected to have error when adding torrent to MockErrrDownloader")
+	}
 }
 
 func TestRemoveTorrentWhenNoDownloadersAdded(t *testing.T) {
@@ -102,6 +112,14 @@ func TestRemoveTorrentWhenDownloadersAdded(t *testing.T) {
 	if testTorrentsCount != count-1 {
 		t.Error("Expected ", count-1, " torrents, got ", testTorrentsCount)
 	}
+}
+
+func TestAddTorrentMapping(t *testing.T) {
+	// Useless test
+
+	downloadersCollection = []Downloader{MockDownloader{}}
+
+	AddTorrentMapping("test", "test")
 }
 
 func TestGetTorrentStatus(t *testing.T) {
@@ -140,38 +158,45 @@ func TestDownloadEpisode(t *testing.T) {
 		Name: "test show",
 	}
 
-	episode := Episode{
-		Model: gorm.Model{
-			ID: 1000,
-		},
-		Name:   "Test episode",
-		Season: 4,
-		Number: 10,
-	}
-
 	testTorrent := Torrent{
 		TorrentId: strconv.Itoa(TORRENT_STOPPED),
 		Name:      "Test torrent",
 		Link:      "test.torrent",
 	}
 
+	testTorrent2 := Torrent{
+		TorrentId: strconv.Itoa(TORRENT_STOPPED),
+		Name:      "Test torrent",
+		Link:      "test.torrent",
+	}
+
+	episode := Episode{
+		Name:   "Test episode",
+		Season: 4,
+		Number: 10,
+	}
+
+	downloadersCollection = []Downloader{MockDownloader{}}
 	err := DownloadEpisode(&show, &episode, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent})
+	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent2, testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
+	}
+
+	downloadersCollection = []Downloader{MockErrorDownloader{}}
+	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent2, testTorrent})
+	if err == nil {
+		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 }
 
 func TestDownloadMovie(t *testing.T) {
 	testMovie := Movie{
-		Model: gorm.Model{
-			ID: 1000,
-		},
 		Title: "test movie",
 	}
 
@@ -180,16 +205,28 @@ func TestDownloadMovie(t *testing.T) {
 		Name:      "Test torrent",
 		Link:      "test.torrent",
 	}
+	testTorrent2 := Torrent{
+		TorrentId: strconv.Itoa(TORRENT_STOPPED),
+		Name:      "Test torrent",
+		Link:      "test.torrent",
+	}
 
+	downloadersCollection = []Downloader{MockDownloader{}}
 	err := DownloadMovie(&testMovie, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(&testMovie, []Torrent{testTorrent})
+	err = DownloadMovie(&testMovie, []Torrent{testTorrent2, testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
+	}
+
+	downloadersCollection = []Downloader{MockErrorDownloader{}}
+	err = DownloadMovie(&testMovie, []Torrent{testTorrent2, testTorrent})
+	if err == nil {
+		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 }
 
@@ -215,6 +252,24 @@ func TestFillEpisodeToDownload(t *testing.T) {
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
+
+	episode.DownloadingItem.FailedTorrents = []Torrent{}
+	torrentList = FillEpisodeToDownloadTorrentList(&episode, []Torrent{
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+	})
+	if len(torrentList) > 10 {
+		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
+	}
 }
 
 func TestFillMovieToDownload(t *testing.T) {
@@ -238,6 +293,24 @@ func TestFillMovieToDownload(t *testing.T) {
 	torrentList := FillMovieToDownloadTorrentList(&movie, []Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
+	}
+
+	movie.DownloadingItem.FailedTorrents = []Torrent{}
+	torrentList = FillMovieToDownloadTorrentList(&movie, []Torrent{
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+		torrent1,
+	})
+	if len(torrentList) > 10 {
+		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
 	}
 }
 

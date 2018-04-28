@@ -58,14 +58,29 @@ func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
-	Client.Table("episodes").Joins("JOIN downloading_items ON episodes.downloading_item_id = downloading_items.id").Where("downloading = 1 AND downloaded = 0").Scan(&episodes)
+	var retList []Episode
+	Client.Preload("DownloadingItem").Preload("MediaIds").Find(&episodes)
+
+	for _, e := range episodes {
+		if e.DownloadingItem.Downloading && !e.Downloaded {
+			retList = append(retList, e)
+		}
+	}
 	return episodes, nil
 }
 
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
-	Client.Table("movies").Joins("JOIN downloading_items ON movies.downloading_item_id = downloading_items.id").Where("downloading = 1 AND downloaded = 0").Scan(&movies)
-	return movies, nil
+	var retList []Movie
+	Client.Preload("DownloadingItem").Preload("MediaIds").Find(&movies)
+
+	for _, m := range movies {
+		if m.DownloadingItem.Downloading && !m.Downloaded {
+			retList = append(retList, m)
+		}
+	}
+
+	return retList, nil
 }
 
 func GetDownloadedEpisodes() ([]Episode, error) {
@@ -76,7 +91,9 @@ func GetDownloadedEpisodes() ([]Episode, error) {
 
 func GetDownloadedMovies() ([]Movie, error) {
 	var movies []Movie
-	Client.Table("movies").Where("downloaded = 1").Scan(&movies)
+	Client.Preload("MediaIds").Where(&Movie{
+		Downloaded: true,
+	}).Find(&movies)
 	return movies, nil
 }
 

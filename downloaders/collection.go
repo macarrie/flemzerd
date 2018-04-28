@@ -389,14 +389,6 @@ func RecoverFromRetention() {
 		log.Debug("Launching watch threads for downloading episodes found in retention")
 	}
 	for _, ep := range downloadingEpisodesFromRetention {
-		if !ep.DownloadingItem.Downloading {
-			log.WithFields(log.Fields{
-				"episode": ep.Name,
-				"season":  ep.Season,
-				"number":  ep.Number,
-			}).Debug("Episode is not getting downloaded, no torrents to fetch")
-			continue
-		}
 		AddTorrentMapping(ep.DownloadingItem.CurrentTorrent.TorrentId, ep.DownloadingItem.CurrentDownloaderId)
 
 		log.WithFields(log.Fields{
@@ -412,12 +404,6 @@ func RecoverFromRetention() {
 		log.Debug("Launching watch threads for downloading movies found in retention")
 	}
 	for _, m := range downloadingMoviesFromRetention {
-		if !m.DownloadingItem.Downloading {
-			log.WithFields(log.Fields{
-				"movie": m.Title,
-			}).Debug("Movie is not getting downloaded, no torrents to fetch")
-			continue
-		}
 		AddTorrentMapping(m.DownloadingItem.CurrentTorrent.TorrentId, m.DownloadingItem.CurrentDownloaderId)
 
 		log.WithFields(log.Fields{
