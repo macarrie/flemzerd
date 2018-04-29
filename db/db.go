@@ -32,7 +32,7 @@ func Load() error {
 	if err != nil {
 		log.Fatal("Cannot open db: ", err)
 	}
-	Client = dbObj
+	Client = dbObj.Set("gorm:auto_preload", true)
 
 	InitDb()
 
@@ -59,7 +59,7 @@ func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
-	Client.Preload("DownloadingItem").Preload("MediaIds").Find(&episodes)
+	Client.Find(&episodes)
 
 	for _, e := range episodes {
 		if e.DownloadingItem.Downloading && !e.Downloaded {
@@ -72,7 +72,7 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
-	Client.Preload("DownloadingItem").Preload("MediaIds").Find(&movies)
+	Client.Find(&movies)
 
 	for _, m := range movies {
 		if m.DownloadingItem.Downloading && !m.Downloaded {
@@ -91,7 +91,7 @@ func GetDownloadedEpisodes() ([]Episode, error) {
 
 func GetDownloadedMovies() ([]Movie, error) {
 	var movies []Movie
-	Client.Preload("MediaIds").Where(&Movie{
+	Client.Where(&Movie{
 		Downloaded: true,
 	}).Find(&movies)
 	return movies, nil

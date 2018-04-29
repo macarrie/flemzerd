@@ -5,8 +5,11 @@ flemzerd.component("movies", {
         $scope.config = {};
         $scope.movies = {};
 
-        $scope.getFailedTorrentsNb = function(dl) {
-            return Object.keys(dl.FailedTorrents).length;
+        $scope.objLength = function(obj) {
+            if (typeof obj == undefined) {
+                return 0;
+            }
+            return Object.keys(obj).length;
         };
 
         self.refresh = function() {

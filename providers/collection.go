@@ -3,7 +3,6 @@ package provider
 import (
 	"bytes"
 	"errors"
-	"fmt"
 
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
@@ -60,7 +59,6 @@ func FindShow(ids MediaIds) (TvShow, error) {
 		showReq := TvShow{}
 		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 		if req.RecordNotFound() {
-			fmt.Printf("[DB] Show created\n")
 			db.Client.Create(&show)
 		}
 		return show, nil
@@ -77,9 +75,8 @@ func FindMovie(query MediaIds) (Movie, error) {
 			return Movie{}, err
 		}
 		movieReq := Movie{}
-		req := db.Client.Preload("DownloadingItem").Preload("MediaIds").Where(&movie).First(&movieReq)
+		req := db.Client.Where(&movie).First(&movieReq)
 		if req.RecordNotFound() {
-			fmt.Printf("[DB] Movie created\n")
 			db.Client.Create(&movie)
 			return movie, nil
 		}
@@ -141,7 +138,6 @@ func GetMoviesInfoFromConfig() {
 				"movie": movieName,
 			}).Warning("Unable to get movie informations")
 		} else {
-			fmt.Printf("GET MOVIE INFO FROM PROVIDER: %+v\n", movie)
 			movieObjects = append(movieObjects, movie)
 		}
 	}

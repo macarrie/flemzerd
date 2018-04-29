@@ -64,7 +64,7 @@ func GetTvShows() ([]MediaIds, error) {
 
 	idsFromDb := []MediaIds{}
 	showsFromDb := []TvShow{}
-	db.Client.Preload("MediaIds").Find(&showsFromDb)
+	db.Client.Find(&showsFromDb)
 	for _, show := range showsFromDb {
 		idsFromDb = append(idsFromDb, show.MediaIds)
 	}

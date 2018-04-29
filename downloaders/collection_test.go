@@ -177,19 +177,19 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{MockDownloader{}}
-	err := DownloadEpisode(&show, &episode, []Torrent{testTorrent})
+	err := DownloadEpisode(show, episode, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent2, testTorrent})
+	err = DownloadEpisode(show, episode, []Torrent{testTorrent2, testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{MockErrorDownloader{}}
-	err = DownloadEpisode(&show, &episode, []Torrent{testTorrent2, testTorrent})
+	err = DownloadEpisode(show, episode, []Torrent{testTorrent2, testTorrent})
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
@@ -207,24 +207,24 @@ func TestDownloadMovie(t *testing.T) {
 	}
 	testTorrent2 := Torrent{
 		TorrentId: strconv.Itoa(TORRENT_STOPPED),
-		Name:      "Test torrent",
+		Name:      "Test torrent 2",
 		Link:      "test.torrent",
 	}
 
 	downloadersCollection = []Downloader{MockDownloader{}}
-	err := DownloadMovie(&testMovie, []Torrent{testTorrent})
+	err := DownloadMovie(testMovie, []Torrent{testTorrent})
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(&testMovie, []Torrent{testTorrent2, testTorrent})
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent})
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{MockErrorDownloader{}}
-	err = DownloadMovie(&testMovie, []Torrent{testTorrent2, testTorrent})
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent})
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}

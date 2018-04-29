@@ -207,7 +207,7 @@ func WaitForDownload(t Torrent) error {
 	}
 }
 
-func DownloadEpisode(show *TvShow, e *Episode, torrentList []Torrent) error {
+func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 	if e.Downloaded || e.DownloadingItem.Downloading {
 		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
@@ -232,7 +232,7 @@ func DownloadEpisode(show *TvShow, e *Episode, torrentList []Torrent) error {
 		e.DownloadingItem.CurrentTorrent = torrent
 		db.Client.Save(&e)
 
-		torrentDownload := EpisodeHandleTorrentDownload(e, false)
+		torrentDownload := EpisodeHandleTorrentDownload(&e, false)
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -245,7 +245,7 @@ func DownloadEpisode(show *TvShow, e *Episode, torrentList []Torrent) error {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			notifier.NotifyDownloadedEpisode(show, e)
+			notifier.NotifyDownloadedEpisode(&show, &e)
 
 			e.Downloaded = true
 			db.Client.Save(&e)
@@ -257,14 +257,14 @@ func DownloadEpisode(show *TvShow, e *Episode, torrentList []Torrent) error {
 
 	// If function has not returned yet, it means the download failed
 	if len(e.DownloadingItem.FailedTorrents) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		MarkEpisodeFailedDownload(show, e)
+		MarkEpisodeFailedDownload(&show, &e)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
-	return nil
+	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
-func DownloadMovie(m *Movie, torrentList []Torrent) error {
+func DownloadMovie(m Movie, torrentList []Torrent) error {
 	if m.Downloaded || m.DownloadingItem.Downloading {
 		return errors.New("Movie downloading or already downloaded. Skipping")
 	}
@@ -273,7 +273,6 @@ func DownloadMovie(m *Movie, torrentList []Torrent) error {
 		"name": m.Title,
 	}).Info("Starting download process")
 
-	m.DownloadingItem.Downloading = true
 	m.DownloadingItem.Downloading = true
 	db.Client.Save(&m)
 
@@ -287,7 +286,7 @@ func DownloadMovie(m *Movie, torrentList []Torrent) error {
 		m.DownloadingItem.CurrentTorrent = torrent
 		db.Client.Save(&m)
 
-		torrentDownload := MovieHandleTorrentDownload(m, false)
+		torrentDownload := MovieHandleTorrentDownload(&m, false)
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -297,7 +296,7 @@ func DownloadMovie(m *Movie, torrentList []Torrent) error {
 			log.WithFields(log.Fields{
 				"name": m.Title,
 			}).Info("Movie successfully downloaded")
-			notifier.NotifyDownloadedMovie(m)
+			notifier.NotifyDownloadedMovie(&m)
 
 			m.Downloaded = true
 			db.Client.Save(&m)
@@ -309,11 +308,11 @@ func DownloadMovie(m *Movie, torrentList []Torrent) error {
 
 	// If function has not returned yet, it means the download failed
 	if len(m.DownloadingItem.FailedTorrents) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		MarkMovieFailedDownload(m)
+		MarkMovieFailedDownload(&m)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
-	return nil
+	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
 func MarkEpisodeFailedDownload(show *TvShow, e *Episode) {

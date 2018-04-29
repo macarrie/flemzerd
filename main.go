@@ -234,7 +234,7 @@ func downloadChainFunc() {
 
 			for _, recentEpisode := range recentEpisodes {
 				reqEpisode := Episode{}
-				req := db.Client.Preload("MediaIds").Preload("DownloadingItem").Where(Episode{
+				req := db.Client.Where(Episode{
 					Name:   recentEpisode.Name,
 					Season: recentEpisode.Season,
 					Number: recentEpisode.Number,
@@ -282,7 +282,7 @@ func downloadChainFunc() {
 					downloader.MarkEpisodeFailedDownload(&show, &recentEpisode)
 					continue
 				}
-				go downloader.DownloadEpisode(&show, &recentEpisode, toDownload)
+				go downloader.DownloadEpisode(show, recentEpisode, toDownload)
 			}
 		}
 	}
@@ -321,14 +321,18 @@ func downloadChainFunc() {
 				log.Warning(err)
 				continue
 			}
-			log.Debug("Torrents found: ", len(torrentList))
+			log.WithFields(log.Fields{
+				"movie": movie.Title,
+				"nb":    len(torrentList),
+			}).Debug("Torrents found")
 
 			toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
 			if len(toDownload) == 0 {
+				log.Error("Download list empty")
 				downloader.MarkMovieFailedDownload(&movie)
 				continue
 			}
-			go downloader.DownloadMovie(&movie, toDownload)
+			go downloader.DownloadMovie(movie, toDownload)
 		}
 	}
 }
