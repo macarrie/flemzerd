@@ -243,8 +243,6 @@ func (t *TraktWatchlist) Auth() {
 			if err != nil {
 				log.Error(err)
 			}
-			log.Warning(response.Status)
-			log.Warning(string(body))
 
 			switch response.StatusCode {
 			case http.StatusOK:
@@ -262,7 +260,7 @@ func (t *TraktWatchlist) Auth() {
 
 			case http.StatusBadRequest:
 				// Waiting for the user to authorize
-				log.Debug("Trakt auth: Waiting for user authorization")
+				log.Debug("[Trakt auth] Waiting for user authorization")
 
 			case http.StatusNotFound:
 				t.DeviceCode = TraktDeviceCode{}
@@ -286,10 +284,10 @@ func (t *TraktWatchlist) Auth() {
 				doneChannel <- true
 
 			case http.StatusTooManyRequests:
-				log.Warning("Trakt auth: Polling too quickly")
+				log.Warning("[Trakt auth] Polling too quickly")
 
 			default:
-				log.Error("Trakt auth: ", "Unknown status code ", response.StatusCode)
+				log.Error("[Trakt auth] ", "Unknown status code ", response.StatusCode)
 				doneChannel <- true
 			}
 
@@ -299,7 +297,6 @@ func (t *TraktWatchlist) Auth() {
 
 	go func() {
 		time.Sleep(time.Duration(t.DeviceCode.ExpiresIn) * time.Second)
-		//time.Sleep(8 * time.Second)
 		errorsChannel <- errors.New("[Trakt auth] Device code expired")
 		t.DeviceCode = TraktDeviceCode{}
 		doneChannel <- true
@@ -310,12 +307,10 @@ func (t *TraktWatchlist) Auth() {
 
 	select {
 	case err := <-errorsChannel:
-		log.Error("TRAKT ERROR: ", err)
 		authErrors = append(authErrors, err)
 
 		return
 	default:
-		log.Info("Trakt auth ok")
 		t.DeviceCode = TraktDeviceCode{}
 		db.SaveTraktToken(t.Token.AccessToken)
 		authErrors = []error{}

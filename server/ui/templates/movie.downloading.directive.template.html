@@ -1,51 +1,44 @@
-<div class="container no-gutters px-0 bg-white border border-light rounded">
-    <div class="row">
-        <div class="col-sm-4 col-lg-2">
-            <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
-        </div>
-        <div class="col-sm-8 col-lg-10 pl-0 pr-5 pt-2">
-            <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
-            <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
-            <p class="card-text">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12 col-lg-5">
-                        {{ movie.Overview }}
-                    </div>
-                    <div class="col-sm-12 col-lg-7">
-                        <table>
-                            <tr>
-                                <td>Downloading</td>
-                                <td>
-                                    <span class="text-danger"
-                                          ng-if="!movie.DownloadingItem.Downloading"><i class="fas fa-times-circle"></i></span>
-                                    <span class="text-success"
-                                          ng-if="movie.DownloadingItem.Downloading"><i class="fas fa-check-circle"></i></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Current download</td>
-                                <td class="font-italic text-muted">
-                                    {{ movie.DownloadingItem.CurrentTorrent.Name }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Download directory</td>
-                                <td class="text-muted font-italic">
-                                    {{ movie.DownloadingItem.CurrentTorrent.DownloadDir }}
-                                </td>
-                            </tr>
-                            <tr ng-class="objLength(movie.DownloadingItem.FailedTorrents) > 0 ? 'text-danger' : 'text-success'">
-                                <td>Failed torrents</td>
-                                <td>
-                                    {{ objLength(movie.DownloadingItem.FailedTorrents) }}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+<div class="card movie-card">
+    <div class="container no-gutters px-0">
+        <div class="row">
+            <div class="col-sm-4 col-lg-2">
+                <img class="card-img-left rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
             </div>
-            </p>
+            <div class="col-sm-8 col-lg-10 pl-0 pr-5 pt-2">
+                <span class="h4">{{ movie.Title }} </span> ({{ getYear(movie) }})
+                <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
+                <p class="card-text">
+                <table class="table table-sm">
+                    <tr>
+                        <td><b>Downloading</b></td>
+                        <td>
+                            <span class="text-danger"
+                                  ng-if="!movie.DownloadingItem.Downloading"><i class="fas fa-times-circle"></i></span>
+                            <span class="text-success"
+                                  ng-if="movie.DownloadingItem.Downloading"><i class="fas fa-check-circle"></i> Started at {{ displayDate(movie.DownloadingItem.CurrentTorrent.CreatedAt) }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Current download</b></td>
+                        <td class="font-italic text-muted">
+                            {{ movie.DownloadingItem.CurrentTorrent.Name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Download directory</b></td>
+                        <td class="text-muted font-italic">
+                            {{ movie.DownloadingItem.CurrentTorrent.DownloadDir }}
+                        </td>
+                    </tr>
+                    <tr ng-class="objLength(movie.DownloadingItem.FailedTorrents) > 0 ? 'text-danger' : 'text-success'">
+                        <td><b>Failed torrents</b></td>
+                        <td>
+                            {{ objLength(movie.DownloadingItem.FailedTorrents) }}
+                        </td>
+                    </tr>
+                </table>
+                </p>
+            </div>
         </div>
     </div>
 </div>

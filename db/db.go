@@ -56,6 +56,20 @@ func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 	return false
 }
 
+func GetTrackedMovies() ([]Movie, error) {
+	var movies []Movie
+	var retList []Movie
+	Client.Find(&movies)
+
+	for _, m := range movies {
+		if !m.DownloadingItem.Downloading && !m.Downloaded {
+			retList = append(retList, m)
+		}
+	}
+
+	return retList, nil
+}
+
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode

@@ -71,11 +71,12 @@ func FindMovie(query MediaIds) (Movie, error) {
 	p := getMovieProvider()
 	if p != nil {
 		movie, err := (*p).GetMovie(query)
+		movie.MediaIds = query
 		if err != nil {
 			return Movie{}, err
 		}
 		movieReq := Movie{}
-		req := db.Client.Where(&movie).First(&movieReq)
+		req := db.Client.Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
 		if req.RecordNotFound() {
 			db.Client.Create(&movie)
 			return movie, nil

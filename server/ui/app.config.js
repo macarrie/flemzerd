@@ -17,6 +17,11 @@ flemzerd.config(function config($stateProvider) {
         component: "movies"
     });
     $stateProvider.state({
+        name: "moviedetails",
+        url: "/movies/{id}",
+        component: "moviedetails"
+    });
+    $stateProvider.state({
         name: "status",
         url: "/status",
         component: "status"

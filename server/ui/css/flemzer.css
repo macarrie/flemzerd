@@ -43,3 +43,25 @@ body {
      top: -5px;
      font-weight: normal;
 }
+
+img.black_and_white {
+     filter: grayscale(70%);
+     opacity: 0.8;
+    transition-property: filter, opacity;
+    transition-duration: 0.2s;
+}
+
+.movie-card:hover img.black_and_white {
+     filter: none;
+     opacity: 1;
+}
+
+.movie-card .card-img-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.movie-card .card-img-overlay span {
+    display: table-cell;
+    vertical-align: middle;
+}

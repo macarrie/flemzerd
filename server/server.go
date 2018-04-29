@@ -74,11 +74,12 @@ func initRouter() {
 
 		moviesRoute := v1.Group("/movies")
 		{
-			moviesRoute.GET("/", func(c *gin.Context) {
-				c.JSON(http.StatusOK, provider.Movies)
-			})
 			moviesRoute.GET("/tracked", func(c *gin.Context) {
-				c.JSON(http.StatusOK, provider.Movies)
+				movies, err := db.GetTrackedMovies()
+				if err != nil {
+					log.Error("Error while getting downloading movies from db: ", err)
+				}
+				c.JSON(http.StatusOK, movies)
 			})
 			moviesRoute.GET("/downloading", func(c *gin.Context) {
 				movies, err := db.GetDownloadingMovies()
@@ -93,6 +94,16 @@ func initRouter() {
 					log.Error("Error while getting downloaded movies from db: ", err)
 				}
 				c.JSON(http.StatusOK, movies)
+			})
+			moviesRoute.GET("/details/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var movie Movie
+				req := db.Client.Find(&movie, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+				c.JSON(http.StatusOK, movie)
 			})
 		}
 

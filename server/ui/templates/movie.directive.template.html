@@ -1,13 +1,13 @@
-<div class="container no-gutters px-0 bg-white border border-light rounded">
-    <div class="row">
-        <div class="col-4">
-            <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
-        </div>
-        <div class="col-8 pl-0 pr-5 pt-2">
-            <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
-            <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
-            <p class="card-text">{{ movie.Overview }}</p>
-        </div>
+<div class="card movie-card">
+    <a ui-sref="moviedetails({id: movie.ID})">DETAILS</a>
+    <img    class="card-img" 
+            width="100%" 
+            src="{{ movie.Poster }}" 
+            ng-class="movie.Downloaded ? 'black_and_white' : ''"
+            alt="">
+    <div class="card-img-overlay text-white font-weight-bold font-italic" ng-if="movie.Downloaded">
+        <span>
+            Downloaded
+        </span>
     </div>
 </div>
-

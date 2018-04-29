@@ -1,0 +1,47 @@
+<div class="container no-gutters px-0 bg-white border border-light rounded">
+    <div class="row">
+        <div class="col-4">
+            <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
+        </div>
+        <div class="col-8 pl-0 pr-5 pt-2">
+            
+            <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
+            <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
+            <p class="card-text">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <p class="card-text">
+                        {{ movie.Overview | limitTo: 400}}{{ movie.Overview.length > 400 ? '&hellip;' : '' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            </p>
+            <div>
+                <a  href="https://www.imdb.com/title/{{ movie.MediaIds.Imdb }}"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-info"
+                    ng-if="movie.MediaIds.Imdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    IMDB
+                </a>
+                <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=movie"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-info"
+                    ng-if="movie.MediaIds.Trakt != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    Trakt
+                </a>
+                <a  href="https://themoviedb.org/movie/{{ movie.MediaIds.Tmdb }}"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-info"
+                    ng-if="movie.MediaIds.Tmdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    TMDB
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
