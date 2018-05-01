@@ -1,0 +1,30 @@
+<table class="table table-sm">
+    <tr ng-if="!downloaded">
+        <td><b>Downloading</b></td>
+        <td>
+            <span class="text-danger"
+                  ng-if="!item.Downloading"><i class="fas fa-times-circle"></i></span>
+            <span class="text-success"
+                  ng-if="item.Downloading"><i class="fas fa-check-circle"></i> Started at {{ utils.displayDate(movie.DownloadingItem.CurrentTorrent.CreatedAt) }}</span>
+        </td>
+    </tr>
+    <tr>
+        <td ng-if="!downloaded"><b>Current download</b></td>
+        <td ng-if="downloaded"><b>Downloaded torrent</b></td>
+        <td class="font-italic text-muted">
+            {{ item.CurrentTorrent.Name }}
+        </td>
+    </tr>
+    <tr>
+        <td><b>Download directory</b></td>
+        <td class="text-muted font-italic">
+            {{ item.CurrentTorrent.DownloadDir }}
+        </td>
+    </tr>
+    <tr ng-class="utils.objLength(item.FailedTorrents) > 0 ? 'text-danger' : 'text-success'">
+        <td><b>Failed torrents</b></td>
+        <td>
+            {{ utils.objLength(item.FailedTorrents) }}
+        </td>
+    </tr>
+</table>

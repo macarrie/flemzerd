@@ -9,7 +9,7 @@
 </div>
 
 <div class="container" ng-if="config.System.TrackMovies">
-    <div class="row" ng-if="objLength(movies.downloading) > 0">
+    <div class="row" ng-if="utils.objLength(movies.downloading) > 0">
         <div class="my-3 col-lg-12 col-sm-12" ng-repeat="movie in movies.downloading">
             <movie ng-model="movie" downloading></movie>
         </div>

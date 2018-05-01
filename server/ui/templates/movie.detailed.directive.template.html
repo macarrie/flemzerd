@@ -1,47 +1,73 @@
-<div class="container no-gutters px-0 bg-white border border-light rounded">
+<div id="movie_full_background"></div>
+<div class="container moviedetails">
     <div class="row">
         <div class="col-4">
-            <img class="rounded-left" width="100%" src="{{ movie.Poster }}" alt="">
+            <img class="rounded" width="100%" src="{{ movie.Poster }}" alt="">
         </div>
         <div class="col-8 pl-0 pr-5 pt-2">
-            
-            <span class="h4">{{ movie.Title }} </span> <span class="badge badge-success"></span>
+            <!--<a ui-sref="movies" class="h6 text-muted mx-3">-->
+            <!--<i class="fas fa-arrow-left"></i>-->
+            <!--</a>-->
+            <span class="h2">{{ movie.Title }} </span> <span class="h3 text-muted">({{ utils.getYear(movie) }})</span>
             <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
-            <p class="card-text">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <p class="card-text">
-                        {{ movie.Overview | limitTo: 400}}{{ movie.Overview.length > 400 ? '&hellip;' : '' }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            </p>
-            <div>
+
+            <div class="p-3">
+                See on
                 <a  href="https://www.imdb.com/title/{{ movie.MediaIds.Imdb }}"
                     target="_blank"
-                    class="btn btn-sm btn-outline-info"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
                     ng-if="movie.MediaIds.Imdb != 0">
                     <i class="fas fa-external-link-alt"></i>
                     IMDB
                 </a>
                 <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=movie"
                     target="_blank"
-                    class="btn btn-sm btn-outline-info"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
                     ng-if="movie.MediaIds.Trakt != 0">
                     <i class="fas fa-external-link-alt"></i>
                     Trakt
                 </a>
                 <a  href="https://themoviedb.org/movie/{{ movie.MediaIds.Tmdb }}"
                     target="_blank"
-                    class="btn btn-sm btn-outline-info"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
                     ng-if="movie.MediaIds.Tmdb != 0">
                     <i class="fas fa-external-link-alt"></i>
                     TMDB
                 </a>
             </div>
+
+            <div class="container">
+                <div class="row">
+                    <h6>Overview</h6>
+                    <div class="col-12">
+                        {{ movie.Overview}}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<div class="container-fluid no-gutters bg-light mt-4">
+    <div class="container p-2">
+        <div class="row">
+            <div class="col-12 my-3">
+                <span class="h4">Download status</span>
+            </div>
+            <div class="col-12"
+                 ng-if="movie.Downloaded">
+
+                <div class="mb-3">
+                    <span class="h6 text-success">
+                        <i class="fas fa-check-circle"></i> Movie downloaded successfully
+                    </span>
+                </div>
+                <downloadingitem item="movie.DownloadingItem" downloaded="true"></downloadingitem>
+            </div>
+            <div class="col-12 my-3"
+                 ng-if="movie.DownloadingItem.Downloading && !movie.Downloaded">
+                <downloadingitem item="movie.DownloadingItem"></downloadingitem>
+            </div>
+        </div>
+    </div>
+</div>
