@@ -240,6 +240,7 @@ func downloadChainFunc() {
 					Number: recentEpisode.Number,
 				}).Find(&reqEpisode)
 				if req.RecordNotFound() {
+					recentEpisode.TvShow = show
 					db.Client.Create(&recentEpisode)
 				} else {
 					recentEpisode = reqEpisode

@@ -1,0 +1,48 @@
+<div id="full_background"></div>
+<div class="container mediadetails">
+    <div class="row">
+        <div class="col-4">
+            <img class="rounded" width="100%" src="{{ tvshow.Poster }}" alt="">
+        </div>
+        <div class="col-8 pl-0 pr-5 pt-2">
+            <!--<a ui-sref="tvshows" class="h6 text-muted mx-3">-->
+            <!--<i class="fas fa-arrow-left"></i>-->
+            <!--</a>-->
+            <span class="h2">{{ tvshow.Name }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
+
+            <div class="p-3">
+                See on
+                <a  href="https://www.imdb.com/title/{{ tvshow.MediaIds.Imdb }}"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="tvshow.MediaIds.Imdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    IMDB
+                </a>
+                <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=movie"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="tvshow.MediaIds.Trakt != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    Trakt
+                </a>
+                <a  href="https://themoviedb.org/movie/{{ tvshow.MediaIds.Tmdb }}"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="tvshow.MediaIds.Tmdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    TMDB
+                </a>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <h6>Overview</h6>
+                    <div class="col-12">
+                        {{ tvshow.Overview}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,16 @@ flemzerd.config(function config($stateProvider) {
         component: "tvshows"
     });
     $stateProvider.state({
+        name: "tvshowdetails",
+        url: "/tvshows/{id}",
+        component: "tvshowdetails"
+    });
+    $stateProvider.state({
+        name: "episodedetails",
+        url: "/tvshows/episodes/{id}",
+        component: "episodedetails"
+    });
+    $stateProvider.state({
         name: "movies",
         url: "/movies",
         component: "movies"

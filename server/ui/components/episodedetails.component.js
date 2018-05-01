@@ -1,4 +1,4 @@
-flemzerd.component("moviedetails", {
+flemzerd.component("episodedetails", {
     templateUrl: "/static/templates/moviedetails.template.html",
     controller: function MovieDetailsCtrl($rootScope, $scope, $http, $stateParams, fanart) {
         $scope.utils = $rootScope.utils;
@@ -9,7 +9,7 @@ flemzerd.component("moviedetails", {
                 $scope.movie = response.data;
                 fanart.GetMovieFanart($scope.movie).then(function(data) {
                     $scope.fanarts = data;
-                    background_container = document.getElementById("full_background")
+                    background_container = document.getElementById("movie_full_background")
                     background_container.style.backgroundImage = "url('" + data.moviebackground[0].url + "')";
                 });
                 return;

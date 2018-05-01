@@ -17,7 +17,6 @@ type TvShow struct {
 	gorm.Model
 	MediaIds   MediaIds
 	MediaIdsID int
-	Episodes   []Episode
 	Banner     string
 	Poster     string
 	FirstAired time.Time

@@ -1,6 +1,6 @@
 flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootScope, $interval, $http) {
     var loadShows = function() {
-        $http.get("/api/v1/tvshows").then(function(response) {
+        $http.get("/api/v1/tvshows/tracked").then(function(response) {
             if (response.status == 200) {
                 shows = response.data;
                 for (var show in shows) {

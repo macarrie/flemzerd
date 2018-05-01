@@ -70,6 +70,14 @@ func GetTrackedMovies() ([]Movie, error) {
 	return retList, nil
 }
 
+func GetTrackedTvShows() ([]TvShow, error) {
+	var tvShows []TvShow
+
+	Client.Find(&tvShows)
+
+	return tvShows, nil
+}
+
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
@@ -99,7 +107,9 @@ func GetDownloadingMovies() ([]Movie, error) {
 
 func GetDownloadedEpisodes() ([]Episode, error) {
 	var episodes []Episode
-	Client.Table("episodes").Where("downloaded = 1").Scan(&episodes)
+	Client.Where(&Episode{
+		Downloaded: true,
+	}).Find(&episodes)
 	return episodes, nil
 }
 

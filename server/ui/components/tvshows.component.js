@@ -2,6 +2,7 @@ flemzerd.component("tvshows", {
     templateUrl: "/static/templates/tvshows.template.html",
     controller: function TVShowsCtrl($rootScope, $scope, $interval, $http, config, tvshows) {
         var self = this;
+        $scope.utils = $rootScope.utils;
         $scope.config = {};
         $scope.tvshows = {};
 

@@ -9,7 +9,7 @@
 </div>
 
 <div class="container" ng-if="config.System.TrackShows">
-    <div class="row" ng-if="!tvshows.tracked">
+    <div class="row" ng-if="utils.objLength(tvshows.tracked) == 0">
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
                 No tracked TV shows
@@ -17,17 +17,18 @@
         </div>
     </div>
     <div class="row">
-        <div class="p-2 col-lg-6 col-sm-12" ng-repeat="tvshow in tvshows.tracked">
-            <div class="container no-gutters px-0 bg-white border border-light rounded">
-                <div class="row">
-                    <div class="col-4">
-                        <img class="rounded-left" width="100%" src="{{ tvshow.Poster }}" alt="">
-                    </div>
-                    <div class="col-8 pl-0 pr-5 pt-2">
-                        <span class="h3">{{ tvshow.Name }} </span> <span class="badge h3-badge" ng-class="{'badge-success': tvshow.Status <= 2, 'badge-danger': tvshow.Status == 3, 'badge-warning': tvshow.Status == 4}">{{ tvshow.StatusText }}</span>
-                        <p class="card-text">{{ tvshow.Overview }}</p>
-                    </div>
-                </div>
+        <div class="row" ng-if="utils.objLength(tvshows.downloading) > 0">
+            <div class="my-3 col-lg-12 col-sm-12" ng-repeat="episode in tvshows.downloading">
+                <tvshow ng-model="episode" downloading></tvshow>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
+                <tvshow ng-model="tvshow"></tvshow>
+            </div>
+            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.downloaded">
+                <tvshow ng-model="tvshow"></tvshow>
             </div>
         </div>
     </div>

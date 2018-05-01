@@ -10,6 +10,7 @@ type Episode struct {
 	gorm.Model
 	MediaIds          MediaIds
 	MediaIdsID        int
+	TvShow            TvShow
 	TvShowID          int
 	AbsoluteNumber    int
 	Number            int

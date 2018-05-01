@@ -1,8 +1,8 @@
 flemzerd.run(function($rootScope){
     utils = {};
 
-    utils.getYear = function(movie) {
-        var d = new Date(movie.Date);
+    utils.getYear = function(datestring) {
+        var d = new Date(datestring);
         return d.getFullYear();
     };
 
@@ -16,6 +16,13 @@ flemzerd.run(function($rootScope){
             return 0;
         }
         return Object.keys(obj).length;
+    };
+
+    utils.formatNumber = function(nb) {
+        if (nb < 10) {
+            return '0' + nb;
+        }
+        return nb;
     };
 
 
