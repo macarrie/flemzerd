@@ -72,7 +72,23 @@ func NotifyRecentEpisode(show TvShow, episode *Episode) error {
 	return nil
 }
 
-func NotifyMovieDownload(m *Movie) error {
+func NotifyEpisodeDownloadStart(show TvShow, episode *Episode) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%v: Download start (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+	notificationContent := "Torrents found for episode. Starting download"
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NotifyNewMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewMovie {
 		return nil
 	}
@@ -82,7 +98,7 @@ func NotifyMovieDownload(m *Movie) error {
 	}
 
 	notificationTitle := fmt.Sprintf("%s", m.Title)
-	notificationContent := "Movie found in watchlist, starting download process"
+	notificationContent := "Movie found in watchlist, adding to tracked movies"
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
@@ -95,7 +111,23 @@ func NotifyMovieDownload(m *Movie) error {
 	return nil
 }
 
-func NotifyDownloadedEpisode(show *TvShow, episode *Episode) error {
+func NotifyMovieDownloadStart(m *Movie) error {
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
+		return nil
+	}
+
+	notificationTitle := fmt.Sprintf("%v: Download start", m.Title)
+	notificationContent := "Torrents found for movie. Starting download"
+
+	err := SendNotification(notificationTitle, notificationContent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NotifyDownloadedEpisode(show TvShow, episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
@@ -127,7 +159,7 @@ func NotifyDownloadedMovie(m *Movie) error {
 	return nil
 }
 
-func NotifyFailedEpisode(show *TvShow, episode *Episode) error {
+func NotifyFailedEpisode(show TvShow, episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}

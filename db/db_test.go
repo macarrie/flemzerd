@@ -36,6 +36,45 @@ func TestTorrentIsFailed(t *testing.T) {
 	}
 }
 
+func TestGetTrackedItems(t *testing.T) {
+	ResetDb()
+	t1 := TvShow{
+		Name: "t1",
+	}
+	t2 := TvShow{
+		Name: "t2",
+	}
+	m1 := Movie{
+		Title: "m1",
+		DownloadingItem: DownloadingItem{
+			Downloading: true,
+		},
+	}
+	m2 := Movie{
+		Title: "m2",
+	}
+	m3 := Movie{
+		Title:      "m3",
+		Downloaded: true,
+	}
+
+	Client.Create(&t1)
+	Client.Create(&t2)
+	Client.Create(&m1)
+	Client.Create(&m2)
+	Client.Create(&m3)
+
+	showList, _ := GetTrackedTvShows()
+	movieList, _ := GetTrackedMovies()
+
+	if len(showList) != 2 {
+		t.Errorf("Expected 2 items in tracked shows list, got %d instead", len(showList))
+	}
+	if len(movieList) != 1 {
+		t.Errorf("Expected 1 items in tracked movies list, got %d instead", len(movieList))
+	}
+}
+
 func TestGetDownloadingItems(t *testing.T) {
 	ResetDb()
 	e1 := Episode{

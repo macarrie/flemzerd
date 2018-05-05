@@ -65,6 +65,8 @@ notifications:
     notify_new_episode: true
     # Send notification when a new movie is available (default: true)
     notify_new_movie: true
+    # Send notification on download start
+    notify_download_start: true
     # Send notification when a download is complete (default: true)
     notify_download_complete: true
     # Send notifications when a problem occurs before an episode download endend sucessfully (default: true)

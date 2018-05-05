@@ -247,7 +247,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 				"number": e.Number,
 				"name":   e.Name,
 			}).Info("Episode successfully downloaded")
-			notifier.NotifyDownloadedEpisode(&show, &e)
+			notifier.NotifyDownloadedEpisode(show, &e)
 
 			e.Downloaded = true
 			e.DownloadingItem.Downloading = false
@@ -327,7 +327,7 @@ func MarkEpisodeFailedDownload(show *TvShow, e *Episode) {
 		"name":   e.Name,
 	}).Error("Download failed, no torrents could be downloaded")
 
-	notifier.NotifyFailedEpisode(show, e)
+	notifier.NotifyFailedEpisode(*show, e)
 
 	e.DownloadingItem.DownloadFailed = true
 	e.DownloadingItem.Downloading = false

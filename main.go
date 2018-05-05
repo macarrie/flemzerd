@@ -283,6 +283,7 @@ func downloadChainFunc() {
 					downloader.MarkEpisodeFailedDownload(&show, &recentEpisode)
 					continue
 				}
+				notifier.NotifyEpisodeDownloadStart(show, &recentEpisode)
 				go downloader.DownloadEpisode(show, recentEpisode, toDownload)
 			}
 		}
@@ -298,7 +299,7 @@ func downloadChainFunc() {
 				continue
 			}
 
-			err := notifier.NotifyMovieDownload(&movie)
+			err := notifier.NotifyNewMovie(&movie)
 			if err != nil {
 				log.Warning(err)
 			}
@@ -333,6 +334,7 @@ func downloadChainFunc() {
 				downloader.MarkMovieFailedDownload(&movie)
 				continue
 			}
+			notifier.NotifyMovieDownloadStart(&movie)
 			go downloader.DownloadMovie(movie, toDownload)
 		}
 	}

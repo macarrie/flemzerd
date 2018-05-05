@@ -28,6 +28,7 @@ type Configuration struct {
 		Enabled                bool `mapstructure:"enabled"`
 		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`
 		NotifyNewMovie         bool `mapstructure:"notify_new_movie"`
+		NotifyDownloadStart    bool `mapstructure:"notify_download_start"`
 		NotifyDownloadComplete bool `mapstructure:"notify_download_complete"`
 		NotifyFailure          bool `mapstructure:"notify_failure"`
 	}
@@ -51,6 +52,7 @@ func setDefaultValues() {
 	viper.SetDefault("notifications.enabled", true)
 	viper.SetDefault("notifications.notify_new_episode", true)
 	viper.SetDefault("notifications.notify_new_movie", true)
+	viper.SetDefault("notifications.notify_download_start", true)
 	viper.SetDefault("notifications.notify_download_complete", true)
 	viper.SetDefault("notifications.notify_failure", true)
 
