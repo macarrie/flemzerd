@@ -33,6 +33,7 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         $http.get("/api/v1/tvshows/downloading").then(function(response) {
             if (response.status == 200) {
                 $rootScope.tvshows.downloading = response.data;
+                console.log("Downloading: ", response.data);
                 return;
             }
         });

@@ -6,5 +6,6 @@ import (
 
 type Notifier interface {
 	Status() (Module, error)
+	GetName() string
 	Send(title, content string) error
 }

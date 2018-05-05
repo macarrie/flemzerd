@@ -88,7 +88,7 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 			retList = append(retList, e)
 		}
 	}
-	return episodes, nil
+	return retList, nil
 }
 
 func GetDownloadingMovies() ([]Movie, error) {

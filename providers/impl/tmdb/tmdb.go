@@ -19,9 +19,10 @@ var module Module
 // Create new instance of the tmdb info provider
 func New(apiKey string) (tmdbProvider *TMDBProvider, err error) {
 	client := tmdb.Init(apiKey)
+	t := &TMDBProvider{}
 
 	module = Module{
-		Name: "TMDB",
+		Name: t.GetName(),
 		Type: "provider",
 		Status: ModuleStatus{
 			Alive:   true,
@@ -38,6 +39,10 @@ func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 	// TODO
 
 	return module, nil
+}
+
+func (tmdbProvider *TMDBProvider) GetName() string {
+	return "TMDB"
 }
 
 // Get show from name

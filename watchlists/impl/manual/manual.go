@@ -33,9 +33,13 @@ func (t *ManualWatchlist) Status() (Module, error) {
 	return module, nil
 }
 
+func (t *ManualWatchlist) GetName() string {
+	return "manual"
+}
+
 func (t *ManualWatchlist) GetTvShows() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
-		"watchlist": "manual",
+		"watchlist": t.GetName(),
 	}).Debug("Getting TV shows from watchlist")
 
 	var shows []MediaIds
@@ -49,7 +53,7 @@ func (t *ManualWatchlist) GetTvShows() ([]MediaIds, error) {
 }
 func (t *ManualWatchlist) GetMovies() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
-		"watchlist": "manual",
+		"watchlist": t.GetName(),
 	}).Debug("Getting movies from watchlist")
 
 	return []MediaIds{}, nil

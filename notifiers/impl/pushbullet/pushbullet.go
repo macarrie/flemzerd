@@ -161,6 +161,10 @@ func (notifier *PushbulletNotifier) Status() (Module, error) {
 	return returnStruct, nil
 }
 
+func (n *PushbulletNotifier) GetName() string {
+	return "Pushbullet"
+}
+
 func (notifier *PushbulletNotifier) Send(title, content string) error {
 	log.WithFields(log.Fields{
 		"title":   title,

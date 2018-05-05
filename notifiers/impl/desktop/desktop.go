@@ -7,12 +7,10 @@ import (
 )
 
 type DesktopNotifier struct {
-	Name     string
 	Notifier notificator.Notificator
 }
 
 func (d *DesktopNotifier) Init() error {
-	d.Name = "Desktop notifier"
 	d.Notifier = *notificator.New(notificator.Options{
 		AppName: "flemzerd",
 	})
@@ -25,13 +23,17 @@ func (d *DesktopNotifier) Status() (Module, error) {
 	log.Debug("Checking desktop notifier status")
 
 	return Module{
-		Name: "Desktop",
+		Name: d.GetName(),
 		Type: "notifier",
 		Status: ModuleStatus{
 			Alive:   true,
 			Message: "",
 		},
 	}, nil
+}
+
+func (d *DesktopNotifier) GetName() string {
+	return "Desktop notifier"
 }
 
 func (d *DesktopNotifier) Send(title, content string) error {

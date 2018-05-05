@@ -36,6 +36,13 @@ func (d MockErrorDownloader) Status() (Module, error) {
 	}, err
 }
 
+func (w MockDownloader) GetName() string {
+	return "MockDownloader"
+}
+func (w MockErrorDownloader) GetName() string {
+	return "MockErrorDownloader"
+}
+
 func (d MockDownloader) AddTorrent(t Torrent) (string, error) {
 	testTorrentsCount += 1
 	return "id", nil

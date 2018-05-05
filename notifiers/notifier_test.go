@@ -34,6 +34,13 @@ func (n MockErrorNotifier) Status() (Module, error) {
 	}, err
 }
 
+func (n MockNotifier) GetName() string {
+	return "MockNotifier"
+}
+func (n MockErrorNotifier) GetName() string {
+	return "MockErrorNotifier"
+}
+
 func (n MockNotifier) Setup(authCredentials map[string]string) {
 	return
 }

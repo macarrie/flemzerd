@@ -16,7 +16,7 @@ var notifiersCollection []Notifier
 func AddNotifier(notifier Notifier) {
 	notifiersCollection = append(notifiersCollection, notifier)
 	log.WithFields(log.Fields{
-		"notifier": notifier,
+		"notifier": notifier.GetName(),
 	}).Debug("Notifier loaded")
 }
 

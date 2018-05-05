@@ -19,8 +19,9 @@ var module Module
 
 // Create new instance of the TVDB info provider
 func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
+	t := &TVDBProvider{}
 	module = Module{
-		Name: "TVDB",
+		Name: t.GetName(),
 		Type: "provider",
 		Status: ModuleStatus{
 			Alive:   true,
@@ -75,6 +76,10 @@ func (tvdbProvider *TVDBProvider) Status() (Module, error) {
 	}
 
 	return module, err
+}
+
+func (tvdbProvider *TVDBProvider) GetName() string {
+	return "TVDB"
 }
 
 // Get show from name

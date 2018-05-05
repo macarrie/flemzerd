@@ -44,7 +44,7 @@ func Reset() {
 func AddWatchlist(watchlist Watchlist) {
 	watchlistsCollection = append(watchlistsCollection, watchlist)
 	log.WithFields(log.Fields{
-		"watchlist": watchlist,
+		"watchlist": watchlist.GetName(),
 	}).Debug("Watchlist loaded")
 }
 

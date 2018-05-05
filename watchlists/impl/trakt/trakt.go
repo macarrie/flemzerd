@@ -157,7 +157,7 @@ func New() (t *TraktWatchlist, err error) {
 	}
 
 	module = Module{
-		Name: "Trakt",
+		Name: t.GetName(),
 		Type: "watchlist",
 		Status: ModuleStatus{
 			Alive:   true,
@@ -360,9 +360,13 @@ func (t *TraktWatchlist) Status() (Module, error) {
 	return module, err
 }
 
+func (t *TraktWatchlist) GetName() string {
+	return "trakt"
+}
+
 func (t *TraktWatchlist) GetTvShows() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
-		"watchlist": "trakt",
+		"watchlist": t.GetName(),
 	}).Debug("Getting TV shows from watchlist")
 
 	if t.Token.AccessToken == "" {
@@ -405,7 +409,7 @@ func (t *TraktWatchlist) GetTvShows() ([]MediaIds, error) {
 
 func (t *TraktWatchlist) GetMovies() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
-		"watchlist": "trakt",
+		"watchlist": t.GetName(),
 	}).Debug("Getting movies from watchlist")
 
 	if t.Token.AccessToken == "" {

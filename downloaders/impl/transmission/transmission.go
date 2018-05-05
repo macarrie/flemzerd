@@ -90,6 +90,10 @@ func (d *TransmissionDownloader) Init() error {
 	return nil
 }
 
+func (d *TransmissionDownloader) GetName() string {
+	return "transmission"
+}
+
 func (d *TransmissionDownloader) Status() (Module, error) {
 	log.Debug("Checking transmission downloader status")
 	client := &http.Client{

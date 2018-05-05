@@ -84,7 +84,7 @@ func initProviders() {
 			for _, newProvider := range newProviders {
 				provider.AddProvider(newProvider)
 				log.WithFields(log.Fields{
-					"provider": providerType,
+					"provider": newProvider.GetName(),
 				}).Info("Provider added to list of providers")
 			}
 			newProviders = []provider.Provider{}
@@ -151,7 +151,7 @@ func initDownloaders() {
 				newDownloader.Init()
 				downloader.AddDownloader(newDownloader)
 				log.WithFields(log.Fields{
-					"downloader": name,
+					"downloader": newDownloader.GetName(),
 				}).Info("Downloader added to list of downloaders")
 			}
 			newDownloaders = []downloader.Downloader{}
@@ -170,7 +170,7 @@ func initNotifiers() {
 			notifier.AddNotifier(pushbulletNotifier)
 
 			log.WithFields(log.Fields{
-				"notifier": name,
+				"notifier": pushbulletNotifier.GetName(),
 			}).Info("Notifier added to list of notifiers")
 
 		case "desktop":
@@ -178,7 +178,7 @@ func initNotifiers() {
 			notifier.AddNotifier(desktopNotifier)
 
 			log.WithFields(log.Fields{
-				"notifier": name,
+				"notifier": desktopNotifier.GetName(),
 			}).Info("Notifier added to list of notifiers")
 
 		default:
@@ -212,7 +212,7 @@ func initWatchlists() {
 			for _, newWatchlist := range newWatchlists {
 				watchlist.AddWatchlist(newWatchlist)
 				log.WithFields(log.Fields{
-					"watchlist": watchlistType,
+					"watchlist": newWatchlist.GetName(),
 				}).Info("Watchlist added to list of watchlists")
 			}
 			newWatchlists = []watchlist.Watchlist{}

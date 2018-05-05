@@ -43,6 +43,16 @@ func (p MockErrorProvider) Status() (Module, error) {
 	}, err
 }
 
+func (p MockTVProvider) GetName() string {
+	return "MockTVProvider"
+}
+func (p MockMovieProvider) GetName() string {
+	return "MockMovieProvider"
+}
+func (p MockErrorProvider) GetName() string {
+	return "MockErrorProvider"
+}
+
 func (p MockTVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	return TvShow{
 		Model: gorm.Model{
@@ -110,6 +120,10 @@ func (w MockWatchlist) Status() (Module, error) {
 			Message: err.Error(),
 		},
 	}, err
+}
+
+func (w MockWatchlist) GetName() string {
+	return "MockWatchlist"
 }
 
 func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {

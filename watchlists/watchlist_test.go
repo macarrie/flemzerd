@@ -32,6 +32,13 @@ func (w MockErrorWatchlist) Status() (Module, error) {
 	}, err
 }
 
+func (w MockWatchlist) GetName() string {
+	return "MockWatchlist"
+}
+func (w MockErrorWatchlist) GetName() string {
+	return "MockErrorWatchlist"
+}
+
 func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {
 	return []MediaIds{
 		MediaIds{
