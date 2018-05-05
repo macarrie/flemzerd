@@ -12,7 +12,7 @@ flemzerd.run(function($rootScope){
     };
 
     utils.objLength = function(obj) {
-        if (typeof obj == undefined) {
+        if (typeof obj == undefined || obj == null) {
             return 0;
         }
         return Object.keys(obj).length;

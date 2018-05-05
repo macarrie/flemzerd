@@ -18,16 +18,19 @@
     </div>
     <div class="row">
         <div class="row" ng-if="utils.objLength(tvshows.downloading) > 0">
+            <div class="col-12 mt-3">
+                <span class="h3">Episodes</span>
+            </div>
             <div class="my-3 col-lg-12 col-sm-12" ng-repeat="episode in tvshows.downloading">
                 <tvshow ng-model="episode" downloading></tvshow>
             </div>
         </div>
 
         <div class="row">
-            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
-                <tvshow ng-model="tvshow"></tvshow>
+            <div class="col-12 mt-3">
+                <span class="h3">TV Shows</span>
             </div>
-            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.downloaded">
+            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
                 <tvshow ng-model="tvshow"></tvshow>
             </div>
         </div>

@@ -27,6 +27,7 @@ body {
 		background-color: #bf3a30;
 		background-image: linear-gradient(315deg, #bf3a30 0%, #864ba2 74%);
 		background-clip: text;
+		-webkit-background-clip: text;
     }
 
     .nav-link {
@@ -50,33 +51,36 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 img.black_and_white {
-    filter: grayscale(70%) brightness(50%);
+    filter: saturate(200%) grayscale(50%) brightness(50%);
     opacity: 0.8;
     transition-property: filter, opacity;
     transition-duration: 0.2s;
 }
 
-.movie-card:hover img.black_and_white {
+.media-card:hover img.black_and_white {
      filter: none;
      opacity: 1;
 }
 
-.movie-card .card-img-overlay {
+.media-card .card-img-overlay {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.movie-card .card-img-overlay span {
+.media-card .card-img-overlay span {
     display: table-cell;
     vertical-align: middle;
 }
+.media-card:hover .card-img-overlay span {
+    display: none;
+}
 
-.movie-card a {
+.media-card a {
     text-decoration: none;
     color: #444;
 }
 
-.movie-card a:hover {
+.media-card a:hover {
     color: #666;
 }
 

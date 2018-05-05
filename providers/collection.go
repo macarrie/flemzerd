@@ -60,8 +60,9 @@ func FindShow(ids MediaIds) (TvShow, error) {
 		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 		if req.RecordNotFound() {
 			db.Client.Create(&show)
+			return show, nil
 		}
-		return show, nil
+		return showReq, nil
 	}
 
 	return TvShow{}, errors.New("Cannot find any TV provider in configuration")

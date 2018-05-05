@@ -107,9 +107,23 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	now := time.Now()
 	filteredEpisodes := filterEpisodesAiredBetweenDates(episodeList, &oldestDate, &now)
 
-	// Set season number on episodes
-	for i := range filteredEpisodes {
-		filteredEpisodes[i].Season = season.SeasonNumber
+	for i, ep := range filteredEpisodes {
+		externalids, err := tmdbProvider.Client.GetTvEpisodeExternalIds(show.ID, ep.Season, ep.Number, nil)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"tvshow_name": tvShow.Name,
+				"id":          tvShow.Model.ID,
+				"provider":    module.Name,
+				"season":      ep.Season,
+				"number":      ep.Number,
+				"error":       err,
+			}).Warning("Cannot get external ids from Tmdb for episode")
+		}
+		filteredEpisodes[i].MediaIds = MediaIds{
+			Tmdb: externalids.ID,
+			Imdb: externalids.ImdbID,
+			Tvdb: externalids.TvdbID,
+		}
 	}
 
 	return filteredEpisodes, nil
@@ -195,6 +209,7 @@ func convertEpisode(episode tmdb.TvEpisode) Episode {
 
 	return Episode{
 		Number:   episode.EpisodeNumber,
+		Season:   episode.SeasonNumber,
 		Name:     episode.Name,
 		Date:     firstAired,
 		Overview: episode.Overview,

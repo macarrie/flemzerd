@@ -125,6 +125,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 
 	// If function has not returned yet, download ended with no errors !
 	e.Downloaded = true
+	e.DownloadingItem.Downloading = false
 	db.Client.Save(&e)
 
 	RemoveTorrent(torrent)
@@ -177,6 +178,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 
 	// If function has not returned yet, download ended with no errors !
 	m.Downloaded = true
+	m.DownloadingItem.Downloading = false
 	db.Client.Save(&m)
 
 	RemoveTorrent(torrent)
@@ -248,6 +250,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 			notifier.NotifyDownloadedEpisode(&show, &e)
 
 			e.Downloaded = true
+			e.DownloadingItem.Downloading = false
 			db.Client.Save(&e)
 
 			return nil
@@ -299,6 +302,7 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 			notifier.NotifyDownloadedMovie(&m)
 
 			m.Downloaded = true
+			m.DownloadingItem.Downloading = false
 			db.Client.Save(&m)
 
 			return nil

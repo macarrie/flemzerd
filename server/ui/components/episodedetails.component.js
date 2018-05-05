@@ -1,16 +1,16 @@
 flemzerd.component("episodedetails", {
-    templateUrl: "/static/templates/moviedetails.template.html",
-    controller: function MovieDetailsCtrl($rootScope, $scope, $http, $stateParams, fanart) {
+    templateUrl: "/static/templates/episodedetails.template.html",
+    controller: function EpisodeDetails($rootScope, $scope, $http, $stateParams, tvshows, fanart) {
         $scope.utils = $rootScope.utils;
-        $scope.movie = {};
 
-        $http.get("/api/v1/movies/details/" + $stateParams.id).then(function(response) {
+        $http.get("/api/v1/tvshows/episodes/" + $stateParams.id).then(function(response) {
             if (response.status == 200) {
-                $scope.movie = response.data;
-                fanart.GetMovieFanart($scope.movie).then(function(data) {
+                $scope.episode = response.data;
+                $scope.episode.TvShow = tvshows.setStatusText($scope.episode.TvShow);
+                fanart.GetTvShowFanart($scope.episode.TvShow).then(function(data) {
                     $scope.fanarts = data;
-                    background_container = document.getElementById("movie_full_background")
-                    background_container.style.backgroundImage = "url('" + data.moviebackground[0].url + "')";
+                    background_container = document.getElementById("full_background")
+                    background_container.style.backgroundImage = "url('" + data.showbackground[0].url + "')";
                 });
                 return;
             }

@@ -1,0 +1,73 @@
+<div id="full_background"></div>
+<div class="container mediadetails">
+    <div class="row">
+        <div class="col-4">
+            <img class="rounded" width="100%" src="{{ episode.TvShow.Poster }}" alt="">
+        </div>
+        <div class="col-8 pl-0 pr-5 pt-2">
+            <!--<a ui-sref="tvshows" class="h6 text-muted mx-3">-->
+            <!--<i class="fas fa-arrow-left"></i>-->
+            <!--</a>-->
+            <!--<span class="h3">{{ episode.TvShow.Name }} </span> <br />-->
+            <span class="h2">{{ episode.Name }}</span> <span class="h2 text-muted">(S{{ utils.formatNumber(episode.Season) }}E{{ utils.formatNumber(episode.Number) }})</span>
+
+            <div class="p-3">
+                See on
+                <a  href="https://www.imdb.com/title/{{ episode.TvShow.MediaIds.Imdb }}"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="episode.TvShow.MediaIds.Imdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    IMDB
+                </a>
+                <a  href="https://trakt.tv/search/trakt/{{ episode.TvShow.MediaIds.Trakt }}?id_type=movie"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="episode.TvShow.MediaIds.Trakt != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    Trakt
+                </a>
+                <a  href="https://themoviedb.org/movie/{{ episode.TvShow.MediaIds.Tmdb }}"
+                    target="_blank"
+                    class="btn btn-sm mx-2 btn-outline-secondary"
+                    ng-if="episode.TvShow.MediaIds.Tmdb != 0">
+                    <i class="fas fa-external-link-alt"></i>
+                    TMDB
+                </a>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <h6>Overview</h6>
+                    <div class="col-12">
+                        {{ episode.Overview}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid no-gutters bg-light mt-4">
+    <div class="container p-2">
+        <div class="row">
+            <div class="col-12 my-3">
+                <span class="h4">Download status</span>
+            </div>
+            <div class="col-12"
+                 ng-if="episode.Downloaded">
+
+                <div class="mb-3">
+                    <span class="h6 text-success">
+                        <i class="fas fa-check-circle"></i> Episode downloaded successfully
+                    </span>
+                </div>
+                <downloadingitem item="episode.DownloadingItem" downloaded="true"></downloadingitem>
+            </div>
+            <div class="col-12 my-3"
+                 ng-if="episode.DownloadingItem.Downloading && !episode.Downloaded">
+                <downloadingitem item="episode.DownloadingItem"></downloadingitem>
+            </div>
+        </div>
+    </div>
+</div>

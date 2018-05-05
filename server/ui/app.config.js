@@ -1,6 +1,6 @@
 var flemzerd = angular.module('flemzer', ['ui.router'])
 
-flemzerd.config(function config($stateProvider) {
+flemzerd.config(function config($stateProvider, $urlRouterProvider) {
     $stateProvider.state({
         name: "home",
         url: "/",
@@ -41,4 +41,6 @@ flemzerd.config(function config($stateProvider) {
         url: "/settings",
         component: "settings"
     });
+
+    $urlRouterProvider.otherwise("/");
 });

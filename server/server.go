@@ -81,6 +81,16 @@ func initRouter() {
 				}
 				c.JSON(http.StatusOK, show)
 			})
+			tvshowsRoute.GET("/episodes/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var ep Episode
+				req := db.Client.Find(&ep, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+				c.JSON(http.StatusOK, ep)
+			})
 		}
 
 		moviesRoute := v1.Group("/movies")
