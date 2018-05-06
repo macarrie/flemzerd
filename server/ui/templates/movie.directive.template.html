@@ -5,7 +5,8 @@
             src="{{ movie.Poster }}" 
             ng-class="movie.Downloaded ? 'black_and_white' : ''"
             alt="">
-    <div class="card-img-overlay text-white font-weight-bold font-italic" ng-if="movie.Downloaded">
+    <div class="card-img-overlay text-white font-weight-bold font-italic overlay-green" 
+         ng-if="movie.Downloaded">
         <span>
             Downloaded
         </span>

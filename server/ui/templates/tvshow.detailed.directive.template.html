@@ -9,42 +9,39 @@
             <!--<i class="fas fa-arrow-left"></i>-->
             <!--</a>-->
             <span class="h2">{{ tvshow.Name }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
+            <button class="ml-2 btn btn-sm show-status-btn"
+                  ng-class="tvshow.Status < 3 ? 'btn-outline-success' : (tvshow.Status == 3 ? 'btn-outline-danger' : 'btn-outline-warning' )">
+                {{ tvshow.StatusText }}
+            </button>
 
             <div class="p-3">
                 See on
-                <a  href="https://www.imdb.com/title/{{ tvshow.MediaIds.Imdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="tvshow.MediaIds.Imdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    IMDB
-                </a>
-                <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=movie"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="tvshow.MediaIds.Trakt != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    Trakt
-                </a>
-                <a  href="https://themoviedb.org/movie/{{ tvshow.MediaIds.Tmdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="tvshow.MediaIds.Tmdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    TMDB
-                </a>
+                <div class="external-links-banner">
+                    <a  href="https://www.imdb.com/title/{{ tvshow.MediaIds.Imdb }}"
+                        target="_blank"
+                        class="mx-2 imdb"
+                        ng-if="tvshow.MediaIds.Imdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        IMDB
+                    </a>
+                    <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=movie"
+                        target="_blank"
+                        class="mx-2 trakt"
+                        ng-if="tvshow.MediaIds.Trakt != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        Trakt
+                    </a>
+                    <a  href="https://themoviedb.org/movie/{{ tvshow.MediaIds.Tmdb }}"
+                        target="_blank"
+                        class="mx-2 tmdb"
+                        ng-if="tvshow.MediaIds.Tmdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        TMDB
+                    </a>
+                </div>
             </div>
 
             <div class="container">
-                <div class="row">
-                    <h6>Status</h6>
-                    <div class="col-12 mb-2">
-                        <span class="badge badge-success"
-                              ng-class="tvshow.Status < 3 ? 'badge-success' : (tvshow.Status == 3 ? )">
-                            {{ tvshow.StatusText }}
-                        </span>
-                    </div>
-                </div>
                 <div class="row">
                     <h6>Overview</h6>
                     <div class="col-12">

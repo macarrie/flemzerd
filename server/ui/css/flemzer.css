@@ -44,17 +44,27 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
      font-family: "Roboto Slab";
 }
 
-.h3-badge {
-     position: relative;
-     top: -5px;
-     font-weight: normal;
+.show-status-btn {
+    padding: 0 5px;
+    position: relative;
+    top: -5px;
+    font-weight: normal;
+    font-size: 12px;
 }
 
 img.black_and_white {
-    filter: saturate(200%) grayscale(50%) brightness(50%);
+    filter: saturate(200%) grayscale(100%) brightness(50%);
     opacity: 0.8;
     transition-property: filter, opacity;
     transition-duration: 0.2s;
+}
+
+.overlay-green {
+    background-color: rgba(36, 183, 36, 0.4);
+}
+
+.overlay-red {
+    background-color: rgba(216, 61, 47, 0.4);
 }
 
 .media-card:hover img.black_and_white {
@@ -71,7 +81,7 @@ img.black_and_white {
     display: table-cell;
     vertical-align: middle;
 }
-.media-card:hover .card-img-overlay span {
+.media-card:hover .card-img-overlay {
     display: none;
 }
 
@@ -109,4 +119,30 @@ img.black_and_white {
 .mediadetails {
      color: #fefefe;
      padding-top: 30px;
+}
+
+.external-links-banner {
+     display: inline;
+}
+
+.external-links-banner a {
+    font-style: italic;
+    /*font-weight: bold;*/
+    text-decoration: none;
+}
+
+.external-links-banner a:hover {
+    opacity: 0.7;
+}
+
+.external-links-banner .imdb {
+    color: #f9ff94;
+}
+
+.external-links-banner .trakt {
+    color: #ff5f68;
+}
+
+.external-links-banner .tmdb {
+    color: #45f6bb;
 }
