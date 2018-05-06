@@ -96,7 +96,6 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList[:length])
 	torrentList = FilterBadTorrentsForEpisode(torrentList[:length], season, episode)
 
-	log.Warning("PreferredMediaQuality: ", configuration.Config.System.PreferredMediaQuality)
 	if len(torrentList) == 0 {
 		return []Torrent{}, errors.New("No torrents found for episode")
 	}
@@ -156,7 +155,9 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 }
 
 func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
-	log.Debug("Sorting list according to quality preferences")
+	log.WithFields(log.Fields{
+		"quality_filter": configuration.Config.System.PreferredMediaQuality,
+	}).Debug("Sorting list according to quality preferences")
 
 	var qualityFilteredList []Torrent
 	var otherTorrents []Torrent

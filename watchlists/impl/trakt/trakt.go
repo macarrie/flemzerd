@@ -329,7 +329,6 @@ func (t *TraktWatchlist) IsAuthenticated() error {
 	}
 
 	response, err := t.performAPIRequest("GET", "/users/settings", nil)
-	log.Warning(response.StatusCode)
 	if err != nil {
 		return err
 	} else {

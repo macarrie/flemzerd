@@ -216,13 +216,13 @@ func initRouter() {
 					})
 
 					traktRoutes.GET("/token", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("Trakt")
-						t := w.(*trakt.TraktWatchlist)
+						w, err := watchlist.GetWatchlist("trakt")
 						if err != nil {
 							c.JSON(http.StatusInternalServerError, err)
 							return
 						}
 
+						t := w.(*trakt.TraktWatchlist)
 						c.JSON(http.StatusOK, t.Token)
 					})
 
