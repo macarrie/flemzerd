@@ -24,14 +24,14 @@
                         <i class="fas fa-external-link-alt"></i>
                         IMDB
                     </a>
-                    <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=movie"
+                    <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=show"
                         target="_blank"
                         class="mx-2 trakt"
                         ng-if="tvshow.MediaIds.Trakt != 0">
                         <i class="fas fa-external-link-alt"></i>
                         Trakt
                     </a>
-                    <a  href="https://themoviedb.org/movie/{{ tvshow.MediaIds.Tmdb }}"
+                    <a  href="https://themoviedb.org/tv/{{ tvshow.MediaIds.Tmdb }}"
                         target="_blank"
                         class="mx-2 tmdb"
                         ng-if="tvshow.MediaIds.Tmdb != 0">
