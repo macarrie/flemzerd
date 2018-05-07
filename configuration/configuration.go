@@ -5,6 +5,7 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/spf13/viper"
+	"golang.org/x/sys/unix"
 )
 
 var customConfigFilePath string
@@ -119,6 +120,15 @@ func Check() {
 		log.WithFields(log.Fields{
 			"error": "Library show path must be an absolute path",
 		}).Error("Configuration error")
+	}
+
+	err := unix.Access(Config.Library.ShowPath, unix.W_OK)
+	if err != nil {
+		log.Error("Cannot write into library show path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder")
+	}
+	err = unix.Access(Config.Library.MoviePath, unix.W_OK)
+	if err != nil {
+		log.Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
 	}
 }
 

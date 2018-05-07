@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -11,6 +12,8 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
+
+	"github.com/rs/xid"
 )
 
 var downloadersCollection []Downloader
@@ -225,7 +228,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 	db.Client.Save(&e)
 
 	for _, torrent := range torrentList {
-		torrent.DownloadDir = fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, e.Season)
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/", DOWNLOAD_TMP_DIR, xid.New())
 
 		if db.TorrentHasFailed(e.DownloadingItem, torrent) {
 			continue
@@ -251,6 +254,18 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 
 			e.Downloaded = true
 			e.DownloadingItem.Downloading = false
+			err := MoveEpisodeToLibrary(show, &e)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"show":           show.Name,
+					"episode":        e.Name,
+					"season":         e.Season,
+					"number":         e.Number,
+					"temporary_path": e.DownloadingItem.CurrentTorrent.DownloadDir,
+					"library_path":   configuration.Config.Library.ShowPath,
+					"error":          err,
+				}).Error("Could not move episode from temporay download path to library folder")
+			}
 			db.Client.Save(&e)
 
 			return nil
@@ -280,7 +295,7 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 	db.Client.Save(&m)
 
 	for _, torrent := range torrentList {
-		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, m.Title)
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/", DOWNLOAD_TMP_DIR, xid.New())
 
 		if db.TorrentHasFailed(m.DownloadingItem, torrent) {
 			continue
@@ -303,6 +318,15 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 
 			m.Downloaded = true
 			m.DownloadingItem.Downloading = false
+			err := MoveMovieToLibrary(&m)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"movie":          m.Title,
+					"temporary_path": m.DownloadingItem.CurrentTorrent.DownloadDir,
+					"library_path":   configuration.Config.Library.ShowPath,
+					"error":          err,
+				}).Error("Could not move movie from temporay download path to library folder")
+			}
 			db.Client.Save(&m)
 
 			return nil
@@ -344,6 +368,61 @@ func MarkMovieFailedDownload(m *Movie) {
 	m.DownloadingItem.DownloadFailed = true
 	m.DownloadingItem.Downloading = false
 	db.Client.Save(&m)
+}
+
+func MoveEpisodeToLibrary(show TvShow, episode *Episode) error {
+	log.WithFields(log.Fields{
+		"show":           show.Name,
+		"episode":        episode.Name,
+		"season":         episode.Season,
+		"number":         episode.Number,
+		"temporary_path": episode.DownloadingItem.CurrentTorrent.DownloadDir,
+		"library_path":   configuration.Config.Library.ShowPath,
+	}).Debug("Moving episode to library")
+
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, episode.Season)
+	err := os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(episode.DownloadingItem.CurrentTorrent.DownloadDir)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"path": episode.DownloadingItem.CurrentTorrent.DownloadDir,
+		}).Warning("Could not remove temporary folder for download")
+	}
+
+	episode.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath
+	db.Client.Save(episode)
+
+	return nil
+}
+
+func MoveMovieToLibrary(movie *Movie) error {
+	log.WithFields(log.Fields{
+		"movie":          movie.Title,
+		"temporary_path": movie.DownloadingItem.CurrentTorrent.DownloadDir,
+		"library_path":   configuration.Config.Library.ShowPath,
+	}).Debug("Moving episode to library")
+
+	destinationPath := fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, movie.Title)
+	err := os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(movie.DownloadingItem.CurrentTorrent.DownloadDir)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"path": movie.DownloadingItem.CurrentTorrent.DownloadDir,
+		}).Warning("Could not remove temporary folder for download")
+	}
+
+	movie.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath
+	db.Client.Save(movie)
+
+	return nil
 }
 
 func FillEpisodeToDownloadTorrentList(e *Episode, list []Torrent) []Torrent {
