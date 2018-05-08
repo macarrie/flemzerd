@@ -13,27 +13,29 @@
 
             <div class="p-3">
                 See on
-                <a  href="https://www.imdb.com/title/{{ movie.MediaIds.Imdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="movie.MediaIds.Imdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    IMDB
-                </a>
-                <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=movie"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="movie.MediaIds.Trakt != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    Trakt
-                </a>
-                <a  href="https://themoviedb.org/movie/{{ movie.MediaIds.Tmdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="movie.MediaIds.Tmdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    TMDB
-                </a>
+                <div class="external-links-banner">
+                    <a  href="https://www.imdb.com/title/{{ movie.MediaIds.Imdb }}"
+                        target="_blank"
+                        class="mx-2 imdb"
+                        ng-if="movie.MediaIds.Imdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        IMDB
+                    </a>
+                    <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=movie"
+                        target="_blank"
+                        class="mx-2 trakt"
+                        ng-if="movie.MediaIds.Trakt != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        Trakt
+                    </a>
+                    <a  href="https://themoviedb.org/movie/{{ movie.MediaIds.Tmdb }}"
+                        target="_blank"
+                        class="mx-2 tmdb"
+                        ng-if="movie.MediaIds.Tmdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        TMDB
+                    </a>
+                </div>
             </div>
 
             <div class="container">

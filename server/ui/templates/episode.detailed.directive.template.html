@@ -13,27 +13,29 @@
 
             <div class="p-3">
                 See on
-                <a  href="https://www.imdb.com/title/{{ episode.TvShow.MediaIds.Imdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="episode.TvShow.MediaIds.Imdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    IMDB
-                </a>
-                <a  href="https://trakt.tv/search/trakt/{{ episode.TvShow.MediaIds.Trakt }}?id_type=movie"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="episode.TvShow.MediaIds.Trakt != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    Trakt
-                </a>
-                <a  href="https://themoviedb.org/movie/{{ episode.TvShow.MediaIds.Tmdb }}"
-                    target="_blank"
-                    class="btn btn-sm mx-2 btn-outline-secondary"
-                    ng-if="episode.TvShow.MediaIds.Tmdb != 0">
-                    <i class="fas fa-external-link-alt"></i>
-                    TMDB
-                </a>
+                <div class="external-links-banner">
+                    <a  href="https://www.imdb.com/title/{{ episode.MediaIds.Imdb }}"
+                        target="_blank"
+                        class="mx-2 imdb"
+                        ng-if="episode.TvShow.MediaIds.Imdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        IMDB
+                    </a>
+                    <a  href="https://trakt.tv/search/trakt/{{ episode.MediaIds.Trakt }}?id_type=episode"
+                        target="_blank"
+                        class="mx-2 trakt"
+                        ng-if="episode.MediaIds.Trakt != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        Trakt
+                    </a>
+                    <a  href="https://themoviedb.org/tv/{{ episode.TvShow.MediaIds.Tmdb }}"
+                        target="_blank"
+                        class="mx-2 tmdb"
+                        ng-if="episode.TvShow.MediaIds.Tmdb != 0">
+                        <i class="fas fa-external-link-alt"></i>
+                        TMDB
+                    </a>
+                </div>
             </div>
 
             <div class="container">
