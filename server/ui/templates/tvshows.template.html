@@ -19,7 +19,7 @@
     <div class="row">
         <div class="row" ng-if="utils.objLength(tvshows.downloading) > 0">
             <div class="col-12 mt-3">
-                <span class="h3">Episodes</span>
+                <span class="h3">Downloading episodes</span>
             </div>
             <div class="my-3 col-lg-12 col-sm-12" ng-repeat="episode in tvshows.downloading">
                 <tvshow ng-model="episode" downloading></tvshow>
@@ -29,8 +29,16 @@
         <div class="row">
             <div class="col-12 mt-3">
                 <span class="h3">TV Shows</span>
+                <button class="btn btn-sm btn-light float-right" ng-click="refreshTvShows()">
+                    <div ng-if="refreshing" class="font-italic">
+                        <i class="fas fa-sync fa-spin"></i> Refreshing
+                    </div>
+                    <div ng-if="!refreshing">
+                        <i class="fas fa-sync"></i> Refresh
+                    </div>
+                </button>
             </div>
-            <div class="my-3 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
+            <div class="my-3 col-6 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
                 <tvshow ng-model="tvshow"></tvshow>
             </div>
         </div>

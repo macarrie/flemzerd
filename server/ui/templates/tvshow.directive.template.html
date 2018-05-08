@@ -4,7 +4,7 @@
             width="100%" 
             src="{{ tvshow.Poster }}" 
             ng-class="tvshow.Status == 3 ? 'black_and_white' : ''"
-            alt="">
+            alt="{{ tvshow.Name }}">
     <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red" ng-if="tvshow.Status == 3">
         <span>
             Ended

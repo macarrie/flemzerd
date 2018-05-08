@@ -11,6 +11,17 @@ flemzerd.component("movies", {
             $scope.movies = $rootScope.movies;
         };
 
+        $scope.refreshMovies = function() {
+            $scope.refreshing = true;
+            $http.post("/api/v1/modules/watchlists/refresh").then(function(response) {
+                if (response.status == 200) {
+                    movies.loadMovies();
+                    $scope.refreshing = false;
+                    return;
+                }
+            });
+        };
+
         self.refresh();
         $interval(self.refresh, 1000);
 

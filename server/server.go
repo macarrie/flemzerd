@@ -185,6 +185,12 @@ func initRouter() {
 					c.JSON(http.StatusOK, mods)
 				})
 
+				watchlists.POST("/refresh", func(c *gin.Context) {
+					provider.GetTVShowsInfoFromConfig()
+					provider.GetMoviesInfoFromConfig()
+					c.JSON(http.StatusOK, gin.H{})
+				})
+
 				traktRoutes := watchlists.Group("/trakt")
 				{
 

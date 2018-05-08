@@ -44,6 +44,7 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
 
     return {
         "tvshows": $rootScope.tvshows,
-        setStatusText: setStatusText
+        setStatusText: setStatusText,
+        loadShows: loadShows
     };
 }]);

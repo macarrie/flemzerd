@@ -28,5 +28,6 @@ flemzerd.factory('movies', ['$rootScope', '$interval', '$http', function($rootSc
 
     return {
         "movies": $rootScope.movies,
+        loadMovies: loadMovies
     }
 }]);

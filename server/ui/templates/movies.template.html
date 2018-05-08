@@ -10,12 +10,26 @@
 
 <div class="container" ng-if="config.System.TrackMovies">
     <div class="row" ng-if="utils.objLength(movies.downloading) > 0">
+        <div class="col-12 mt-3">
+            <span class="h3">Downloading movies</span>
+        </div>
         <div class="my-3 col-lg-12 col-sm-12" ng-repeat="movie in movies.downloading">
             <movie ng-model="movie" downloading></movie>
         </div>
     </div>
 
     <div class="row">
+        <div class="col-12 mt-3">
+            <span class="h3">Movies</span>
+            <button class="btn btn-sm btn-light float-right" ng-click="refreshMovies()">
+                <div ng-if="refreshing" class="font-italic">
+                    <i class="fas fa-sync fa-spin"></i> Refreshing
+                </div>
+                <div ng-if="!refreshing">
+                    <i class="fas fa-sync"></i> Refresh
+                </div>
+            </button>
+        </div>
         <div class="my-3 col-lg-2 col-sm-4" ng-repeat="movie in movies.tracked">
             <movie ng-model="movie"></movie>
         </div>
