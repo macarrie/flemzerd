@@ -380,7 +380,7 @@ func MoveEpisodeToLibrary(show TvShow, episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/", configuration.Config.Library.ShowPath, show.Name, episode.Season)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%de%d", configuration.Config.Library.ShowPath, show.Name, episode.Season, episode.Season, episode.Number)
 	err := os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
 	if err != nil {
 		return err
@@ -406,7 +406,7 @@ func MoveMovieToLibrary(movie *Movie) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, movie.Title)
+	destinationPath := fmt.Sprintf("%s/%s/%s", configuration.Config.Library.MoviePath, movie.Title, movie.Title)
 	err := os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
 	if err != nil {
 		return err
