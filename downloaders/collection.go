@@ -373,7 +373,7 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%de%d", configuration.Config.Library.ShowPath, episode.TvShow.Name, episode.Season, episode.Season, episode.Number)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, episode.TvShow.Name, episode.Season, episode.Season, episode.Number)
 	err := os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
 	if err != nil {
 		return err

@@ -59,7 +59,7 @@ func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 func GetTrackedMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
-	Client.Find(&movies)
+	Client.Order("created_at DESC").Find(&movies)
 
 	for _, m := range movies {
 		if !m.DownloadingItem.Downloading && !m.Downloaded {
@@ -73,7 +73,7 @@ func GetTrackedMovies() ([]Movie, error) {
 func GetTrackedTvShows() ([]TvShow, error) {
 	var tvShows []TvShow
 
-	Client.Find(&tvShows)
+	Client.Order("status").Order("name").Find(&tvShows)
 
 	return tvShows, nil
 }
@@ -109,7 +109,7 @@ func GetDownloadedEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	Client.Where(&Episode{
 		Downloaded: true,
-	}).Find(&episodes)
+	}).Order("id DESC").Find(&episodes)
 	return episodes, nil
 }
 
@@ -117,7 +117,7 @@ func GetDownloadedMovies() ([]Movie, error) {
 	var movies []Movie
 	Client.Where(&Movie{
 		Downloaded: true,
-	}).Find(&movies)
+	}).Order("id DESC").Find(&movies)
 	return movies, nil
 }
 
