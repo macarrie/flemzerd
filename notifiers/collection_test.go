@@ -112,6 +112,7 @@ func TestNotifyEpisode(t *testing.T) {
 		Model: gorm.Model{
 			ID: 30,
 		},
+		TvShow: show,
 		Season: 3,
 		Number: 4,
 		Name:   "Test Episode S03E04",
@@ -123,32 +124,32 @@ func TestNotifyEpisode(t *testing.T) {
 
 	mockNotificationCounter = 0
 
-	NotifyRecentEpisode(show, &episode)
+	NotifyRecentEpisode(&episode)
 	if mockNotificationCounter != 1 {
 		t.Error("Expected recent notification to be sent, got none")
 	}
 
-	NotifyDownloadedEpisode(show, &episode)
+	NotifyDownloadedEpisode(&episode)
 	if mockNotificationCounter != 2 {
 		t.Error("Expected downloaded notification to be sent, got none")
 	}
 
-	NotifyFailedEpisode(show, &episode)
+	NotifyFailedEpisode(&episode)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
 
-	NotifyRecentEpisode(show, &episode)
+	NotifyRecentEpisode(&episode)
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 
 	configuration.Config.Notifications.Enabled = false
 
-	NotifyRecentEpisode(show, &episode)
-	NotifyDownloadedEpisode(show, &episode)
-	NotifyFailedEpisode(show, &episode)
-	NotifyRecentEpisode(show, &episode)
+	NotifyRecentEpisode(&episode)
+	NotifyDownloadedEpisode(&episode)
+	NotifyFailedEpisode(&episode)
+	NotifyRecentEpisode(&episode)
 
 	if mockNotificationCounter != 3 {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
@@ -159,15 +160,15 @@ func TestNotifyEpisode(t *testing.T) {
 	AddNotifier(MockErrorNotifier{})
 
 	episode.Notified = false
-	err := NotifyRecentEpisode(show, &episode)
+	err := NotifyRecentEpisode(&episode)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for recent episode, got none")
 	}
-	err = NotifyDownloadedEpisode(show, &episode)
+	err = NotifyDownloadedEpisode(&episode)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for downloaded episode, got none")
 	}
-	err = NotifyFailedEpisode(show, &episode)
+	err = NotifyFailedEpisode(&episode)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for failed episode, got none")
 	}
@@ -252,6 +253,7 @@ func TestNotifyDownloadStart(t *testing.T) {
 		Model: gorm.Model{
 			ID: 30,
 		},
+		TvShow: show,
 		Season: 3,
 		Number: 4,
 		Name:   "Test Episode S03E04",
@@ -266,7 +268,7 @@ func TestNotifyDownloadStart(t *testing.T) {
 	}
 
 	count := mockNotificationCounter
-	NotifyEpisodeDownloadStart(show, &episode)
+	NotifyEpisodeDownloadStart(&episode)
 	if mockNotificationCounter != count+1 {
 		t.Error("Expected notification to be sent when notifying episode download start")
 	}
@@ -279,7 +281,7 @@ func TestNotifyDownloadStart(t *testing.T) {
 
 	configuration.Config.Notifications.NotifyDownloadStart = false
 	count = mockNotificationCounter
-	NotifyEpisodeDownloadStart(show, &episode)
+	NotifyEpisodeDownloadStart(&episode)
 	if mockNotificationCounter != count {
 		t.Error("Expected notification not to be sent when notifying episode download start because of configuration params")
 	}
@@ -292,7 +294,7 @@ func TestNotifyDownloadStart(t *testing.T) {
 	configuration.Config.Notifications.NotifyDownloadStart = true
 
 	AddNotifier(MockErrorNotifier{})
-	err := NotifyEpisodeDownloadStart(show, &episode)
+	err := NotifyEpisodeDownloadStart(&episode)
 	if err == nil {
 		t.Error("Expected error when notifying episode download start with MockErrorNotifier")
 	}

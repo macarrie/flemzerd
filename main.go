@@ -246,7 +246,7 @@ func downloadChainFunc() {
 					recentEpisode = reqEpisode
 				}
 
-				err := notifier.NotifyRecentEpisode(show, &recentEpisode)
+				err := notifier.NotifyRecentEpisode(&recentEpisode)
 				if err != nil {
 					log.Warning(err)
 				}
@@ -283,7 +283,7 @@ func downloadChainFunc() {
 					downloader.MarkEpisodeFailedDownload(&show, &recentEpisode)
 					continue
 				}
-				notifier.NotifyEpisodeDownloadStart(show, &recentEpisode)
+				notifier.NotifyEpisodeDownloadStart(&recentEpisode)
 				go downloader.DownloadEpisode(show, recentEpisode, toDownload)
 			}
 		}

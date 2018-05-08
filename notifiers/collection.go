@@ -49,7 +49,7 @@ func Reset() {
 	notifiersCollection = []Notifier{}
 }
 
-func NotifyRecentEpisode(show TvShow, episode *Episode) error {
+func NotifyRecentEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
 		return nil
 	}
@@ -58,8 +58,8 @@ func NotifyRecentEpisode(show TvShow, episode *Episode) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", show.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, show.Name, episode.Season, episode.Number, episode.Name)
+	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
@@ -72,12 +72,12 @@ func NotifyRecentEpisode(show TvShow, episode *Episode) error {
 	return nil
 }
 
-func NotifyEpisodeDownloadStart(show TvShow, episode *Episode) error {
+func NotifyEpisodeDownloadStart(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Download start (S%03dE%03d)", show.Name, episode.Season, episode.Number)
+	notificationTitle := fmt.Sprintf("%v: Download start (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
 	notificationContent := "Torrents found for episode. Starting download"
 
 	err := SendNotification(notificationTitle, notificationContent)
@@ -127,13 +127,13 @@ func NotifyMovieDownloadStart(m *Movie) error {
 	return nil
 }
 
-func NotifyDownloadedEpisode(show TvShow, episode *Episode) error {
+func NotifyDownloadedEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Episode downloaded (S%03dE%03d)", show.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode downloaded\n%v Season %03d Episode %03d: %v", show.Name, episode.Season, episode.Number, episode.Name)
+	notificationTitle := fmt.Sprintf("%v: Episode downloaded (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("New episode downloaded\n%v Season %03d Episode %03d: %v", episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
@@ -159,13 +159,13 @@ func NotifyDownloadedMovie(m *Movie) error {
 	return nil
 }
 
-func NotifyFailedEpisode(show TvShow, episode *Episode) error {
+func NotifyFailedEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Episode download failed (S%03dE%03d)", show.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", show.Name, episode.Season, episode.Number, episode.Name)
+	notificationTitle := fmt.Sprintf("%v: Episode download failed (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
+	notificationContent := fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
