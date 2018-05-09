@@ -5,6 +5,8 @@ flemzerd.component("movies", {
         $scope.utils = $rootScope.utils;
         $scope.config = {};
         $scope.movies = {};
+        $scope.show_removed_movies = false;
+        $scope.show_downloaded_movies = true;
 
         self.refresh = function() {
             $scope.config = $rootScope.config;
@@ -20,6 +22,14 @@ flemzerd.component("movies", {
                     return;
                 }
             });
+        };
+
+        $scope.deleteMovie = function(id) {
+            movies.deleteMovie(id);
+        };
+
+        $scope.restoreMovie = function(id) {
+            movies.restoreMovie(id);
         };
 
         self.refresh();

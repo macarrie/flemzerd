@@ -78,13 +78,14 @@ img.black_and_white {
     justify-content: center;
     align-items: center;
 }
-.media-card .card-img-overlay span {
-    display: table-cell;
-    vertical-align: middle;
-}
+
 .media-card:hover .card-img-overlay {
     display: none;
 }
+    .media-card .card-img-overlay span {
+        display: table-cell;
+        vertical-align: middle;
+    }
 
 .media-card a {
     text-decoration: none;
@@ -93,6 +94,20 @@ img.black_and_white {
 
 .media-card a:hover {
     color: #666;
+}
+
+.media-card .btn-delete-item {
+     position: absolute;
+     right: 0;
+     top: 0;
+     background: transparent;
+     border: none;
+     font-size: 12px;
+    opacity: 0.6;
+}
+
+.media-card .btn-delete-item:hover {
+    opacity: 1;
 }
 
 #full_background{
@@ -119,31 +134,51 @@ img.black_and_white {
 
 .mediadetails {
      color: #fefefe;
-     padding-top: 30px;
 }
 
 .external-links-banner {
      display: inline;
 }
 
-.external-links-banner a {
-    font-style: italic;
-    /*font-weight: bold;*/
-    text-decoration: none;
+    .external-links-banner a {
+        font-style: italic;
+        /*font-weight: bold;*/
+        text-decoration: none;
+    }
+
+    .external-links-banner a:hover {
+        opacity: 0.7;
+    }
+
+    .external-links-banner .imdb {
+        color: #f9ff94;
+    }
+
+    .external-links-banner .trakt {
+        color: #ff5f68;
+    }
+
+    .external-links-banner .tmdb {
+        color: #45f6bb;
+    }
+
+.action-bar {
+    height: 30px;
+    line-height: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
 }
 
-.external-links-banner a:hover {
-    opacity: 0.7;
-}
+    .action-bar button,
+    .action-bar a {
+        background: transparent;
+        padding: 0 5px;
+        border: none;
+        font-weight: bold;
+        font-size: 12px;
+    }
 
-.external-links-banner .imdb {
-    color: #f9ff94;
-}
-
-.external-links-banner .trakt {
-    color: #ff5f68;
-}
-
-.external-links-banner .tmdb {
-    color: #45f6bb;
-}
+    .action-bar button i,
+    .action-bar a i {
+        margin-right: 5px;
+    }

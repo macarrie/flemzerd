@@ -1,4 +1,21 @@
 <div id="full_background"></div>
+<div class="container-fluid action-bar">
+    <div class="container">
+        <a class="text-secondary" ui-sref="movies">
+            <i class="fas fa-arrow-left"></i>Back
+        </a>
+        <button class="text-danger float-right" 
+                ng-if="movie.DeletedAt == null && !movie.Downloaded"
+                ng-click="deleteMovie(movie.ID)">
+            <i class="fas fa-times"></i>Remove
+        </button>
+        <button class="text-primary float-right" 
+                ng-if="movie.DeletedAt != null && !movie.Downloaded"
+                ng-click="restoreMovie(movie.ID)">
+            <i class="fas fa-reply"></i>Restore
+        </button>
+    </div>
+</div>
 <div class="container mediadetails">
     <div class="row">
         <div class="col-4">

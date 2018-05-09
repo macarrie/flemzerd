@@ -1,16 +1,30 @@
 <div id="full_background"></div>
+<div class="container-fluid action-bar">
+    <div class="container">
+        <a class="text-secondary" ui-sref="tvshows">
+            <i class="fas fa-arrow-left"></i>Back
+        </a>
+        <button class="text-danger float-right" 
+                ng-if="tvshow.DeletedAt == null"
+                ng-click="deleteShow(tvshow.ID)">
+            <i class="fas fa-times"></i>Remove
+        </button>
+        <button class="text-primary float-right" 
+                ng-if="tvshow.DeletedAt != null"
+                ng-click="restoreShow(tvshow.ID)">
+            <i class="fas fa-reply"></i>Restore
+        </button>
+    </div>
+</div>
 <div class="container mediadetails">
     <div class="row">
         <div class="col-4">
             <img class="rounded" width="100%" src="{{ tvshow.Poster }}" alt="">
         </div>
-        <div class="col-8 pl-0 pr-5 pt-2">
-            <!--<a ui-sref="tvshows" class="h6 text-muted mx-3">-->
-            <!--<i class="fas fa-arrow-left"></i>-->
-            <!--</a>-->
+        <div class="col-8 pl-0 pr-5">
             <span class="h2">{{ tvshow.Name }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
             <button class="ml-2 btn btn-sm show-status-btn"
-                  ng-class="tvshow.Status < 3 ? 'btn-outline-success' : (tvshow.Status == 3 ? 'btn-outline-danger' : 'btn-outline-warning' )">
+                    ng-class="tvshow.Status < 3 ? 'btn-outline-success' : (tvshow.Status == 3 ? 'btn-outline-danger' : 'btn-outline-warning' )">
                 {{ tvshow.StatusText }}
             </button>
 

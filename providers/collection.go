@@ -59,8 +59,12 @@ func FindShow(ids MediaIds) (TvShow, error) {
 		showReq := TvShow{}
 		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 		if req.RecordNotFound() {
-			db.Client.Create(&show)
-			return show, nil
+			//Look in deleted records too
+			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
+			if unscopedReq.RecordNotFound() {
+				db.Client.Create(&show)
+				return show, nil
+			}
 		}
 		return showReq, nil
 	}
@@ -79,8 +83,12 @@ func FindMovie(query MediaIds) (Movie, error) {
 		movieReq := Movie{}
 		req := db.Client.Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
 		if req.RecordNotFound() {
-			db.Client.Create(&movie)
-			return movie, nil
+			//Look in deleted records too
+			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
+			if unscopedReq.RecordNotFound() {
+				db.Client.Create(&movie)
+				return movie, nil
+			}
 		}
 
 		return movieReq, nil
@@ -114,7 +122,9 @@ func GetTVShowsInfoFromConfig() {
 				"show":  showName,
 			}).Warning("Unable to get show informations")
 		} else {
-			showObjects = append(showObjects, show)
+			if show.DeletedAt == nil {
+				showObjects = append(showObjects, show)
+			}
 		}
 	}
 	if len(showObjects) == 0 {
@@ -140,7 +150,9 @@ func GetMoviesInfoFromConfig() {
 				"movie": movieName,
 			}).Warning("Unable to get movie informations")
 		} else {
-			movieObjects = append(movieObjects, movie)
+			if movie.DeletedAt == nil {
+				movieObjects = append(movieObjects, movie)
+			}
 		}
 	}
 	if len(movieObjects) == 0 {

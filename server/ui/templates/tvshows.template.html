@@ -37,8 +37,22 @@
                         <i class="fas fa-sync"></i> Refresh
                     </div>
                 </button>
+                <button class="btn btn-sm btn-light text-muted float-right"
+                        ng-click="show_removed_shows = !show_removed_shows">
+                    <div ng-if="!show_removed_shows">
+                        <i class="fas fa-eye"></i> Show removed shows
+                    </div>
+                    <div ng-if="show_removed_shows">
+                        <i class="fas fa-eye-slash"></i> Hide removed shows
+                    </div>
+                </button>
             </div>
             <div class="my-3 col-6 col-lg-2 col-sm-4" ng-repeat="tvshow in tvshows.tracked">
+                <tvshow ng-model="tvshow"></tvshow>
+            </div>
+            <div class="my-3 col-6 col-lg-2 col-sm-4" 
+                 ng-if="show_removed_shows"
+                 ng-repeat="tvshow in tvshows.removed">
                 <tvshow ng-model="tvshow"></tvshow>
             </div>
         </div>

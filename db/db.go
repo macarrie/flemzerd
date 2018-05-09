@@ -81,7 +81,7 @@ func GetTrackedTvShows() ([]TvShow, error) {
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
-	Client.Find(&episodes)
+	Client.Unscoped().Find(&episodes)
 
 	for _, e := range episodes {
 		if e.DownloadingItem.Downloading && !e.Downloaded {

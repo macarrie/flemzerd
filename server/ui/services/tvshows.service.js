@@ -30,6 +30,12 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
                 return;
             }
         });
+        $http.get("/api/v1/tvshows/removed").then(function(response) {
+            if (response.status == 200) {
+                $rootScope.tvshows.removed = response.data;
+                return;
+            }
+        });
         $http.get("/api/v1/tvshows/downloading").then(function(response) {
             if (response.status == 200) {
                 $rootScope.tvshows.downloading = response.data;
@@ -38,13 +44,38 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         });
     };
 
+    var deleteShow = function(id) {
+        if (id !== 0) {
+            $http.delete("/api/v1/tvshows/details/" +id).then(function(response) {
+                if (response.status == 204) {
+                    loadShows();
+                    return true;
+                }
+            });
+        }
+        return false;
+    };
+
+    var restoreShow = function(id) {
+        if (id !== 0) {
+            $http.post("/api/v1/tvshows/restore/" +id).then(function(response) {
+                if (response.status == 200) {
+                    loadShows();
+                    return true;
+                }
+            });
+        }
+        return false;
+    };
+
     $rootScope.tvshows = {}
     loadShows();
     $interval(loadShows, 30000);
 
     return {
-        "tvshows": $rootScope.tvshows,
         setStatusText: setStatusText,
-        loadShows: loadShows
+        loadShows: loadShows,
+        deleteShow: deleteShow,
+        restoreShow: restoreShow
     };
 }]);

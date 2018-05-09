@@ -22,6 +22,14 @@ flemzerd.component("tvshows", {
             });
         };
 
+        $scope.deleteShow = function(id) {
+            tvshows.deleteShow(id);
+        };
+
+        $scope.restoreShow = function(id) {
+            tvshows.restoreShow(id);
+        };
+
         self.refresh();
         $interval(self.refresh, 1000);
 

@@ -53,33 +53,72 @@ func initRouter() {
 			tvshowsRoute.GET("/tracked", func(c *gin.Context) {
 				shows, err := db.GetTrackedTvShows()
 				if err != nil {
-					log.Error("Error while getting downloading movies from db: ", err)
+					log.Error("Error while gettings tracked shows from db: ", err)
 				}
 				c.JSON(http.StatusOK, shows)
 			})
 			tvshowsRoute.GET("/downloading", func(c *gin.Context) {
 				episodes, err := db.GetDownloadingEpisodes()
 				if err != nil {
-					log.Error("Error while getting downloading movies from db: ", err)
+					log.Error("Error while getting downloading episodes from db: ", err)
 				}
 				c.JSON(http.StatusOK, episodes)
+			})
+			tvshowsRoute.GET("/removed", func(c *gin.Context) {
+				var tvShows []TvShow
+				var retList []TvShow
+
+				if err := db.Client.Unscoped().Order("status").Order("name").Find(&tvShows).Error; err != nil {
+					log.Error("Error while getting removed shows from db: ", err)
+				}
+
+				for _, show := range tvShows {
+					if show.DeletedAt != nil {
+						retList = append(retList, show)
+					}
+				}
+				c.JSON(http.StatusOK, retList)
 			})
 			tvshowsRoute.GET("/downloaded", func(c *gin.Context) {
 				episodes, err := db.GetDownloadedEpisodes()
 				if err != nil {
-					log.Error("Error while getting downloaded movies from db: ", err)
+					log.Error("Error while getting downloaded episodes from db: ", err)
 				}
 				c.JSON(http.StatusOK, episodes)
 			})
 			tvshowsRoute.GET("/details/:id", func(c *gin.Context) {
 				id := c.Param("id")
 				var show TvShow
-				req := db.Client.Find(&show, id)
+				req := db.Client.Unscoped().Find(&show, id)
 				if req.RecordNotFound() {
 					c.JSON(http.StatusNotFound, gin.H{})
 					return
 				}
 				c.JSON(http.StatusOK, show)
+			})
+			tvshowsRoute.DELETE("/details/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var show TvShow
+				req := db.Client.Delete(&show, id)
+				if err := req.Error; err != nil {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+				c.JSON(http.StatusNoContent, nil)
+			})
+			tvshowsRoute.POST("/restore/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var show TvShow
+				req := db.Client.Unscoped().Find(&show, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				show.DeletedAt = nil
+				db.Client.Unscoped().Save(&show)
+
+				c.JSON(http.StatusOK, gin.H{})
 			})
 			tvshowsRoute.GET("/episodes/:id", func(c *gin.Context) {
 				id := c.Param("id")
@@ -109,6 +148,21 @@ func initRouter() {
 				}
 				c.JSON(http.StatusOK, movies)
 			})
+			moviesRoute.GET("/removed", func(c *gin.Context) {
+				var movies []Movie
+				var retList []Movie
+
+				if err := db.Client.Unscoped().Order("created_at DESC").Find(&movies).Error; err != nil {
+					log.Error("Error while getting removed movies from db: ", err)
+				}
+
+				for _, m := range movies {
+					if m.DeletedAt != nil {
+						retList = append(retList, m)
+					}
+				}
+				c.JSON(http.StatusOK, retList)
+			})
 			moviesRoute.GET("/downloaded", func(c *gin.Context) {
 				movies, err := db.GetDownloadedMovies()
 				if err != nil {
@@ -119,12 +173,36 @@ func initRouter() {
 			moviesRoute.GET("/details/:id", func(c *gin.Context) {
 				id := c.Param("id")
 				var movie Movie
-				req := db.Client.Find(&movie, id)
+				req := db.Client.Unscoped().Find(&movie, id)
 				if req.RecordNotFound() {
 					c.JSON(http.StatusNotFound, gin.H{})
 					return
 				}
 				c.JSON(http.StatusOK, movie)
+			})
+			moviesRoute.DELETE("/details/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var movie Movie
+				req := db.Client.Delete(&movie, id)
+				if err := req.Error; err != nil {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+				c.JSON(http.StatusNoContent, nil)
+			})
+			moviesRoute.POST("/restore/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var movie Movie
+				req := db.Client.Unscoped().Find(&movie, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				movie.DeletedAt = nil
+				db.Client.Unscoped().Save(&movie)
+
+				c.JSON(http.StatusOK, gin.H{})
 			})
 		}
 

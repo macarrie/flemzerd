@@ -20,6 +20,37 @@ flemzerd.factory('movies', ['$rootScope', '$interval', '$http', function($rootSc
                 return;
             }
         });
+
+        $http.get("/api/v1/movies/removed").then(function(response) {
+            if (response.status == 200) {
+                $rootScope.movies.removed = response.data;
+                return;
+            }
+        });
+    };
+
+    var deleteMovie = function(id) {
+        if (id !== 0) {
+            $http.delete("/api/v1/movies/details/" +id).then(function(response) {
+                if (response.status == 204) {
+                    loadMovies();
+                    return true;
+                }
+            });
+        }
+        return false;
+    };
+
+    var restoreMovie = function(id) {
+        if (id !== 0) {
+            $http.post("/api/v1/movies/restore/" +id).then(function(response) {
+                if (response.status == 200) {
+                    loadMovies();
+                    return true;
+                }
+            });
+        }
+        return false;
     };
 
     $rootScope.movies = {}
@@ -27,7 +58,8 @@ flemzerd.factory('movies', ['$rootScope', '$interval', '$http', function($rootSc
     $interval(loadMovies, 30000);
 
     return {
-        "movies": $rootScope.movies,
-        loadMovies: loadMovies
+        loadMovies: loadMovies,
+        deleteMovie: deleteMovie,
+        restoreMovie: restoreMovie
     }
 }]);

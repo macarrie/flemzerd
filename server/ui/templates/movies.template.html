@@ -29,11 +29,36 @@
                     <i class="fas fa-sync"></i> Refresh
                 </div>
             </button>
+            <button class="btn btn-sm btn-light text-muted float-right"
+                    ng-click="show_downloaded_movies = !show_downloaded_movies">
+                <div ng-if="!show_downloaded_movies">
+                    <i class="fas fa-eye"></i> Show downloaded movies
+                </div>
+                <div ng-if="show_downloaded_movies">
+                    <i class="fas fa-eye-slash"></i> Hide downloaded movies
+                </div>
+            </button>
+            <button class="btn btn-sm btn-light text-muted float-right"
+                    ng-click="show_removed_movies = !show_removed_movies">
+                <div ng-if="!show_removed_movies">
+                    <i class="fas fa-eye"></i> Show removed movies
+                </div>
+                <div ng-if="show_removed_movies">
+                    <i class="fas fa-eye-slash"></i> Hide removed movies
+                </div>
+            </button>
         </div>
         <div class="my-3 col-lg-2 col-sm-4" ng-repeat="movie in movies.tracked">
             <movie ng-model="movie"></movie>
         </div>
-        <div class="my-3 col-lg-2 col-sm-4" ng-repeat="movie in movies.downloaded">
+        <div class="my-3 col-lg-2 col-sm-4" 
+             ng-if="show_downloaded_movies"
+             ng-repeat="movie in movies.downloaded">
+            <movie ng-model="movie"></movie>
+        </div>
+        <div class="my-3 col-lg-2 col-sm-4" 
+             ng-if="show_removed_movies"
+             ng-repeat="movie in movies.removed">
             <movie ng-model="movie"></movie>
         </div>
     </div>
