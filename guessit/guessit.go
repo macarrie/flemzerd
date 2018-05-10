@@ -118,21 +118,14 @@ func GetInfo(name string) (MediaInfo, error) {
 }
 
 func GetEpisodeInfo(name string, season int, episode int) (EpisodeTorrentInfo, error) {
-	response, err := makeAPIRequest(name)
+	response, err := performGuessitRequest(name)
 	if err != nil {
 		log.Error("[Guessit] Error while performing request: ", err)
 		return EpisodeTorrentInfo{}, err
 	}
-	defer response.Body.Close()
-
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		log.Error("[Guessit] Could not read request result:", err)
-		return EpisodeTorrentInfo{}, readError
-	}
 
 	var episodeInfo EpisodeTorrentInfo
-	parseErr := json.Unmarshal(body, &episodeInfo)
+	parseErr := json.Unmarshal(response, &episodeInfo)
 	if parseErr != nil {
 		log.Error("[Guessit] Could not parse request result:", parseErr)
 		return EpisodeTorrentInfo{}, parseErr

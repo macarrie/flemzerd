@@ -1,4 +1,16 @@
 <div id="full_background"></div>
+<div class="container-fluid action-bar">
+    <div class="container">
+        <a class="text-secondary" ui-sref="tvshows">
+            <i class="fas fa-arrow-left"></i>Back
+        </a>
+        <button class="text-danger float-right" 
+                ng-if="episode.DeletedAt == null"
+                ng-click="deleteEpisode(episode.ID)">
+            <i class="fas fa-times"></i>Remove
+        </button>
+    </div>
+</div>
 <div class="container mediadetails">
     <div class="row">
         <div class="col-4">

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -129,6 +130,22 @@ func initRouter() {
 					return
 				}
 				c.JSON(http.StatusOK, ep)
+			})
+			tvshowsRoute.DELETE("/episodes/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var ep Episode
+				req := db.Client.Find(&ep, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				currentDownloadPath := ep.DownloadingItem.CurrentTorrent.DownloadDir
+				downloader.RemoveTorrent(ep.DownloadingItem.CurrentTorrent)
+				os.Remove(currentDownloadPath)
+
+				db.Client.Unscoped().Delete(&ep)
+				c.JSON(http.StatusNoContent, nil)
 			})
 		}
 

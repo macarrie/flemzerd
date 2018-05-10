@@ -3,6 +3,7 @@ flemzerd.component("episodedetails", {
     controller: function EpisodeDetails($rootScope, $scope, $http, $stateParams, tvshows, fanart) {
         $scope.utils = $rootScope.utils;
 
+        var getEpisode = function() {
         $http.get("/api/v1/tvshows/episodes/" + $stateParams.id).then(function(response) {
             if (response.status == 200) {
                 $scope.episode = response.data;
@@ -16,6 +17,13 @@ flemzerd.component("episodedetails", {
             }
             // TODO: Check 404
         });
+        };
+
+        getEpisode();
+
+        $scope.deleteEpisode = function(id) {
+            tvshows.deleteEpisode(id);
+        };
 
         return;
     }

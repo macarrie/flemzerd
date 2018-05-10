@@ -68,6 +68,18 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         return false;
     };
 
+    var deleteEpisode = function(id) {
+        if (id !== 0) {
+            $http.delete("/api/v1/tvshows/episodes/" +id).then(function(response) {
+                if (response.status == 204) {
+                    loadShows();
+                    return true;
+                }
+            });
+        }
+        return false;
+    };
+
     $rootScope.tvshows = {}
     loadShows();
     $interval(loadShows, 30000);
@@ -76,6 +88,7 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         setStatusText: setStatusText,
         loadShows: loadShows,
         deleteShow: deleteShow,
-        restoreShow: restoreShow
+        restoreShow: restoreShow,
+        deleteEpisode: deleteEpisode
     };
 }]);
