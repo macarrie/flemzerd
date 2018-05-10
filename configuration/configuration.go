@@ -25,6 +25,7 @@ type Configuration struct {
 	Notifiers     map[string]map[string]string
 	Downloaders   map[string]map[string]string
 	Watchlists    map[string]interface{}
+	MediaCenters  map[string]interface{}
 	Notifications struct {
 		Enabled                bool `mapstructure:"enabled"`
 		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`

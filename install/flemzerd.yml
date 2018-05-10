@@ -57,6 +57,11 @@ watchlists:
         - TV_SHOW_2
         - TV_SHOW_3
 
+mediacenters:
+    kodi: 
+        address: ADDRESS
+        port: PORT
+
 # Notifications parameters
 notifications:
     # Enable notifications (default: true)

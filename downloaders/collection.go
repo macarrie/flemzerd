@@ -10,6 +10,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -152,6 +153,8 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 	db.Client.Save(e)
 
 	RemoveTorrent(torrent)
+
+	mediacenter.RefreshLibrary()
 
 	return nil
 }

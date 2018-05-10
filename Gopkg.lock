@@ -38,12 +38,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/google/go-cmp"
-  packages = ["cmp","cmp/internal/diff","cmp/internal/function","cmp/internal/value"]
-  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
-  version = "v0.2.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
@@ -95,6 +89,12 @@
   name = "github.com/ogier/pflag"
   packages = ["."]
   revision = "32a05c62658bd1d7c7e75cbc8195de5d585fde0f"
+  version = "v0.0.1"
+
+[[projects]]
+  name = "github.com/pdf/kodirpc"
+  packages = ["."]
+  revision = "9b364fa674f5fe99f37cdbeef74b14f82ea293d0"
   version = "v0.0.1"
 
 [[projects]]
@@ -196,6 +196,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e7e4801b23b768b2bac70e0c8508e3781f9d81de9c1c2e86090558ba65170a44"
+  inputs-digest = "5b3f6fb79557d36c5a11eea1d06d55a133b7fe79a8d7142062bac1ce35a7c150"
   solver-name = "gps-cdcl"
   solver-version = 1

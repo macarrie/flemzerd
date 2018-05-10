@@ -12,6 +12,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 	"github.com/macarrie/flemzerd/server"
 	flag "github.com/ogier/pflag"
 
@@ -33,6 +34,9 @@ import (
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
+	//"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -52,6 +56,7 @@ func initConfiguration(debug bool) {
 	initIndexers()
 	initDownloaders()
 	initWatchlists()
+	initMediaCenters()
 
 	server.Stop()
 	if configuration.Config.Interface.Enabled {
@@ -216,6 +221,40 @@ func initWatchlists() {
 				}).Info("Watchlist added to list of watchlists")
 			}
 			newWatchlists = []watchlist.Watchlist{}
+		}
+	}
+}
+
+func initMediaCenters() {
+	log.Debug("Initializing MediaCenters")
+	mediacenter.Reset()
+
+	var newMC []mediacenter.MediaCenter
+	for mcType, _ := range configuration.Config.MediaCenters {
+		switch mcType {
+		case "kodi":
+			mc, err := kodi.New()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"mediacenter": "kodi",
+					"error":       err,
+				}).Warning("Cannot connect to mediacenter")
+			}
+			newMC = append(newMC, mc)
+		default:
+			log.WithFields(log.Fields{
+				"MediaCenterType": mcType,
+			}).Warning("Unknown media center")
+		}
+
+		if len(newMC) != 0 {
+			for _, mc := range newMC {
+				mediacenter.AddMediaCenter(mc)
+				log.WithFields(log.Fields{
+					"mediacenter": mc.GetName(),
+				}).Info("Mediacenter added to list of media centers")
+			}
+			newMC = []mediacenter.MediaCenter{}
 		}
 	}
 }
@@ -401,6 +440,10 @@ func main() {
 			if _, err := downloader.Status(); err != nil {
 				log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
 				executeDownloadChain = false
+			}
+
+			if _, err := mediacenter.Status(); err != nil {
+				log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
 			}
 
 			if executeDownloadChain {
