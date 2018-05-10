@@ -1,5 +1,6 @@
 <div id="full_background"></div>
-<div class="container-fluid action-bar">
+<div class="container-fluid action-bar"
+     ng-class="tvshow.DeletedAt != null ? 'removed-element' : ''">
     <div class="container">
         <a class="text-secondary" ui-sref="tvshows">
             <i class="fas fa-arrow-left"></i>Back

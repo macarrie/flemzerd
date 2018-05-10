@@ -182,3 +182,10 @@ img.black_and_white {
     .action-bar a i {
         margin-right: 5px;
     }
+    .action-bar.removed-element {
+        background: #a51717;
+    }
+        .action-bar.removed-element a,
+        .action-bar.removed-element button {
+            color: #ddd !important;
+        }

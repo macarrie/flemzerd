@@ -73,6 +73,9 @@ function create_folder_structure {
     chown $USER:$GROUP $LIB
     mkdir -p /var/lib/flemzerd/Library/Shows
     mkdir -p /var/lib/flemzerd/Library/Movies
+    mkdir $LIB/tmp
+    chmod 0777 $LIB/tmp
+
     print_done
 }
 
