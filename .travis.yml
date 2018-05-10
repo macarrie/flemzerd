@@ -3,7 +3,7 @@ go:
     - 1.9
 
 before_install:
-    - sudo apt-get install python-guessit
+    - sudo pip install guessit
 
 install:
     - go get -u github.com/golang/dep/cmd/dep
