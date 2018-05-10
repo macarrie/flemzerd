@@ -5,6 +5,7 @@ go:
 install:
     - go get -u github.com/golang/dep/cmd/dep
     - dep ensure
+    - pip install guessit
 
 before_script:
     - go vet ./...
