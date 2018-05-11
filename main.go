@@ -12,7 +12,6 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 	"github.com/macarrie/flemzerd/server"
 	flag "github.com/ogier/pflag"
 
@@ -25,6 +24,7 @@ import (
 
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
+	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
@@ -35,7 +35,7 @@ import (
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	//"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
+	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -184,6 +184,20 @@ func initNotifiers() {
 
 			log.WithFields(log.Fields{
 				"notifier": desktopNotifier.GetName(),
+			}).Info("Notifier added to list of notifiers")
+
+		case "kodi":
+			kodiNotifier, err := kodi_notifier.New()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"notifier": "kodi",
+					"error":    err,
+				}).Warning("Cannot connect to mediacenter for kodi notifications")
+			}
+			notifier.AddNotifier(kodiNotifier)
+
+			log.WithFields(log.Fields{
+				"notifier": kodiNotifier.GetName(),
 			}).Info("Notifier added to list of notifiers")
 
 		default:
