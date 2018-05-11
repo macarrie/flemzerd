@@ -55,5 +55,13 @@ func TestReset(t *testing.T) {
 func TestRefreshLibrary(t *testing.T) {
 	db.ResetDb()
 
-	// TODO
+	refreshCounter = 0
+	AddMediaCenter(MockMediaCenter{})
+	AddMediaCenter(MockErrorMediaCenter{})
+	RefreshLibrary()
+
+	if refreshCounter != 1 {
+		t.Errorf("Expected library to have been refresh 1 time, got %d refresh instead", refreshCounter)
+	}
+
 }

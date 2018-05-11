@@ -10,6 +10,8 @@ import (
 type MockMediaCenter struct{}
 type MockErrorMediaCenter struct{}
 
+var refreshCounter int
+
 func (m MockMediaCenter) Status() (Module, error) {
 	return Module{
 		Name: "MockMediaCenter",
@@ -41,6 +43,7 @@ func (m MockErrorMediaCenter) GetName() string {
 }
 
 func (m MockMediaCenter) RefreshLibrary() error {
+	refreshCounter += 1
 	return nil
 }
 func (m MockErrorMediaCenter) RefreshLibrary() error {
