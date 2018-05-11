@@ -149,12 +149,12 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 			"library_path":   configuration.Config.Library.ShowPath,
 			"error":          err,
 		}).Error("Could not move episode from temporay download path to library folder")
+	} else {
+		mediacenter.RefreshLibrary()
 	}
 	db.Client.Save(e)
 
 	RemoveTorrent(torrent)
-
-	mediacenter.RefreshLibrary()
 
 	return nil
 }
@@ -218,6 +218,8 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 			"library_path":   configuration.Config.Library.ShowPath,
 			"error":          err,
 		}).Error("Could not move movie from temporay download path to library folder")
+	} else {
+		mediacenter.RefreshLibrary()
 	}
 	db.Client.Save(m)
 
