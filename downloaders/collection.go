@@ -378,15 +378,16 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, episode.TvShow.Name, episode.Season, episode.Season, episode.Number)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d/", configuration.Config.Library.ShowPath, episode.TvShow.Name, episode.Season, episode.Season, episode.Number)
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return fmt.Errorf("Could not create library folder for episode: %s", err.Error())
 	}
 
-	err = os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
+	target := fmt.Sprintf("%s/%s", destinationPath, episode.DownloadingItem.CurrentTorrent.Name)
+	err = os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, target)
 	if err != nil {
-		return err
+		return fmt.Errorf("Could not move episode to library: %s", err.Error())
 	}
 
 	err = os.Remove(episode.DownloadingItem.CurrentTorrent.DownloadDir)
@@ -410,10 +411,16 @@ func MoveMovieToLibrary(movie *Movie) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, movie.Title)
-	err := os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, destinationPath)
+	destinationPath := fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, movie.Title)
+	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
-		return err
+		return fmt.Errorf("Could not create library folder for movie: %s", err.Error())
+	}
+
+	target := fmt.Sprintf("%s/%s", destinationPath, movie.DownloadingItem.CurrentTorrent.Name)
+	err = os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, target)
+	if err != nil {
+		return fmt.Errorf("Could not move movie to library: %s", err.Error())
 	}
 
 	err = os.Remove(movie.DownloadingItem.CurrentTorrent.DownloadDir)

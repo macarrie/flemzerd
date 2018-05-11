@@ -1,10 +1,13 @@
 package downloader
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -227,6 +230,65 @@ func TestDownloadMovie(t *testing.T) {
 	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent})
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
+	}
+}
+
+func TestMoveEpisodeToLibrary(t *testing.T) {
+	configuration.Config.Library.ShowPath = "/tmp/flemzerd_test_tmp"
+
+	os.RemoveAll(configuration.Config.Library.ShowPath)
+	os.MkdirAll(configuration.Config.Library.ShowPath, 0755)
+
+	tmpTorrentFile := fmt.Sprintf("%s/test_flemzerd_move_media", configuration.Config.Library.ShowPath)
+	os.Create(tmpTorrentFile)
+
+	testTorrent := Torrent{
+		Name:        "test_torrent",
+		DownloadDir: tmpTorrentFile,
+	}
+
+	testEpisode := Episode{
+		Name: "test episode",
+		TvShow: TvShow{
+			Name: "test show",
+		},
+		Season: 1,
+		Number: 1,
+		DownloadingItem: DownloadingItem{
+			CurrentTorrent: testTorrent,
+		},
+	}
+
+	err := MoveEpisodeToLibrary(&testEpisode)
+	if err != nil {
+		t.Errorf("Episode could not be moved to library: %s", err.Error())
+	}
+}
+
+func TestMoveMovieToLibrary(t *testing.T) {
+	configuration.Config.Library.MoviePath = "/tmp/flemzerd_test_tmp"
+
+	os.RemoveAll(configuration.Config.Library.MoviePath)
+	os.MkdirAll(configuration.Config.Library.MoviePath, 0755)
+
+	tmpTorrentFile := fmt.Sprintf("%s/test_flemzerd_move_media", configuration.Config.Library.MoviePath)
+	os.Create(tmpTorrentFile)
+
+	testTorrent := Torrent{
+		Name:        "test_torrent",
+		DownloadDir: tmpTorrentFile,
+	}
+
+	testMovie := Movie{
+		Title: "test movie",
+		DownloadingItem: DownloadingItem{
+			CurrentTorrent: testTorrent,
+		},
+	}
+
+	err := MoveMovieToLibrary(&testMovie)
+	if err != nil {
+		t.Errorf("Movie could not be moved to library: %s", err.Error())
 	}
 }
 
