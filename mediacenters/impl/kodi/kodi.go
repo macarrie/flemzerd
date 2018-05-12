@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -20,9 +21,8 @@ var module Module
 func New() (k *KodiMediaCenter, err error) {
 	k = &KodiMediaCenter{}
 
-	// TODO: Get correct address from configuration
-	// Warning: 9090 is default JSON RPC port. The port displayed in the interface is for http connections, not JSON RPC !!!
-	client, err := kodirpc.NewClient("rpi:9090", &kodirpc.Config{
+	address := fmt.Sprintf("%s:%s", configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
+	client, err := kodirpc.NewClient(address, &kodirpc.Config{
 		ReadTimeout:         time.Duration(HTTP_TIMEOUT * time.Second),
 		ConnectTimeout:      time.Duration(HTTP_TIMEOUT * time.Second),
 		Reconnect:           false,

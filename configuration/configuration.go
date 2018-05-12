@@ -25,7 +25,7 @@ type Configuration struct {
 	Notifiers     map[string]map[string]string
 	Downloaders   map[string]map[string]string
 	Watchlists    map[string]interface{}
-	MediaCenters  map[string]interface{}
+	MediaCenters  map[string]map[string]string
 	Notifications struct {
 		Enabled                bool `mapstructure:"enabled"`
 		NotifyNewEpisode       bool `mapstructure:"notify_new_episode"`
@@ -130,6 +130,20 @@ func Check() {
 	err = unix.Access(Config.Library.MoviePath, unix.W_OK)
 	if err != nil {
 		log.Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
+	}
+
+	_, kodi := Config.MediaCenters["kodi"]
+	if kodi {
+		_, kodiAddress := Config.MediaCenters["kodi"]["address"]
+		if !kodiAddress {
+			log.Warning("Kodi mediacenter address not defined. Using 'localhost'")
+			Config.MediaCenters["kodi"]["address"] = "localhost"
+		}
+		_, kodiPort := Config.MediaCenters["kodi"]["port"]
+		if !kodiPort {
+			log.Warning("Kodi mediacenter port not defined. Using '9090'")
+			Config.MediaCenters["kodi"]["port"] = "9090"
+		}
 	}
 }
 
