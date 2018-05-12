@@ -30,6 +30,12 @@ flemzerd.factory('modules', ['$rootScope', '$interval', '$http', function($rootS
                 return;
             }
         });
+        $http.get('/api/v1/modules/mediacenters/status').then(function(response) {
+            if (response.status == 200) {
+                $rootScope.modules.mediacenters = response.data;
+                return;
+            }
+        });
     };
 
     $rootScope.modules = {};

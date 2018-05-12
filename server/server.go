@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/macarrie/flemzerd/logging"
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -269,6 +270,14 @@ func initRouter() {
 			{
 				downloaders.GET("/status", func(c *gin.Context) {
 					mods, _ := downloader.Status()
+					c.JSON(http.StatusOK, mods)
+				})
+			}
+
+			mediacenters := modules.Group("/mediacenters")
+			{
+				mediacenters.GET("/status", func(c *gin.Context) {
+					mods, _ := mediacenter.Status()
 					c.JSON(http.StatusOK, mods)
 				})
 			}

@@ -118,5 +118,27 @@
                 </li>
             </ul>
         </div>
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Media centers</h3>
+            <ul class="list-group" ng-if="!modules.mediacenters">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="mc in modules.mediacenters"
+                    ng-class="mc.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ mc.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          ng-if="!mc.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          ng-if="mc.Status.Alive">OK</span>
+                    <div ng-if="!mc.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ mc.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
