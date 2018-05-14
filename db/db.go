@@ -1,3 +1,5 @@
+// Package db provides access to local database and gives some shortcuts for getting certain types of objects
+// The ultimate goal is to create an abstraction layer for data access so an underlying database structure change does not require to change the entire codebase
 package db
 
 import (
@@ -8,14 +10,21 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
+// Client represents gorm database connection
 var Client *gorm.DB
+
+// DbPath: Path of database file
 var DbPath = DB_PATH
+
+// Current session data
 var Session SessionData
 
+// InitDb initializes and migrates database tables
 func InitDb() {
 	Client.AutoMigrate(&SessionData{}, &TvShow{}, &Episode{}, &Movie{}, &MediaIds{}, &Torrent{}, &DownloadingItem{})
 }
 
+// Reset DB tables to an empty state. Mainly used in test suite.
 func ResetDb() {
 	Client.DropTable(&SessionData{})
 	Client.DropTable(&TvShow{})
@@ -27,6 +36,7 @@ func ResetDb() {
 	InitDb()
 }
 
+// Load initializes database connexion
 func Load() error {
 	dbObj, err := gorm.Open("sqlite3", DbPath)
 	if err != nil {
@@ -42,6 +52,7 @@ func Load() error {
 	return nil
 }
 
+// Returns true if torrent is in the DownloadingItem FailedTorrents list, else returns false
 func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 	if !d.Downloading {
 		return false
@@ -56,9 +67,13 @@ func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
 	return false
 }
 
+// Returns tracked movies, and an error. Tracked movies are movies retrieved from watchlists that are not already downloaded or currently downloading
+// Most recent tracked movies are returned first
+// A non nil error is returned if a problem was encoutered when getting movies from the database.
 func GetTrackedMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
+	// TODO: Handle error
 	Client.Order("created_at DESC").Find(&movies)
 
 	for _, m := range movies {
@@ -70,14 +85,21 @@ func GetTrackedMovies() ([]Movie, error) {
 	return retList, nil
 }
 
+// Returns tracked shows, and an error. Tracked shows are shows added from watchlists that have been retrieved from the local database?
+// Returned shows are ordered by status and name
+// A non nil error is returned if a problem was encoutered when getting shows from the database.
 func GetTrackedTvShows() ([]TvShow, error) {
 	var tvShows []TvShow
 
+	// TODO: Handle error
 	Client.Order("status").Order("name").Find(&tvShows)
 
 	return tvShows, nil
 }
 
+// Gets downloading (or download pending) episodes from database
+// Deleted episodes are returned too.
+// Returned episodes are ordered by id (descending)
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
@@ -91,6 +113,8 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 	return retList, nil
 }
 
+// Gets downloading (or download pending) movies from database
+// Returned episodes are ordered by id (descending)
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
@@ -105,6 +129,7 @@ func GetDownloadingMovies() ([]Movie, error) {
 	return retList, nil
 }
 
+// Gets downloaded episodes from database
 func GetDownloadedEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
@@ -118,6 +143,7 @@ func GetDownloadedEpisodes() ([]Episode, error) {
 	return retList, nil
 }
 
+// Gets downloaded movies from database
 func GetDownloadedMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
@@ -132,11 +158,13 @@ func GetDownloadedMovies() ([]Movie, error) {
 	return retList, nil
 }
 
+// Saves given token as Trakt token in database
 func SaveTraktToken(token string) {
 	Session.TraktToken = token
 	Client.Save(&Session)
 }
 
+// Gets trakt token stored in Session data struct
 func LoadTraktToken() string {
 	return Session.TraktToken
 }

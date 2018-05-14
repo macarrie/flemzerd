@@ -1,3 +1,6 @@
+// Package notifier groups methods for notifications handling in flemzerd.
+// Multiple notifier types can be registered. Sending a notification will then send it with all registered notifiers.
+// Helper methods are available to send notifications for specific purposes (download start, new item from watchlist, ...)
 package notifier
 
 import (
@@ -13,6 +16,7 @@ import (
 
 var notifiersCollection []Notifier
 
+// AddNotifier registers a new notifier
 func AddNotifier(notifier Notifier) {
 	notifiersCollection = append(notifiersCollection, notifier)
 	log.WithFields(log.Fields{
@@ -20,6 +24,7 @@ func AddNotifier(notifier Notifier) {
 	}).Debug("Notifier loaded")
 }
 
+// Status checks registered notifiers status. A module list is returned, each module corresponds to a registered notifier. A non nil error is returned if at least one registered notifier is in error
 func Status() ([]Module, error) {
 	var modList []Module
 	var aggregatedErrorMessage bytes.Buffer
@@ -45,10 +50,13 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+// Reset empties registered notifiers list
 func Reset() {
 	notifiersCollection = []Notifier{}
 }
 
+// NotifyRecentEpisode sends a notification on all registered notifiers to alert that a new episode for a tracked show has been released.
+// The episode is then marked as notified and the notification will not be sent again if this method is called twice on the same episode.
 func NotifyRecentEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewEpisode {
 		return nil
@@ -72,6 +80,7 @@ func NotifyRecentEpisode(episode *Episode) error {
 	return nil
 }
 
+// NotifyEpisodeDownloadStart sends a notification to alert that torrents have been found for episode and that download process is starting.
 func NotifyEpisodeDownloadStart(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
 		return nil
@@ -88,6 +97,8 @@ func NotifyEpisodeDownloadStart(episode *Episode) error {
 	return nil
 }
 
+// NotifyNewMovie sends a notification on all registered notifiers to alert that a new movie has been add in watchlists
+// The movie is then marked as notified and the notification will not be sent again if this method is called twice on the same episode.
 func NotifyNewMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyNewMovie {
 		return nil
@@ -111,6 +122,7 @@ func NotifyNewMovie(m *Movie) error {
 	return nil
 }
 
+// NotifyMovieDownloadStart sends a notification to alert that torrents have been found for movie and that download process is starting.
 func NotifyMovieDownloadStart(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
 		return nil
@@ -127,6 +139,7 @@ func NotifyMovieDownloadStart(m *Movie) error {
 	return nil
 }
 
+// NotifyDownloadedEpisode sends notification on registered notifiers to alert that the episode has been successfully downloaded
 func NotifyDownloadedEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
@@ -143,6 +156,7 @@ func NotifyDownloadedEpisode(episode *Episode) error {
 	return nil
 }
 
+// NotifyDownloadedMovie sends notification on registered notifiers to alert that the movie has been successfully downloaded
 func NotifyDownloadedMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
@@ -159,6 +173,8 @@ func NotifyDownloadedMovie(m *Movie) error {
 	return nil
 }
 
+// NotifyFailedEpisode sends notification on registered notifiers to alert that the episode could not be downloaded.
+// An episode is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
 func NotifyFailedEpisode(episode *Episode) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
@@ -175,6 +191,8 @@ func NotifyFailedEpisode(episode *Episode) error {
 	return nil
 }
 
+// NotifyFailedMovie sends notification on registered notifiers to alert that the movie could not be downloaded.
+// A movie is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
 func NotifyFailedMovie(m *Movie) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
@@ -191,6 +209,8 @@ func NotifyFailedMovie(m *Movie) error {
 	return nil
 }
 
+// SendNotification sends the notification with title and content using all registered notifiers.
+// If at least one notifier returns an error when sending the notification, the method exists with a non nil error
 func SendNotification(title, content string) error {
 	if !configuration.Config.Notifications.Enabled {
 		return nil

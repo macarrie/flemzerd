@@ -1,3 +1,5 @@
+// Package watchlist groups methods for retrieving items (shows and movies) form multiple watchlists
+// Multiple watchlist types can be registered. Retrieving items from watchlists will aggregate results from all registered watchlists.
 package watchlist
 
 import (
@@ -12,6 +14,7 @@ import (
 
 var watchlistsCollection []Watchlist
 
+// Status checks registered watchlists status. A module list is returned, each module corresponds to a registered watchlist. A non nil error is returned if at least one registered watchlist is in error
 func Status() ([]Module, error) {
 	var modList []Module
 	var aggregatedErrorMessage bytes.Buffer
@@ -37,10 +40,12 @@ func Status() ([]Module, error) {
 	return modList, retError
 }
 
+// Reset empties registered watchlists list
 func Reset() {
 	watchlistsCollection = []Watchlist{}
 }
 
+// AddWatchlist registers a new watchlist
 func AddWatchlist(watchlist Watchlist) {
 	watchlistsCollection = append(watchlistsCollection, watchlist)
 	log.WithFields(log.Fields{
@@ -48,6 +53,9 @@ func AddWatchlist(watchlist Watchlist) {
 	}).Debug("Watchlist loaded")
 }
 
+// GetTvShows retrieves TV Shows from all watchlists then aggregates the result. Retrieved shows are added to the database to ease future requests.
+// Duplicates are removed.
+// Results are returned as an array of MediaIds structs
 func GetTvShows() ([]MediaIds, error) {
 	tvshows := []MediaIds{}
 	for _, watchlist := range watchlistsCollection {
@@ -91,6 +99,9 @@ func GetTvShows() ([]MediaIds, error) {
 	return retList, nil
 }
 
+// GetMovies retrieves movies from all watchlists then aggregates the result. Retrieved movies are added to the database to ease future requests.
+// Duplicates are removed.
+// Results are returned as an array of MediaIds structs
 func GetMovies() ([]MediaIds, error) {
 	movieWatchlist := []MediaIds{}
 	for _, watchlist := range watchlistsCollection {
@@ -139,6 +150,7 @@ func removeDuplicates(array []MediaIds) []MediaIds {
 	return ret
 }
 
+// GetWatchlist returns the registered watchlist with name "name". An non-nil error is returned if no registered watchlists are found with the required name
 func GetWatchlist(name string) (Watchlist, error) {
 	for _, w := range watchlistsCollection {
 		mod, _ := w.Status()
