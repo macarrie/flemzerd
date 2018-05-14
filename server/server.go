@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -98,6 +99,30 @@ func initRouter() {
 				}
 				c.JSON(http.StatusOK, show)
 			})
+			tvshowsRoute.GET("/details/:id/seasons/:season_nb", func(c *gin.Context) {
+				id := c.Param("id")
+				seasonNumber := c.Param("season_nb")
+				var show TvShow
+				req := db.Client.First(&show, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				seasonNb, err := strconv.Atoi(seasonNumber)
+				if err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
+					return
+				}
+
+				epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{})
+					return
+				}
+
+				c.JSON(http.StatusOK, epList)
+			})
 			tvshowsRoute.DELETE("/details/:id", func(c *gin.Context) {
 				id := c.Param("id")
 				var show TvShow
@@ -131,6 +156,55 @@ func initRouter() {
 					return
 				}
 				c.JSON(http.StatusOK, ep)
+			})
+			tvshowsRoute.POST("/episodes/:id/download", func(c *gin.Context) {
+				id := c.Param("id")
+
+				var ep Episode
+				req := db.Client.Find(&ep, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				if ep.DownloadingItem.Downloaded || ep.DownloadingItem.Downloading || ep.DownloadingItem.Pending {
+					c.JSON(http.StatusNotModified, gin.H{})
+					return
+				}
+
+				ep.DownloadingItem.Pending = true
+				db.Client.Save(&ep)
+
+				go func() {
+					log.WithFields(log.Fields{
+						"id":      id,
+						"show":    ep.TvShow.Name,
+						"episode": ep.Name,
+						"season":  ep.Season,
+						"number":  ep.Number,
+					}).Info("Launching individual episode download")
+
+					torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
+					if err != nil {
+						log.Warning(err)
+						c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+						return
+					}
+					log.Debug("Torrents found: ", len(torrentList))
+
+					toDownload := downloader.FillEpisodeToDownloadTorrentList(&ep, torrentList)
+					if len(toDownload) == 0 {
+						downloader.MarkEpisodeFailedDownload(&ep.TvShow, &ep)
+						c.JSON(http.StatusInternalServerError, gin.H{"error": "No torrents found"})
+						return
+					}
+					notifier.NotifyEpisodeDownloadStart(&ep)
+
+					downloader.DownloadEpisode(ep.TvShow, ep, toDownload)
+				}()
+
+				c.JSON(http.StatusOK, gin.H{})
+				return
 			})
 			tvshowsRoute.DELETE("/episodes/:id", func(c *gin.Context) {
 				id := c.Param("id")

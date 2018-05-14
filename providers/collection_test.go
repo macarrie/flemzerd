@@ -67,8 +67,7 @@ func TestFindShow(t *testing.T) {
 		t.Error("Expected to have error when calling FindShow with no TV providers in collection")
 	}
 
-	p := MockTVProvider{}
-	providersCollection = []Provider{p}
+	AddProvider(MockTVProvider{})
 
 	show, err := FindShow(testShow)
 	if err != nil {

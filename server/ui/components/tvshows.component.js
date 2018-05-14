@@ -30,6 +30,10 @@ flemzerd.component("tvshows", {
             tvshows.restoreShow(id);
         };
 
+        $scope.deleteEpisode = function(id) {
+            tvshows.deleteEpisode(id);
+        };
+
         self.refresh();
         $interval(self.refresh, 1000);
 

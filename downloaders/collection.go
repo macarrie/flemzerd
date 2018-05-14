@@ -497,7 +497,8 @@ func RecoverFromRetention() {
 			"number":  ep.Number,
 		}).Debug("Launched download processing recovery")
 
-		go EpisodeHandleTorrentDownload(&ep, true)
+		recoveryEpisode := ep
+		go EpisodeHandleTorrentDownload(&recoveryEpisode, true)
 
 	}
 
@@ -511,6 +512,7 @@ func RecoverFromRetention() {
 			"name": m.Title,
 		}).Debug("Launched download processing recovery")
 
-		go MovieHandleTorrentDownload(&m, true)
+		recoveryMovie := m
+		go MovieHandleTorrentDownload(&recoveryMovie, true)
 	}
 }

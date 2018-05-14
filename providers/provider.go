@@ -12,6 +12,7 @@ type TVProvider interface {
 	GetName() string
 	GetShow(tvShow MediaIds) (TvShow, error)
 	GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error)
+	GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error)
 }
 
 type MovieProvider interface {

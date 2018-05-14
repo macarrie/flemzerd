@@ -5,12 +5,12 @@
         <a class="text-secondary" ui-sref="tvshows">
             <i class="fas fa-arrow-left"></i>Back
         </a>
-        <button class="text-danger float-right" 
+        <button class="text-danger float-right"
                 ng-if="tvshow.DeletedAt == null"
                 ng-click="deleteShow(tvshow.ID)">
             <i class="fas fa-times"></i>Remove
         </button>
-        <button class="text-primary float-right" 
+        <button class="text-primary float-right"
                 ng-if="tvshow.DeletedAt != null"
                 ng-click="restoreShow(tvshow.ID)">
             <i class="fas fa-reply"></i>Restore
@@ -63,6 +63,60 @@
                         {{ tvshow.Overview}}
                     </div>
                 </div>
+                <div class="row mt-3">
+                    <h6>Seasons</h6>
+                    <div class="col-12">
+                        {{ tvshow.NumberOfSeasons}} seasons, {{ tvshow.NumberOfEpisodes }} episodes
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid no-gutters bg-light mt-4">
+    <div class="container p-2">
+        <div class="row" 
+             ng-repeat="season in tvshow.Seasons"
+             ng-if="season.SeasonNumber > 0">
+            <div class="col-12 my-3" ng-click="collapse = !collapse" >
+                <aclass="mr-1">
+                    <i class="fas fa-angle-down" ng-if="!collapse"></i>
+                    <i class="fas fa-angle-up" ng-if="collapse"></i>
+                </a>
+                <span class="h4">Season {{ season.SeasonNumber }} </span><span class="text-muted h6">( {{ season.EpisodeCount }} episodes )</span>
+            </div>
+            <div class="col-12" ng-show="collapse">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Release date</th>
+                            <th class="text-center">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="episode in seasons[season.SeasonNumber]"
+                            ng-class="utils.dateIsInFuture(episode.Date) ? 'episode-list-future' : ''">
+                            <td><span class="badge badge-primary mr-1">{{ utils.formatNumber(episode.Season) }}x{{ utils.formatNumber(episode.Number) }}</span> {{ episode.Name }}</td>
+                            <td>{{ utils.displayDate(episode.Date) }}</td>
+                            <td class="text-center">
+                                <a class="btn btn-sm p-0"
+                                   ng-click="downloadEpisode(episode)"
+                                   ng-if="!utils.dateIsInFuture(episode.Date) && !episode.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a class="btn btn-sm p-0 text-success"
+                                   ng-if="episode.Downloaded">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <span ng-if="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

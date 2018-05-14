@@ -189,3 +189,19 @@ img.black_and_white {
         .action-bar.removed-element button {
             color: #ddd !important;
         }
+
+.text-primary {
+    color: #864ba2 !important;
+}
+.badge-primary {
+    background-color: #bf3a30;
+    background-image: linear-gradient(315deg, #bf3a30 -50%, #864ba2 150%);
+}
+
+.episode-list-future {
+     color: #555;
+     background: #eee;
+}
+    .episode-list-future .badge {
+        background: #555;
+    }

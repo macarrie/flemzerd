@@ -3,6 +3,7 @@ package tmdb
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -158,6 +159,24 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 	return convertMovie(*movie), nil
 }
 
+func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	results, err := tmdbProvider.Client.GetTvSeasonInfo(show.MediaIds.Tmdb, seasonNumber, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"show":   show.Name,
+			"season": seasonNumber,
+		}).Warning("Encountered error when querying season details from TMDB")
+		return []Episode{}, err
+	}
+
+	var retList []Episode
+	for _, ep := range results.Episodes {
+		retList = append(retList, convertEpisode(ep))
+	}
+
+	return retList, nil
+}
+
 func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {
 	// Set beginning date to zero time if beginning date is nil
 	if beginning == nil {
@@ -197,12 +216,32 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		status = TVSHOW_UNKNOWN
 	}
 
+	seasons := []TvSeason{}
+	for _, season := range tvShow.Seasons {
+		airDate, err := time.Parse("2006-01-02", season.AirDate)
+		if err != nil {
+			airDate = time.Time{}
+		}
+		seasons = append(seasons, TvSeason{
+			AirDate:      &airDate,
+			EpisodeCount: season.EpisodeCount,
+			SeasonNumber: season.SeasonNumber,
+			PosterPath:   season.PosterPath,
+		})
+	}
+	sort.Slice(seasons, func(i, j int) bool {
+		return seasons[i].SeasonNumber < seasons[j].SeasonNumber
+	})
+
 	return TvShow{
-		Poster:     fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
-		FirstAired: firstAired,
-		Overview:   tvShow.Overview,
-		Name:       tvShow.Name,
-		Status:     status,
+		Poster:           fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
+		FirstAired:       firstAired,
+		Overview:         tvShow.Overview,
+		Name:             tvShow.Name,
+		Status:           status,
+		Seasons:          seasons,
+		NumberOfSeasons:  tvShow.NumberOfSeasons,
+		NumberOfEpisodes: tvShow.NumberOfEpisodes,
 	}
 }
 

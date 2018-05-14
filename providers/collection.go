@@ -106,6 +106,32 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 	return []Episode{}, errors.New("Cannot find any TV provider in configuration")
 }
 
+func GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	p := getTVProvider()
+	if p != nil {
+		episodes, err := (*p).GetSeasonEpisodeList(show, seasonNumber)
+		if err != nil {
+			return []Episode{}, nil
+		}
+		var retList []Episode
+		for _, ep := range episodes {
+			var epFromDb Episode
+			req := db.Client.Where(ep).Find(&epFromDb)
+			if req.RecordNotFound() {
+				ep.TvShow = show
+				db.Client.Create(&ep)
+				retList = append(retList, ep)
+			} else {
+				retList = append(retList, epFromDb)
+			}
+		}
+
+		return retList, nil
+	}
+
+	return []Episode{}, errors.New("Cannot find any TV provider in configuration")
+}
+
 func GetTVShowsInfoFromConfig() {
 	var showObjects []TvShow
 	var showList []MediaIds

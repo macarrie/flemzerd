@@ -79,6 +79,19 @@ func (p MockTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, erro
 		},
 	}, nil
 }
+func (p MockTVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	return []Episode{
+		Episode{
+			Number: 1,
+			Season: 1,
+			Name:   "Test episode",
+			Model: gorm.Model{
+				ID: 1000,
+			},
+		},
+	}, nil
+}
+
 func (p MockMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
 		Model: gorm.Model{
@@ -98,6 +111,9 @@ func (p MockErrorProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
 	return []Episode{}, fmt.Errorf("Provider error")
 }
 func (p MockErrorProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, fmt.Errorf("Provider error")
+}
+func (p MockErrorProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 	return []Episode{}, fmt.Errorf("Provider error")
 }
 func (p MockErrorProvider) GetMovie(movie MediaIds) (Movie, error) {

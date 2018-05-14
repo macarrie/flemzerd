@@ -15,12 +15,24 @@ const (
 
 type TvShow struct {
 	gorm.Model
-	MediaIds   MediaIds
-	MediaIdsID int
-	Banner     string
-	Poster     string
-	FirstAired time.Time
-	Overview   string
-	Name       string
-	Status     int
+	MediaIds         MediaIds
+	MediaIdsID       int
+	Banner           string
+	Poster           string
+	FirstAired       time.Time
+	Overview         string
+	Name             string
+	Status           int
+	NumberOfEpisodes int
+	NumberOfSeasons  int
+	Seasons          []TvSeason
+}
+
+type TvSeason struct {
+	gorm.Model
+	AirDate      *time.Time
+	EpisodeCount int
+	SeasonNumber int
+	PosterPath   string
+	TvShowID     int
 }

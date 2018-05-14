@@ -25,6 +25,11 @@ flemzerd.run(function($rootScope){
         return nb;
     };
 
+    utils.dateIsInFuture = function(dateString) {
+        var d = new Date(dateString);
+        return d > Date.now();
+    };
+
 
     $rootScope.utils = utils;
 });
