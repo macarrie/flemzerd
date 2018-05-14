@@ -81,10 +81,10 @@ func GetTrackedTvShows() ([]TvShow, error) {
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
-	Client.Unscoped().Find(&episodes)
+	Client.Unscoped().Find(&episodes).Order("id DESC")
 
 	for _, e := range episodes {
-		if e.DownloadingItem.Downloading && !e.DownloadingItem.Downloaded {
+		if (e.DownloadingItem.Downloading || e.DownloadingItem.Pending) && !e.DownloadingItem.Downloaded {
 			retList = append(retList, e)
 		}
 	}
@@ -94,10 +94,10 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
-	Client.Find(&movies)
+	Client.Find(&movies).Order("id DESC")
 
 	for _, m := range movies {
-		if m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
+		if (m.DownloadingItem.Downloading || m.DownloadingItem.Pending) && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}
