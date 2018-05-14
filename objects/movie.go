@@ -16,7 +16,6 @@ type Movie struct {
 	Poster            string
 	Date              time.Time
 	Notified          bool
-	Downloaded        bool
 	DownloadingItem   DownloadingItem
 	DownloadingItemID int
 }

@@ -6,12 +6,12 @@
             <i class="fas fa-arrow-left"></i>Back
         </a>
         <button class="text-danger float-right" 
-                ng-if="movie.DeletedAt == null && !movie.Downloaded"
+                ng-if="movie.DeletedAt == null && !movie.DownloadingItem.Downloaded"
                 ng-click="deleteMovie(movie.ID)">
             <i class="fas fa-times"></i>Remove
         </button>
         <button class="text-primary float-right" 
-                ng-if="movie.DeletedAt != null && !movie.Downloaded"
+                ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded"
                 ng-click="restoreMovie(movie.ID)">
             <i class="fas fa-reply"></i>Restore
         </button>
@@ -75,7 +75,7 @@
                 <span class="h4">Download status</span>
             </div>
             <div class="col-12"
-                 ng-if="movie.Downloaded">
+                 ng-if="movie.DownloadingItem.Downloaded">
 
                 <div class="mb-3">
                     <span class="h6 text-success">
@@ -85,7 +85,7 @@
                 <downloadingitem item="movie.DownloadingItem" downloaded="true"></downloadingitem>
             </div>
             <div class="col-12 my-3"
-                 ng-if="movie.DownloadingItem.Downloading && !movie.Downloaded">
+                 ng-if="movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded">
                 <downloadingitem item="movie.DownloadingItem"></downloadingitem>
             </div>
         </div>

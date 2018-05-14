@@ -19,7 +19,6 @@ type Episode struct {
 	Date              time.Time
 	Overview          string
 	Notified          bool
-	Downloaded        bool
 	DownloadingItem   DownloadingItem
 	DownloadingItemID int
 }

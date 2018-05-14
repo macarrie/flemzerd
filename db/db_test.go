@@ -54,8 +54,10 @@ func TestGetTrackedItems(t *testing.T) {
 		Title: "m2",
 	}
 	m3 := Movie{
-		Title:      "m3",
-		Downloaded: true,
+		Title: "m3",
+		DownloadingItem: DownloadingItem{
+			Downloading: true,
+		},
 	}
 
 	Client.Create(&t1)
@@ -121,20 +123,28 @@ func TestGetDownloadingItems(t *testing.T) {
 func TestGetDownloadedItems(t *testing.T) {
 	ResetDb()
 	e1 := Episode{
-		Name:       "e1",
-		Downloaded: true,
+		Name: "e1",
+		DownloadingItem: DownloadingItem{
+			Downloaded: true,
+		},
 	}
 	e2 := Episode{
-		Name:       "e2",
-		Downloaded: true,
+		Name: "e2",
+		DownloadingItem: DownloadingItem{
+			Downloaded: true,
+		},
 	}
 	m1 := Movie{
-		Title:      "m1",
-		Downloaded: true,
+		Title: "m1",
+		DownloadingItem: DownloadingItem{
+			Downloaded: true,
+		},
 	}
 	m2 := Movie{
-		Title:      "m2",
-		Downloaded: true,
+		Title: "m2",
+		DownloadingItem: DownloadingItem{
+			Downloaded: true,
+		},
 	}
 
 	Client.Create(&e1)

@@ -304,7 +304,7 @@ func downloadChainFunc() {
 					log.Warning(err)
 				}
 
-				if recentEpisode.Downloaded {
+				if recentEpisode.DownloadingItem.Downloaded {
 					log.WithFields(log.Fields{
 						"show":   show.Name,
 						"number": recentEpisode.Number,
@@ -323,6 +323,9 @@ func downloadChainFunc() {
 					}).Debug("Episode already being downloaded, nothing to do")
 					continue
 				}
+
+				recentEpisode.DownloadingItem.Pending = true
+				db.Client.Save(&recentEpisode)
 
 				torrentList, err := indexer.GetTorrentForEpisode(show.Name, recentEpisode.Season, recentEpisode.Number)
 				if err != nil {
@@ -357,7 +360,7 @@ func downloadChainFunc() {
 				log.Warning(err)
 			}
 
-			if movie.Downloaded {
+			if movie.DownloadingItem.Downloaded {
 				log.WithFields(log.Fields{
 					"movie": movie.Title,
 				}).Debug("Movie already downloaded, nothing to do")
@@ -370,6 +373,9 @@ func downloadChainFunc() {
 				}).Debug("Movie already being downloaded, nothing to do")
 				continue
 			}
+
+			movie.DownloadingItem.Pending = true
+			db.Client.Save(&movie)
 
 			torrentList, err := indexer.GetTorrentForMovie(movie)
 			if err != nil {

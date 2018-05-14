@@ -136,8 +136,11 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 	}).Info("Episode successfully downloaded")
 	notifier.NotifyDownloadedEpisode(e)
 
-	e.Downloaded = true
+	e.DownloadingItem.Pending = false
 	e.DownloadingItem.Downloading = false
+	e.DownloadingItem.Downloaded = true
+	db.Client.Save(e)
+
 	err := MoveEpisodeToLibrary(e)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -152,7 +155,6 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 	} else {
 		mediacenter.RefreshLibrary()
 	}
-	db.Client.Save(e)
 
 	RemoveTorrent(torrent)
 
@@ -208,8 +210,11 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 	}).Info("Movie successfully downloaded")
 	notifier.NotifyDownloadedMovie(m)
 
-	m.Downloaded = true
+	m.DownloadingItem.Pending = false
 	m.DownloadingItem.Downloading = false
+	m.DownloadingItem.Downloaded = true
+	db.Client.Save(m)
+
 	err := MoveMovieToLibrary(m)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -221,7 +226,6 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 	} else {
 		mediacenter.RefreshLibrary()
 	}
-	db.Client.Save(m)
 
 	RemoveTorrent(torrent)
 
@@ -252,7 +256,7 @@ func WaitForDownload(t Torrent) error {
 }
 
 func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
-	if e.Downloaded || e.DownloadingItem.Downloading {
+	if e.DownloadingItem.Downloaded || e.DownloadingItem.Downloading {
 		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
 
@@ -263,6 +267,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 		"name":   e.Name,
 	}).Info("Starting download process")
 
+	e.DownloadingItem.Pending = false
 	e.DownloadingItem.Downloading = true
 	db.Client.Save(&e)
 
@@ -299,7 +304,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 }
 
 func DownloadMovie(m Movie, torrentList []Torrent) error {
-	if m.Downloaded || m.DownloadingItem.Downloading {
+	if m.DownloadingItem.Downloaded || m.DownloadingItem.Downloading {
 		return errors.New("Movie downloading or already downloaded. Skipping")
 	}
 
@@ -307,6 +312,7 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 		"name": m.Title,
 	}).Info("Starting download process")
 
+	m.DownloadingItem.Pending = false
 	m.DownloadingItem.Downloading = true
 	db.Client.Save(&m)
 

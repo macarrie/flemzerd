@@ -3,7 +3,7 @@
         <img    class="card-img" 
                 width="100%" 
                 src="{{ movie.Poster }}" 
-                ng-class="( movie.DeletedAt != null || movie.Downloaded ) ? 'black_and_white' : ''"
+                ng-class="( movie.DeletedAt != null || movie.DownloadingItem.Downloaded ) ? 'black_and_white' : ''"
                 alt="">
         <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red" 
              ng-if="movie.DeletedAt != null">
@@ -12,7 +12,7 @@
             </span>
         </div>
         <div class="card-img-overlay text-white font-weight-bold font-italic overlay-green" 
-             ng-if="movie.Downloaded && movie.DeletedAt == null">
+             ng-if="movie.DownloadingItem.Downloaded && movie.DeletedAt == null">
             <span>
                 Downloaded
             </span>
@@ -20,12 +20,12 @@
     </a>
     <button class="btn-delete-item text-white float-right" 
             ng-click="deleteMovie(movie.ID)"
-            ng-if="movie.DeletedAt == null && !movie.Downloaded">
+            ng-if="movie.DeletedAt == null && !movie.DownloadingItem.Downloaded">
         <i class="fas fa-times"></i>
     </button>
     <button class="btn-delete-item text-white float-right" 
             ng-click="restoreMovie(movie.ID)"
-            ng-if="movie.DeletedAt != null && !movie.Downloaded">
+            ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded">
         <i class="fas fa-reply"></i>
     </button>
 </div>

@@ -69,7 +69,7 @@
                 <span class="h4">Download status</span>
             </div>
             <div class="col-12"
-                 ng-if="episode.Downloaded">
+                 ng-if="episode.DownloadingItem.Downloaded">
 
                 <div class="mb-3">
                     <span class="h6 text-success">
@@ -79,7 +79,7 @@
                 <downloadingitem item="episode.DownloadingItem" downloaded="true"></downloadingitem>
             </div>
             <div class="col-12 my-3"
-                 ng-if="episode.DownloadingItem.Downloading && !episode.Downloaded">
+                 ng-if="episode.DownloadingItem.Downloading && !episode.DownloadingItem.Downloaded">
                 <downloadingitem item="episode.DownloadingItem"></downloadingitem>
             </div>
         </div>

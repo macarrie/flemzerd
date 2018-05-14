@@ -62,7 +62,7 @@ func GetTrackedMovies() ([]Movie, error) {
 	Client.Order("created_at DESC").Find(&movies)
 
 	for _, m := range movies {
-		if !m.DownloadingItem.Downloading && !m.Downloaded {
+		if !m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}
@@ -84,7 +84,7 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 	Client.Unscoped().Find(&episodes)
 
 	for _, e := range episodes {
-		if e.DownloadingItem.Downloading && !e.Downloaded {
+		if e.DownloadingItem.Downloading && !e.DownloadingItem.Downloaded {
 			retList = append(retList, e)
 		}
 	}
@@ -97,7 +97,7 @@ func GetDownloadingMovies() ([]Movie, error) {
 	Client.Find(&movies)
 
 	for _, m := range movies {
-		if m.DownloadingItem.Downloading && !m.Downloaded {
+		if m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}
@@ -107,18 +107,29 @@ func GetDownloadingMovies() ([]Movie, error) {
 
 func GetDownloadedEpisodes() ([]Episode, error) {
 	var episodes []Episode
-	Client.Where(&Episode{
-		Downloaded: true,
-	}).Order("id DESC").Find(&episodes)
-	return episodes, nil
+	var retList []Episode
+	Client.Unscoped().Find(&episodes)
+
+	for _, e := range episodes {
+		if e.DownloadingItem.Downloaded {
+			retList = append(retList, e)
+		}
+	}
+	return retList, nil
 }
 
 func GetDownloadedMovies() ([]Movie, error) {
 	var movies []Movie
-	Client.Where(&Movie{
-		Downloaded: true,
-	}).Order("id DESC").Find(&movies)
-	return movies, nil
+	var retList []Movie
+	Client.Find(&movies)
+
+	for _, m := range movies {
+		if m.DownloadingItem.Downloaded {
+			retList = append(retList, m)
+		}
+	}
+
+	return retList, nil
 }
 
 func SaveTraktToken(token string) {
