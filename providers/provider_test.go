@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jinzhu/gorm"
@@ -80,6 +81,9 @@ func (p MockTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, erro
 	}, nil
 }
 func (p MockTVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	if seasonNumber == 1000 {
+		return []Episode{}, errors.New("Unknown season")
+	}
 	return []Episode{
 		Episode{
 			Number: 1,

@@ -148,7 +148,45 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	}
 }
 
+func TestGetSeasonEpisodeList(t *testing.T) {
+	testShow := TvShow{
+		Name: "Test show",
+	}
+
+	providersCollection = []Provider{}
+	_, err := GetSeasonEpisodeList(testShow, 1)
+	if err == nil {
+		t.Error("Expected to have error when calling GetSeasonEpisodeList with no TV providers in collection")
+	}
+
+	p := MockTVProvider{}
+	providersCollection = []Provider{p}
+
+	episodeList, err := GetSeasonEpisodeList(testShow, 1)
+	if err != nil {
+		t.Error("Got error during GetSeasonEpisodeList: ", err)
+	}
+	if episodeList[0].Model.ID != 1000 {
+		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
+	}
+
+	// Calling the method a second times gets episodes from DB
+	episodeList, err = GetSeasonEpisodeList(testShow, 1)
+	if err != nil {
+		t.Error("Got error during GetSeasonEpisodeList: ", err)
+	}
+	if episodeList[0].Model.ID != 1000 {
+		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
+	}
+
+	_, err = GetSeasonEpisodeList(testShow, 1000)
+	if err == nil {
+		t.Error("Expected to have error when asking for episodes of unknown season")
+	}
+}
+
 func TestGetInfoFromConfig(t *testing.T) {
+	db.ResetDb()
 	pr1 := MockTVProvider{}
 	pr2 := MockMovieProvider{}
 

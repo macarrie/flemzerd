@@ -111,7 +111,7 @@ func GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 	if p != nil {
 		episodes, err := (*p).GetSeasonEpisodeList(show, seasonNumber)
 		if err != nil {
-			return []Episode{}, nil
+			return []Episode{}, err
 		}
 		var retList []Episode
 		for _, ep := range episodes {
