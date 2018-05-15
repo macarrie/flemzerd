@@ -373,23 +373,25 @@ func initRouter() {
 				{
 
 					traktRoutes.GET("/auth", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("Trakt")
-						t := w.(*trakt.TraktWatchlist)
-						if err == nil {
-							if err := t.IsAuthenticated(); err == nil {
-								c.JSON(http.StatusNoContent, gin.H{})
-								return
-							}
-
-							go t.Auth()
-							c.JSON(http.StatusOK, gin.H{})
+						w, err := watchlist.GetWatchlist("trakt")
+						if err != nil {
+							c.JSON(http.StatusNotFound, err)
 							return
 						}
-						c.JSON(http.StatusNotFound, err)
+
+						t := w.(*trakt.TraktWatchlist)
+						if err := t.IsAuthenticated(); err == nil {
+							c.JSON(http.StatusNoContent, gin.H{})
+							return
+						}
+
+						go t.Auth()
+						c.JSON(http.StatusOK, gin.H{})
+						return
 					})
 
 					traktRoutes.GET("/auth_errors", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("Trakt")
+						w, err := watchlist.GetWatchlist("trakt")
 						t := w.(*trakt.TraktWatchlist)
 						if err != nil {
 							c.JSON(http.StatusInternalServerError, err)
@@ -411,13 +413,15 @@ func initRouter() {
 					})
 
 					traktRoutes.GET("/devicecode", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("Trakt")
-						t := w.(*trakt.TraktWatchlist)
-						if err == nil {
-							c.JSON(http.StatusOK, t.DeviceCode)
+						w, err := watchlist.GetWatchlist("trakt")
+						if err != nil {
+							c.JSON(http.StatusNotFound, err)
 							return
 						}
-						c.JSON(http.StatusNotFound, err)
+
+						t := w.(*trakt.TraktWatchlist)
+						c.JSON(http.StatusOK, t.DeviceCode)
+						return
 					})
 				}
 			}
