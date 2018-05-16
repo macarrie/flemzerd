@@ -2,6 +2,9 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,500');
 @import url('https://fonts.googleapis.com/css?family=Alex+Brush');
 
+$primary: #BF3A30;
+$secondary: #864BA2;
+
 body {
     font-family: Roboto, sans-serif;
     font-weight: 300;
@@ -13,36 +16,36 @@ body {
 .topbar {
     background: #f5f5f5;
     border-top: 3px solid #bf3a30;
-    border-image: linear-gradient(315deg, #bf3a30 0%, #864ba2 74%);
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
     border-image-slice: 1;
 }
 
-    .navbar-brand {
-        font-size: 50px;
-		line-height: 30px;
-        font-family: "Alex Brush";
-        margin-right: 30px;
-		padding-left: 15px;
-		padding-right: 15px;
-		color: transparent !important;
-		background-color: #bf3a30;
-		background-image: linear-gradient(315deg, #bf3a30 0%, #864ba2 74%);
-		background-clip: text;
-		-webkit-background-clip: text;
-    }
+.navbar-brand {
+    font-size: 50px;
+    line-height: 30px;
+    font-family: "Alex Brush";
+    margin-right: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: transparent !important;
+    background-color: #bf3a30;
+    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
 
-    .nav-link {
-        margin-left: 5px;
-    }
+.nav-link {
+    margin-left: 5px;
 
-    .nav-link .fas,
-    .nav-link .fab {
+    .fas, .fab {
         width: 15px;
         margin-right: 5px;
     }
+}
+
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-     font-family: "Roboto Slab";
+    font-family: "Roboto Slab";
 }
 
 .show-status-btn {
@@ -69,46 +72,49 @@ img.black_and_white {
 }
 
 .media-card:hover img.black_and_white {
-     filter: none;
-     opacity: 1;
+    filter: none;
+    opacity: 1;
 }
 
 .media-card .card-img-overlay {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    span {
+        display: table-cell;
+        vertical-align: middle;
+    }
 }
 
 .media-card:hover .card-img-overlay {
     display: none;
 }
-    .media-card .card-img-overlay span {
-        display: table-cell;
-        vertical-align: middle;
-    }
 
 .media-card a {
     text-decoration: none;
     color: #444;
+
+    &:hover {
+        color: #666;
+    }
 }
 
-.media-card a:hover {
-    color: #666;
-}
 
 .media-card .btn-delete-item {
-     position: absolute;
-     right: 0;
-     top: 0;
-     background: transparent;
-     border: none;
-     font-size: 12px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: transparent;
+    border: none;
+    font-size: 12px;
     opacity: 0.6;
+
+    &:hover {
+        opacity: 1;
+    }
 }
 
-.media-card .btn-delete-item:hover {
-    opacity: 1;
-}
 
 #full_background{
     content: '';
@@ -133,75 +139,77 @@ img.black_and_white {
 }
 
 .mediadetails {
-     color: #fefefe;
+    color: #fefefe;
 }
 
 .external-links-banner {
-     display: inline;
-}
+    display: inline;
 
-    .external-links-banner a {
+    a {
         font-style: italic;
         /*font-weight: bold;*/
         text-decoration: none;
     }
 
-    .external-links-banner a:hover {
+    a:hover {
         opacity: 0.7;
     }
 
-    .external-links-banner .imdb {
+    .imdb {
         color: #f9ff94;
     }
 
-    .external-links-banner .trakt {
+    .trakt {
         color: #ff5f68;
     }
 
-    .external-links-banner .tmdb {
+    .tmdb {
         color: #45f6bb;
     }
+}
 
 .action-bar {
     height: 30px;
     line-height: 30px;
     background: rgba(255, 255, 255, 0.05);
     margin-bottom: 20px;
-}
 
-    .action-bar button,
-    .action-bar a {
+    button, a {
         background: transparent;
         padding: 0 5px;
         border: none;
         font-weight: bold;
         font-size: 12px;
+
+        i {
+            margin-right: 5px;
+        }
     }
 
-    .action-bar button i,
-    .action-bar a i {
-        margin-right: 5px;
-    }
     .action-bar.removed-element {
         background: #a51717;
-    }
-        .action-bar.removed-element a,
-        .action-bar.removed-element button {
+
+        a, button {
             color: #ddd !important;
         }
+    }
+}
 
 .text-primary {
-    color: #864ba2 !important;
+    color: $primary !important;
 }
+
 .badge-primary {
     background-color: #bf3a30;
     background-image: linear-gradient(315deg, #bf3a30 -50%, #864ba2 150%);
 }
 
 .episode-list-future {
-     color: #555;
-     background: #eee;
-}
-    .episode-list-future .badge {
+    color: #555;
+    background: #eee;
+
+    .badge {
         background: #555;
     }
+}
+
