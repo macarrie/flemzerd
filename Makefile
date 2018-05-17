@@ -12,3 +12,4 @@ test:
 clean:
 	-rm flemzerd
 	-rm server/ui/css/*.css server/ui/css/*.map
+	-rm -rf .sass-cache
