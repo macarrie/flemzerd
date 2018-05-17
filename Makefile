@@ -3,7 +3,7 @@ all: build
 webui:
 	sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
 
-bin: webui
+build: webui
 	go build -v
 
 test:
