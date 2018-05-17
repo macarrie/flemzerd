@@ -103,11 +103,11 @@
                             <td class="text-center">
                                 <a class="btn btn-sm p-0"
                                    ng-click="downloadEpisode(episode)"
-                                   ng-if="!utils.dateIsInFuture(episode.Date) && !episode.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
+                                   ng-if="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
                                     <i class="fas fa-download"></i>
                                 </a>
                                 <a class="btn btn-sm p-0 text-success"
-                                   ng-if="episode.Downloaded">
+                                   ng-if="episode.DownloadingItem.Downloaded">
                                     <i class="fas fa-check"></i>
                                 </a>
                                 <span ng-if="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
