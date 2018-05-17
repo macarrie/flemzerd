@@ -82,3 +82,5 @@ library:
     show_path: "/var/lib/flemzer/library/shows"
     # Where to store movies (absolute path). Folder hierarchy will be created if not existent
     movie_path: "/var/lib/flemzer/library/movies"
+    # Temporary download dir used to download media before moving them to library
+    custom_tmp_dir: "/var/lib/flemzerd/tmp"

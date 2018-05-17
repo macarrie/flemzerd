@@ -272,7 +272,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 	db.Client.Save(&e)
 
 	for _, torrent := range torrentList {
-		torrent.DownloadDir = fmt.Sprintf("%s/%s/", DOWNLOAD_TMP_DIR, xid.New())
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
 
 		if db.TorrentHasFailed(e.DownloadingItem, torrent) {
 			continue
@@ -317,7 +317,7 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 	db.Client.Save(&m)
 
 	for _, torrent := range torrentList {
-		torrent.DownloadDir = fmt.Sprintf("%s/%s/", DOWNLOAD_TMP_DIR, xid.New())
+		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
 
 		if db.TorrentHasFailed(m.DownloadingItem, torrent) {
 			continue

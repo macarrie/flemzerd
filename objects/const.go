@@ -12,6 +12,5 @@ const (
 )
 
 const (
-	DB_PATH          = "/var/lib/flemzerd/flemzer.db"
-	DOWNLOAD_TMP_DIR = "/var/lib/flemzerd/tmp"
+	DB_PATH = "/var/lib/flemzerd/flemzer.db"
 )

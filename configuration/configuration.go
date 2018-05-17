@@ -42,8 +42,9 @@ type Configuration struct {
 		PreferredMediaQuality        string `mapstructure:"preferred_media_quality"`
 	}
 	Library struct {
-		ShowPath  string `mapstructure:"show_path"`
-		MoviePath string `mapstructure:"movie_path"`
+		ShowPath      string `mapstructure:"show_path"`
+		MoviePath     string `mapstructure:"movie_path"`
+		CustomTmpPath string `mapstructure:"custom_tmp_path"`
 	}
 }
 
@@ -60,6 +61,7 @@ func setDefaultValues() {
 
 	viper.SetDefault("library.show_path", "/var/lib/flemzerd/library/shows")
 	viper.SetDefault("library.movie_path", "/var/lib/flemzerd/library/movies")
+	viper.SetDefault("library.custom_tmp_path", "/var/lib/flemzerd/tmp")
 
 	viper.SetDefault("system.episode_check_interval", 15)
 	viper.SetDefault("system.torrent_download_attempts_limit", 20)
@@ -130,6 +132,12 @@ func Check() {
 	err = unix.Access(Config.Library.MoviePath, unix.W_OK)
 	if err != nil {
 		log.Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
+	}
+	err = unix.Access(Config.Library.CustomTmpPath, unix.W_OK)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"path": Config.Library.CustomTmpPath,
+		}).Fatal("Cannot write into tmp path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
 	}
 
 	_, kodi := Config.MediaCenters["kodi"]
