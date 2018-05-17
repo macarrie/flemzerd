@@ -1,7 +1,7 @@
 <div class="container">
-    <div class="row" ng-if="config.System.TrackShows">
+    <div class="row gutters" ng-if="config.System.TrackShows">
         <div class="card-group col-12 mt-4">
-            <div class="card text-center p-3 h5 font-weight-light font-italic text-primary">
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-info">
                 <span class="h3">
                     {{ tvshows.tracked.length > 0 ? tvshows.tracked.length : 0 }}
                 </span>
@@ -23,7 +23,7 @@
     </div>
     <div class="row mt-4" ng-if="config.System.TrackMovies">
         <div class="card-group col-12">
-            <div class="card text-center p-3 h5 font-weight-light font-italic text-primary">
+            <div class="card text-center p-3 h5 font-weight-light font-italic text-info">
                 <span class="h3">
                     {{ movies.tracked.length > 0 ? movies.tracked.length : 0 }}
                 </span>
