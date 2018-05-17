@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" ng-if="utils.objLength(tvshows.tracked) > 0">
             <div class="col-12 mt-3">
                 <span class="h3">TV Shows</span>
                 <button class="btn btn-sm btn-light float-right" ng-click="refreshTvShows()">
