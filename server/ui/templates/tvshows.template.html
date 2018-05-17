@@ -13,6 +13,14 @@
         <div class="col-12 py-5 text-center">
             <span class="text-muted h4">
                 No tracked TV shows
+                <button class="btn btn-sm btn-light ml-5" ng-click="refreshTvShows()">
+                    <div ng-if="refreshing" class="font-italic">
+                        <i class="fas fa-sync fa-spin"></i> Refreshing
+                    </div>
+                    <div ng-if="!refreshing">
+                        <i class="fas fa-sync"></i> Refresh
+                    </div>
+                </button>
             </span>
         </div>
     </div>
