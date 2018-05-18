@@ -41,8 +41,8 @@ func convertTorrent(t tr.Torrent) Torrent {
 	}
 }
 
-func updateTorrentList() {
-	torrentList, _ = transmissionClient.GetTorrents()
+func updateTorrentList() error {
+	torrentList, err := transmissionClient.GetTorrents()
 	return
 }
 
@@ -165,6 +165,7 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {
 	}
 
 	d.AddTorrentMapping(t.TorrentId, torrent.HashString)
+	// TODO: Retry
 	updateTorrentList()
 	return torrent.HashString, nil
 }
@@ -188,9 +189,11 @@ func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
 }
 
 func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
+	// TODO: Retry
 	updateTorrentList()
 	for _, torrent := range torrentList {
 		if torrentsMapping[t.TorrentId] == torrent.HashString {
+			// TODO: Retry
 			torrent.Update()
 
 			switch (*torrent).Status {
