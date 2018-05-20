@@ -13,6 +13,7 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 	tr "github.com/macarrie/transmission"
 	"github.com/rs/xid"
+	"github.com/upgear/go-kit/retry"
 )
 
 var module Module
@@ -42,8 +43,12 @@ func convertTorrent(t tr.Torrent) Torrent {
 }
 
 func updateTorrentList() error {
-	torrentList, err := transmissionClient.GetTorrents()
-	return
+	torrents, err := transmissionClient.GetTorrents()
+	if err != nil {
+		torrentList = torrents
+	}
+
+	return err
 }
 
 func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
@@ -165,8 +170,13 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {
 	}
 
 	d.AddTorrentMapping(t.TorrentId, torrent.HashString)
-	// TODO: Retry
-	updateTorrentList()
+	err = retry.Double(3).Run(func() error {
+		return updateTorrentList()
+	})
+	if err != nil {
+		return "", err
+	}
+
 	return torrent.HashString, nil
 }
 
@@ -189,12 +199,18 @@ func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
 }
 
 func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	// TODO: Retry
-	updateTorrentList()
+	retry.Double(3).Run(func() error {
+		return updateTorrentList()
+	})
+
 	for _, torrent := range torrentList {
 		if torrentsMapping[t.TorrentId] == torrent.HashString {
-			// TODO: Retry
-			torrent.Update()
+			err := retry.Double(3).Run(func() error {
+				return torrent.Update()
+			})
+			if err != nil {
+				return TORRENT_UNKNOWN_STATUS, nil
+			}
 
 			switch (*torrent).Status {
 			case tr.StatusDownloading:

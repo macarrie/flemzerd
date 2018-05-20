@@ -165,6 +165,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/upgear/go-kit"
+  packages = ["retry"]
+  revision = "4d662cc2f16fca70d6d6e1265101df0f9cb38d5b"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   revision = "bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8"
@@ -196,6 +202,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5b3f6fb79557d36c5a11eea1d06d55a133b7fe79a8d7142062bac1ce35a7c150"
+  inputs-digest = "2b57f4fb459491b0ee0edafdae52db0f94630f7888a90606419bf6643a63e515"
   solver-name = "gps-cdcl"
   solver-version = 1
