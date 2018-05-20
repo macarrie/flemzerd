@@ -45,8 +45,10 @@ func convertTorrent(t tr.Torrent) Torrent {
 func updateTorrentList() error {
 	torrents, err := transmissionClient.GetTorrents()
 	if err != nil {
-		torrentList = torrents
+		return err
 	}
+
+	torrentList = torrents
 
 	return err
 }
