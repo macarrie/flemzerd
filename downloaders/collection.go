@@ -90,7 +90,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
-			return errors.New("Couldn't add torrent in downloader. Skipping to next torrent in list")
+			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error())
 		}
 		e.DownloadingItem.CurrentTorrent = torrent
 		e.DownloadingItem.CurrentDownloaderId = torrentId
@@ -166,7 +166,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
-			return errors.New("Couldn't add torrent in downloader. Skipping to next torrent in list")
+			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error())
 		}
 
 		m.DownloadingItem.CurrentTorrent = torrent
@@ -220,9 +220,9 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 		log.WithFields(log.Fields{
 			"movie":          m.Title,
 			"temporary_path": m.DownloadingItem.CurrentTorrent.DownloadDir,
-			"library_path":   configuration.Config.Library.ShowPath,
+			"library_path":   configuration.Config.Library.MoviePath,
 			"error":          err,
-		}).Error("Could not move movie from temporay download path to library folder")
+		}).Error("Could not move movie from temporary download path to library folder")
 	} else {
 		mediacenter.RefreshLibrary()
 	}
