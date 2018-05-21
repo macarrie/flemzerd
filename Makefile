@@ -6,6 +6,9 @@ webui:
 build: webui
 	go build -v
 
+doc: webui
+	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
+
 test:
 	./test.sh
 

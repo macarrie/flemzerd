@@ -1,0 +1,6 @@
+baseURL = "https://macarrie.github.io/flemzerd/"
+languageCode = "en-us"
+title = "flemzer"
+theme = "flemzer"
+
+sectionPagesMenu = "main"
