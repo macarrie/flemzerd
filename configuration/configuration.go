@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"os"
 	"path/filepath"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -12,6 +13,8 @@ var customConfigFilePath string
 var customConfigFile bool
 
 var Config Configuration
+
+var ConfigurationFatal func(code int) = os.Exit
 
 // YAML tags do not work in viper, mapstructure tags have to be used instead
 // https://github.com/spf13/viper/issues/385
@@ -137,7 +140,8 @@ func Check() {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"path": Config.Library.CustomTmpPath,
-		}).Fatal("Cannot write into tmp path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
+		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
+		ConfigurationFatal(1)
 	}
 
 	_, kodi := Config.MediaCenters["kodi"]

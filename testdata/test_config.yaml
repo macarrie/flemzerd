@@ -50,3 +50,4 @@ notifications:
 library:
     show_path: "/var/lib/flemzer/library/shows"
     movie_path: "/var/lib/flemzer/library/movies"
+    custom_tmp_path: "/dev/null"

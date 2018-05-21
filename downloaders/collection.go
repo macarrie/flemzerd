@@ -414,8 +414,8 @@ func MoveMovieToLibrary(movie *Movie) error {
 	log.WithFields(log.Fields{
 		"movie":          movie.Title,
 		"temporary_path": movie.DownloadingItem.CurrentTorrent.DownloadDir,
-		"library_path":   configuration.Config.Library.ShowPath,
-	}).Debug("Moving episode to library")
+		"library_path":   configuration.Config.Library.MoviePath,
+	}).Debug("Moving movie to library")
 
 	destinationPath := fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, movie.Title)
 	err := os.MkdirAll(destinationPath, 0755)

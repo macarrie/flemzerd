@@ -2,7 +2,15 @@ package configuration
 
 import (
 	"testing"
+
+	log "github.com/macarrie/flemzerd/logging"
 )
+
+func init() {
+	ConfigurationFatal = func(code int) {
+		log.Error("Configuration fatal error: ", code)
+	}
+}
 
 func TestUseFile(t *testing.T) {
 	UseFile("test")

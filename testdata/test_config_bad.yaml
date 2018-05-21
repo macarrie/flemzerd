@@ -17,6 +17,9 @@ downloaders:
 
 watchlists:
 
+mediacenters:
+    kodi: []
+
 notifications:
     enabled: true
     notify_new_episode: true
