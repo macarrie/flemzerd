@@ -9,6 +9,22 @@
 </div>
 
 <div class="container" ng-if="config.System.TrackMovies">
+    <div class="row" ng-if="utils.objLength(movies.tracked) == 0">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                No tracked movies
+                <button class="btn btn-sm btn-light ml-5" ng-click="refreshMovies()">
+                    <div ng-if="refreshing" class="font-italic">
+                        <i class="fas fa-sync fa-spin"></i> Refreshing
+                    </div>
+                    <div ng-if="!refreshing">
+                        <i class="fas fa-sync"></i> Refresh
+                    </div>
+                </button>
+            </span>
+        </div>
+    </div>
+
     <div class="row" ng-if="utils.objLength(movies.downloading) > 0">
         <div class="col-12 mt-3">
             <span class="h3">Downloading movies</span>
