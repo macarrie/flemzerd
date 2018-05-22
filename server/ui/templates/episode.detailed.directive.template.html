@@ -1,10 +1,15 @@
 <div id="full_background"></div>
 <div class="container-fluid action-bar">
     <div class="container">
-        <a class="text-secondary" ui-sref="tvshows">
+        <a class="text-light" ui-sref="tvshows">
             <i class="fas fa-arrow-left"></i>Back
         </a>
-        <button class="text-danger float-right" 
+        <button class="text-light float-right"
+                ng-if="!episode.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending"
+                ng-click="markAsDownloaded(episode)">
+            <i class="fas fa-check"></i>Mark as downloaded
+        </button>
+        <button class="text-danger float-right"
                 ng-if="episode.DeletedAt == null"
                 ng-click="deleteEpisode(episode.ID)">
             <i class="fas fa-times"></i>Remove

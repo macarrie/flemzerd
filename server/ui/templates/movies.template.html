@@ -95,15 +95,15 @@
                 </div>
             </button>
         </div>
-        <div class="my-3 col-lg-2 col-sm-4" ng-repeat="movie in movies.tracked">
+        <div class="my-3 col-6 col-lg-2 col-sm-4" ng-repeat="movie in movies.tracked">
             <movie ng-model="movie"></movie>
         </div>
-        <div class="my-3 col-lg-2 col-sm-4" 
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
              ng-if="show_downloaded_movies"
              ng-repeat="movie in movies.downloaded">
             <movie ng-model="movie"></movie>
         </div>
-        <div class="my-3 col-lg-2 col-sm-4" 
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
              ng-if="show_removed_movies"
              ng-repeat="movie in movies.removed">
             <movie ng-model="movie"></movie>

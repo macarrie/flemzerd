@@ -5,12 +5,17 @@
         <a class="text-secondary" ui-sref="movies">
             <i class="fas fa-arrow-left"></i>Back
         </a>
-        <button class="text-danger float-right" 
+        <button class="text-danger float-right"
                 ng-if="movie.DeletedAt == null && !movie.DownloadingItem.Downloaded"
                 ng-click="deleteMovie(movie.ID)">
             <i class="fas fa-times"></i>Remove
         </button>
-        <button class="text-primary float-right" 
+        <button class="text-light float-right"
+                ng-if="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded"
+                ng-click="markAsDownloaded(movie)">
+            <i class="fas fa-check"></i>Mark as downloaded
+        </button>
+        <button class="text-primary float-right"
                 ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded"
                 ng-click="restoreMovie(movie.ID)">
             <i class="fas fa-reply"></i>Restore
