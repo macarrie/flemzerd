@@ -30,6 +30,7 @@ notifiers:
     pushbullet:
         accessToken: ACCESS_TOKEN
     desktop: []
+    kodi: []
 
 # List of indexers used to search torrents
 indexers:

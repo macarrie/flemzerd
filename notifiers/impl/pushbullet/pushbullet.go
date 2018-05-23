@@ -153,8 +153,9 @@ func (notifier *PushbulletNotifier) Status() (Module, error) {
 	}
 
 	if response.StatusCode != 200 {
-		returnStruct.Status.Message = err.Error()
-		return returnStruct, errors.New(fmt.Sprintf("Pushbullet notifier request returned %d status code", response.StatusCode))
+		msg := fmt.Sprintf("Pushbullet notifier request returned %d status code", response.StatusCode)
+		returnStruct.Status.Message = msg
+		return returnStruct, errors.New(msg)
 	}
 
 	returnStruct.Status.Alive = true

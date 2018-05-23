@@ -29,7 +29,8 @@ func New() (k *KodiNotifier, err error) {
 		ConnectBackoffScale: 1,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Cannot connect to kodi mediacenter: %s", err.Error())
+		k.Client = nil
+		return k, fmt.Errorf("Cannot connect to kodi mediacenter: %s", err.Error())
 	}
 	k.Client = client
 
