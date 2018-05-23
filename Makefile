@@ -9,7 +9,7 @@ pull:
 	git pull
 
 deps:
-	~/go/bin/dep ensure
+	dep ensure
 
 build: deps webui
 	go build -v
