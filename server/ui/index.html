@@ -5,7 +5,7 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="static/css/flemzer.css">
 
         <title>Flemzer</title>
@@ -14,17 +14,19 @@
     <body>
         <nav class="navbar navbar-expand-lg sticky-top navbar-light topbar">
             <div class="container">
-                <span class="navbar-brand" href="#">flemzer</span>
+                <a ui-sref="home">
+                    <span class="navbar-brand" href="#">flemzer</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="home"><i class="fas fa-home"></i>Home</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="tvshows"><i class="fas fa-desktop"></i>TVShows</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="movies"><i class="fas fa-film"></i>Movies</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="status"><i class="fas fa-heartbeat"></i>Status</a>
-                        <a class="nav-item nav-link" ui-sref-active="active" ui-sref="settings"><i class="fas fa-cogs"></i>Settings</a>
+                        <a class="nav-item nav-link btn btn-sm btn-light" ui-sref-active="active" ui-sref="home"><i class="material-icons">home</i>Home</a>
+                        <a class="nav-item nav-link btn btn-sm btn-light" ui-sref-active="active" ui-sref="tvshows"><i class="material-icons">tv</i>TVShows</a>
+                        <a class="nav-item nav-link btn btn-sm btn-light" ui-sref-active="active" ui-sref="movies"><i class="material-icons">movie</i>Movies</a>
+                        <a class="nav-item nav-link btn btn-sm btn-light" ui-sref-active="active" ui-sref="status"><i class="material-icons">healing</i>Status</a>
+                        <a class="nav-item nav-link btn btn-sm btn-light" ui-sref-active="active" ui-sref="settings"><i class="material-icons">settings</i>Settings</a>
                     </div>
                 </div>
             </div>

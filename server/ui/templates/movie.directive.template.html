@@ -18,14 +18,14 @@
             </span>
         </div>
     </a>
-    <button class="btn-delete-item text-white float-right" 
+    <button class="btn btn-delete-item text-white float-right" 
             ng-click="deleteMovie(movie.ID)"
             ng-if="movie.DeletedAt == null && !movie.DownloadingItem.Downloaded">
-        <i class="fas fa-times"></i>
+        <i class="material-icons md-18">clear</i>
     </button>
-    <button class="btn-delete-item text-white float-right" 
+    <button class="btn btn-delete-item text-white float-right" 
             ng-click="restoreMovie(movie.ID)"
             ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded">
-        <i class="fas fa-reply"></i>
+        <i class="material-icons md-18">undo</i>
     </button>
 </div>

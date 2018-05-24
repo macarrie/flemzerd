@@ -2,24 +2,24 @@
 <div class="container-fluid action-bar"
      ng-class="movie.DeletedAt != null ? 'removed-element' : ''">
     <div class="container">
-        <a class="text-secondary" ui-sref="movies">
-            <i class="fas fa-arrow-left"></i>Back
+        <a class="btn text-light float-left" ui-sref="movies">
+            <i class="material-icons">arrow_back</i>Back
         </a>
-        <button class="text-danger float-right"
+        <a class="btn text-danger float-right"
                 ng-if="movie.DeletedAt == null && !movie.DownloadingItem.Downloaded"
                 ng-click="deleteMovie(movie.ID)">
-            <i class="fas fa-times"></i>Remove
-        </button>
-        <button class="text-light float-right"
+            <i class="material-icons">clear</i>Remove
+        </a>
+        <a class="btn text-light float-right"
                 ng-if="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded"
                 ng-click="markAsDownloaded(movie)">
-            <i class="fas fa-check"></i>Mark as downloaded
-        </button>
-        <button class="text-primary float-right"
+            <i class="material-icons">check</i>Mark as downloaded
+        </a>
+        <a class="btn text-primary float-right"
                 ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded"
                 ng-click="restoreMovie(movie.ID)">
-            <i class="fas fa-reply"></i>Restore
-        </button>
+            <i class="material-icons">undo</i>Restore
+        </a>
     </div>
 </div>
 <div class="container mediadetails">
@@ -41,21 +41,21 @@
                         target="_blank"
                         class="mx-2 imdb"
                         ng-if="movie.MediaIds.Imdb != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         IMDB
                     </a>
                     <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=movie"
                         target="_blank"
                         class="mx-2 trakt"
                         ng-if="movie.MediaIds.Trakt != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         Trakt
                     </a>
                     <a  href="https://themoviedb.org/movie/{{ movie.MediaIds.Tmdb }}"
                         target="_blank"
                         class="mx-2 tmdb"
                         ng-if="movie.MediaIds.Tmdb != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         TMDB
                     </a>
                 </div>
@@ -85,6 +85,7 @@
                 <div class="mb-3">
                     <span class="h6 text-success">
                         <i class="fas fa-check-circle"></i> Movie downloaded successfully
+                        <i class="material-icons">check-circle-outline</i> Movie downloaded successfully
                     </span>
                 </div>
                 <downloadingitem item="movie.DownloadingItem" downloaded="true"></downloadingitem>

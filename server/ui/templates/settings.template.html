@@ -8,13 +8,13 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item">
                     <b> Polling interval </b>
-                    <span class="float-right text-primary">
+                    <span class="float-right md-18 text-info">
                         {{ config.System.EpisodeCheckInterval }}mn
                     </span>
                 </li>
                 <li class="list-group-item">
                     <b> Torrent download attempts limit </b>
-                    <span class="float-right text-primary">
+                    <span class="float-right md-18 text-info">
                         {{ config.System.TorrentDownloadAttemptsLimit }}
                     </span>
                 </li>
@@ -25,14 +25,14 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item">
                     <b> Interface enabled </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.Interface.Enabled"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.Interface.Enabled"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.Interface.Enabled"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.Interface.Enabled"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Interface port </b>
-                    <span class="float-right">
+                    <span class="float-right md-18">
                         {{ config.Interface.Port }}
                     </span>
                 </li>
@@ -43,24 +43,24 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item">
                     <b> TV Shows tracking enabled </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.System.TrackShows"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.System.TrackShows"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.System.TrackShows"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.System.TrackShows"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Movie tracking enabled </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.System.TrackMovies"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.System.TrackMovies"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.System.TrackMovies"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.System.TrackMovies"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Preferred media quality </b>
-                    <span class="float-right text-muted" ng-if="!config.System.PreferredMediaQuality">
+                    <span class="float-right md-18 text-muted" ng-if="!config.System.PreferredMediaQuality">
                         None
                     </span>
-                    <span class="float-right text-primary" ng-if="config.System.PreferredMediaQuality">
+                    <span class="float-right md-18 text-info" ng-if="config.System.PreferredMediaQuality">
                         {{ config.System.PreferredMediaQuality }}
                     </span>
                 </li>
@@ -71,13 +71,13 @@
             <ul class="list-group">
                 <li class="list-group-item">
                     <b> TV Shows library path </b>
-                    <span class="float-right font-italic text-primary">
+                    <span class="float-right md-18 font-italic text-info">
                         {{ config.Library.ShowPath }}
                     </span>
                 </li>
                 <li class="list-group-item">
                     <b> Movies library path </b>
-                    <span class="float-right font-italic text-primary">
+                    <span class="float-right md-18 font-italic text-info">
                         {{ config.Library.MoviePath }}
                     </span>
                 </li>
@@ -92,31 +92,31 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item">
                     <b> Notifications enabled </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.Notifications.Enabled"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.Notifications.Enabled"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.Notifications.Enabled"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.Notifications.Enabled"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on new episode </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.Notifications.NotifyNewEpisode"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.Notifications.NotifyNewEpisode"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.Notifications.NotifyNewEpisode"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.Notifications.NotifyNewEpisode"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on download complete </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.Notifications.NotifyDownloadComplete"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.Notifications.NotifyDownloadComplete"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.Notifications.NotifyDownloadComplete"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.Notifications.NotifyDownloadComplete"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
                     <b> Notify on download failure </b>
-                    <span class="float-right text-danger"
-                        ng-if="!config.Notifications.NotifyFailure"><i class="fas fa-times-circle"></i></span>
-                    <span class="float-right text-success"
-                        ng-if="config.Notifications.NotifyFailure"><i class="fas fa-check-circle"></i></span>
+                    <span class="float-right md-18 text-danger"
+                        ng-if="!config.Notifications.NotifyFailure"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                        ng-if="config.Notifications.NotifyFailure"><i class="material-icons float-right md-18 md-18">check_circle_outline</i></span>
                 </li>
             </ul>
         </div>
@@ -132,11 +132,11 @@
                 <li class="list-group-item" ng-repeat="(watchlist, content) in config.Watchlists">
                     <b> {{ watchlist }} </b>
                     <span ng-if="watchlist == 'trakt' && $ctrl.trakt_auth"
-                          class="text-success float-right font-weight-light font-italic">
+                          class="text-success float-right md-18 font-weight-light font-italic">
                         configured
                     </span>
                     <button ng-if="watchlist == 'trakt' && !$ctrl.trakt_auth"
-                            class="btn btn-outline-danger btn-sm float-right font-weight-light"
+                            class="btn btn-outline-danger btn-sm float-right md-18 font-weight-light"
                             ng-click="$ctrl.startTraktAuth()">
                         Connect to trakt.tv
                     </button>
@@ -145,7 +145,7 @@
                             <hr />
 
                             Enter the following validation code into <a target="_blank" href="{{ $ctrl.trakt_device_code.verification_url }}">{{ $ctrl.trakt_device_code.verification_url }}</a>
-                            <h5 class="font-weight-bold text-center text-primary mt-2">{{ $ctrl.trakt_device_code.user_code }}</h5>
+                            <h5 class="font-weight-bold text-center text-info mt-2">{{ $ctrl.trakt_device_code.user_code }}</h5>
                         </div>
                     </div>
                 </li>
@@ -172,7 +172,7 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item" ng-repeat="indexer in config.Indexers.torznab">
                     <b> {{ indexer.name }} </b>
-                    <span class="float-right text-muted"><small> {{ indexer.url }} </small></span>
+                    <span class="float-right md-18 text-muted"><small> {{ indexer.url }} </small></span>
                 </li>
             </ul>
         </div>

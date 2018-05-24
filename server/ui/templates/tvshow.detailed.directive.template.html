@@ -2,19 +2,19 @@
 <div class="container-fluid action-bar"
      ng-class="tvshow.DeletedAt != null ? 'removed-element' : ''">
     <div class="container">
-        <a class="text-secondary" ui-sref="tvshows">
-            <i class="fas fa-arrow-left"></i>Back
+        <a class="btn text-light float-left" ui-sref="tvshows">
+            <i class="material-icons">arrow_back</i>Back
         </a>
-        <button class="text-danger float-right"
-                ng-if="tvshow.DeletedAt == null"
-                ng-click="deleteShow(tvshow.ID)">
-            <i class="fas fa-times"></i>Remove
-        </button>
-        <button class="text-primary float-right"
-                ng-if="tvshow.DeletedAt != null"
-                ng-click="restoreShow(tvshow.ID)">
-            <i class="fas fa-reply"></i>Restore
-        </button>
+        <a class="btn text-danger float-right"
+           ng-if="tvshow.DeletedAt == null"
+           ng-click="deleteShow(tvshow.ID)">
+            <i class="material-icons">clear</i>Remove
+        </a>
+        <a class="btn text-light float-right"
+           ng-if="tvshow.DeletedAt != null"
+           ng-click="restoreShow(tvshow.ID)">
+            <i class="material-icons">undo</i>Restore
+        </a>
     </div>
 </div>
 <div class="container mediadetails">
@@ -36,21 +36,21 @@
                         target="_blank"
                         class="mx-2 imdb"
                         ng-if="tvshow.MediaIds.Imdb != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         IMDB
                     </a>
                     <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=show"
                         target="_blank"
                         class="mx-2 trakt"
                         ng-if="tvshow.MediaIds.Trakt != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         Trakt
                     </a>
                     <a  href="https://themoviedb.org/tv/{{ tvshow.MediaIds.Tmdb }}"
                         target="_blank"
                         class="mx-2 tmdb"
                         ng-if="tvshow.MediaIds.Tmdb != 0">
-                        <i class="fas fa-external-link-alt"></i>
+                        <i class="material-icons">launch</i>
                         TMDB
                     </a>
                 </div>
@@ -80,12 +80,12 @@
              ng-repeat="season in tvshow.Seasons"
              ng-if="season.SeasonNumber > 0">
             <div class="col-12 my-3" ng-click="collapse = !collapse" >
-                <a class="mr-1">
-                    <i class="fas fa-angle-down" ng-if="!collapse"></i>
-                    <i class="fas fa-angle-up" ng-if="collapse"></i>
+                <a>
+                    <i class="material-icons md-18 float-left" ng-if="!collapse">arrow_drop_down</i>
+                    <i class="material-icons md-18 float-left" ng-if="collapse">arrow_drop_up</i>
                 </a>
                 <span class="h4">Season {{ season.SeasonNumber }} </span><span class="text-muted h6">( {{ season.EpisodeCount }} episodes )</span>
-                <button class="btn btn-small float-right">Mark all as downloaded</button>
+                <button class="btn btn-sm float-right">Mark all as downloaded</button>
             </div>
             <div class="col-12" ng-show="collapse">
                 <table class="table">
@@ -105,20 +105,20 @@
                                 <a class="btn btn-sm p-0"
                                    ng-click="downloadEpisode(episode)"
                                    ng-if="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
-                                    <i class="fas fa-download"></i>
+                                    <i class="material-icons">cloud_download</i>
                                 </a>
                                 <a class="btn btn-sm p-0 text-muted"
                                    ng-click="markAsDownloaded(episode)"
                                    ng-if="!episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading">
                                     Mark as downloaded
-                                    <i class="fas fa-check"></i>
+                                    <i class="material-icons">check</i>
                                 </a>
                                 <a class="btn btn-sm p-0 text-success"
                                    ng-if="episode.DownloadingItem.Downloaded">
-                                    <i class="fas fa-check"></i>
+                                    <i class="material-icons">check</i>
                                 </a>
                                 <span ng-if="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
-                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <i class="material-icons">swap_vert</i>
                                 </span>
                             </td>
                         </tr>

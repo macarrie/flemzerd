@@ -15,10 +15,10 @@
                 No tracked TV shows
                 <button class="btn btn-sm btn-light ml-5" ng-click="refreshTvShows()">
                     <div ng-if="refreshing" class="font-italic">
-                        <i class="fas fa-sync fa-spin"></i> Refreshing
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
                     </div>
                     <div ng-if="!refreshing">
-                        <i class="fas fa-sync"></i> Refresh
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
                     </div>
                 </button>
             </span>
@@ -47,8 +47,8 @@
                             </td>
                             <td>
                                 <span class="text-success"
-                                      ng-if="episode.DownloadingItem.Downloading"><i class="fas fa-check-circle"></i> Started at {{ utils.displayDate(episode.DownloadingItem.CurrentTorrent.CreatedAt) }}</span>
-                                <span ng-if="episode.DownloadingItem.Pending" class="font-italic"><i class="fas fa-search"></i> Looking for torrents</span>
+                                      ng-if="episode.DownloadingItem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i> Started at {{ utils.displayDate(episode.DownloadingItem.CurrentTorrent.CreatedAt) }}</span>
+                                <span ng-if="episode.DownloadingItem.Pending" class="font-italic"><i class="material-icons  md-18 float-left mr-1">search</i> Looking for torrents</span>
                             </td>
                             <td class="text-center font-weight-bold"
                                 ng-class="utils.objLength(episode.DownloadingItem.FailedTorrents) > 0 ? 'text-danger' : 'text-success'">
@@ -56,7 +56,7 @@
                             </td>
                             <td>
                                 <a class="text-danger" ng-click="deleteEpisode(episode.ID)">
-                                    <i class="fas fa-times"></i>
+                                    <i class="material-icons md-18 float-left">clear</i>
                                 </a>
                             </td>
                             <!--<tvshow ng-model="episode" downloading></tvshow>-->
@@ -71,19 +71,19 @@
                 <span class="h3">TV Shows</span>
                 <button class="btn btn-sm btn-light float-right" ng-click="refreshTvShows()">
                     <div ng-if="refreshing" class="font-italic">
-                        <i class="fas fa-sync fa-spin"></i> Refreshing
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
                     </div>
                     <div ng-if="!refreshing">
-                        <i class="fas fa-sync"></i> Refresh
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
                     </div>
                 </button>
                 <button class="btn btn-sm btn-light text-muted float-right"
                         ng-click="show_removed_shows = !show_removed_shows">
                     <div ng-if="!show_removed_shows">
-                        <i class="fas fa-eye"></i> Removed
+                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Removed
                     </div>
                     <div ng-if="show_removed_shows">
-                        <i class="fas fa-eye-slash"></i> Removed
+                        <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
                     </div>
                 </button>
             </div>
