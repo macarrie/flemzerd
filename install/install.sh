@@ -21,6 +21,6 @@ copy_config_files
 create_systemd_unit
 reload_systemd_units
 
-start_flemzerd
+#start_flemzerd
 
 exit 0

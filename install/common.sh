@@ -42,7 +42,7 @@ GROUP=flemzer
 function copy_binary {
     # Copy exec file
     log_line "- Copying flemzerd binary"
-    cp flemzerd $BIN/flemzerd
+    cp ../flemzerd $BIN/flemzerd
     chmod a+x $BIN/flemzerd
     print_done
 }
@@ -50,7 +50,7 @@ function copy_binary {
 function copy_server_files {
      log_line "- Copying UI files"
      mkdir -p $LIB/server/ui
-     cp -r server/ui/* $LIB/server/ui
+     cp -r ../server/ui/* $LIB/server/ui
      print_done
 }
 
@@ -82,7 +82,7 @@ function create_folder_structure {
 function copy_config_files {
     log_line "- Copying default configuration file"
     if [ ! -f $ETC/flemzerd.yml ]; then
-        cp install/flemzerd.yml $ETC
+        cp flemzerd.yml $ETC
         print_done
     else
         print_skipping
@@ -92,7 +92,7 @@ function copy_config_files {
 function create_systemd_unit {
     log_line "- Creating systemd unit"
     # Create systemd unit
-    cp install/flemzerd.service /etc/systemd/system/
+    cp flemzerd.service /etc/systemd/system/
     chmod 0644 /etc/systemd/system/flemzerd.service
     print_done
 }

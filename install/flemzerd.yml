@@ -3,20 +3,20 @@ system:
     # New episode check interval (in minutes) (default: 15)
     episode_check_interval: 15
     # Number of different torrents to try to download before declaring download as failed (default: 20)
-    torrent_download_attempts_limit: 20
+    torrent_download_attempts_limit: 5
     # Enable tvshows tracking
     track_shows: true
     # Enable movie tracking
     track_movies: true
     # Preferred quality (specified quality will be first in list of to download torrents) (possible values: 720p, 1080p)
-    preferred_media_quality: ""
+    preferred_media_quality: "720p"
 
 # WebUI settings
 interface:
     # Enable web interface
     enabled: true
     # Port used for web interface
-    port: 8080
+    port: 8400
 
 # Provider used to retrieve media info
 providers:
@@ -30,6 +30,7 @@ notifiers:
     pushbullet:
         accessToken: ACCESS_TOKEN
     desktop: []
+    kodi: []
 
 # List of indexers used to search torrents
 indexers:

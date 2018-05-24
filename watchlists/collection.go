@@ -62,7 +62,7 @@ func GetTvShows() ([]MediaIds, error) {
 		shows, err := watchlist.GetTvShows()
 		if err != nil {
 			log.WithFields(log.Fields{
-				"watchlist": watchlist,
+				"watchlist": watchlist.GetName(),
 				"error":     err,
 			}).Warning("Couldn't get TV shows from watchlist")
 			continue
@@ -80,8 +80,6 @@ func GetTvShows() ([]MediaIds, error) {
 	tvshows = append(tvshows, idsFromDb...)
 
 	tvshows = removeDuplicates(tvshows)
-	// TODO: Sort mediaids
-	//sort.Strings(tvshows)
 
 	//Return elements saved into Db
 	retList := []MediaIds{}
@@ -108,7 +106,7 @@ func GetMovies() ([]MediaIds, error) {
 		movies, err := watchlist.GetMovies()
 		if err != nil {
 			log.WithFields(log.Fields{
-				"watchlist": watchlist,
+				"watchlist": watchlist.GetName(),
 				"error":     err,
 			}).Warning("Couldn't get movies from watchlist")
 			continue
@@ -117,8 +115,6 @@ func GetMovies() ([]MediaIds, error) {
 	}
 
 	movieWatchlist = removeDuplicates(movieWatchlist)
-	// TODO: Sort movieIds
-	//sort.Strings(movieWatchlist)
 
 	//Return elements saved into Db
 	retList := []MediaIds{}

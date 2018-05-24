@@ -44,11 +44,9 @@ type TorznabTorrent struct {
 func convertTorrent(t TorznabTorrent) Torrent {
 	id := xid.New()
 	return Torrent{
-		TorrentId:   id.String(),
-		Name:        t.Title,
-		Link:        t.Link,
-		DownloadDir: "TODO",
-		//Seeders:     t.Attributes["seeders"],
+		TorrentId: id.String(),
+		Name:      t.Title,
+		Link:      t.Link,
 	}
 }
 
