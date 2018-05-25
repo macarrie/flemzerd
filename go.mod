@@ -1,0 +1,51 @@
+module github.com/macarrie/flemzerd
+
+require (
+	github.com/0xAX/notificator v0.0.0-20171022182052-88d57ee9043b
+	github.com/BurntSushi/toml v0.3.0
+	github.com/Sirupsen/logrus v1.0.5
+	github.com/coreos/go-systemd v0.0.0-20180202092358-40e2722dffea
+	github.com/denisenkom/go-mssqldb v0.0.0-20180521163914-c4e5513e46d4
+	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5
+	github.com/fsnotify/fsnotify v1.4.2
+	github.com/gin-gonic/gin v0.0.0-20170702092826-d459835d2b07
+	github.com/go-sql-driver/mysql v1.3.0
+	github.com/golang/protobuf v1.0.0
+	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb
+	github.com/jinzhu/gorm v1.9.1
+	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
+	github.com/jinzhu/now v0.0.0-20180511015916-ed742868f2ae
+	github.com/kylelemons/go-gypsy v0.0.0-20160905020020-08cad365cd28
+	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+	github.com/macarrie/transmission v0.0.0-20180324172349-fbd7627f3fbd
+	github.com/magiconair/properties v1.7.3
+	github.com/mattn/go-isatty v0.0.3
+	github.com/mattn/go-sqlite3 v1.6.0
+	github.com/mitchellh/mapstructure v0.0.0-20171017171808-06020f85339e
+	github.com/ogier/pflag v0.0.1
+	github.com/onsi/ginkgo v1.5.0
+	github.com/onsi/gomega v1.4.0
+	github.com/pdf/kodirpc v0.0.1
+	github.com/pelletier/go-toml v1.0.1
+	github.com/pioz/tvdb v0.0.0-20171006123929-4f8b6606bb43
+	github.com/rs/xid v0.0.0-20170604230408-02dd45c33376
+	github.com/ryanbradynd05/go-tmdb v0.0.0-20150210012833-5ab02a065516
+	github.com/sirupsen/logrus v1.0.5
+	github.com/spf13/afero v0.0.0-20171021110813-5660eeed305f
+	github.com/spf13/cast v1.1.0
+	github.com/spf13/jwalterweatherman v0.0.0-20170901151539-12bd96e66386
+	github.com/spf13/pflag v1.0.0
+	github.com/spf13/viper v1.0.0
+	github.com/ugorji/go v0.0.0-20180112141927-9831f2c3ac10
+	github.com/upgear/go-kit v0.0.0-20180517233053-4d662cc2f16f
+	golang.org/x/crypto v0.0.0-20171031160130-bd6f299fb381
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20171031081856-95c657629925
+	golang.org/x/text v0.0.0-20171031132949-3cfc6c0d6bf8
+	gopkg.in/airbrake/gobrake.v2 v2.0.9
+	gopkg.in/check.v1 v1.0.0-20161208181325-20d25e280405
+	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2
+	gopkg.in/go-playground/assert.v1 v1.2.1
+	gopkg.in/go-playground/validator.v8 v8.18.2
+	gopkg.in/yaml.v2 v2.0.0-20170812160011-eb3733d160e7
+)

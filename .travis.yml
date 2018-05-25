@@ -1,13 +1,12 @@
 language: go
 go:
-    - 1.9
+    - "1.10"
 
 before_install:
     - sudo pip install guessit
 
 install:
-    - go get -u github.com/golang/dep/cmd/dep
-    - make deps
+    - go get -u golang.org/x/vgo
 
 before_script:
     - go vet ./...
