@@ -9,7 +9,7 @@ install:
     - go get -u golang.org/x/vgo
 
 before_script:
-    - go vet ./...
+    - vgo vet ./...
 
 script:
     - make test
