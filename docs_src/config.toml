@@ -1,6 +1,13 @@
-baseURL = "https://macarrie.github.io/flemzerd/"
+baseURL = "/"
 languageCode = "en-us"
 title = "flemzer"
 theme = "flemzer"
 
-sectionPagesMenu = "main"
+description = "Pouet"
+
+Paginate = 4
+
+[[menu.main]]
+name = "Docs"
+weight = -100
+url = "/docs/"

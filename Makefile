@@ -8,11 +8,8 @@ webui:
 pull:
 	git pull
 
-deps:
-	dep ensure
-
-build: deps webui
-	go build -v
+build: webui
+	vgo build -v
 
 doc: webui
 	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
