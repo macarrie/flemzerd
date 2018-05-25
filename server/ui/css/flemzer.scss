@@ -15,14 +15,14 @@ $light: #F5F5F5;
 
 $theme-colors: () !default;
 $theme-colors: map-merge((
-  "primary":    $primary,
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark
+"primary":    $primary,
+"secondary":  $secondary,
+"success":    $success,
+"info":       $info,
+"warning":    $warning,
+"danger":     $danger,
+"light":      $light,
+"dark":       $dark
 ), $theme-colors);
 
 $body-bg: $light;
@@ -43,6 +43,22 @@ body {
     overflow-x: hidden;
 }
 
+.material-icons.md-18 { 
+    font-size: 18px;
+    position: relative;
+    top: 1px;
+}
+.material-icons.md-24 { font-size: 24px;  }
+.material-icons.md-36 { font-size: 36px;  }
+.material-icons.md-48 { font-size: 48px;  }
+
+a i.material-icons {
+    font-size: 16px;
+    margin-right: 3px;
+    position: relative;
+    top: 3px;
+}
+
 .navbar {
     background: $light;
     border-top: 3px solid $primary;
@@ -50,10 +66,7 @@ body {
     border-image-slice: 1;
 
     a {
-        .fas, .fab {
-            width: 15px;
-            margin-right: 5px;
-        }
+        margin: 5px;
     }
 
     .navbar-brand {
@@ -138,7 +151,10 @@ img.black_and_white {
     background: transparent;
     border: none;
     font-size: 12px;
-    opacity: 0.6;
+    opacity: 0.8;
+    padding: 0;
+    margin: 0;
+    margin-right: 2px;
 
     &:hover {
         opacity: 1;
@@ -203,6 +219,7 @@ img.black_and_white {
     line-height: 30px;
     background: rgba(255, 255, 255, 0.05);
     margin-bottom: 20px;
+    padding: 3px;
 
     button, a {
         background: transparent;
