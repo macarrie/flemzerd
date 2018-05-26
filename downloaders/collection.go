@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -383,6 +385,11 @@ func MarkMovieFailedDownload(m *Movie) {
 	db.Client.Save(&m)
 }
 
+func sanitizeStringForFilename(src string) string {
+	reg, _ := regexp.Compile("[^a-z0-9]+")
+	return reg.ReplaceAllString(strings.ToLower(src), "_")
+}
+
 func MoveEpisodeToLibrary(episode *Episode) error {
 	log.WithFields(log.Fields{
 		"show":           episode.TvShow.Name,
@@ -393,7 +400,7 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d/", configuration.Config.Library.ShowPath, episode.TvShow.Name, episode.Season, episode.Season, episode.Number)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(episode.TvShow.Name), episode.Season, episode.Season, episode.Number)
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return fmt.Errorf("Could not create library folder for episode: %s", err.Error())
@@ -426,7 +433,7 @@ func MoveMovieToLibrary(movie *Movie) error {
 		"library_path":   configuration.Config.Library.MoviePath,
 	}).Debug("Moving movie to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/", configuration.Config.Library.MoviePath, movie.Title)
+	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(movie.Title))
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return fmt.Errorf("Could not create library folder for movie: %s", err.Error())
