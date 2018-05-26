@@ -25,6 +25,17 @@ flemzerd.component("episodedetails", {
             tvshows.deleteEpisode(id);
         };
 
+        $scope.changeDownloadedState = function(e, downloaded) {
+            ret = tvshows.changeDownloadedState(e, downloaded);
+            if (ret != false) {
+                ret.then(function(response) {
+                    if (response.status == 200) {
+                        $scope.episode = response.data;
+                    }
+                });
+            }
+        };
+
         return;
     }
 });

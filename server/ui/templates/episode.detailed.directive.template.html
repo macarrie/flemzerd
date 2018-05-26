@@ -4,15 +4,20 @@
         <a class="btn text-light float-left" ui-sref="tvshows">
             <i class="material-icons">arrow_back</i>Back
         </a>
-        <a class="btn text-light float-right"
-                ng-if="!episode.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending"
-                ng-click="markAsDownloaded(episode)">
-            <i class="material-icons">check</i>Mark as downloaded
-        </a>
         <a class="btn text-danger float-right"
                 ng-if="episode.DeletedAt == null"
                 ng-click="deleteEpisode(episode.ID)">
             <i class="material-icons">clear</i>Remove
+        </a>
+        <a class="btn text-light float-right"
+                ng-if="episode.DownloadingItem.Downloaded && episode.DeletedAt == null"
+                ng-click="changeDownloadedState(episode, false)">
+            <i class="material-icons">check</i>Unmark as downloaded
+        </a>
+        <a class="btn text-light float-right"
+                ng-if="!episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Downloaded && episode.DeletedAt == null"
+                ng-click="changeDownloadedState(episode, true)">
+            <i class="material-icons">check</i>Mark as downloaded
         </a>
     </div>
 </div>

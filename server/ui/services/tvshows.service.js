@@ -80,6 +80,19 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         return false;
     };
 
+    var changeDownloadedState = function(episode, downloaded) {
+        id = episode.ID;
+        if (id !== 0) {
+            return $http.put("/api/v1/tvshows/episodes/" +id, {
+                "Downloaded": downloaded
+            }).then(function(response) {
+                return response;
+            });
+        }
+        return false;
+    };
+
+
     $rootScope.tvshows = {}
     loadShows();
     $interval(loadShows, 30000);
@@ -89,6 +102,7 @@ flemzerd.factory('tvshows', ['$rootScope', '$interval', '$http', function($rootS
         loadShows: loadShows,
         deleteShow: deleteShow,
         restoreShow: restoreShow,
-        deleteEpisode: deleteEpisode
+        deleteEpisode: deleteEpisode,
+        changeDownloadedState: changeDownloadedState
     };
 }]);

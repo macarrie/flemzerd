@@ -55,6 +55,41 @@ flemzerd.component("tvshowdetails", {
             });
         };
 
+        $scope.markAsDownloaded = function(e) {
+            ret = tvshows.changeDownloadedState(e, true);
+            if (ret != false) {
+                ret.then(function(response) {
+                    if (response.status == 200) {
+                        getEpisodeList(e.Season);
+                    }
+                });
+            }
+        };
+
+        $scope.unmarkAsDownloaded = function(e) {
+            ret = tvshows.changeDownloadedState(e, false);
+            if (ret != false) {
+                ret.then(function(response) {
+                    if (response.status == 200) {
+                        getEpisodeList(e.Season);
+                    }
+                });
+            }
+        };
+
+        $scope.changeSeasonDownloadedState = function(s, downloaded) {
+            promises = [];
+            $scope.seasons[s.SeasonNumber].forEach(function(elt) {
+                if (elt.DownloadingItem.Downloaded != downloaded) {
+                    promises.push(tvshows.changeDownloadedState(elt, downloaded));
+                }
+            });
+            Promise.all(promises).then(function() {
+                getEpisodeList(s.SeasonNumber);
+            });
+        };
+
+
         return;
     }
 });

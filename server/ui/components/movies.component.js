@@ -32,6 +32,17 @@ flemzerd.component("movies", {
             movies.restoreMovie(id);
         };
 
+        $scope.changeDownloadedState = function(m, downloaded) {
+            ret = movies.changeDownloadedState(m, downloaded);
+            if (ret != false) {
+                ret.then(function(response) {
+                    if (response.status == 200) {
+                        movies.loadMovies();
+                    }
+                });
+            }
+        };
+
         self.refresh();
         $interval(self.refresh, 1000);
 

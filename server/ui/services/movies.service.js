@@ -53,6 +53,18 @@ flemzerd.factory('movies', ['$rootScope', '$interval', '$http', function($rootSc
         return false;
     };
 
+    var changeDownloadedState = function(movie, downloaded) {
+        id = movie.ID;
+        if (id !== 0) {
+            return $http.put("/api/v1/movies/details/" +id, {
+                "Downloaded": downloaded
+            }).then(function(response) {
+                return response;
+            });
+        }
+        return false;
+    };
+
     $rootScope.movies = {}
     loadMovies();
     $interval(loadMovies, 30000);
@@ -60,6 +72,7 @@ flemzerd.factory('movies', ['$rootScope', '$interval', '$http', function($rootSc
     return {
         loadMovies: loadMovies,
         deleteMovie: deleteMovie,
-        restoreMovie: restoreMovie
+        restoreMovie: restoreMovie,
+        changeDownloadedState: changeDownloadedState
     }
 }]);

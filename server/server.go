@@ -222,6 +222,23 @@ func initRouter() {
 				db.Client.Unscoped().Delete(&ep)
 				c.JSON(http.StatusNoContent, nil)
 			})
+			tvshowsRoute.PUT("/episodes/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var ep Episode
+				req := db.Client.Find(&ep, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				var itemInfo DownloadingItem
+				c.Bind(&itemInfo)
+
+				ep.DownloadingItem.Downloaded = itemInfo.Downloaded
+				db.Client.Save(&ep)
+
+				c.JSON(http.StatusOK, ep)
+			})
 		}
 
 		moviesRoute := v1.Group("/movies")
@@ -281,6 +298,23 @@ func initRouter() {
 					return
 				}
 				c.JSON(http.StatusNoContent, nil)
+			})
+			moviesRoute.PUT("/details/:id", func(c *gin.Context) {
+				id := c.Param("id")
+				var movie Movie
+				req := db.Client.Find(&movie, id)
+				if req.RecordNotFound() {
+					c.JSON(http.StatusNotFound, gin.H{})
+					return
+				}
+
+				var itemInfo DownloadingItem
+				c.Bind(&itemInfo)
+
+				movie.DownloadingItem.Downloaded = itemInfo.Downloaded
+				db.Client.Save(&movie)
+
+				c.JSON(http.StatusOK, movie)
 			})
 			moviesRoute.POST("/restore/:id", func(c *gin.Context) {
 				id := c.Param("id")

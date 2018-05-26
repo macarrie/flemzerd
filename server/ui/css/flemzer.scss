@@ -59,6 +59,10 @@ a i.material-icons {
     top: 3px;
 }
 
+.spin {
+    animation: fa-spin 2s infinite linear;
+}
+
 .navbar {
     background: $light;
     border-top: 3px solid $primary;
@@ -144,22 +148,33 @@ img.black_and_white {
 }
 
 
-.media-card .btn-delete-item {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: transparent;
-    border: none;
-    font-size: 12px;
-    opacity: 0.8;
-    padding: 0;
-    margin: 0;
-    margin-right: 2px;
+.media-card {
+    .btn {
+        background: transparent;
+        border: none;
+        font-size: 12px;
+        opacity: 0.8;
+        padding: 0;
+        margin: 0;
 
-    &:hover {
-        opacity: 1;
+        &:hover {
+            opacity: 1;
+        }
+    }
+    .btn-delete-item {
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin-right: 2px;
+    }
+    .btn-mark {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin-left: 2px;
     }
 }
+
 
 
 #full_background{

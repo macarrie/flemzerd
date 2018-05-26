@@ -90,8 +90,13 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
+			RemoveTorrent(torrent)
+			e.DownloadingItem.FailedTorrents = append(e.DownloadingItem.FailedTorrents, torrent)
+			e.DownloadingItem.CurrentTorrent = Torrent{}
+			db.Client.Save(&e)
 			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error())
 		}
+
 		e.DownloadingItem.CurrentTorrent = torrent
 		e.DownloadingItem.CurrentDownloaderId = torrentId
 		db.Client.Save(&e)
@@ -166,6 +171,10 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
+			RemoveTorrent(torrent)
+			m.DownloadingItem.FailedTorrents = append(m.DownloadingItem.FailedTorrents, torrent)
+			m.DownloadingItem.CurrentTorrent = Torrent{}
+			db.Client.Save(&m)
 			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error())
 		}
 

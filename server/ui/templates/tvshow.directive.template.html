@@ -16,12 +16,12 @@
             </span>
         </div>
     </a>
-    <button class="btn-delete-item text-white float-right" 
+    <button class="btn btn-delete-item text-white float-right" 
             ng-click="deleteShow(tvshow.ID)"
             ng-if="tvshow.DeletedAt == null">
         <i class="material-icons md-18">clear</i>
     </button>
-    <button class="btn-delete-item text-white float-right" 
+    <button class="btn btn-delete-item text-white float-right" 
             ng-click="restoreShow(tvshow.ID)"
             ng-if="tvshow.DeletedAt != null">
         <i class="material-icons md-18">undo</i>

@@ -10,15 +10,20 @@
                 ng-click="deleteMovie(movie.ID)">
             <i class="material-icons">clear</i>Remove
         </a>
-        <a class="btn text-light float-right"
-                ng-if="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded"
-                ng-click="markAsDownloaded(movie)">
-            <i class="material-icons">check</i>Mark as downloaded
-        </a>
         <a class="btn text-primary float-right"
                 ng-if="movie.DeletedAt != null && !movie.DownloadingItem.Downloaded"
                 ng-click="restoreMovie(movie.ID)">
             <i class="material-icons">undo</i>Restore
+        </a>
+        <a class="btn text-light float-right"
+                ng-if="movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
+                ng-click="changeDownloadedState(movie, false)">
+            <i class="material-icons">check</i>Unmark as downloaded
+        </a>
+        <a class="btn text-light float-right"
+                ng-if="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
+                ng-click="changeDownloadedState(movie, true)">
+            <i class="material-icons">check</i>Mark as downloaded
         </a>
     </div>
 </div>
@@ -28,9 +33,6 @@
             <img class="rounded" width="100%" src="{{ movie.Poster }}" alt="">
         </div>
         <div class="col-8 pl-0 pr-5 pt-2">
-            <!--<a ui-sref="movies" class="h6 text-muted mx-3">-->
-            <!--<i class="fas fa-arrow-left"></i>-->
-            <!--</a>-->
             <span class="h2">{{ movie.Title }} </span> <span class="h3 text-muted">({{ utils.getYear(movie.Date) }})</span>
             <span class="text-muted" ng-if="movie.Title != movie.OriginalTitle">( {{ movie.OriginalTitle }} )</span>
 

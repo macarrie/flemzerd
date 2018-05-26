@@ -31,6 +31,17 @@ flemzerd.component("moviedetails", {
             getMovie();
         };
 
+        $scope.changeDownloadedState = function(m, downloaded) {
+            ret = movies.changeDownloadedState(m, downloaded);
+            if (ret != false) {
+                ret.then(function(response) {
+                    if (response.status == 200) {
+                        $scope.movie = response.data;
+                    }
+                });
+            }
+        };
+
         return;
     }
 });
