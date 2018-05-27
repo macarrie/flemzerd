@@ -135,14 +135,12 @@
                             <td class="text-center">
                                 <a class="btn btn-sm p-0 text-muted"
                                    ng-click="unmarkAsDownloaded(episode)"
-                                   ng-if="episode.DownloadingItem.Downloaded">
-                                    <!--Unmark as downloaded-->
+                                   ng-if="episode.DownloadingItem.Downloaded && !utils.dateIsInFuture(episode.Date)">
                                     <i class="material-icons">cloud_off</i>
                                 </a>
                                 <a class="btn btn-sm p-0 text-muted"
                                    ng-click="markAsDownloaded(episode)"
-                                   ng-if="!episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading">
-                                    <!--Mark as downloaded-->
+                                   ng-if="!episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading && !utils.dateIsInFuture(episode.Date)">
                                     <i class="material-icons">cloud_done</i>
                                 </a>
                             </td>
