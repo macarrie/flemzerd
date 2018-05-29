@@ -4,24 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/macarrie/flemzerd/logging"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
-
 	"github.com/macarrie/flemzerd/configuration"
-	"github.com/macarrie/flemzerd/db"
-	downloader "github.com/macarrie/flemzerd/downloaders"
-	indexer "github.com/macarrie/flemzerd/indexers"
-	notifier "github.com/macarrie/flemzerd/notifiers"
-	provider "github.com/macarrie/flemzerd/providers"
-	watchlist "github.com/macarrie/flemzerd/watchlists"
-
-	. "github.com/macarrie/flemzerd/objects"
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 var srv *http.Server
@@ -53,416 +40,76 @@ func initRouter() {
 
 		tvshowsRoute := v1.Group("/tvshows")
 		{
-			tvshowsRoute.GET("/tracked", func(c *gin.Context) {
-				shows, err := db.GetTrackedTvShows()
-				if err != nil {
-					log.Error("Error while gettings tracked shows from db: ", err)
-				}
-				c.JSON(http.StatusOK, shows)
-			})
-			tvshowsRoute.GET("/downloading", func(c *gin.Context) {
-				episodes, err := db.GetDownloadingEpisodes()
-				if err != nil {
-					log.Error("Error while getting downloading episodes from db: ", err)
-				}
-				c.JSON(http.StatusOK, episodes)
-			})
-			tvshowsRoute.GET("/removed", func(c *gin.Context) {
-				var tvShows []TvShow
-				var retList []TvShow
-
-				if err := db.Client.Unscoped().Order("status").Order("name").Find(&tvShows).Error; err != nil {
-					log.Error("Error while getting removed shows from db: ", err)
-				}
-
-				for _, show := range tvShows {
-					if show.DeletedAt != nil {
-						retList = append(retList, show)
-					}
-				}
-				c.JSON(http.StatusOK, retList)
-			})
-			tvshowsRoute.GET("/downloaded", func(c *gin.Context) {
-				episodes, err := db.GetDownloadedEpisodes()
-				if err != nil {
-					log.Error("Error while getting downloaded episodes from db: ", err)
-				}
-				c.JSON(http.StatusOK, episodes)
-			})
-			tvshowsRoute.GET("/details/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var show TvShow
-				req := db.Client.Unscoped().Find(&show, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-				c.JSON(http.StatusOK, show)
-			})
-			tvshowsRoute.GET("/details/:id/seasons/:season_nb", func(c *gin.Context) {
-				id := c.Param("id")
-				seasonNumber := c.Param("season_nb")
-				var show TvShow
-				req := db.Client.First(&show, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				seasonNb, err := strconv.Atoi(seasonNumber)
-				if err != nil {
-					c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
-					return
-				}
-
-				epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
-				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{})
-					return
-				}
-
-				c.JSON(http.StatusOK, epList)
-			})
-			tvshowsRoute.DELETE("/details/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var show TvShow
-				req := db.Client.Delete(&show, id)
-				if err := req.Error; err != nil {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-				c.JSON(http.StatusNoContent, nil)
-			})
-			tvshowsRoute.POST("/restore/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var show TvShow
-				req := db.Client.Unscoped().Find(&show, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				show.DeletedAt = nil
-				db.Client.Unscoped().Save(&show)
-
-				c.JSON(http.StatusOK, gin.H{})
-			})
-			tvshowsRoute.GET("/episodes/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var ep Episode
-				req := db.Client.Find(&ep, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-				c.JSON(http.StatusOK, ep)
-			})
-			tvshowsRoute.POST("/episodes/:id/download", func(c *gin.Context) {
-				id := c.Param("id")
-
-				var ep Episode
-				req := db.Client.Find(&ep, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				if ep.DownloadingItem.Downloaded || ep.DownloadingItem.Downloading || ep.DownloadingItem.Pending {
-					c.JSON(http.StatusNotModified, gin.H{})
-					return
-				}
-
-				ep.DownloadingItem.Pending = true
-				db.Client.Save(&ep)
-
-				go func() {
-					log.WithFields(log.Fields{
-						"id":      id,
-						"show":    ep.TvShow.Name,
-						"episode": ep.Name,
-						"season":  ep.Season,
-						"number":  ep.Number,
-					}).Info("Launching individual episode download")
-
-					torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
-					if err != nil {
-						log.Warning(err)
-						c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-						return
-					}
-					log.Debug("Torrents found: ", len(torrentList))
-
-					toDownload := downloader.FillEpisodeToDownloadTorrentList(&ep, torrentList)
-					if len(toDownload) == 0 {
-						downloader.MarkEpisodeFailedDownload(&ep.TvShow, &ep)
-						c.JSON(http.StatusInternalServerError, gin.H{"error": "No torrents found"})
-						return
-					}
-					notifier.NotifyEpisodeDownloadStart(&ep)
-
-					downloader.DownloadEpisode(ep.TvShow, ep, toDownload)
-				}()
-
-				c.JSON(http.StatusOK, gin.H{})
-				return
-			})
-			tvshowsRoute.DELETE("/episodes/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var ep Episode
-				req := db.Client.Find(&ep, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				currentDownloadPath := ep.DownloadingItem.CurrentTorrent.DownloadDir
-				downloader.RemoveTorrent(ep.DownloadingItem.CurrentTorrent)
-				os.Remove(currentDownloadPath)
-
-				db.Client.Unscoped().Delete(&ep)
-				c.JSON(http.StatusNoContent, nil)
-			})
-			tvshowsRoute.PUT("/episodes/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var ep Episode
-				req := db.Client.Find(&ep, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				var itemInfo DownloadingItem
-				c.Bind(&itemInfo)
-
-				ep.DownloadingItem.Downloaded = itemInfo.Downloaded
-				db.Client.Save(&ep)
-
-				c.JSON(http.StatusOK, ep)
-			})
+			tvshowsRoute.GET("/tracked", getTrackedShows)
+			tvshowsRoute.GET("/downloading", getDownloadingEpisodes)
+			tvshowsRoute.GET("/removed", getRemovedShows)
+			tvshowsRoute.GET("/downloaded", getDownloadedEpisodes)
+			tvshowsRoute.GET("/details/:id", getShowDetails)
+			tvshowsRoute.GET("/details/:id/seasons/:season_nb", getSeasonDetails)
+			tvshowsRoute.DELETE("/details/:id", deleteShow)
+			tvshowsRoute.POST("/restore/:id", restoreShow)
+			tvshowsRoute.GET("/episodes/:id", getEpisodeDetails)
+			tvshowsRoute.POST("/episodes/:id/download", downloadEpisode)
+			tvshowsRoute.DELETE("/episodes/:id", deleteEpisode)
+			tvshowsRoute.PUT("/episodes/:id", changeEpisodeDownloadedState)
 		}
 
 		moviesRoute := v1.Group("/movies")
 		{
-			moviesRoute.GET("/tracked", func(c *gin.Context) {
-				movies, err := db.GetTrackedMovies()
-				if err != nil {
-					log.Error("Error while getting downloading movies from db: ", err)
-				}
-				c.JSON(http.StatusOK, movies)
-			})
-			moviesRoute.GET("/downloading", func(c *gin.Context) {
-				movies, err := db.GetDownloadingMovies()
-				if err != nil {
-					log.Error("Error while getting downloading movies from db: ", err)
-				}
-				c.JSON(http.StatusOK, movies)
-			})
-			moviesRoute.GET("/removed", func(c *gin.Context) {
-				var movies []Movie
-				var retList []Movie
-
-				if err := db.Client.Unscoped().Order("created_at DESC").Find(&movies).Error; err != nil {
-					log.Error("Error while getting removed movies from db: ", err)
-				}
-
-				for _, m := range movies {
-					if m.DeletedAt != nil {
-						retList = append(retList, m)
-					}
-				}
-				c.JSON(http.StatusOK, retList)
-			})
-			moviesRoute.GET("/downloaded", func(c *gin.Context) {
-				movies, err := db.GetDownloadedMovies()
-				if err != nil {
-					log.Error("Error while getting downloaded movies from db: ", err)
-				}
-				c.JSON(http.StatusOK, movies)
-			})
-			moviesRoute.GET("/details/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var movie Movie
-				req := db.Client.Unscoped().Find(&movie, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-				c.JSON(http.StatusOK, movie)
-			})
-			moviesRoute.DELETE("/details/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var movie Movie
-				req := db.Client.Delete(&movie, id)
-				if err := req.Error; err != nil {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-				c.JSON(http.StatusNoContent, nil)
-			})
-			moviesRoute.PUT("/details/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var movie Movie
-				req := db.Client.Find(&movie, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				var itemInfo DownloadingItem
-				c.Bind(&itemInfo)
-
-				movie.DownloadingItem.Downloaded = itemInfo.Downloaded
-				db.Client.Save(&movie)
-
-				c.JSON(http.StatusOK, movie)
-			})
-			moviesRoute.POST("/restore/:id", func(c *gin.Context) {
-				id := c.Param("id")
-				var movie Movie
-				req := db.Client.Unscoped().Find(&movie, id)
-				if req.RecordNotFound() {
-					c.JSON(http.StatusNotFound, gin.H{})
-					return
-				}
-
-				movie.DeletedAt = nil
-				db.Client.Unscoped().Save(&movie)
-
-				c.JSON(http.StatusOK, gin.H{})
-			})
+			moviesRoute.GET("/tracked", getTrackedMovies)
+			moviesRoute.GET("/downloading", getDownloadingMovies)
+			moviesRoute.GET("/removed", getRemovedMovies)
+			moviesRoute.GET("/downloaded", getDownloadedMovies)
+			moviesRoute.GET("/details/:id", getMovieDetails)
+			moviesRoute.DELETE("/details/:id", deleteMovie)
+			moviesRoute.PUT("/details/:id", changeMovieDownloadedState)
+			moviesRoute.POST("/restore/:id", restoreMovie)
 		}
 
 		modules := v1.Group("/modules")
 		{
-			modules.GET("/status", func(c *gin.Context) {
-				var status []Module
-
-				providers, _ := provider.Status()
-				notifiers, _ := notifier.Status()
-				indexers, _ := indexer.Status()
-				downloaders, _ := downloader.Status()
-
-				status = append(status, providers...)
-				status = append(status, notifiers...)
-				status = append(status, indexers...)
-				status = append(status, downloaders...)
-
-				c.JSON(http.StatusOK, status)
-			})
+			modules.GET("/status", getModulesStatus)
 
 			providers := modules.Group("/providers")
 			{
-				providers.GET("/status", func(c *gin.Context) {
-					mods, _ := provider.Status()
-					c.JSON(http.StatusOK, mods)
-				})
+				providers.GET("/status", getProvidersStatus)
 			}
 
 			indexers := modules.Group("/indexers")
 			{
-				indexers.GET("/status", func(c *gin.Context) {
-					mods, _ := indexer.Status()
-					c.JSON(http.StatusOK, mods)
-				})
+				indexers.GET("/status", getIndexersStatus)
 			}
 
 			notifiers := modules.Group("/notifiers")
 			{
-				notifiers.GET("/status", func(c *gin.Context) {
-					mods, _ := notifier.Status()
-					c.JSON(http.StatusOK, mods)
-				})
+				notifiers.GET("/status", getNotifiersStatus)
 			}
 
 			downloaders := modules.Group("/downloaders")
 			{
-				downloaders.GET("/status", func(c *gin.Context) {
-					mods, _ := downloader.Status()
-					c.JSON(http.StatusOK, mods)
-				})
+				downloaders.GET("/status", getDownloadersStatus)
 			}
 
 			mediacenters := modules.Group("/mediacenters")
 			{
-				mediacenters.GET("/status", func(c *gin.Context) {
-					mods, _ := mediacenter.Status()
-					c.JSON(http.StatusOK, mods)
-				})
+				mediacenters.GET("/status", getMediacentersStatus)
 			}
 
 			watchlists := modules.Group("/watchlists")
 			{
-				watchlists.GET("/status", func(c *gin.Context) {
-					mods, _ := watchlist.Status()
-					c.JSON(http.StatusOK, mods)
-				})
-
-				watchlists.POST("/refresh", func(c *gin.Context) {
-					provider.GetTVShowsInfoFromConfig()
-					provider.GetMoviesInfoFromConfig()
-					c.JSON(http.StatusOK, gin.H{})
-				})
+				watchlists.GET("/status", getWatchlistsStatus)
+				watchlists.POST("/refresh", refreshWatchlists)
 
 				traktRoutes := watchlists.Group("/trakt")
 				{
-
-					traktRoutes.GET("/auth", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("trakt")
-						if err != nil {
-							c.JSON(http.StatusNotFound, err)
-							return
-						}
-
-						t := w.(*trakt.TraktWatchlist)
-						if err := t.IsAuthenticated(); err == nil {
-							c.JSON(http.StatusNoContent, gin.H{})
-							return
-						}
-
-						go t.Auth()
-						c.JSON(http.StatusOK, gin.H{})
-						return
-					})
-
-					traktRoutes.GET("/auth_errors", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("trakt")
-						t := w.(*trakt.TraktWatchlist)
-						if err != nil {
-							c.JSON(http.StatusInternalServerError, err)
-							return
-						}
-
-						c.JSON(http.StatusOK, t.GetAuthErrors())
-					})
-
-					traktRoutes.GET("/token", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("trakt")
-						if err != nil {
-							c.JSON(http.StatusInternalServerError, err)
-							return
-						}
-
-						t := w.(*trakt.TraktWatchlist)
-						c.JSON(http.StatusOK, t.Token)
-					})
-
-					traktRoutes.GET("/devicecode", func(c *gin.Context) {
-						w, err := watchlist.GetWatchlist("trakt")
-						if err != nil {
-							c.JSON(http.StatusNotFound, err)
-							return
-						}
-
-						t := w.(*trakt.TraktWatchlist)
-						c.JSON(http.StatusOK, t.DeviceCode)
-						return
-					})
+					traktRoutes.GET("/auth", performTraktAuth)
+					traktRoutes.GET("/auth_errors", getTraktAuthErrors)
+					traktRoutes.GET("/token", getTraktToken)
+					traktRoutes.GET("/devicecode", getTraktDeviceCode)
 				}
 			}
 		}
-
 	}
-
 }
 
 func Start(port int, debug bool) {
