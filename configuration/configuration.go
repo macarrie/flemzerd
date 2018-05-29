@@ -16,6 +16,12 @@ var Config Configuration
 
 var ConfigurationFatal func(code int) = os.Exit
 
+// SECRET KEYS FROM ENV
+var TRAKT_CLIENT_SECRET string
+var TELEGRAM_BOT_TOKEN string
+var TMDB_API_KEY string
+var TVDB_API_KEY string
+
 // YAML tags do not work in viper, mapstructure tags have to be used instead
 // https://github.com/spf13/viper/issues/385
 type Configuration struct {
@@ -169,6 +175,15 @@ func Load() error {
 		viper.AddConfigPath("$HOME/.config/flemzerd/")
 		viper.AddConfigPath("/etc/flemzerd/")
 	}
+
+	viper.SetEnvPrefix("FLZ")
+	viper.BindEnv("TRAKT_CLIENT_SECRET")
+	viper.BindEnv("TELEGRAM_BOT_TOKEN")
+
+	TRAKT_CLIENT_SECRET = viper.GetString("TRAKT_CLIENT_SECRET")
+	TELEGRAM_BOT_TOKEN = viper.GetString("TELEGRAM_BOT_TOKEN")
+	TMDB_API_KEY = viper.GetString("TMDB_API_KEY")
+	TVDB_API_KEY = viper.GetString("TVDB_API_KEY")
 
 	readErr := viper.ReadInConfig()
 	if readErr != nil {

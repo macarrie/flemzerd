@@ -11,15 +11,14 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 const (
-	TRAKT_CLIENT_ID     = "4d5d84f3a95adc528d08b1e2f6df6c8197548d128e72e68b4c33fc0dfa634926"
-	TRAKT_CLIENT_SECRET = "bb0816bb9f73e6a4fbc837f583ce8a0fb8160648a9a9d60f71e55fa47cca4b42"
-	TRAKT_API_URL       = "https://api.trakt.tv"
+	TRAKT_API_URL = "https://api.trakt.tv"
 )
 
 type TraktWatchlist struct {
@@ -197,7 +196,7 @@ func (t *TraktWatchlist) RequestDeviceCode() error {
 func (t *TraktWatchlist) RequestToken() (http.Response, error) {
 	params := map[string]string{
 		"client_id":     TRAKT_CLIENT_ID,
-		"client_secret": TRAKT_CLIENT_SECRET,
+		"client_secret": configuration.TRAKT_CLIENT_SECRET,
 		"code":          t.DeviceCode.DeviceCode,
 	}
 	response, err := t.performAPIRequest("POST", "/oauth/device/token", params)

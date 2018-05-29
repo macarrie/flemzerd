@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/pioz/tvdb"
@@ -55,6 +56,12 @@ func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 // Check if Provider is alive
 func (tvdbProvider *TVDBProvider) Status() (Module, error) {
 	log.Debug("Checking TVDB provider status")
+
+	if configuration.TELEGRAM_BOT_TOKEN == "" {
+		module.Status.Alive = false
+		module.Status.Message = "TVDB API key not found"
+		return module, errors.New(module.Status.Message)
+	}
 
 	// Token expires every 24h. Refresh it if needed
 	now := time.Now()

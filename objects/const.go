@@ -14,3 +14,7 @@ const (
 const (
 	DB_PATH = "/var/lib/flemzerd/flemzer.db"
 )
+
+const (
+	TRAKT_CLIENT_ID = "4d5d84f3a95adc528d08b1e2f6df6c8197548d128e72e68b4c33fc0dfa634926"
+)

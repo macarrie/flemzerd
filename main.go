@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -73,13 +72,13 @@ func initProviders() {
 	provider.Reset()
 
 	var newProviders []provider.Provider
-	for providerType, providerElt := range configuration.Config.Providers {
+	for providerType, _ := range configuration.Config.Providers {
 		switch providerType {
 		case "tmdb":
-			np, _ := tmdb.New(providerElt["apikey"])
+			np, _ := tmdb.New(configuration.TMDB_API_KEY)
 			newProviders = append(newProviders, np)
 		case "tvdb":
-			np, _ := tvdb.New(providerElt["apikey"])
+			np, _ := tvdb.New(configuration.TVDB_API_KEY)
 			newProviders = append(newProviders, np)
 		default:
 			log.WithFields(log.Fields{
@@ -203,7 +202,6 @@ func initNotifiers() {
 			}).Info("Notifier added to list of notifiers")
 
 		case "telegram":
-			fmt.Printf("notifierObject: %v\n", notifierObject)
 			telegramNotifier, err := telegram.New()
 			if err != nil {
 				log.WithFields(log.Fields{

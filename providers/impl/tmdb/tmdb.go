@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tmdb "github.com/ryanbradynd05/go-tmdb"
@@ -37,7 +38,14 @@ func New(apiKey string) (tmdbProvider *TMDBProvider, err error) {
 // Check if Provider is alive
 func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 	log.Debug("Checking TMDB provider status")
+
 	// TODO
+
+	if configuration.TELEGRAM_BOT_TOKEN == "" {
+		module.Status.Alive = false
+		module.Status.Message = "TMDB API key not found"
+		return module, errors.New(module.Status.Message)
+	}
 
 	return module, nil
 }
