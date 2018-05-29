@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -26,6 +27,7 @@ import (
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
+	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
@@ -198,6 +200,21 @@ func initNotifiers() {
 
 			log.WithFields(log.Fields{
 				"notifier": kodiNotifier.GetName(),
+			}).Info("Notifier added to list of notifiers")
+
+		case "telegram":
+			fmt.Printf("notifierObject: %v\n", notifierObject)
+			telegramNotifier, err := telegram.New()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"notifier": "telegram",
+					"error":    err,
+				}).Warning("Cannot connect to telegram for notifications")
+			}
+			notifier.AddNotifier(telegramNotifier)
+
+			log.WithFields(log.Fields{
+				"notifier": telegramNotifier.GetName(),
 			}).Info("Notifier added to list of notifiers")
 
 		default:
