@@ -41,7 +41,7 @@ func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 
 	// TODO
 
-	if configuration.TELEGRAM_BOT_TOKEN == "" {
+	if configuration.TMDB_API_KEY == "" {
 		module.Status.Alive = false
 		module.Status.Message = "TMDB API key not found"
 		return module, errors.New(module.Status.Message)

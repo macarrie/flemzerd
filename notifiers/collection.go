@@ -70,12 +70,12 @@ func NotifyRecentEpisode(episode *Episode) error {
 	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
 
 	err := SendNotification(notificationTitle, notificationContent)
+	episode.Notified = true
+	db.Client.Save(&episode)
 	if err != nil {
 		return err
 	}
 
-	episode.Notified = true
-	db.Client.Save(&episode)
 
 	return nil
 }
@@ -112,12 +112,12 @@ func NotifyNewMovie(m *Movie) error {
 	notificationContent := "Movie found in watchlist, adding to tracked movies"
 
 	err := SendNotification(notificationTitle, notificationContent)
+	m.Notified = true
+	db.Client.Save(&m)
+
 	if err != nil {
 		return err
 	}
-
-	m.Notified = true
-	db.Client.Save(&m)
 
 	return nil
 }

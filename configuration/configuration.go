@@ -179,6 +179,8 @@ func Load() error {
 	viper.SetEnvPrefix("FLZ")
 	viper.BindEnv("TRAKT_CLIENT_SECRET")
 	viper.BindEnv("TELEGRAM_BOT_TOKEN")
+	viper.BindEnv("TMDB_API_KEY")
+	viper.BindEnv("TVDB_API_KEY")
 
 	TRAKT_CLIENT_SECRET = viper.GetString("TRAKT_CLIENT_SECRET")
 	TELEGRAM_BOT_TOKEN = viper.GetString("TELEGRAM_BOT_TOKEN")
