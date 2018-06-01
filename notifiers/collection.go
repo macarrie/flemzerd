@@ -70,12 +70,12 @@ func NotifyRecentEpisode(episode *Episode) error {
 	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
 
 	err := SendNotification(notificationTitle, notificationContent)
-	episode.Notified = true
-	db.Client.Save(&episode)
 	if err != nil {
 		return err
 	}
 
+	episode.Notified = true
+	db.Client.Save(&episode)
 
 	return nil
 }
@@ -112,12 +112,12 @@ func NotifyNewMovie(m *Movie) error {
 	notificationContent := "Movie found in watchlist, adding to tracked movies"
 
 	err := SendNotification(notificationTitle, notificationContent)
-	m.Notified = true
-	db.Client.Save(&m)
-
 	if err != nil {
 		return err
 	}
+
+	m.Notified = true
+	db.Client.Save(&m)
 
 	return nil
 }
@@ -216,16 +216,17 @@ func SendNotification(title, content string) error {
 		return nil
 	}
 
-	var sendingErrors bool
+	var noNotificationSent bool
+	noNotificationSent = true
 	for _, notifier := range notifiersCollection {
 		err := notifier.Send(title, content)
-		if err != nil {
-			sendingErrors = true
+		if err == nil {
+			noNotificationSent = false
 		}
 	}
 
-	if sendingErrors {
-		return errors.New("Couldn't send notifications for all notifiers")
+	if noNotificationSent {
+		return errors.New("Could not send any notification")
 	} else {
 		return nil
 	}

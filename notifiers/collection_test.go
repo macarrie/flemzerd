@@ -85,8 +85,14 @@ func TestSendNotification(t *testing.T) {
 
 	AddNotifier(MockErrorNotifier{})
 	err := SendNotification("Title", "Content")
+	if err != nil {
+		t.Error("Expected to have no error when sending notifications")
+	}
+
+	notifiersCollection = []Notifier{MockErrorNotifier{}}
+	err = SendNotification("Title", "Content")
 	if err == nil {
-		t.Error("Expected to have error when sending notifications")
+		t.Error("Expected to have an error when sending notifications")
 	}
 
 	prev := mockNotificationCounter
@@ -157,7 +163,7 @@ func TestNotifyEpisode(t *testing.T) {
 
 	configuration.Config.Notifications.Enabled = true
 
-	AddNotifier(MockErrorNotifier{})
+	notifiersCollection = []Notifier{MockErrorNotifier{}}
 
 	episode.Notified = false
 	err := NotifyRecentEpisode(&episode)
@@ -220,7 +226,7 @@ func TestNotifyMovie(t *testing.T) {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
 	}
 
-	AddNotifier(MockErrorNotifier{})
+	notifiersCollection = []Notifier{MockErrorNotifier{}}
 	configuration.Config.Notifications.Enabled = true
 
 	movie.Notified = false
@@ -291,9 +297,9 @@ func TestNotifyDownloadStart(t *testing.T) {
 	if mockNotificationCounter != count {
 		t.Error("Expected notification not to be sent when notifying movie download start because of configuration params")
 	}
-	configuration.Config.Notifications.NotifyDownloadStart = true
 
-	AddNotifier(MockErrorNotifier{})
+	configuration.Config.Notifications.NotifyDownloadStart = true
+	notifiersCollection = []Notifier{MockErrorNotifier{}}
 	err := NotifyEpisodeDownloadStart(&episode)
 	if err == nil {
 		t.Error("Expected error when notifying episode download start with MockErrorNotifier")
