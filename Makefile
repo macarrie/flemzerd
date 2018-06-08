@@ -22,15 +22,23 @@ update: pull build
 
 test:
 	@echo "" > coverage.txt
+	tests_failed=0
 	@for d in $(PKGS); \
 	do \
 		vgo test -race -coverprofile=profile.out -covermode=atomic "$$d" ;\
+		ret=$$?; \
+		if [ $$ret -ne 0 ]; \
+		then \
+			tests_failed=$$ret; \
+		fi; \
 		if [ -f profile.out ]; \
 		then \
 			cat profile.out >> coverage.txt ; \
 			rm profile.out ; \
 		fi \
-	done \
+	done; \
+	exit $$tests_failed;
+
 
 clean:
 	-rm flemzerd

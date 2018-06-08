@@ -9,13 +9,13 @@ stages:
     - test
     - build
 
-format:
+test:
     stage: test
     script:
       - vgo vet ./...
       - make test
 
-compile:
+build:
     stage: build
     script:
       - make build
