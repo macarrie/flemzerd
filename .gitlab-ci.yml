@@ -3,7 +3,7 @@ image: golang:latest
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
-  - apt-get install ruby-sass
+  - apt-get install -y ruby-sass
 
 stages:
     - test
