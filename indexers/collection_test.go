@@ -39,7 +39,6 @@ func TestStatus(t *testing.T) {
 		t.Error("Expected to have aggregated error for indexer status")
 	}
 
-
 	ind3 := MockOkTVIndexer{}
 	indexersCollection = []Indexer{ind3}
 	mods, err = Status()

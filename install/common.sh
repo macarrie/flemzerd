@@ -32,9 +32,7 @@ function log_line {
 
 # Setup vars
 LIB=/var/lib/flemzerd
-ETC=/etc/flemzerd
-BIN=/usr/bin
-
+ETC=/etc/flemzerd BIN=/usr/bin 
 USER=flemzer
 GROUP=flemzer
 
@@ -42,7 +40,9 @@ GROUP=flemzer
 function copy_binary {
     # Copy exec file
     log_line "- Copying flemzerd binary"
+    cp vidocq $BIN/vidocq
     cp ../flemzerd $BIN/flemzerd
+    chmod a+x $BIN/vidocq
     chmod a+x $BIN/flemzerd
     print_done
 }

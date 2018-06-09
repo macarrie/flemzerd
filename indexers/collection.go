@@ -7,9 +7,9 @@ import (
 	"sort"
 
 	"github.com/macarrie/flemzerd/configuration"
-	"github.com/macarrie/flemzerd/guessit"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/vidocq"
 )
 
 var indexersCollection []Indexer
@@ -91,10 +91,8 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	// Get only torrentdownloadattempslimit * 2 to avoid having to work too much
-	length := min(len(torrentList), configuration.Config.System.TorrentDownloadAttemptsLimit*2)
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList[:length])
-	torrentList = FilterBadTorrentsForEpisode(torrentList[:length], season, episode)
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
 
 	if len(torrentList) == 0 {
 		return []Torrent{}, errors.New("No torrents found for episode")
@@ -149,7 +147,10 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	})
 
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+	log.Warning("After quality filter: ", len(torrentList))
 	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
+
+	log.Warning("After year check: ", len(torrentList))
 
 	return torrentList, err
 }
@@ -175,15 +176,15 @@ func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
 	}
 
 	for _, torrent := range list {
-		mediaInfo, err := guessit.GetInfo(torrent.Name)
+		mediaInfo, err := vidocq.GetInfo(torrent.Name)
 		if err != nil {
-			log.Warning("An error occured during guessit request: %s", err.Error())
+			log.Warning("An error occured during vidocq request: %s", err.Error())
 			otherTorrents = append(otherTorrents, torrent)
 
 			continue
 		}
 
-		if mediaInfo.ScreenSize == qualityFilter {
+		if mediaInfo.Quality == qualityFilter {
 			qualityFilteredList = append(qualityFilteredList, torrent)
 		} else {
 			otherTorrents = append(otherTorrents, torrent)
@@ -200,7 +201,7 @@ func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torr
 	var returnList []Torrent
 
 	for _, torrent := range list {
-		episodeInfo, err := guessit.GetEpisodeInfo(torrent.Name, season, episode)
+		episodeInfo, err := vidocq.GetInfo(torrent.Name)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"torrent": torrent.Name,
@@ -223,7 +224,7 @@ func CheckYearOfTorrents(list []Torrent, year int) []Torrent {
 	var returnList []Torrent
 
 	for _, torrent := range list {
-		movieInfo, err := guessit.GetInfo(torrent.Name)
+		movieInfo, err := vidocq.GetInfo(torrent.Name)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"torrent": torrent.Name,

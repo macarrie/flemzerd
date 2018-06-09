@@ -8,8 +8,16 @@ webui:
 pull:
 	git pull
 
-build: webui
+install/vidocq:
+	mkdir tmp
+	git clone https://github.com/macarrie/vidocq tmp/vidocq
+	cd tmp/vidocq && cargo build --release
+	cp tmp/vidocq/target/release/vidocq install/vidocq
+
+flemzerd: 
 	vgo build -v
+
+build: install/vidocq webui flemzerd
 
 doc: webui
 	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
@@ -45,5 +53,7 @@ clean:
 	-rm coverage.txt
 	-rm server/ui/css/*.css server/ui/css/*.map
 	-rm -rf .sass-cache
+	-rm -rf tmp
+	-rm -rf install/vidocq
 
 .PHONY: all webui pull deps build doc test install update clean

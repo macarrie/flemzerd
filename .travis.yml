@@ -3,7 +3,10 @@ go:
     - "1.10"
 
 before_install:
-    - sudo pip install guessit
+    - mkdir tmp
+    - git clone https://github.com/macarrie/vidocq tmp/vidocq
+    - cd tmp/vidocq && cargo build --release
+    - cp tmp/vidocq/target/release/vidocq /usr/bin/vidocq
 
 install:
     - go get -u golang.org/x/vgo

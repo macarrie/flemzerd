@@ -52,22 +52,22 @@ func (m MockTVIndexer) GetTorrentForEpisode(show string, season int, episode int
 
 	return []Torrent{
 		Torrent{
-			Name:    "Torrent1.s01.e01.720p",
+			Name:    "Torrent1.s01e01.720p",
 			Link:    "torrent1.torrent",
 			Seeders: 1,
 		},
 		Torrent{
-			Name:    "Torrent2.s01.e01.720p",
+			Name:    "Torrent2.s01e01.720p",
 			Link:    "torrent2.torrent",
 			Seeders: 2,
 		},
 		Torrent{
-			Name:    "Torrent3.s01.e01.720p",
+			Name:    "Torrent3.s01e01.720p",
 			Link:    "torrent3.torrent",
 			Seeders: 3,
 		},
 		Torrent{
-			Name:    "Torrent4.s02.e02",
+			Name:    "Torrent4.s02e02",
 			Link:    "torrent4.torrent",
 			Seeders: 4,
 		},
@@ -82,7 +82,6 @@ func (m MockMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error
 	if movieName == "error" {
 		return []Torrent{}, fmt.Errorf("Mock error")
 	}
-
 
 	return []Torrent{
 		Torrent{

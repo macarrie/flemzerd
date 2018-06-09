@@ -4,21 +4,23 @@ before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
   - apt-get install -y ruby-sass
+  - apt-get install -y rustc
 
 stages:
-    - test
     - build
+    - test
+
+build:
+    stage: build
+    script:
+      - make flemzerd
+      - cp install/vidocq /usr/bin/vidocq
+    artifacts:
+      paths:
+        - flemzerd
 
 test:
     stage: test
     script:
       - vgo vet ./...
       - make test
-
-build:
-    stage: build
-    script:
-      - make build
-    artifacts:
-      paths:
-        - flemzerd
