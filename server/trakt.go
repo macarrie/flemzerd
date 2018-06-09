@@ -17,7 +17,7 @@ func performTraktAuth(c *gin.Context) {
 
 	t := w.(*trakt.TraktWatchlist)
 	if err := t.IsAuthenticated(); err == nil {
-		c.JSON(http.StatusNoContent, gin.H{})
+		c.AbortWithStatus(http.StatusNoContent)
 		return
 	}
 

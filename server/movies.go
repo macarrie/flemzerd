@@ -70,7 +70,7 @@ func deleteMovie(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
-	c.JSON(http.StatusNoContent, nil)
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func changeMovieDownloadedState(c *gin.Context) {

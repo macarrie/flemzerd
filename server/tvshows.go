@@ -101,7 +101,7 @@ func deleteShow(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
-	c.JSON(http.StatusNoContent, nil)
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func restoreShow(c *gin.Context) {
@@ -194,7 +194,7 @@ func deleteEpisode(c *gin.Context) {
 	os.Remove(currentDownloadPath)
 
 	db.Client.Unscoped().Delete(&ep)
-	c.JSON(http.StatusNoContent, nil)
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func changeEpisodeDownloadedState(c *gin.Context) {
