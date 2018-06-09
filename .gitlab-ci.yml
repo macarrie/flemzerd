@@ -13,7 +13,7 @@ stages:
 build:
     stage: build
     script:
-      - make flemzerd
+      - make build
       - cp install/vidocq /usr/bin/vidocq
     artifacts:
       paths:
