@@ -7,22 +7,22 @@ before_script:
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
 
-
 stages:
-    - build
     - test
+    - build
+
+test:
+    stage: test
+    script:
+      - make install/vidocq
+      - cp install/vidocq /usr/bin/vidocq
+      - vgo vet ./...
+      - make test
 
 build:
     stage: build
     script:
       - make build
-      - cp install/vidocq /usr/bin/vidocq
     artifacts:
       paths:
         - flemzerd
-
-test:
-    stage: test
-    script:
-      - vgo vet ./...
-      - make test
