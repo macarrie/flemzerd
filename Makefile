@@ -44,7 +44,7 @@ test:
 		fi; \
 	done;
 	@tail -q -n +2 cover/*.cov >> cover/coverage.cov
-	@vgo tool cover -func=cover/coverage.cov
+	#@vgo tool cover -func=cover/coverage.cov
 	@exit $$tests_failed;
 
 
