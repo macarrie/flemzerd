@@ -3,7 +3,7 @@ PKGS := $(shell vgo list ./... | grep -v vendor)
 all: build
 
 webui:
-	sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
+	#sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
 
 pull:
 	git pull
@@ -29,22 +29,22 @@ update: pull build
 	cd install && sudo ./update.sh && cd ..
 
 test:
+	-rm -rf cover
 	@echo "" > coverage.txt
-	tests_failed=0
+	@tests_failed=0
+	@mkdir -p cover
+	@echo "mode: count" > cover/coverage.cov
 	@for d in $(PKGS); \
 	do \
-		vgo test -race -coverprofile=profile.out -covermode=atomic "$$d" ;\
+		vgo test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
 		ret=$$?; \
 		if [ $$ret -ne 0 ]; \
 		then \
 			tests_failed=$$ret; \
 		fi; \
-		if [ -f profile.out ]; \
-		then \
-			cat profile.out >> coverage.txt ; \
-			rm profile.out ; \
-		fi \
-	done; \
+	done;
+	tail -q -n +2 cover/*.cov >> cover/coverage.cov
+	go tool cover -func=cover/coverage.cov
 	exit $$tests_failed;
 
 
