@@ -148,33 +148,31 @@ func downloadEpisode(c *gin.Context) {
 	ep.DownloadingItem.Pending = true
 	db.Client.Save(&ep)
 
-	go func() {
-		log.WithFields(log.Fields{
-			"id":      id,
-			"show":    ep.TvShow.Name,
-			"episode": ep.Name,
-			"season":  ep.Season,
-			"number":  ep.Number,
-		}).Info("Launching individual episode download")
+	log.WithFields(log.Fields{
+		"id":      id,
+		"show":    ep.TvShow.Name,
+		"episode": ep.Name,
+		"season":  ep.Season,
+		"number":  ep.Number,
+	}).Info("Launching individual episode download")
 
-		torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
-		if err != nil {
-			log.Warning(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-		log.Debug("Torrents found: ", len(torrentList))
+	torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
+	if err != nil {
+		log.Warning(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	log.Debug("Torrents found: ", len(torrentList))
 
-		toDownload := downloader.FillEpisodeToDownloadTorrentList(&ep, torrentList)
-		if len(toDownload) == 0 {
-			downloader.MarkEpisodeFailedDownload(&ep.TvShow, &ep)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "No torrents found"})
-			return
-		}
-		notifier.NotifyEpisodeDownloadStart(&ep)
+	toDownload := downloader.FillEpisodeToDownloadTorrentList(&ep, torrentList)
+	if len(toDownload) == 0 {
+		downloader.MarkEpisodeFailedDownload(&ep.TvShow, &ep)
+		c.JSON(http.StatusNotFound, gin.H{"error": "No torrents found"})
+		return
+	}
+	notifier.NotifyEpisodeDownloadStart(&ep)
 
-		downloader.DownloadEpisode(ep.TvShow, ep, toDownload)
-	}()
+	go downloader.DownloadEpisode(ep.TvShow, ep, toDownload)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return

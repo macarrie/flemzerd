@@ -3,6 +3,7 @@ PKGS := $(shell vgo list ./... | grep -v vendor)
 all: build
 
 webui:
+	sass --version
 	#sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
 
 pull:
