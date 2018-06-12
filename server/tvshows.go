@@ -136,12 +136,12 @@ func downloadEpisode(c *gin.Context) {
 	var ep Episode
 	req := db.Client.Find(&ep, id)
 	if req.RecordNotFound() {
-		c.JSON(http.StatusNotFound, gin.H{})
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	if ep.DownloadingItem.Downloaded || ep.DownloadingItem.Downloading || ep.DownloadingItem.Pending {
-		c.JSON(http.StatusNotModified, gin.H{})
+		c.AbortWithStatus(http.StatusNotModified)
 		return
 	}
 
@@ -159,7 +159,7 @@ func downloadEpisode(c *gin.Context) {
 	torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
 	if err != nil {
 		log.Warning(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusNotFound, gin.H{"error": err})
 		return
 	}
 	log.Debug("Torrents found: ", len(torrentList))
