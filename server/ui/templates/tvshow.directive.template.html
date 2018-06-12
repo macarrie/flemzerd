@@ -1,27 +1,30 @@
 <div class="card media-card">
     <a ui-sref="tvshowdetails({id: tvshow.ID})">
-        <img    class="card-img" 
-                width="100%" 
-                src="{{ tvshow.Poster }}" 
+        <img    class="card-img"
+                width="100%"
+                src="{{ tvshow.Poster }}"
                 ng-class="( tvshow.DeletedAt != null || tvshow.Status == 3 ) ? 'black_and_white' : ''"
-                alt="{{ tvshow.Name }}" />
-        <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red" ng-if="tvshow.DeletedAt != null">
+                alt="{{ tvshow.Name }}">
+        <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red"
+             ng-if="tvshow.DeletedAt != null">
             <span>
                 Removed
             </span>
         </div>
-        <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red" ng-if="tvshow.Status == 3 && tvshow.DeletedAt == null">
+        <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red"
+             ng-if="tvshow.Status == 3 && tvshow.DeletedAt == null">
             <span>
                 Ended
             </span>
         </div>
     </a>
-    <button class="btn btn-delete-item text-white float-right" 
+
+    <button class="btn btn-delete-item text-white float-right"
             ng-click="deleteShow(tvshow.ID)"
             ng-if="tvshow.DeletedAt == null">
         <i class="material-icons md-18">clear</i>
     </button>
-    <button class="btn btn-delete-item text-white float-right" 
+    <button class="btn btn-delete-item text-white float-right"
             ng-click="restoreShow(tvshow.ID)"
             ng-if="tvshow.DeletedAt != null">
         <i class="material-icons md-18">undo</i>
