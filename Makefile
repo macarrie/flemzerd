@@ -16,7 +16,7 @@ install/vidocq:
 	cd tmp/vidocq && cargo build --release
 	cp tmp/vidocq/target/release/vidocq install/vidocq
 
-build: install/vidocq webui flemzerd
+build: install/vidocq webui
 	vgo build -v
 
 doc: webui
