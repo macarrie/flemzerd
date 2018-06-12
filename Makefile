@@ -3,22 +3,21 @@ PKGS := $(shell vgo list ./... | grep -v vendor)
 all: build
 
 webui:
-	sass --version
+	@sass --version
 	#sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
 
 pull:
 	git pull
 
 install/vidocq:
-	mkdir tmp
+	-rm -rf tmp
+	mkdir -p tmp
 	git clone https://github.com/macarrie/vidocq tmp/vidocq
 	cd tmp/vidocq && cargo build --release
 	cp tmp/vidocq/target/release/vidocq install/vidocq
 
-flemzerd: 
-	vgo build -v
-
 build: install/vidocq webui flemzerd
+	vgo build -v
 
 doc: webui
 	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
