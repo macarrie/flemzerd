@@ -47,10 +47,13 @@ flemzerd.component("tvshowdetails", {
         };
 
         $scope.downloadEpisode = function(episode) {
+            episode.DownloadingItem.Pending = true;
             $http.post("/api/v1/tvshows/episodes/" + episode.ID + "/download").then(function(response) {
                 if (response.status == 200) {
                     getEpisodeList(episode.Season);
                     return;
+                } else {
+                    episode.DownloadingItem.Pending = false;
                 }
             });
         };

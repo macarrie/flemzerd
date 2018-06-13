@@ -128,9 +128,9 @@
                                    ng-if="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
                                     <i class="material-icons">cloud_download</i>
                                 </a>
-                                <span ng-if="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
+                                <a class="btn btn-sm p-0" ng-if="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
                                     <i class="material-icons">swap_vert</i>
-                                </span>
+                                </a>
                             </td>
                             <td class="text-center">
                                 <a class="btn btn-sm p-0 text-muted"
