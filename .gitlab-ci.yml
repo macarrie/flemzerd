@@ -8,7 +8,7 @@ cache:
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
-  - apt-get install -y curl
+  - apt-get install -y curl gcc g++ make
   - curl -sL https://deb.nodesource.com/setup_6.x | bash -
   - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
