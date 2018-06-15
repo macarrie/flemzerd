@@ -8,6 +8,8 @@ cache:
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
+  - apt-get install -y curl
+  - curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
   - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
