@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
@@ -21,16 +22,7 @@ func init() {
 
 func initRouter() {
 	router = gin.Default()
-
-	router.Static("/static", "/var/lib/flemzerd/server/ui/")
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/ui")
-	})
-
-	router.LoadHTMLFiles("/var/lib/flemzerd/server/ui/index.html")
-	router.GET("/ui", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{})
-	})
+	router.Use(static.Serve("/", static.LocalFile("/var/lib/flemzerd/server/ui", true)))
 
 	v1 := router.Group("/api/v1")
 	{

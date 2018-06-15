@@ -1,9 +1,13 @@
 image: golang:latest
 
+cache:
+    paths:
+        - server/ui/node_modules
+
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
-  - apt-get install -y ruby-sass
+  - apt-get install -y npm
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
 

@@ -4,9 +4,13 @@ FLAGS=-X main.version=$(VERSION)
 
 all: build
 
-webui:
-	@sass --version
-	#sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
+server/ui/node_modules:
+	cd server/ui && npm install
+
+webui: server/ui/node_modules
+	node -v
+	npm -v
+	cd server/ui && npm run build
 
 install/vidocq:
 	-rm -rf tmp
@@ -18,8 +22,8 @@ install/vidocq:
 build: install/vidocq webui
 	vgo build -v -ldflags="$(FLAGS)"
 
-doc: webui
-	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
+#doc: webui
+	#cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
 
 install: build
 	cd install && sudo ./install.sh && cd ..
@@ -48,9 +52,8 @@ test:
 
 clean:
 	-rm flemzerd
-	-rm coverage.txt
-	-rm server/ui/css/*.css server/ui/css/*.map
-	-rm -rf .sass-cache
+	-rm -rf cover
+	-rm -rf server/ui/dist
 	-rm -rf tmp
 	-rm -rf install/vidocq
 
