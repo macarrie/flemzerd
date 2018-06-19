@@ -6,11 +6,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 	downloader "github.com/macarrie/flemzerd/downloaders"
-	indexer "github.com/macarrie/flemzerd/indexers"
 	log "github.com/macarrie/flemzerd/logging"
-	notifier "github.com/macarrie/flemzerd/notifiers"
 	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/scheduler"
 
 	"github.com/macarrie/flemzerd/db"
 
@@ -145,9 +145,6 @@ func downloadEpisode(c *gin.Context) {
 		return
 	}
 
-	ep.DownloadingItem.Pending = true
-	db.Client.Save(&ep)
-
 	log.WithFields(log.Fields{
 		"id":      id,
 		"show":    ep.TvShow.Name,
@@ -156,23 +153,7 @@ func downloadEpisode(c *gin.Context) {
 		"number":  ep.Number,
 	}).Info("Launching individual episode download")
 
-	torrentList, err := indexer.GetTorrentForEpisode(ep.TvShow.Name, ep.Season, ep.Number)
-	if err != nil {
-		log.Warning(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": err})
-		return
-	}
-	log.Debug("Torrents found: ", len(torrentList))
-
-	toDownload := downloader.FillEpisodeToDownloadTorrentList(&ep, torrentList)
-	if len(toDownload) == 0 {
-		downloader.MarkEpisodeFailedDownload(&ep.TvShow, &ep)
-		c.JSON(http.StatusNotFound, gin.H{"error": "No torrents found"})
-		return
-	}
-	notifier.NotifyEpisodeDownloadStart(&ep)
-
-	go downloader.DownloadEpisode(ep.TvShow, ep, toDownload)
+	scheduler.DownloadEpisode(&ep)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return

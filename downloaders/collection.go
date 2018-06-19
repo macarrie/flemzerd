@@ -13,7 +13,7 @@ import (
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	"github.com/macarrie/flemzerd/notifiers"
+	notifier "github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
 
 	"github.com/rs/xid"
@@ -266,13 +266,13 @@ func WaitForDownload(t Torrent) error {
 	}
 }
 
-func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
+func DownloadEpisode(e *Episode, torrentList []Torrent) error {
 	if e.DownloadingItem.Downloaded || e.DownloadingItem.Downloading {
 		return errors.New("Episode downloading or already downloaded. Skipping")
 	}
 
 	log.WithFields(log.Fields{
-		"show":   show.Name,
+		"show":   e.TvShow.Name,
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -280,7 +280,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 
 	e.DownloadingItem.Pending = false
 	e.DownloadingItem.Downloading = true
-	db.Client.Save(&e)
+	db.Client.Save(e)
 
 	for _, torrent := range torrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
@@ -292,7 +292,7 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 		e.DownloadingItem.CurrentTorrent = torrent
 		db.Client.Save(&e)
 
-		torrentDownload := EpisodeHandleTorrentDownload(&e, false)
+		torrentDownload := EpisodeHandleTorrentDownload(e, false)
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -307,14 +307,14 @@ func DownloadEpisode(show TvShow, e Episode, torrentList []Torrent) error {
 
 	// If function has not returned yet, it means the download failed
 	if len(e.DownloadingItem.FailedTorrents) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		MarkEpisodeFailedDownload(&show, &e)
+		MarkEpisodeFailedDownload(e)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
 	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
-func DownloadMovie(m Movie, torrentList []Torrent) error {
+func DownloadMovie(m *Movie, torrentList []Torrent) error {
 	if m.DownloadingItem.Downloaded || m.DownloadingItem.Downloading {
 		return errors.New("Movie downloading or already downloaded. Skipping")
 	}
@@ -325,7 +325,7 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 
 	m.DownloadingItem.Pending = false
 	m.DownloadingItem.Downloading = true
-	db.Client.Save(&m)
+	db.Client.Save(m)
 
 	for _, torrent := range torrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
@@ -335,9 +335,9 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 		}
 
 		m.DownloadingItem.CurrentTorrent = torrent
-		db.Client.Save(&m)
+		db.Client.Save(m)
 
-		torrentDownload := MovieHandleTorrentDownload(&m, false)
+		torrentDownload := MovieHandleTorrentDownload(m, false)
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -351,16 +351,16 @@ func DownloadMovie(m Movie, torrentList []Torrent) error {
 
 	// If function has not returned yet, it means the download failed
 	if len(m.DownloadingItem.FailedTorrents) > configuration.Config.System.TorrentDownloadAttemptsLimit {
-		MarkMovieFailedDownload(&m)
+		MarkMovieFailedDownload(m)
 		return errors.New("Download failed, no torrents could be downloaded")
 	}
 
 	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
-func MarkEpisodeFailedDownload(show *TvShow, e *Episode) {
+func MarkEpisodeFailedDownload(e *Episode) {
 	log.WithFields(log.Fields{
-		"show":   show.Name,
+		"show":   e.TvShow.Name,
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
