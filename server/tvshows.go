@@ -2,7 +2,6 @@ package server
 
 import (
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -168,11 +167,8 @@ func deleteEpisode(c *gin.Context) {
 		return
 	}
 
-	currentDownloadPath := ep.DownloadingItem.CurrentTorrent.DownloadDir
-	downloader.RemoveTorrent(ep.DownloadingItem.CurrentTorrent)
-	os.Remove(currentDownloadPath)
+	downloader.AbortEpisodeDownload(&ep)
 
-	db.Client.Unscoped().Delete(&ep)
 	c.AbortWithStatus(http.StatusNoContent)
 }
 

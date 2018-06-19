@@ -20,6 +20,7 @@ import (
 )
 
 var downloadersCollection []Downloader
+var episodeDownloadRoutines map[int](chan bool)
 
 func AddDownloader(d Downloader) {
 	downloadersCollection = append(downloadersCollection, d)
@@ -87,7 +88,7 @@ func GetTorrentStatus(t Torrent) (int, error) {
 	return downloadersCollection[0].GetTorrentStatus(t)
 }
 
-func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
+func EpisodeHandleTorrentDownload(e *Episode, recovery bool) (error, aborted error) {
 	torrent := e.DownloadingItem.CurrentTorrent
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
@@ -106,32 +107,21 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 
 	StartTorrent(torrent)
 
-	retryCount := 0
-
-	// Try twice to download a torrent before marking it as rubbish
-	downloadErr := WaitForDownload(torrent)
+	downloadErr, downloadAborted := WaitForDownload(torrent, episodeDownloadRoutines[e.ID])
+	if downloadAborted {
+		return nil, downloadAborted
+	}
 	if downloadErr != nil {
+		RemoveTorrent(torrent)
+		e.DownloadingItem.FailedTorrents = append(e.DownloadingItem.FailedTorrents, torrent)
+		db.Client.Save(&e)
+
 		log.WithFields(log.Fields{
 			"error":   downloadErr,
 			"torrent": torrent.Name,
-		}).Debug("Error during torrent download. Retrying download")
+		}).Debug("Error during torrent download. Finish current torrent download")
 
-		RemoveTorrent(torrent)
-		AddTorrent(torrent)
-		retryCount++
-		retryErr := WaitForDownload(torrent)
-		if retryErr != nil {
-			RemoveTorrent(torrent)
-			e.DownloadingItem.FailedTorrents = append(e.DownloadingItem.FailedTorrents, torrent)
-			db.Client.Save(&e)
-
-			log.WithFields(log.Fields{
-				"error":   downloadErr,
-				"torrent": torrent.Name,
-			}).Debug("Error during torrent download. Finish current torrent download")
-
-			return retryErr
-		}
+		return downloadErr, false
 	}
 
 	// If function has not returned yet, download ended with no errors !
@@ -165,7 +155,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool) error {
 
 	RemoveTorrent(torrent)
 
-	return nil
+	return nil, false
 }
 
 func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
@@ -243,9 +233,17 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool) error {
 	return nil
 }
 
-func WaitForDownload(t Torrent) error {
+func WaitForDownload(t Torrent, stopChannel chan bool) (error, aborted bool) {
 	downloadLoopTicker := time.NewTicker(1 * time.Minute)
 	for {
+		// Check if download has been manually stopped
+		select {
+		case <-stopChannel:
+			return nil, true
+		default:
+			log.Debug("Download not manualy stopped, continuing")
+		}
+
 		log.WithFields(log.Fields{
 			"torrent": t.Name,
 		}).Debug("Checking torrent download progress")
@@ -282,6 +280,8 @@ func DownloadEpisode(e *Episode, torrentList []Torrent) error {
 	e.DownloadingItem.Downloading = true
 	db.Client.Save(e)
 
+	episodeDownloadRoutines[e.ID] = make(chan bool, 1)
+
 	for _, torrent := range torrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
 
@@ -292,7 +292,27 @@ func DownloadEpisode(e *Episode, torrentList []Torrent) error {
 		e.DownloadingItem.CurrentTorrent = torrent
 		db.Client.Save(&e)
 
-		torrentDownload := EpisodeHandleTorrentDownload(e, false)
+		torrentDownload, downloadAborted := EpisodeHandleTorrentDownload(e, false)
+		if downloadAborted {
+			log.WithFields(log.Fields{
+				"show":   e.TvShow.Name,
+				"season": e.Season,
+				"number": e.Number,
+				"name":   e.Name,
+			}).Info("Download manually aborted. Cleaning up current download artifacts.")
+
+			currentDownloadPath := e.DownloadingItem.CurrentTorrent.DownloadDir
+			downloader.RemoveTorrent(e.DownloadingItem.CurrentTorrent)
+			os.Remove(currentDownloadPath)
+
+			e.DownloadingItem.Pending = false
+			e.DownloadingItem.Downloading = false
+			e.DownloadingItem.Downloaded = false
+			db.Client.Save(e)
+			db.Client.Delete(e)
+
+			return nil
+		}
 		if torrentDownload != nil {
 			log.WithFields(log.Fields{
 				"err":     torrentDownload,
@@ -312,6 +332,10 @@ func DownloadEpisode(e *Episode, torrentList []Torrent) error {
 	}
 
 	return errors.New("No torrents in current torrent list could be downloaded")
+}
+
+func AbortEpisodeDownload(e *Episode) {
+	episodeDownloadRoutines[e.ID] <- true
 }
 
 func DownloadMovie(m *Movie, torrentList []Torrent) error {
