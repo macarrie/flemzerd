@@ -7,8 +7,8 @@ before_install:
     - export PATH=~/.cargo/bin:$PATH
     - mkdir tmp
     - git clone https://github.com/macarrie/vidocq tmp/vidocq
-    - cd tmp/vidocq && cargo build --release && cd -
-    - cp tmp/vidocq/target/release/vidocq /usr/bin/vidocq
+    - cd tmp/vidocq && cargo build --release
+    - export PATH=$PATH:tmp/vidocq/target/release/
 
 install:
     - go get -u golang.org/x/vgo
