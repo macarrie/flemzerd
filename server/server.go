@@ -51,6 +51,7 @@ func initRouter() {
 			tvshowsRoute.GET("/episodes/:id", getEpisodeDetails)
 			tvshowsRoute.POST("/episodes/:id/download", downloadEpisode)
 			tvshowsRoute.DELETE("/episodes/:id", deleteEpisode)
+			tvshowsRoute.DELETE("/episodes/:id/download", abortEpisodeDownload)
 			tvshowsRoute.PUT("/episodes/:id", changeEpisodeDownloadedState)
 		}
 
@@ -62,6 +63,7 @@ func initRouter() {
 			moviesRoute.GET("/downloaded", getDownloadedMovies)
 			moviesRoute.GET("/details/:id", getMovieDetails)
 			moviesRoute.DELETE("/details/:id", deleteMovie)
+			moviesRoute.DELETE("/details/:id/download", abortMovieDownload)
 			moviesRoute.PUT("/details/:id", changeMovieDownloadedState)
 			moviesRoute.POST("/restore/:id", restoreMovie)
 		}

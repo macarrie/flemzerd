@@ -360,7 +360,7 @@ func Run(debug bool) {
 						}
 
 						if executeDownloadChain {
-							DownloadEpisode(&recentEpisode)
+							DownloadEpisode(recentEpisode)
 						}
 					}
 				}
@@ -382,7 +382,7 @@ func Run(debug bool) {
 					}
 
 					if executeDownloadChain {
-						DownloadMovie(&movie)
+						DownloadMovie(movie)
 					}
 				}
 			}
@@ -402,7 +402,7 @@ func Reload(debug bool) {
 	initConfiguration(debug)
 }
 
-func DownloadEpisode(episode *Episode) {
+func DownloadEpisode(episode Episode) {
 	if episode.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
 			"show":   episode.TvShow.Name,
@@ -433,16 +433,18 @@ func DownloadEpisode(episode *Episode) {
 	}
 	log.Debug("Torrents found: ", len(torrentList))
 
-	toDownload := downloader.FillEpisodeToDownloadTorrentList(episode, torrentList)
+	toDownload := downloader.FillEpisodeToDownloadTorrentList(&episode, torrentList)
 	if len(toDownload) == 0 {
-		downloader.MarkEpisodeFailedDownload(episode)
+		downloader.MarkEpisodeFailedDownload(&episode)
 		return
 	}
-	notifier.NotifyEpisodeDownloadStart(episode)
-	go downloader.DownloadEpisode(episode, toDownload)
+	notifier.NotifyEpisodeDownloadStart(&episode)
+	downloader.EpisodeDownloadRoutines[episode.ID] = make(chan bool, 1)
+
+	go downloader.DownloadEpisode(episode, toDownload, downloader.EpisodeDownloadRoutines[episode.ID])
 }
 
-func DownloadMovie(movie *Movie) {
+func DownloadMovie(movie Movie) {
 	if movie.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
 			"movie": movie.Title,
@@ -460,7 +462,7 @@ func DownloadMovie(movie *Movie) {
 	movie.DownloadingItem.Pending = true
 	db.Client.Save(&movie)
 
-	torrentList, err := indexer.GetTorrentForMovie(*movie)
+	torrentList, err := indexer.GetTorrentForMovie(movie)
 	if err != nil {
 		log.Warning(err)
 		return
@@ -470,15 +472,14 @@ func DownloadMovie(movie *Movie) {
 		"nb":    len(torrentList),
 	}).Debug("Torrents found")
 
-	toDownload := downloader.FillMovieToDownloadTorrentList(movie, torrentList)
+	toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
 	if len(toDownload) == 0 {
 		log.Error("Download list empty")
-		downloader.MarkMovieFailedDownload(movie)
+		downloader.MarkMovieFailedDownload(&movie)
 		return
 	}
-	notifier.NotifyMovieDownloadStart(movie)
-	go downloader.DownloadMovie(movie, toDownload)
-}
+	notifier.NotifyMovieDownloadStart(&movie)
+	downloader.MovieDownloadRoutines[movie.ID] = make(chan bool, 1)
 
-func downloadChainFunc() {
+	go downloader.DownloadMovie(movie, toDownload, downloader.MovieDownloadRoutines[movie.ID])
 }

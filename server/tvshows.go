@@ -152,13 +152,25 @@ func downloadEpisode(c *gin.Context) {
 		"number":  ep.Number,
 	}).Info("Launching individual episode download")
 
-	scheduler.DownloadEpisode(&ep)
+	scheduler.DownloadEpisode(ep)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
 }
 
 func deleteEpisode(c *gin.Context) {
+	id := c.Param("id")
+	var ep Episode
+	req := db.Client.Delete(&ep, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	c.AbortWithStatus(http.StatusNoContent)
+}
+
+func abortEpisodeDownload(c *gin.Context) {
 	id := c.Param("id")
 	var ep Episode
 	req := db.Client.Find(&ep, id)
