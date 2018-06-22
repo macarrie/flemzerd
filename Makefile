@@ -1,13 +1,12 @@
-PKGS := $(shell vgo list ./... | grep -v vendor)
+PKGS=$(shell vgo list ./... | grep -v vendor)
+VERSION=$(shell git describe --tags --always)
+FLAGS=-X main.version=$(VERSION)
 
 all: build
 
 webui:
 	@sass --version
 	#sass server/ui/css/flemzer.scss server/ui/css/flemzer.css
-
-pull:
-	git pull
 
 install/vidocq:
 	-rm -rf tmp
@@ -17,20 +16,19 @@ install/vidocq:
 	cp tmp/vidocq/target/release/vidocq install/vidocq
 
 build: install/vidocq webui
-	vgo build -v
+	vgo build -v -ldflags="$(FLAGS)"
 
 doc: webui
 	cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
 
-install: pull build
+install: build
 	cd install && sudo ./install.sh && cd ..
 
-update: pull build
+update: build
 	cd install && sudo ./update.sh && cd ..
 
 test:
 	-rm -rf cover
-	@echo "" > coverage.txt
 	@tests_failed=0
 	@mkdir -p cover
 	@echo "mode: count" > cover/coverage.cov
@@ -56,4 +54,4 @@ clean:
 	-rm -rf tmp
 	-rm -rf install/vidocq
 
-.PHONY: all webui pull deps build doc test install update clean
+.PHONY: all webui deps build doc test install update clean

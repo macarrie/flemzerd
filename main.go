@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -40,6 +41,8 @@ import (
 
 	. "github.com/macarrie/flemzerd/objects"
 )
+
+var version string = "dev"
 
 func initConfiguration(debug bool) {
 	daemon.SdNotify(false, "READY=0")
@@ -416,9 +419,15 @@ func downloadChainFunc() {
 
 func main() {
 	debugMode := flag.BoolP("debug", "d", false, "Start in debug mode")
+	versionFlag := flag.BoolP("version", "v", false, "Display version number")
 	configFilePath := flag.StringP("config", "c", "", "Configuration file path to use")
 
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("flemzerd version %s", version)
+		os.Exit(0)
+	}
 
 	if *debugMode {
 		log.Setup(true)
