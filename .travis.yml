@@ -7,7 +7,7 @@ before_install:
     - export PATH=~/.cargo/bin:$PATH
     - mkdir tmp
     - git clone https://github.com/macarrie/vidocq tmp/vidocq
-    - push tmp/vidocq && cargo build --release && popd
+    - pushd tmp/vidocq && cargo build --release && popd
     - export PATH=$PATH:tmp/vidocq/target/release/
 
 install:
