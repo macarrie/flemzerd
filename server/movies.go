@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
 
 	"github.com/macarrie/flemzerd/db"
@@ -70,6 +71,21 @@ func deleteMovie(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
+
+	c.AbortWithStatus(http.StatusNoContent)
+}
+
+func abortMovieDownload(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if err := req.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	downloader.AbortMovieDownload(&movie)
+
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
