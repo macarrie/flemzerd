@@ -13,10 +13,8 @@ before_install:
 install:
     - go get -u golang.org/x/vgo
 
-before_script:
-    - vgo vet ./...
-
 script:
+    - vgo vet ./...
     - make test
 
 after_success:
