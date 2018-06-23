@@ -113,7 +113,7 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 	return retList, nil
 }
 
-// Gets downloading (or download pending) movies from database
+// Gets downloading movies from database
 // Returned episodes are ordered by id (descending)
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
@@ -121,7 +121,7 @@ func GetDownloadingMovies() ([]Movie, error) {
 	Client.Find(&movies).Order("id DESC")
 
 	for _, m := range movies {
-		if (m.DownloadingItem.Downloading || m.DownloadingItem.Pending) && !m.DownloadingItem.Downloaded {
+		if m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}

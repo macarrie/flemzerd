@@ -78,7 +78,7 @@ func deleteMovie(c *gin.Context) {
 func abortMovieDownload(c *gin.Context) {
 	id := c.Param("id")
 	var movie Movie
-	req := db.Client.Find(&movie, id)
+	req := db.Client.Unscoped().Find(&movie, id)
 	if err := req.Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
