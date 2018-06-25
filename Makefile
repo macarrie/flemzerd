@@ -1,6 +1,6 @@
 PKGS=$(shell vgo list ./... | grep -v vendor)
 VERSION=$(shell git describe --tags --always)
-FLAGS=-X main.version=$(VERSION)
+FLAGS=-X objects.version=$(VERSION)
 
 all: build
 

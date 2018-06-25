@@ -1,0 +1,144 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Watchlists</h3>
+            <ul class="list-group" *ngIf="!watchlists">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let watchlist of watchlists"
+                    [ngClass]="watchlist.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ watchlist.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!watchlist.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="watchlist.Status.Alive">OK</span>
+                    <div *ngIf="!watchlist.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ watchlist.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Providers</h3>
+            <ul class="list-group" *ngIf="!providers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let provider of providers"
+                    [ngClass]="provider.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ provider.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!provider.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="provider.Status.Alive">OK</span>
+                    <div *ngIf="!provider.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ provider.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Notifiers</h3>
+            <ul class="list-group" *ngIf="!notifiers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item border" 
+                    *ngFor="let notifier of notifiers"
+                    [ngClass]="notifier.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ notifier.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!notifier.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="notifier.Status.Alive">OK</span>
+                    <div *ngIf="!notifier.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ notifier.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Indexers</h3>
+            <ul class="list-group" *ngIf="!indexers">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let indexer of indexers"
+                    [ngClass]="indexer.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ indexer.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!indexer.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="indexer.Status.Alive">OK</span>
+                    <div *ngIf="!indexer.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ indexer.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Downloaders</h3>
+            <ul class="list-group" *ngIf="!downloaders">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let downloader of downloaders"
+                    [ngClass]="downloader.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ downloader.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!downloader.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="downloader.Status.Alive">OK</span>
+                    <div *ngIf="!downloader.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ downloader.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12 mt-2">
+            <h3>Media centers</h3>
+            <ul class="list-group" *ngIf="!mediacenters">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let mc of mediacenters"
+                    [ngClass]="mc.Status.Alive ? 'border-success' : 'border-danger'">
+                    <span>{{ mc.Name }}</span>
+                    <span class="badge badge-pill badge-danger float-right"
+                          *ngIf="!mc.Status.Alive">ERROR</span>
+                    <span class="badge badge-pill badge-success float-right"
+                          *ngIf="mc.Status.Alive">OK</span>
+                    <div *ngIf="!mc.Status.Alive">
+                        <hr />
+                        <div class="alert alert-danger mt-1 mb-1">
+                            {{ mc.Status.Message }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

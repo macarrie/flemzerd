@@ -55,6 +55,7 @@ type Configuration struct {
 		MoviePath     string `mapstructure:"movie_path"`
 		CustomTmpPath string `mapstructure:"custom_tmp_path"`
 	}
+	Version string
 }
 
 func setDefaultValues() {

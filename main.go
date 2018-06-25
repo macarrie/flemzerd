@@ -13,9 +13,9 @@ import (
 
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/server"
-)
 
-var version string = "dev"
+	. "github.com/macarrie/flemzerd/objects"
+)
 
 func main() {
 	debugMode := flag.BoolP("debug", "d", false, "Start in debug mode")
@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Printf("flemzerd version %s", version)
+		fmt.Printf("flemzerd version %s", VERSION)
 		os.Exit(0)
 	}
 

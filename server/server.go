@@ -24,6 +24,10 @@ func initRouter() {
 	router = gin.Default()
 	router.Use(static.Serve("/", static.LocalFile("/var/lib/flemzerd/server/ui", true)))
 
+	router.NoRoute(func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
+
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/config", func(c *gin.Context) {

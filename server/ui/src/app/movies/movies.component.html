@@ -1,0 +1,116 @@
+<div class="container" *ngIf="!config?.System?.TrackMovies">
+    <div class="row">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                Movie tracking disabled
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="container" *ngIf="config?.System?.TrackMovies">
+    <div class="row" *ngIf="!trackedMovies">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                No tracked movies
+                <button class="btn btn-sm btn-light ml-5" (click)="refreshMovies()">
+                    <div *ngIf="refreshing" class="font-italic">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
+                    </div>
+                    <div *ngIf="!refreshing">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
+                    </div>
+                </button>
+            </span>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="downloadingMovies">
+        <div class="col-12 mt-3">
+            <span class="h3">Downloading movies</span>
+        </div>
+        <div class="col-12 mt-3">
+            <table class="table">
+                <thead>
+                    <th>Movie name</th>
+                    <th>Download status</th>
+                    <th class="text-center">Failed torrents</th>
+                    <th></th>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let movie of downloadingMovies">
+                        <ng-container *ngIf="!movie.DeletedAt">
+                            <td>
+                                <a routerLink="/movies/{{ movie.ID }}">
+                                    {{ movie.Title }} ({{ utils.getYear(movie.Date) }})
+                                </a>
+                            </td>
+                            <td>
+                                <span class="text-success"
+                                      *ngIf="movie.DownloadingItem.Downloading"> <i class="material-icons md-18 float-left mr-1">check_circle_outline</i> Started at {{ utils.formatDate(movie.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
+                                    <span *ngIf="movie.DownloadingItem.Pending" class="font-italic"><i class="material-icons  md-18 float-left mr-1">search</i> Looking for torrents</span>
+                            </td>
+                            <td class="text-center font-weight-bold"
+                                [ngClass]="movie.DownloadingItem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
+                                {{ movie.DownloadingItem.FailedTorrents.length }}
+                            </td>
+                            <td>
+                                <a class="text-danger" (click)="stopDownload(movie)">
+                                        <i class="material-icons md-18 float-left">clear</i>
+                                </a>
+                            </td>
+                        </ng-container>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            <span class="h3">Movies</span>
+            <button class="btn btn-sm btn-light float-right" (click)="refreshMovies()">
+                    <div *ngIf="refreshing" class="font-italic">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
+                    </div>
+                    <div *ngIf="!refreshing">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
+                    </div>
+            </button>
+            <button class="btn btn-sm btn-light text-muted float-right"
+                    (click)="show_downloaded_movies = !show_downloaded_movies">
+                <div *ngIf="!show_downloaded_movies">
+                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Downloaded
+                </div>
+                <div *ngIf="show_downloaded_movies">
+                        <i class="material-icons md-18 float-left mr-1">check_box</i> Downloaded
+                </div>
+            </button>
+            <button class="btn btn-sm btn-light text-muted float-right"
+                    (click)="show_removed_movies = !show_removed_movies">
+                <div *ngIf="!show_removed_movies">
+                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Removed
+                </div>
+                <div *ngIf="show_removed_movies">
+                        <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
+                </div>
+            </button>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let movie of trackedMovies">
+            <movie-miniature [movie]="movie"></movie-miniature>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
+             *ngFor="let movie of downloadingMovies">
+            <movie-miniature [movie]="movie"></movie-miniature>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
+             *ngFor="let movie of downloadedMovies">
+            <movie-miniature [movie]="movie" *ngIf="show_downloaded_movies"></movie-miniature>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
+             *ngFor="let movie of removedMovies">
+            <movie-miniature [movie]="movie" *ngIf="show_removed_movies"></movie-miniature>
+        </div>
+    </div>
+</div>

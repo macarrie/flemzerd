@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="row gutters" ng-if="config.System.TrackShows">
+        <div class="col-12 col-md-6 mt-4 text-center">
+            <div class="display-4 title-gradient">
+                <a routerLink="/tvshows">
+                    {{ trackedShows?.length || '0' }}
+                </a>
+            </div>
+            Tracked shows
+        </div>
+        <div class="col-12 col-md-6 mt-4 text-center">
+            <div class="display-4 title-gradient">
+                <a routerLink="/tvshows">
+                    {{ downloadingEpisodes?.length || '0' }}
+                </a>
+            </div>
+            Downloading episodes
+        </div>
+    </div>
+    <div class="row mt-4" ng-if="config.System.TrackMovies">
+        <div class="col-12 col-md-4 mt-4 text-center">
+            <div class="display-4 title-gradient">
+                <a routerLink="/movies">
+                    {{ trackedMovies?.length || '0' }}
+                </a>
+            </div>
+            New movies
+        </div>
+        <div class="col-12 col-md-4 mt-4 text-center">
+            <div class="display-4 title-gradient">
+                <a routerLink="/movies">
+                    {{ downloadingMovies?.length || '0' }}
+                </a>
+            </div>
+            Downloading movies
+        </div>
+        <div class="col-12 col-md-4 mt-4 text-center">
+            <div class="display-4 title-gradient">
+                <a routerLink="/movies">
+                    {{ downloadedMovies?.length || '0' }}
+                </a>
+            </div>
+            Downloaded movies
+        </div>
+    </div>
+</div>
