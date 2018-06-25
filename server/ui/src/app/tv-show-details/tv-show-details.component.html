@@ -1,0 +1,169 @@
+<div *ngIf="!tvshow">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 py-5 text-center">
+                <span class="text-muted h4">
+                    Loading
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="tvshow">
+    <div id="full_background" [style.background-image]="'url(' +background_image+ ')'"></div>
+    <div class="container-fluid action-bar"
+         [class.removed-element]="tvshow.DeletedAt != null">
+        <div class="container">
+            <a class="btn text-light float-left"
+               (click)="back()">
+                <i class="material-icons">arrow_back</i>Back
+            </a>
+            <a class="btn text-danger float-right"
+               *ngIf="tvshow.DeletedAt == null"
+               (click)="deleteShow(tvshow)">
+                <i class="material-icons">clear</i>Remove
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="tvshow.DeletedAt != null"
+               (click)="restoreShow(tvshow)">
+                <i class="material-icons">undo</i>Restore
+            </a>
+        </div>
+    </div>
+    <div class="container mediadetails">
+        <div class="row">
+            <div class="col-4">
+                <img class="rounded" width="100%" [attr.src]="tvshow.Poster" [attr.alt]="tvshow.Name">
+            </div>
+            <div class="col-8 pl-0 pr-5">
+                <span class="h2">{{ tvshow.Name }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
+                <button class="ml-2 btn btn-sm show-status-btn"
+                        [ngClass]="showStatusClasses">
+                    {{ getStatusText(tvshow) }}
+                </button>
+
+                <div class="p-3">
+                    See on
+                    <div class="external-links-banner">
+                        <a  href="https://www.imdb.com/title/{{ tvshow.MediaIds.Imdb }}"
+                            target="_blank"
+                            class="mx-2 imdb"
+                            *ngIf="tvshow.MediaIds.Imdb != 0">
+                            <i class="material-icons">launch</i>
+                            IMDB
+                        </a>
+                        <a  href="https://trakt.tv/search/trakt/{{ tvshow.MediaIds.Trakt }}?id_type=show"
+                            target="_blank"
+                            class="mx-2 trakt"
+                            *ngIf="tvshow.MediaIds.Trakt != 0">
+                            <i class="material-icons">launch</i>
+                            Trakt
+                        </a>
+                        <a  href="https://themoviedb.org/tv/{{ tvshow.MediaIds.Tmdb }}"
+                            target="_blank"
+                            class="mx-2 tmdb"
+                            *ngIf="tvshow.MediaIds.Tmdb != 0">
+                            <i class="material-icons">launch</i>
+                            TMDB
+                        </a>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <h6>Overview</h6>
+                        <div class="col-12">
+                            {{ tvshow.Overview}}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <h6>Seasons</h6>
+                        <div class="col-12">
+                            {{ tvshow.NumberOfSeasons}} seasons, {{ tvshow.NumberOfEpisodes }} episodes
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid no-gutters bg-light mt-4"
+        *ngIf="tvshow.DeletedAt == null">
+        <div class="container p-2">
+            <div class="row" *ngFor="let season of seasons; let i=index">
+                <div class="col-12 my-3" *ngIf="season && i > 0">
+                    <div class="float-left" (click)="season.collapse = !season.collapse">
+                        <a>
+                            <i class="material-icons md-18 float-left" *ngIf="!season.collapse">arrow_drop_down</i>
+                            <i class="material-icons md-18 float-left" *ngIf="season.collapse">arrow_drop_up</i>
+                        </a>
+                        <span class="h4">Season {{ i }} </span><span class="text-muted h6">( {{ season?.length }} episodes )</span>
+                    </div>
+                    <button class="btn btn-sm btn-light float-right"
+                            (click)="changeSeasonDownloadedState(season, false)">
+                        <i class="material-icons md-18 float-left">cloud_off</i>
+                    </button>
+                    <button class="btn btn-sm btn-light float-right"
+                            (click)="changeSeasonDownloadedState(season, true)">
+                        <i class="material-icons md-18 float-left">done_all</i>
+                    </button>
+                    <button class="btn btn-sm btn-light float-right"
+                            (click)="downloadSeason(season)">
+                        <i class="material-icons md-18 float-left">cloud_download</i>
+                    </button>
+                </div>
+                <div class="col-12" *ngIf="season && season.collapse && i > 0">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Release date</th>
+                                <th class="text-center">Download status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let episode of season"
+                                [class.episode-list-future]="utils.dateIsInFuture(episode.Date)">
+                                <td>
+                                    <span class="badge badge-primary mr-1">{{ utils.formatNumber(episode.Season) }}x{{ utils.formatNumber(episode.Number) }}</span> 
+                                    <a routerLink="/episodes/{{ episode.ID }}">
+                                        {{ episode.Name }}
+                                    </a>
+                                </td>
+                                <td>{{ utils.formatDate(episode.Date, 'ddd DD MMM YYYY') }}</td>
+                                <td class="text-center">
+                                    <a class="btn btn-sm p-0 text-success"
+                                       *ngIf="episode.DownloadingItem.Downloaded">
+                                        <i class="material-icons">check</i>
+                                    </a>
+                                    <a class="btn btn-sm p-0"
+                                       (click)="downloadEpisode(episode)"
+                                       *ngIf="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
+                                        <i class="material-icons">cloud_download</i>
+                                    </a>
+                                    <a class="btn btn-sm p-0" *ngIf="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
+                                        <i class="material-icons">swap_vert</i>
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn btn-sm p-0 text-muted"
+                                       (click)="changeEpisodeDownloadedState(episode, false)"
+                                       *ngIf="episode.DownloadingItem.Downloaded && !utils.dateIsInFuture(episode.Date)">
+                                        <i class="material-icons">cloud_off</i>
+                                    </a>
+                                    <a class="btn btn-sm p-0 text-muted"
+                                       (click)="changeEpisodeDownloadedState(episode, true)"
+                                       *ngIf="!episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading && !utils.dateIsInFuture(episode.Date)">
+                                        <i class="material-icons">cloud_done</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -77,7 +77,7 @@ func GetTrackedMovies() ([]Movie, error) {
 	Client.Order("created_at DESC").Find(&movies)
 
 	for _, m := range movies {
-		if !m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
+		if !m.DownloadingItem.Pending && !m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}

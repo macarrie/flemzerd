@@ -1,5 +1,7 @@
 package objects
 
+var VERSION string = "dev"
+
 const RECENTLY_AIRED_EPISODES_INTERVAL = 7
 const HTTP_TIMEOUT = 10
 

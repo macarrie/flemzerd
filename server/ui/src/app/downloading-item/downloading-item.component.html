@@ -1,0 +1,49 @@
+<div *ngIf="!downloadingitem">
+    <div>
+        Loading
+    </div>
+</div>
+
+<div *ngIf="downloadingitem">
+    <table class="table table-sm">
+        <tr *ngIf="!downloadingitem.Downloaded">
+            <td><b>Downloading</b></td>
+            <td>
+                <span class="text-danger"
+                      *ngIf="!downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
+                <span class="text-success"
+                      *ngIf="downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at {{ utils.formatDate(downloadingitem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td *ngIf="!downloadingitem.Downloaded"><b>Current download</b></td>
+            <td *ngIf="downloadingitem.Downloaded"><b>Downloaded torrent</b></td>
+            <td class="font-italic text-muted"
+                *ngIf="downloadingitem.CurrentTorrent.Name">
+                {{ downloadingitem.CurrentTorrent.Name }}
+            </td>
+            <td class="font-italic text-muted"
+                *ngIf="!downloadingitem.CurrentTorrent.Name">
+                Unknown
+            </td>
+        </tr>
+        <tr>
+            <td><b>Download directory</b></td>
+            <td class="text-muted font-italic"
+                *ngIf="downloadingitem.CurrentTorrent.DownloadDir">
+                {{ downloadingitem.CurrentTorrent.DownloadDir }}
+            </td>
+            <td class="text-muted font-italic"
+                *ngIf="!downloadingitem.CurrentTorrent.DownloadDir">
+                Unknown
+            </td>
+        </tr>
+        <tr [ngClass]="downloadingitem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
+            <td><b>Failed torrents</b></td>
+            <td>
+                <b>{{ downloadingitem.FailedTorrents.length }}</b>
+            </td>
+        </tr>
+    </table>
+</div>
+

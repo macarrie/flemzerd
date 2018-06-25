@@ -50,7 +50,7 @@ function copy_binary {
 function copy_server_files {
      log_line "- Copying UI files"
      mkdir -p $LIB/server/ui
-     cp -r ../server/ui/* $LIB/server/ui
+     cp -r ../server/ui/dist/flemzerd/* $LIB/server/ui
      print_done
 }
 

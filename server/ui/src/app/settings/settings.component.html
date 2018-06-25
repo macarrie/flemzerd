@@ -1,0 +1,219 @@
+<div class="container" *ngIf="!config">
+    <div class="row">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                Configuration loading
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="container" *ngIf="config">
+    <div class="row">
+        <div class="col-12">
+            <h4>Global settings</h4>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> Polling interval </b>
+                    <span class="float-right md-18 text-info">
+                        {{ config.System.EpisodeCheckInterval }}mn
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <b> Torrent download attempts limit </b>
+                    <span class="float-right md-18 text-info">
+                        {{ config.System.TorrentDownloadAttemptsLimit }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> Interface enabled </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.Interface.Enabled"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.Interface.Enabled"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Interface port </b>
+                    <span class="float-right md-18">
+                        {{ config.Interface.Port }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> TV Shows tracking enabled </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.System.TrackShows"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.System.TrackShows"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Movie tracking enabled </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.System.TrackMovies"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.System.TrackMovies"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Preferred media quality </b>
+                    <span class="float-right md-18 text-muted" *ngIf="!config.System.PreferredMediaQuality">
+                        None
+                    </span>
+                    <span class="float-right md-18 text-info" *ngIf="config.System.PreferredMediaQuality">
+                        {{ config.System.PreferredMediaQuality }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <b> TV Shows library path </b>
+                    <span class="float-right md-18 font-italic text-info">
+                        {{ config.Library.ShowPath }}
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <b> Movies library path </b>
+                    <span class="float-right md-18 font-italic text-info">
+                        {{ config.Library.MoviePath }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h4>Notifications</h4>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <b> Notifications enabled </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.Notifications.Enabled"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.Notifications.Enabled"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Notify on new episode </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.Notifications.NotifyNewEpisode"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.Notifications.NotifyNewEpisode"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Notify on download complete </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.Notifications.NotifyDownloadComplete"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.Notifications.NotifyDownloadComplete"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                    <b> Notify on download failure </b>
+                    <span class="float-right md-18 text-danger"
+                          *ngIf="!config.Notifications.NotifyFailure"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right md-18 text-success"
+                          *ngIf="config.Notifications.NotifyFailure"><i class="material-icons float-right md-18 md-18">check_circle_outline</i></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h4>Modules</h4>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Watchlists</h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let watchlist of keys(config.Watchlists)">
+                    <b> {{ watchlist }} </b>
+                    <span *ngIf="watchlist == 'trakt' && trakt_auth"
+                    class="text-success float-right md-18 font-weight-light font-italic">
+                        configured
+                    </span>
+                    <button *ngIf="watchlist == 'trakt' && !trakt_auth"
+                    class="btn btn-outline-danger btn-sm float-right md-18 font-weight-light"
+                    (click)="startTraktAuth()">
+                        Connect to trakt.tv
+                    </button>
+                    <div *ngIf="watchlist == 'trakt'">
+                        <div *ngIf="!trakt_auth && trakt_device_code?.device_code">
+                            <hr />
+
+                            Enter the following validation code into <a target="_blank" href="{{ trakt_device_code.verification_url }}">{{ trakt_device_code.verification_url }}</a>
+                            <h5 class="font-weight-bold text-center text-info mt-2">{{ trakt_device_code.user_code }}</h5>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Providers</h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let provider of keys(config.Providers)">
+                    <b> {{ provider }} </b>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Notifiers</h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let notifier of keys(config.Notifiers)">
+                    <b> {{ notifier }} </b>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Indexers <span class="text-muted">(torznab)</span></h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let indexer of keys(config.Indexers.torznab)">
+                    <b> {{ config.Indexers.torznab[indexer].name }} </b>
+                    <span class="float-right md-18 text-muted"><small> {{ config.Indexers.torznab[indexer].url }} </small></span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Downloaders</h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let downloader of keys(config.Downloaders)">
+                    <b> {{ downloader }} </b>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <h6>Media centers</h6>
+            <ul class="list-group mb-3">
+                <li class="list-group-item" *ngFor="let mc of keys(config.MediaCenters)">
+                    <b> {{ mc }} </b>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-2">
+            <h4>About flemzerd</h4>
+        </div>
+        <div class="col-12 mb-2">
+            <ul class="list-group">
+                <li class="list-group-item">Version: <code>{{ config.Version }}</code></li>
+                <li class="list-group-item text-center text-muted py-4">flemzerd is an Open Source software. For feature ideas, notify bugs or contributing, do not hesitate to head to the <a target="blank" href="https://github.com/macarrie/flemzerd">GitHub repo</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
