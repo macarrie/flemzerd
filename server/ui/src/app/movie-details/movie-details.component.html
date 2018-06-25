@@ -1,0 +1,124 @@
+<div *ngIf="!movie">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 py-5 text-center">
+                <span class="text-muted h4">
+                    Loading
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="movie">
+    <div id="full_background" [style.background-image]="'url(' +background_image+ ')'"></div>
+    <div class="container-fluid action-bar"
+         [class.removed-element]="movie.DeletedAt != null">
+        <div class="container">
+            <a class="btn text-light float-left"
+               (click)="back()">
+                <i class="material-icons">arrow_back</i>Back
+            </a>
+            <a class="btn text-danger float-right"
+               *ngIf="movie.DeletedAt == null"
+               (click)="deleteMovie(movie)">
+                <i class="material-icons">clear</i>Remove
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="movie.DeletedAt != null"
+               (click)="restoreMovie(movie)">
+                <i class="material-icons">undo</i>Restore
+            </a>
+        </div>
+    </div>
+    <div class="container mediadetails">
+        <div class="row">
+            <div class="col-4">
+                <img class="rounded" width="100%" [attr.src]="movie.Poster" [attr.alt]="movie.Name">
+            </div>
+            <div class="col-8 pl-0 pr-5">
+                <span class="h2">{{ movie.Title }} </span> <span class="h3 text-muted">({{ utils.getYear(movie.Date) }})</span>
+
+                <div class="p-3">
+                    See on
+                    <div class="external-links-banner">
+                        <a  href="https://www.imdb.com/title/{{ movie.MediaIds.Imdb }}"
+                            target="_blank"
+                            class="mx-2 imdb"
+                            *ngIf="movie.MediaIds.Imdb != 0">
+                            <i class="material-icons">launch</i>
+                            IMDB
+                        </a>
+                        <a  href="https://trakt.tv/search/trakt/{{ movie.MediaIds.Trakt }}?id_type=show"
+                            target="_blank"
+                            class="mx-2 trakt"
+                            *ngIf="movie.MediaIds.Trakt != 0">
+                            <i class="material-icons">launch</i>
+                            Trakt
+                        </a>
+                        <a  href="https://themoviedb.org/tv/{{ movie.MediaIds.Tmdb }}"
+                            target="_blank"
+                            class="mx-2 tmdb"
+                            *ngIf="movie.MediaIds.Tmdb != 0">
+                            <i class="material-icons">launch</i>
+                            TMDB
+                        </a>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <h6>Overview</h6>
+                        <div class="col-12">
+                            {{ movie.Overview}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid no-gutters bg-light mt-4">
+        <div class="container p-2">
+            <div class="row">
+                <div class="col-12 my-3">
+                    <span class="h4">Download status</span>
+                </div>
+                <div class="col-12"
+                     *ngIf="movie.DownloadingItem.Downloaded">
+                    <div class="mb-3">
+                        <span class="h6 text-success">
+                            <i class="material-icons md-18">check</i> Movie downloaded successfully
+                        </span>
+                    </div>
+                    <downloading-item [downloadingitem]="movie.DownloadingItem"></downloading-item>
+                </div>
+                <div class="col-12 my-3"
+                     *ngIf="movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded">
+                    <div class="mb-3">
+                        <span class="h6">
+                            <i class="material-icons md-18">swap_vert</i> Download in progress
+                        </span>
+                    </div>
+                    <downloading-item [downloadingitem]="movie.DownloadingItem"></downloading-item>
+                </div>
+                <div class="col-12 my-3"
+                     *ngIf="!movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && !movie.DownloadingItem.Pending">
+                    <div class="mb-3 text-center">
+                        <span class="h5 text-muted">
+                            Not downloading
+                        </span>
+                    </div>
+                </div>
+                <div class="col-12 my-3"
+                     *ngIf="movie.DownloadingItem.Pending">
+                    <div class="mb-3 text-center">
+                        <span class="h5 text-muted">
+                            Looking for torrents
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

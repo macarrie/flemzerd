@@ -1,0 +1,20 @@
+<nav class="navbar navbar-expand-lg sticky-top navbar-light topbar">
+    <div class="container">
+        <a ui-sref="home">
+            <span class="navbar-brand" href="#">flemzer</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link btn btn-sm btn-light" routerLinkActive="active" routerLink="/dashboard"><i class="material-icons">home</i>Dashboard</a>
+                <a class="nav-item nav-link btn btn-sm btn-light" routerLinkActive="active" routerLink="/tvshows"><i class="material-icons">tv</i>TVShows</a>
+                <a class="nav-item nav-link btn btn-sm btn-light" routerLinkActive="active" routerLink="/movies"><i class="material-icons">movie</i>Movies</a>
+                <a class="nav-item nav-link btn btn-sm btn-light" routerLinkActive="active" routerLink="/status"><i class="material-icons">healing</i>Status</a>
+                <a class="nav-item nav-link btn btn-sm btn-light" routerLinkActive="active" routerLink="/settings"><i class="material-icons">settings</i>Settings</a>
+            </div>
+        </div>
+    </div>
+</nav>
+<router-outlet></router-outlet>

@@ -1,0 +1,101 @@
+<div class="container" *ngIf="!config?.System?.TrackShows">
+    <div class="row">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                TV Show tracking disabled
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="container" *ngIf="config?.System?.TrackShows">
+    <div class="row" *ngIf="!trackedShows">
+        <div class="col-12 py-5 text-center">
+            <span class="text-muted h4">
+                No tracked TV shows
+                <button class="btn btn-sm btn-light ml-5" (click)="refreshTvShows()">
+                    <div *ngIf="refreshing" class="font-italic">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
+                    </div>
+                    <div *ngIf="!refreshing">
+                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
+                    </div>
+                </button>
+            </span>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="downloadingEpisodes">
+        <div class="col-12 mt-3">
+            <span class="h3">Downloading episodes</span>
+        </div>
+        <div class="col-12 mt-3">
+            <table class="table">
+                <thead>
+                    <th>Episode name</th>
+                    <th>Download status</th>
+                    <th class="text-center">Failed torrents</th>
+                    <th></th>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let episode of downloadingEpisodes">
+                        <ng-container *ngIf="!episode.DeletedAt">
+                            <td class="align-middle">
+                                <a routerLink="/episodes/{{ episode.ID }}">
+                                    {{ episode.TvShow.Name }} S{{utils.formatNumber(episode.Season)}}E{{ utils.formatNumber(episode.Number) }} : {{ episode.Name }}
+                                </a>
+                            </td>
+                            <td class="align-middle">
+                                <span class="text-success"
+                                      *ngIf="episode.DownloadingItem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i> Started at {{ utils.formatDate(episode.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
+                                <span *ngIf="episode.DownloadingItem.Pending" class="font-italic"><i class="material-icons  md-18 float-left mr-1">search</i> Looking for torrents</span>
+                            </td>
+                            <td class="align-middle text-center font-weight-bold"
+                                [ngClass]="episode.DownloadingItem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
+                                {{ episode.DownloadingItem.FailedTorrents.length }}
+                            </td>
+                            <td class="align-middle">
+                                <a class="text-danger" (click)="stopDownload(episode)">
+                                    <i class="material-icons md-18 float-left">clear</i>
+                                </a>
+                            </td>
+                        </ng-container>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="trackedShows">
+        <div class="col-12 mt-3">
+            <span class="h3">TV Shows</span>
+            <button class="btn btn-sm btn-light float-right" (click)="refreshTvShows()">
+                <div *ngIf="refreshing" class="font-italic">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
+                </div>
+                <div *ngIf="!refreshing">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
+                </div>
+            </button>
+            <button class="btn btn-sm btn-light text-muted float-right"
+                    (click)="show_removed_shows = !show_removed_shows">
+                <div *ngIf="!show_removed_shows">
+                    <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Removed
+                </div>
+                <div *ngIf="show_removed_shows">
+                    <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
+                </div>
+            </button>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let tvshow of trackedShows">
+            <tv-show-miniature [tvshow]="tvshow"></tv-show-miniature>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
+             *ngFor="let tvshow of removedShows">
+            <div *ngIf="show_removed_shows">
+                <tv-show-miniature [tvshow]="tvshow"></tv-show-miniature>
+            </div>
+        </div>
+    </div>
+</div>

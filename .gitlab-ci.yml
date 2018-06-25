@@ -1,9 +1,16 @@
 image: golang:latest
 
+cache:
+    paths:
+        - server/ui/node_modules
+        - install/vidocq
+
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
-  - apt-get install -y ruby-sass
+  - apt-get install -y curl gcc g++ make
+  - curl -sL https://deb.nodesource.com/setup_10.x | bash -
+  - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
 

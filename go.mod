@@ -8,6 +8,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20180521163914-c4e5513e46d4
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5
 	github.com/fsnotify/fsnotify v1.4.7
+	github.com/gin-contrib/static v0.0.0-20180301030858-73da7037e716
 	github.com/gin-gonic/gin v1.1.4
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/go-telegram-bot-api/telegram-bot-api v0.0.0-20180328131029-0e0af0c480ea
