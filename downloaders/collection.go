@@ -304,6 +304,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool) er
 			e.DownloadingItem.Downloading = false
 			e.DownloadingItem.Downloaded = false
 			e.DownloadingItem.DownloadFailed = false
+			e.DownloadingItem.AbortPending = false
 			e.DownloadingItem.FailedTorrents = []Torrent{}
 			e.DownloadingItem.CurrentTorrent = Torrent{}
 			e.DownloadingItem.CurrentDownloaderId = ""
@@ -370,6 +371,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool) error 
 			m.DownloadingItem.Downloading = false
 			m.DownloadingItem.Downloaded = false
 			m.DownloadingItem.DownloadFailed = false
+			m.DownloadingItem.AbortPending = false
 			m.DownloadingItem.FailedTorrents = []Torrent{}
 			m.DownloadingItem.CurrentTorrent = Torrent{}
 			m.DownloadingItem.CurrentDownloaderId = ""
