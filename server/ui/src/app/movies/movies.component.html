@@ -40,7 +40,7 @@
 
                 <tbody>
                     <tr *ngFor="let movie of downloadingMovies">
-                        <ng-container *ngIf="!movie.DeletedAt">
+                        <ng-container *ngIf="!movie.DeletedAt && !movie.DownloadingItem.AbortPending">
                             <td>
                                 <a routerLink="/movies/{{ movie.ID }}">
                                     {{ movie.Title }} ({{ utils.getYear(movie.Date) }})

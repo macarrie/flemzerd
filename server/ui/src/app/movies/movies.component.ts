@@ -68,11 +68,11 @@ export class MoviesComponent implements OnInit {
     }
 
     stopDownload(movie :Movie) :void {
-        movie.DeletedAt = new Date(Date.now()).toUTCString();
+        movie.DownloadingItem.AbortPending = true;
         this.movieService.stopDownload(movie.ID).subscribe(response => {
             this.movieService.getDownloadingMovies().subscribe(movies => {
                 this.downloadingMovies = movies;
-                movie.DeletedAt = new Date(Date.now()).toUTCString();
+                movie.DownloadingItem.AbortPending = true;
             });
         });
     }

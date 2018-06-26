@@ -11,4 +11,5 @@ type DownloadingItem struct {
 	CurrentTorrent      Torrent   `gorm:"foreignkey:CurrentTorrentID"`
 	CurrentDownloaderId string
 	DownloadFailed      bool
+	AbortPending        bool
 }

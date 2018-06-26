@@ -62,11 +62,11 @@ export class TvshowsComponent implements OnInit {
     }
 
     stopDownload(episode :Episode) :void {
-        episode.DeletedAt = new Date(Date.now()).toUTCString();
+        episode.DownloadingItem.AbortPending = true;
         this.episodeService.stopDownload(episode.ID).subscribe(response => {
             this.episodeService.getDownloadingEpisodes().subscribe(episodes => {
                 this.downloadingEpisodes = episodes;
-                episode.DeletedAt = new Date(Date.now()).toUTCString();
+                episode.DownloadingItem.AbortPending = true;
             });
         });
     }

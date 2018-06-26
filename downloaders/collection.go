@@ -407,6 +407,9 @@ func AbortEpisodeDownload(e *Episode) {
 		"number":  e.Number,
 	}).Info("Aborting episode download")
 	EpisodeDownloadRoutines[e.ID] <- true
+
+	e.DownloadingItem.AbortPending = true
+	db.Client.Save(e)
 }
 
 func AbortMovieDownload(m *Movie) {
@@ -415,6 +418,9 @@ func AbortMovieDownload(m *Movie) {
 		"title": m.Title,
 	}).Info("Aborting movie download")
 	MovieDownloadRoutines[m.ID] <- true
+
+	m.DownloadingItem.AbortPending = true
+	db.Client.Save(m)
 }
 
 func MarkEpisodeFailedDownload(e *Episode) {
