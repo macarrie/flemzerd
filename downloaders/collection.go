@@ -572,6 +572,13 @@ func RecoverFromRetention() {
 		log.Debug("Launching watch threads for downloading episodes found in retention")
 	}
 	for _, ep := range downloadingEpisodesFromRetention {
+		ep.DeletedAt = nil
+		ep.DownloadingItem.Pending = false
+		ep.DownloadingItem.Downloading = true
+		ep.DownloadingItem.Downloaded = false
+		ep.DownloadingItem.AbortPending = false
+		db.Client.Save(&ep)
+
 		AddTorrentMapping(ep.DownloadingItem.CurrentTorrent.TorrentId, ep.DownloadingItem.CurrentDownloaderId)
 
 		log.WithFields(log.Fields{
@@ -590,6 +597,13 @@ func RecoverFromRetention() {
 		log.Debug("Launching watch threads for downloading movies found in retention")
 	}
 	for _, m := range downloadingMoviesFromRetention {
+		m.DeletedAt = nil
+		m.DownloadingItem.Pending = false
+		m.DownloadingItem.Downloading = true
+		m.DownloadingItem.Downloaded = false
+		m.DownloadingItem.AbortPending = false
+		db.Client.Save(&m)
+
 		AddTorrentMapping(m.DownloadingItem.CurrentTorrent.TorrentId, m.DownloadingItem.CurrentDownloaderId)
 
 		log.WithFields(log.Fields{
