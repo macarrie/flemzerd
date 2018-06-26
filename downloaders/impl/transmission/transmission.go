@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -22,6 +23,8 @@ var transmissionClient tr.Client
 // Since torrents in transmission have specific ID and torrent objects in flemzer have their own ID, we need to know which transmission torrent correspond to which flemzer torrent
 // This map stores "flemzerd torrent id" -> "transmission_torrent_id" relations
 var torrentsMapping map[string]string
+var torrentsMappingRWMutex = sync.RWMutex{}
+
 var torrentList []*tr.Torrent
 
 type TransmissionDownloader struct {
@@ -55,6 +58,9 @@ func updateTorrentList() error {
 
 func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
 	for _, transmissionTorrent := range torrentList {
+		torrentsMappingRWMutex.Lock()
+		defer torrentsMappingRWMutex.Unlock()
+
 		if torrentsMapping[t.TorrentId] == transmissionTorrent.HashString {
 			return *transmissionTorrent, nil
 		}
@@ -92,6 +98,9 @@ func (d *TransmissionDownloader) Init() error {
 	}
 
 	transmissionClient = *client
+	torrentsMappingRWMutex.Lock()
+	defer torrentsMappingRWMutex.Unlock()
+
 	torrentsMapping = make(map[string]string)
 
 	return nil
@@ -183,6 +192,9 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {
 }
 
 func (d TransmissionDownloader) AddTorrentMapping(flemzerID string, transmissionID string) {
+	torrentsMappingRWMutex.Lock()
+	defer torrentsMappingRWMutex.Unlock()
+
 	torrentsMapping[flemzerID] = transmissionID
 }
 
@@ -206,6 +218,9 @@ func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
 	})
 
 	for _, torrent := range torrentList {
+		torrentsMappingRWMutex.Lock()
+		defer torrentsMappingRWMutex.Unlock()
+
 		if torrentsMapping[t.TorrentId] == torrent.HashString {
 			err := retry.Double(3).Run(func() error {
 				return torrent.Update()
