@@ -3,9 +3,9 @@ package kodi_notifier
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	kodi_helper "github.com/macarrie/flemzerd/helpers/kodi"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -21,13 +21,7 @@ var module Module
 func New() (k *KodiNotifier, err error) {
 	k = &KodiNotifier{}
 
-	address := fmt.Sprintf("%s:%s", configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
-	client, err := kodirpc.NewClient(address, &kodirpc.Config{
-		ReadTimeout:         time.Duration(HTTP_TIMEOUT * time.Second),
-		ConnectTimeout:      time.Duration(HTTP_TIMEOUT * time.Second),
-		Reconnect:           false,
-		ConnectBackoffScale: 1,
-	})
+	client, err := kodi_helper.CreateKodiClient(configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
 	if err != nil {
 		k.Client = nil
 		return k, fmt.Errorf("Cannot connect to kodi mediacenter: %s", err.Error())
@@ -50,9 +44,13 @@ func (k *KodiNotifier) Status() (Module, error) {
 	log.Debug("Checking kodi notifier status")
 
 	if k.Client == nil {
-		module.Status.Alive = false
-		module.Status.Message = "Could not connect to kodi: no client"
-		return module, errors.New(module.Status.Message)
+		client, err := kodi_helper.CreateKodiClient(configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
+		if err != nil || client == nil {
+			module.Status.Alive = false
+			module.Status.Message = "Could not connect to kodi: no client"
+			return module, errors.New(module.Status.Message)
+		}
+		k.Client = client
 	}
 
 	_, err := k.Client.Call("JSONRPC.Ping", nil)

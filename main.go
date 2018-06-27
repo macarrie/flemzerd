@@ -33,6 +33,8 @@ func main() {
 		log.Setup(false)
 	}
 
+	log.Info("Starting flemzerd (version ", configuration.Version, ")")
+
 	if *configFilePath != "" {
 		log.Info("Loading provided configuration file")
 		configuration.UseFile(*configFilePath)
