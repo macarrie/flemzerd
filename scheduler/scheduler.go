@@ -42,7 +42,6 @@ func initConfiguration(debug bool) {
 		}).Fatal("Cannot load configuration file")
 	}
 
-	configuration.Config.Version = VERSION
 	configuration.Check()
 
 	initNotifiers()

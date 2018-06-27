@@ -9,6 +9,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+var Version string = "dev"
+
 var customConfigFilePath string
 var customConfigFile bool
 
@@ -200,6 +202,8 @@ func Load() error {
 	if unmarshalError != nil {
 		return unmarshalError
 	}
+
+	conf.Version = Version
 
 	log.WithFields(log.Fields{
 		"file": viper.ConfigFileUsed(),

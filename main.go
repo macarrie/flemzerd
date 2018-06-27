@@ -13,8 +13,6 @@ import (
 
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/server"
-
-	. "github.com/macarrie/flemzerd/objects"
 )
 
 func main() {
@@ -25,7 +23,7 @@ func main() {
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Printf("flemzerd version %s", VERSION)
+		fmt.Printf("flemzerd version %s", configuration.Version)
 		os.Exit(0)
 	}
 
