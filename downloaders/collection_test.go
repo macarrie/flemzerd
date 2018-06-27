@@ -181,19 +181,19 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{MockDownloader{}}
-	err := DownloadEpisode(episode, []Torrent{testTorrent}, make(chan bool))
+	err := DownloadEpisode(episode, []Torrent{testTorrent}, make(chan bool), false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, make(chan bool))
+	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, make(chan bool), false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{MockErrorDownloader{}}
-	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, make(chan bool))
+	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, make(chan bool), false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
@@ -216,19 +216,19 @@ func TestDownloadMovie(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{MockDownloader{}}
-	err := DownloadMovie(testMovie, []Torrent{testTorrent}, make(chan bool))
+	err := DownloadMovie(testMovie, []Torrent{testTorrent}, make(chan bool), false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, make(chan bool))
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, make(chan bool), false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{MockErrorDownloader{}}
-	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, make(chan bool))
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, make(chan bool), false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
@@ -375,47 +375,4 @@ func TestFillMovieToDownload(t *testing.T) {
 	if len(torrentList) > 10 {
 		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
 	}
-}
-
-func TestRecoverFromRetention(t *testing.T) {
-	db.ResetDb()
-
-	testTorrent := Torrent{
-		TorrentId: "1000",
-	}
-	testTorrent2 := Torrent{
-		TorrentId: "1001",
-	}
-
-	testEpisode := Episode{
-		Model: gorm.Model{
-			ID: 1000,
-		},
-		Name:   "testEpisode",
-		Season: 1,
-		Number: 4,
-		DownloadingItem: DownloadingItem{
-			Downloading:         true,
-			CurrentTorrent:      testTorrent,
-			CurrentDownloaderId: "id",
-		},
-	}
-
-	testMovie := Movie{
-		Model: gorm.Model{
-			ID: 1001,
-		},
-		Title: "testMovie",
-		DownloadingItem: DownloadingItem{
-			Downloading:         true,
-			CurrentTorrent:      testTorrent2,
-			CurrentDownloaderId: "id",
-		},
-	}
-
-	db.Client.Create(&testEpisode)
-	db.Client.Create(&testMovie)
-
-	RecoverFromRetention()
-	// TODO: check objects states is correct
 }

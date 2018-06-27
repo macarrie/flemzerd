@@ -285,7 +285,7 @@ func Run(debug bool) {
 	initConfiguration(debug)
 
 	//	 Load configuration objects
-	var recovery bool = true
+	var recoveryDone bool = true
 
 	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
 	go func() {
@@ -325,9 +325,9 @@ func Run(debug bool) {
 				log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
 			}
 
-			if recovery {
-				downloader.RecoverFromRetention()
-				recovery = false
+			if recoveryDone {
+				RecoverDownloadingItems()
+				recoveryDone = false
 			}
 
 			if configuration.Config.System.TrackShows {
@@ -361,7 +361,7 @@ func Run(debug bool) {
 						}
 
 						if executeDownloadChain {
-							DownloadEpisode(recentEpisode)
+							DownloadEpisode(recentEpisode, false)
 						}
 					}
 				}
@@ -383,7 +383,7 @@ func Run(debug bool) {
 					}
 
 					if executeDownloadChain {
-						DownloadMovie(movie)
+						DownloadMovie(movie, false)
 					}
 				}
 			}
@@ -403,7 +403,11 @@ func Reload(debug bool) {
 	initConfiguration(debug)
 }
 
-func DownloadEpisode(episode Episode) {
+func DownloadEpisode(episode Episode, recovery bool) {
+	if recovery {
+		episode.DownloadingItem.Downloading = false
+	}
+
 	if episode.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
 			"show":   episode.TvShow.Name,
@@ -432,7 +436,14 @@ func DownloadEpisode(episode Episode) {
 		log.Warning(err)
 		return
 	}
-	log.Debug("Torrents found: ", len(torrentList))
+
+	if recovery && episode.DownloadingItem.CurrentTorrent.ID != 0 {
+		torrentList = append([]Torrent{episode.DownloadingItem.CurrentTorrent}, torrentList...)
+	}
+	log.WithFields(log.Fields{
+		"movie": episode.TvShow.Name,
+		"nb":    len(torrentList),
+	}).Debug("Torrents found")
 
 	toDownload := downloader.FillEpisodeToDownloadTorrentList(&episode, torrentList)
 	if len(toDownload) == 0 {
@@ -440,12 +451,12 @@ func DownloadEpisode(episode Episode) {
 		return
 	}
 	notifier.NotifyEpisodeDownloadStart(&episode)
-	downloader.EpisodeDownloadRoutines[episode.ID] = make(chan bool, 1)
+	downloader.EpisodeDownloadRoutines[episode.ID] = make(chan bool)
 
-	go downloader.DownloadEpisode(episode, toDownload, downloader.EpisodeDownloadRoutines[episode.ID])
+	go downloader.DownloadEpisode(episode, toDownload, downloader.EpisodeDownloadRoutines[episode.ID], recovery)
 }
 
-func DownloadMovie(movie Movie) {
+func DownloadMovie(movie Movie, recovery bool) {
 	if movie.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
 			"movie": movie.Title,
@@ -468,6 +479,9 @@ func DownloadMovie(movie Movie) {
 		log.Warning(err)
 		return
 	}
+	if recovery && movie.DownloadingItem.CurrentTorrent.ID != 0 {
+		torrentList = append([]Torrent{movie.DownloadingItem.CurrentTorrent}, torrentList...)
+	}
 	log.WithFields(log.Fields{
 		"movie": movie.Title,
 		"nb":    len(torrentList),
@@ -480,7 +494,61 @@ func DownloadMovie(movie Movie) {
 		return
 	}
 	notifier.NotifyMovieDownloadStart(&movie)
-	downloader.MovieDownloadRoutines[movie.ID] = make(chan bool, 1)
+	downloader.MovieDownloadRoutines[movie.ID] = make(chan bool)
 
-	go downloader.DownloadMovie(movie, toDownload, downloader.MovieDownloadRoutines[movie.ID])
+	go downloader.DownloadMovie(movie, toDownload, downloader.MovieDownloadRoutines[movie.ID], recovery)
+}
+
+func RecoverDownloadingItems() {
+	downloadingEpisodesFromRetention, err := db.GetDownloadingEpisodes()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	downloadingMoviesFromRetention, err := db.GetDownloadingMovies()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	if len(downloadingEpisodesFromRetention) != 0 {
+		log.Debug("Launching watch threads for downloading episodes found in retention")
+	}
+	for _, ep := range downloadingEpisodesFromRetention {
+		ep.DeletedAt = nil
+		ep.DownloadingItem.Pending = false
+		ep.DownloadingItem.Downloading = false
+		ep.DownloadingItem.Downloaded = false
+		ep.DownloadingItem.AbortPending = false
+		db.Client.Save(&ep)
+
+		log.WithFields(log.Fields{
+			"episode": ep.Name,
+			"season":  ep.Season,
+			"number":  ep.Number,
+		}).Debug("Launched download processing recovery")
+
+		recoveryEpisode := ep
+		go DownloadEpisode(recoveryEpisode, true)
+
+	}
+
+	if len(downloadingMoviesFromRetention) != 0 {
+		log.Debug("Launching watch threads for downloading movies found in retention")
+	}
+	for _, m := range downloadingMoviesFromRetention {
+		m.DeletedAt = nil
+		m.DownloadingItem.Pending = false
+		m.DownloadingItem.Downloading = false
+		m.DownloadingItem.Downloaded = false
+		m.DownloadingItem.AbortPending = false
+		db.Client.Save(&m)
+
+		log.WithFields(log.Fields{
+			"name": m.Title,
+		}).Debug("Launched download processing recovery")
+
+		recoveryMovie := m
+		go DownloadMovie(recoveryMovie, true)
+	}
 }

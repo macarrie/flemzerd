@@ -152,7 +152,7 @@ func downloadEpisode(c *gin.Context) {
 		"number":  ep.Number,
 	}).Info("Launching individual episode download")
 
-	scheduler.DownloadEpisode(ep)
+	scheduler.DownloadEpisode(ep, false)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
