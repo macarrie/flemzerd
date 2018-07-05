@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
 
 import { TvShow } from '../tvshow';
 import { Episode } from '../episode';
@@ -18,9 +20,11 @@ export class TvshowsComponent implements OnInit {
     removedShows :TvShow[];
     downloadingEpisodes :Episode[];
     refreshing :boolean;
+    refreshing_poll :boolean;
     config :any;
 
     constructor(
+        private http :HttpClient,
         private configService :ConfigService,
         private tvshowsService :TvshowsService,
         private episodeService :EpisodeService,
@@ -46,6 +50,15 @@ export class TvshowsComponent implements OnInit {
             this.getTrackedTvShows();
             this.getRemovedTvShows();
             this.refreshing = false;
+        });
+    }
+
+    executePollLoop() :void {
+        this.refreshing_poll = true;
+        this.http.post('/api/v1/actions/poll', {}).subscribe(data => {
+            this.getTrackedTvShows();
+            this.getRemovedTvShows();
+            this.refreshing_poll = false;
         });
     }
 

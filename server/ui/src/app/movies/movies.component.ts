@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
 
 import { Movie } from '../movie';
 
@@ -17,10 +19,12 @@ export class MoviesComponent implements OnInit {
     downloadedMovies :Movie[];
     downloadingMovies :Movie[];
     refreshing :boolean;
+    refreshing_poll :boolean;
     show_downloaded_movies = true;
     config :any;
 
     constructor(
+        private http :HttpClient,
         private configService :ConfigService,
         private movieService :MovieService,
         private utils :UtilsService
@@ -48,6 +52,17 @@ export class MoviesComponent implements OnInit {
             this.getDownloadedMovies();
             this.getDownloadingMovies();
             this.refreshing = false;
+        });
+    }
+
+    executePollLoop() :void {
+        this.refreshing_poll = true;
+        this.http.post('/api/v1/actions/poll', {}).subscribe(data => {
+            this.getTrackedMovies();
+            this.getRemovedMovies();
+            this.getDownloadedMovies();
+            this.getDownloadingMovies();
+            this.refreshing_poll = false;
         });
     }
 
