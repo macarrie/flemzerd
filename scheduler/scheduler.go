@@ -34,6 +34,8 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 )
 
+var RunTicker *time.Ticker
+
 func initConfiguration(debug bool) {
 	err := configuration.Load()
 	if err != nil {
@@ -284,111 +286,14 @@ func Run(debug bool) {
 	initConfiguration(debug)
 
 	//	 Load configuration objects
-	var recoveryDone bool = true
+	var recoveryDone bool = false
 
-	loopTicker := time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
+	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting polling loop")
 		for {
-			var executeDownloadChain bool = true
-			log.Debug("========== Polling loop start ==========")
-
-			if _, err := notifier.Status(); err != nil {
-				log.Error("No notifier alive. No notifications will be sent until next polling.")
-			}
-
-			if _, err := provider.Status(); err != nil {
-				log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
-				executeDownloadChain = false
-			} else {
-				//Even if not able to download, retrieve media info for UI if enabled
-				if configuration.Config.System.TrackShows {
-					provider.GetTVShowsInfoFromConfig()
-				}
-				if configuration.Config.System.TrackMovies {
-					provider.GetMoviesInfoFromConfig()
-				}
-			}
-
-			if _, err := indexer.Status(); err != nil {
-				log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
-				executeDownloadChain = false
-			}
-
-			if _, err := downloader.Status(); err != nil {
-				log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
-				executeDownloadChain = false
-			}
-
-			if _, err := mediacenter.Status(); err != nil {
-				log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
-			}
-
-			if recoveryDone {
-				RecoverDownloadingItems()
-				recoveryDone = false
-			}
-
-			if configuration.Config.System.TrackShows {
-				for _, show := range provider.TVShows {
-					recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
-					if err != nil {
-						log.WithFields(log.Fields{
-							"error": err,
-							"show":  show.Name,
-						}).Warning("No recent episodes found")
-						continue
-					}
-
-					for _, recentEpisode := range recentEpisodes {
-						reqEpisode := Episode{}
-						req := db.Client.Where(Episode{
-							Name:   recentEpisode.Name,
-							Season: recentEpisode.Season,
-							Number: recentEpisode.Number,
-						}).Find(&reqEpisode)
-						if req.RecordNotFound() {
-							recentEpisode.TvShow = show
-							db.Client.Create(&recentEpisode)
-						} else {
-							recentEpisode = reqEpisode
-						}
-
-						err := notifier.NotifyRecentEpisode(&recentEpisode)
-						if err != nil {
-							log.Warning(err)
-						}
-
-						if executeDownloadChain {
-							DownloadEpisode(recentEpisode, false)
-						}
-					}
-				}
-			}
-
-			if configuration.Config.System.TrackMovies {
-				for _, movie := range provider.Movies {
-					if movie.Date.After(time.Now()) {
-						log.WithFields(log.Fields{
-							"movie":        movie.Title,
-							"release_date": movie.Date,
-						}).Debug("Movie not yet released, ignoring")
-						continue
-					}
-
-					err := notifier.NotifyNewMovie(&movie)
-					if err != nil {
-						log.Warning(err)
-					}
-
-					if executeDownloadChain {
-						DownloadMovie(movie, false)
-					}
-				}
-			}
-
-			log.Debug("========== Polling loop end ==========\n")
-			<-loopTicker.C
+			poll(&recoveryDone)
+			<-RunTicker.C
 		}
 	}()
 }
@@ -550,4 +455,111 @@ func RecoverDownloadingItems() {
 		recoveryMovie := m
 		go DownloadMovie(recoveryMovie, true)
 	}
+}
+
+func poll(recoveryDone *bool) {
+	var executeDownloadChain bool = true
+	log.Debug("========== Polling loop start ==========")
+
+	if _, err := notifier.Status(); err != nil {
+		log.Error("No notifier alive. No notifications will be sent until next polling.")
+	}
+
+	if _, err := provider.Status(); err != nil {
+		log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
+		executeDownloadChain = false
+	} else {
+		//Even if not able to download, retrieve media info for UI if enabled
+		if configuration.Config.System.TrackShows {
+			provider.GetTVShowsInfoFromConfig()
+		}
+		if configuration.Config.System.TrackMovies {
+			provider.GetMoviesInfoFromConfig()
+		}
+	}
+
+	if _, err := indexer.Status(); err != nil {
+		log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
+		executeDownloadChain = false
+	}
+
+	if _, err := downloader.Status(); err != nil {
+		log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
+		executeDownloadChain = false
+	}
+
+	if _, err := mediacenter.Status(); err != nil {
+		log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
+	}
+
+	if recoveryDone != nil && !*recoveryDone {
+		RecoverDownloadingItems()
+		*recoveryDone = true
+	}
+
+	if configuration.Config.System.TrackShows {
+		for _, show := range provider.TVShows {
+			recentEpisodes, err := provider.FindRecentlyAiredEpisodesForShow(show)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"show":  show.Name,
+				}).Warning("No recent episodes found")
+				continue
+			}
+
+			for _, recentEpisode := range recentEpisodes {
+				reqEpisode := Episode{}
+				req := db.Client.Where(Episode{
+					Name:   recentEpisode.Name,
+					Season: recentEpisode.Season,
+					Number: recentEpisode.Number,
+				}).Find(&reqEpisode)
+				if req.RecordNotFound() {
+					recentEpisode.TvShow = show
+					db.Client.Create(&recentEpisode)
+				} else {
+					recentEpisode = reqEpisode
+				}
+
+				err := notifier.NotifyRecentEpisode(&recentEpisode)
+				if err != nil {
+					log.Warning(err)
+				}
+
+				if executeDownloadChain {
+					DownloadEpisode(recentEpisode, false)
+				}
+			}
+		}
+	}
+
+	if configuration.Config.System.TrackMovies {
+		for _, movie := range provider.Movies {
+			if movie.Date.After(time.Now()) {
+				log.WithFields(log.Fields{
+					"movie":        movie.Title,
+					"release_date": movie.Date,
+				}).Debug("Movie not yet released, ignoring")
+				continue
+			}
+
+			err := notifier.NotifyNewMovie(&movie)
+			if err != nil {
+				log.Warning(err)
+			}
+
+			if executeDownloadChain {
+				DownloadMovie(movie, false)
+			}
+		}
+	}
+
+	log.Debug("========== Polling loop end ==========\n")
+}
+
+func ResetRunTicker() {
+	RunTicker.Stop()
+	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
+	poll(nil)
 }

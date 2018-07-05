@@ -70,11 +70,19 @@
     <div class="row" *ngIf="trackedShows">
         <div class="col-12 mt-3">
             <span class="h3">TV Shows</span>
-            <button class="btn btn-sm btn-light float-right" (click)="refreshTvShows()">
+            <button class="btn btn-sm btn-light float-right">
+                <div *ngIf="refreshing_poll" class="font-italic">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Checking
+                </div>
+                <div *ngIf="!refreshing_poll" (click)="executePollLoop()">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Check now
+                </div>
+            </button>
+            <button class="btn btn-sm btn-light float-right">
                 <div *ngIf="refreshing" class="font-italic">
                     <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
                 </div>
-                <div *ngIf="!refreshing">
+                <div *ngIf="!refreshing" (click)="refreshTvShows()">
                     <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
                 </div>
             </button>

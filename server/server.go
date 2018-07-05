@@ -34,6 +34,11 @@ func initRouter() {
 			c.JSON(http.StatusOK, configuration.Config)
 		})
 
+		actionsRoute := v1.Group("/actions")
+		{
+			actionsRoute.POST("/poll", actionsCheckNow)
+		}
+
 		tvshowsRoute := v1.Group("/tvshows")
 		{
 			tvshowsRoute.GET("/tracked", getTrackedShows)
