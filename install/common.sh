@@ -91,7 +91,7 @@ function copy_config_files {
 
 function backup_db {
     log_line "- Creating DB backup"
-    cp $LIB/flemzerd.db $lib/flemzerd.db.$(date +%s).bkp
+    cp $LIB/flemzer.db $lib/flemzer.db.$(date +%s).bkp
     print_done
 }
 
