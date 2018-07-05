@@ -89,6 +89,12 @@ function copy_config_files {
     fi
 }
 
+function backup_db {
+    log_line "- Creating DB backup"
+    cp $LIB/flemzerd.db $lib/flemzerd.db.$(date +%s).bkp
+    print_done
+}
+
 function create_systemd_unit {
     log_line "- Creating systemd unit"
     # Create systemd unit
