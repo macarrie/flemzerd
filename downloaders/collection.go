@@ -519,14 +519,6 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		return errors.Wrap(err, "Could not move episode to library")
 	}
 
-	err = os.Remove(episode.DownloadingItem.CurrentTorrent.DownloadDir)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"path":  episode.DownloadingItem.CurrentTorrent.DownloadDir,
-			"error": err,
-		}).Warning("Could not remove temporary folder for download")
-	}
-
 	episode.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath
 	db.Client.Save(episode)
 
@@ -550,14 +542,6 @@ func MoveMovieToLibrary(movie *Movie) error {
 	err = os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, target)
 	if err != nil {
 		return errors.Wrap(err, "Could not move movie to library")
-	}
-
-	err = os.Remove(movie.DownloadingItem.CurrentTorrent.DownloadDir)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"path":  movie.DownloadingItem.CurrentTorrent.DownloadDir,
-			"error": err,
-		}).Warning("Could not remove temporary folder for download")
 	}
 
 	movie.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath
