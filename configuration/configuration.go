@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -23,6 +24,15 @@ var TRAKT_CLIENT_SECRET string
 var TELEGRAM_BOT_TOKEN string
 var TMDB_API_KEY string
 var TVDB_API_KEY string
+
+type ConfigurationError struct {
+	File string
+	Err  error
+}
+
+func (e ConfigurationError) Error() string {
+	return fmt.Sprintf("%s (%s)", e.Err.Error(), e.File)
+}
 
 // YAML tags do not work in viper, mapstructure tags have to be used instead
 // https://github.com/spf13/viper/issues/385
@@ -169,7 +179,7 @@ func Check() {
 }
 
 func Load() error {
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 
 	if customConfigFile {
 		viper.SetConfigFile(customConfigFilePath)
@@ -192,7 +202,10 @@ func Load() error {
 
 	readErr := viper.ReadInConfig()
 	if readErr != nil {
-		return readErr
+		return ConfigurationError{
+			File: viper.ConfigFileUsed(),
+			Err:  readErr,
+		}
 	}
 
 	setDefaultValues()
@@ -200,7 +213,10 @@ func Load() error {
 	var conf Configuration
 	unmarshalError := viper.Unmarshal(&conf)
 	if unmarshalError != nil {
-		return unmarshalError
+		return ConfigurationError{
+			File: viper.ConfigFileUsed(),
+			Err:  unmarshalError,
+		}
 	}
 
 	conf.Version = Version

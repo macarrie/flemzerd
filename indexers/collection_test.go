@@ -11,7 +11,7 @@ import (
 
 func init() {
 	// go test makes a cd into package directory when testing. We must go up by one level to load our testdata
-	configuration.UseFile("../testdata/test_config.yaml")
+	configuration.UseFile("../testdata/test_config.toml")
 	err := configuration.Load()
 	if err != nil {
 		fmt.Print("Could not load test configuration file: ", err)

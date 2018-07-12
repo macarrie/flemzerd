@@ -30,17 +30,17 @@ func TestCheck(t *testing.T) {
 	Load()
 	Check()
 
-	UseFile("../testdata/test_config.yaml")
+	UseFile("../testdata/test_config.toml")
 	Load()
 	Check()
 
-	UseFile("../testdata/test_config_bad.yaml")
+	UseFile("../testdata/test_config_bad.toml")
 	Load()
 	Check()
 }
 
 func TestLoad(t *testing.T) {
-	UseFile("../testdata/test_config.yaml")
+	UseFile("../testdata/test_config.toml")
 	err := Load()
 	if err != nil {
 		t.Errorf("Error while loading configuration file: %s", err.Error())
