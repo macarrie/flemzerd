@@ -13,7 +13,7 @@ before_script:
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
   - mkdir -p $GOPATH/src/macarrie/flemzerd
-  - ln -svf $CI_PROJECT_DIR $GOPATH/src/macarrie/flemzerd
+  - ln -svf $CI_PROJECT_DIR $GOPATH/src/macarrie/
   - cd $GOPATH/src/macarrie/flemzerd
 
 stages:
