@@ -23,8 +23,8 @@ stages:
 test:
     stage: test
     script:
-      - make install/vidocq
-      - cp install/vidocq /usr/bin/vidocq
+      - make tmp/vidocq/target/release/vidocq
+      - cp tmp/vidocq/target/release/vidocq /usr/bin/vidocq
       - vgo vet ./...
       - make test
 

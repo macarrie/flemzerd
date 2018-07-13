@@ -20,12 +20,14 @@ webui: server/ui/node_modules
 	mkdir -p ../../package/$(PACKAGE_NAME)/ui/
 	cd server/ui && ./node_modules/@angular/cli/bin/ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
 
-package/$(PACKAGE_NAME)/dependencies/vidocq:
+tmp/vidocq/target/release/vidocq:
 	-rm -rf tmp
 	mkdir -p tmp
-	mkdir -p package/$(PACKAGE_NAME)/dependencies
 	git clone https://github.com/macarrie/vidocq tmp/vidocq
 	cd tmp/vidocq && cargo build --release
+
+package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/target/release/vidocq
+	mkdir -p package/$(PACKAGE_NAME)/dependencies
 	cp tmp/vidocq/target/release/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
  
 bin: 
@@ -44,10 +46,10 @@ build: package/$(PACKAGE_NAME)/dependencies/vidocq webui bin package
 	#cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
 
 install: build
-	cd install && sudo ./install.sh && cd ..
+	cd package/$(PACKAGE_NAME)/install/ && sudo ./install.sh && cd ..
 
 update: build
-	cd install && sudo ./update.sh && cd ..
+	cd package/$(PACKAGE_NAME)/install/ && sudo ./update.sh && cd ..
 
 test:
 	-rm -rf cover
@@ -72,8 +74,6 @@ clean:
 	-rm flemzerd
 	-rm -rf package
 	-rm -rf cover
-	-rm -rf server/ui/dist
 	-rm -rf tmp
-	-rm -rf install/vidocq
 
 .PHONY: all webui bin build doc test install update clean package
