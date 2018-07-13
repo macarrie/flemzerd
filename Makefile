@@ -1,6 +1,13 @@
 PKGS=$(shell vgo list ./... | grep -v vendor)
+
 VERSION=$(shell git describe --tags --always)
-FLAGS=-X github.com/macarrie/flemzerd/configuration.Version=$(VERSION)
+GOOS=$(shell go env GOOS)
+GOARCH=$(shell go env GOARCH)
+
+PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
+
+FLAGS=-X github.com/macarrie/flemzerd/configuration.Version=$(VERSION) -X github.com/macarrie/flemzerd/configuration.TRAKT_CLIENT_SECRET=$(FLZ_TRAKT_CLIENT_SECRET) -X github.com/macarrie/flemzerd/configuration.TELEGRAM_BOT_TOKEN=$(FLZ_TELEGRAM_BOT_TOKEN) -X github.com/macarrie/flemzerd/configuration.TMDB_API_KEY=$(FLZ_TMDB_API_KEY) -X github.com/macarrie/flemzerd/configuration.TVDB_API_KEY=$(FLZ_TVDB_API_KEY)
+
 
 all: build
 
@@ -10,17 +17,28 @@ server/ui/node_modules:
 webui: server/ui/node_modules
 	node -v
 	npm -v
-	cd server/ui && npm run build
+	mkdir -p ../../package/$(PACKAGE_NAME)/ui/
+	cd server/ui && ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
 
-install/vidocq:
+package/$(PACKAGE_NAME)/dependencies/vidocq:
 	-rm -rf tmp
 	mkdir -p tmp
+	mkdir -p package/$(PACKAGE_NAME)/dependencies
 	git clone https://github.com/macarrie/vidocq tmp/vidocq
 	cd tmp/vidocq && cargo build --release
-	cp tmp/vidocq/target/release/vidocq install/vidocq
+	cp tmp/vidocq/target/release/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
+ 
+bin: 
+	mkdir -p bin/
+	vgo build -v -ldflags="$(FLAGS)" -o bin/flemzerd
 
-build: install/vidocq webui
-	vgo build -v -ldflags="$(FLAGS)"
+package:
+	mkdir -p package/$(PACKAGE_NAME)
+	cp -r install/* package/flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
+	cp -r bin package/flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
+
+
+build: package/$(PACKAGE_NAME)/dependencies/vidocq webui bin package
 
 #doc: webui
 	#cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
@@ -52,9 +70,10 @@ test:
 
 clean:
 	-rm flemzerd
+	-rm -rf package
 	-rm -rf cover
 	-rm -rf server/ui/dist
 	-rm -rf tmp
 	-rm -rf install/vidocq
 
-.PHONY: all webui deps build doc test install update clean
+.PHONY: all webui bin build doc test install update clean package

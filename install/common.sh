@@ -40,8 +40,8 @@ GROUP=flemzer
 function copy_binary {
     # Copy exec file
     log_line "- Copying flemzerd binary"
-    cp vidocq $BIN/vidocq
-    cp ../flemzerd $BIN/flemzerd
+    cp dependencies/vidocq $BIN/vidocq
+    cp bin/flemzerd $BIN/flemzerd
     chmod a+x $BIN/vidocq
     chmod a+x $BIN/flemzerd
     print_done
@@ -50,7 +50,7 @@ function copy_binary {
 function copy_server_files {
      log_line "- Copying UI files"
      mkdir -p $LIB/server/ui
-     cp -r ../server/ui/dist/flemzerd/* $LIB/server/ui
+     cp -r ui/* $LIB/server/ui
      print_done
 }
 
@@ -71,8 +71,8 @@ function create_folder_structure {
     mkdir -p $ETC
     chown $USER:$GROUP $ETC
     chown $USER:$GROUP $LIB
-    mkdir -p /var/lib/flemzerd/Library/Shows
-    mkdir -p /var/lib/flemzerd/Library/Movies
+    mkdir -p /var/lib/flemzerd/library/shows
+    mkdir -p /var/lib/flemzerd/library/movies
     mkdir -p $LIB/tmp
     chmod 0777 $LIB/tmp
 

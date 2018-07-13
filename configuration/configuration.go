@@ -195,10 +195,18 @@ func Load() error {
 	viper.BindEnv("TMDB_API_KEY")
 	viper.BindEnv("TVDB_API_KEY")
 
-	TRAKT_CLIENT_SECRET = viper.GetString("TRAKT_CLIENT_SECRET")
-	TELEGRAM_BOT_TOKEN = viper.GetString("TELEGRAM_BOT_TOKEN")
-	TMDB_API_KEY = viper.GetString("TMDB_API_KEY")
-	TVDB_API_KEY = viper.GetString("TVDB_API_KEY")
+	if key := viper.GetString("TRAKT_CLIENT_SECRET"); key != "" {
+		TRAKT_CLIENT_SECRET = key
+	}
+	if key := viper.GetString("TELEGRAM_BOT_TOKEN"); key != "" {
+		TELEGRAM_BOT_TOKEN = viper.GetString("TELEGRAM_BOT_TOKEN")
+	}
+	if key := viper.GetString("TMDB_API_KEY"); key != "" {
+		TMDB_API_KEY = viper.GetString("TMDB_API_KEY")
+	}
+	if key := viper.GetString("TVDB_API_KEY"); key != "" {
+		TVDB_API_KEY = viper.GetString("TVDB_API_KEY")
+	}
 
 	readErr := viper.ReadInConfig()
 	if readErr != nil {
