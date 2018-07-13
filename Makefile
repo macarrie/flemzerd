@@ -18,7 +18,7 @@ webui: server/ui/node_modules
 	node -v
 	npm -v
 	mkdir -p ../../package/$(PACKAGE_NAME)/ui/
-	cd server/ui && ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
+	cd server/ui && ./node_modules/@angular/cli/bin/ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
 
 package/$(PACKAGE_NAME)/dependencies/vidocq:
 	-rm -rf tmp
@@ -64,7 +64,7 @@ test:
 		fi; \
 	done;
 	@tail -q -n +2 cover/*.cov >> cover/coverage.cov
-	#@vgo tool cover -func=cover/coverage.cov
+	@vgo tool cover -func=cover/coverage.cov
 	@exit $$tests_failed;
 
 
