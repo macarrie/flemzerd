@@ -1,0 +1,58 @@
+[system]
+    episode_check_interval = 15.0
+    torrent_download_attempts_limit = 20.0
+
+[interface]
+    enabled = true
+    port = 8080.0
+
+[providers]
+  [providers.tmdb]
+      apikey = "API_KEY"
+
+  [providers.tvdb]
+      apikey = "API_KEY"
+
+[notifiers]
+    desktop = []
+
+      [notifiers.pushbullet]
+      accessToken = "ACCESS_TOKEN"
+
+[indexers]
+    [[indexers.torznab]]
+    name = "Indexer 1"
+    url = "http://first-indexer:8080/torznab"
+    apikey = "API_KEY"
+
+    [[indexers.torznab]]
+    name = "Indexer 2"
+    url = "http://second-indexer:9164/url/to/torznab/endpoint"
+    apikey = "API_KEY"
+
+[downloaders]
+    [downloaders.transmission]
+    address = "localhost"
+    port = 9091.0
+    user = "USERNAME"
+    password = "PASSWORD"
+
+[watchlists]
+    trakt = []
+    manual = [
+      "TV_SHOW_1",
+      "TV_SHOW_2",
+      "TV_SHOW_3"
+    ]
+
+[notifications]
+    enabled = true
+    notify_new_episode = true
+    notify_new_movie = true
+    notify_download_complete = true
+    notify_failure = true
+
+[library]
+    show_path = "/var/lib/flemzer/library/shows"
+    movie_path = "/var/lib/flemzer/library/movies"
+    custom_tmp_path = "/dev/null"

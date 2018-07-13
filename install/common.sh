@@ -73,7 +73,7 @@ function create_folder_structure {
     chown $USER:$GROUP $LIB
     mkdir -p /var/lib/flemzerd/Library/Shows
     mkdir -p /var/lib/flemzerd/Library/Movies
-    mkdir $LIB/tmp
+    mkdir -p $LIB/tmp
     chmod 0777 $LIB/tmp
 
     print_done
@@ -81,8 +81,8 @@ function create_folder_structure {
 
 function copy_config_files {
     log_line "- Copying default configuration file"
-    if [ ! -f $ETC/flemzerd.yml ]; then
-        cp flemzerd.yml $ETC
+    if [ ! -f $ETC/flemzerd.toml ]; then
+        cp flemzerd.toml $ETC
         print_done
     else
         print_skipping
