@@ -3,6 +3,7 @@ PKGS=$(shell vgo list ./... | grep -v vendor)
 VERSION=$(shell git describe --tags --always)
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
+GOPATH=$(shell go env GOPATH)
 
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
 
@@ -58,11 +59,15 @@ test:
 	@echo "mode: count" > cover/coverage.cov
 	@for d in $(PKGS); \
 	do \
-		vgo test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
-		ret=$$?; \
-		if [ $$ret -ne 0 ]; \
+		tests_in_package=$$(ls $$(GOPATH)/src/$$d | grep _test.go | wc -l); \
+		if [ $$tests_in_package -gt 0 ]; \
 		then \
-			tests_failed=$$ret; \
+			vgo test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
+			ret=$$?; \
+			if [ $$ret -ne 0 ]; \
+			then \
+				tests_failed=$$ret; \
+			fi; \
 		fi; \
 	done;
 	@tail -q -n +2 cover/*.cov >> cover/coverage.cov

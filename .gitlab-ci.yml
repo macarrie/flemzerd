@@ -3,6 +3,8 @@ image: golang:latest
 cache:
     paths:
         - server/ui/node_modules
+        - $GOPATH/src
+        - tmp
 
 before_script:
   - go get -u golang.org/x/vgo
@@ -41,9 +43,3 @@ build_linux_amd64:
     variables:
         GOOS: 'linux'
         GOARCH: 'amd64'
-
-build_linux_arm64:
-    <<: *build_definition
-    variables:
-        GOOS: 'linux'
-        GOARCH: 'arm64'
