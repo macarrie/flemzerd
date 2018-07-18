@@ -4,7 +4,6 @@ cache:
     paths:
         - server/ui/node_modules
         - $GOPATH/src
-        - tmp
 
 before_script:
   - go get -u golang.org/x/vgo
