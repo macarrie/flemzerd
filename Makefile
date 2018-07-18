@@ -1,9 +1,10 @@
 PKGS=$(shell vgo list ./... | grep -v vendor)
+HOME=$(shell echo $HOME)
 
 VERSION=$(shell git describe --tags --always)
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
-GOPATH=~/go
+GOPATH=$(HOME)/go
 
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
 
