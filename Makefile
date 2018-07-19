@@ -21,8 +21,6 @@ webui: server/ui/node_modules
 	cd server/ui && ./node_modules/@angular/cli/bin/ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
 
 tmp/vidocq/target/release/vidocq:
-	echo $$HOME
-	echo $$HOME/go
 	-rm -rf tmp
 	mkdir -p tmp
 	git clone https://github.com/macarrie/vidocq tmp/vidocq
