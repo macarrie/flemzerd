@@ -1,7 +1,6 @@
 package telegram
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/pkg/errors"
 )
 
 type TelegramNotifier struct {
@@ -26,7 +26,7 @@ func New() (t *TelegramNotifier, err error) {
 
 	bot, err := tgbotapi.NewBotAPI(configuration.TELEGRAM_BOT_TOKEN)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error when creating Telegram bot")
 	}
 
 	bot.Debug = true
@@ -114,7 +114,7 @@ func (t *TelegramNotifier) Send(title, content string) error {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Warning("Unable to send notification")
-		return err
+		return errors.Wrap(err, "cannot send telegram notification")
 	}
 
 	return nil

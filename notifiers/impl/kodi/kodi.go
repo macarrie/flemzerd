@@ -1,15 +1,13 @@
 package kodi_notifier
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/macarrie/flemzerd/configuration"
 	kodi_helper "github.com/macarrie/flemzerd/helpers/kodi"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
 	"github.com/pdf/kodirpc"
+	"github.com/pkg/errors"
 )
 
 type KodiNotifier struct {
@@ -24,7 +22,7 @@ func New() (k *KodiNotifier, err error) {
 	client, err := kodi_helper.CreateKodiClient(configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
 	if err != nil {
 		k.Client = nil
-		return k, fmt.Errorf("Cannot connect to kodi mediacenter: %s", err.Error())
+		return k, errors.Wrap(err, "cannot connect to kodi mediacenter")
 	}
 	k.Client = client
 
@@ -57,6 +55,8 @@ func (k *KodiNotifier) Status() (Module, error) {
 	if err != nil {
 		module.Status.Alive = false
 		module.Status.Message = err.Error()
+
+		return module, errors.Wrap(err, "cannot ping kodi mediacenter")
 	}
 
 	module.Status.Alive = true
@@ -90,7 +90,7 @@ func (k *KodiNotifier) Send(title, content string) error {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Warning("Unable to send notification")
-		return err
+		return errors.Wrap(err, "unable to send kodi notification")
 	}
 
 	return nil

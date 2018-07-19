@@ -8,7 +8,7 @@ cache:
 before_script:
   - go get -u golang.org/x/vgo
   - apt-get update
-  - apt-get install -y curl gcc g++ make
+  - apt-get install -y curl gcc g++ make clang
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
   - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -26,7 +26,6 @@ test:
     script:
       - make tmp/vidocq/target/release/vidocq
       - cp tmp/vidocq/target/release/vidocq /usr/bin/vidocq
-      - vgo vet ./...
       - make test
 
 .build_def: &build_definition

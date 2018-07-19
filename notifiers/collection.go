@@ -4,14 +4,15 @@
 package notifier
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 )
 
 var notifiersCollection []Notifier
@@ -27,7 +28,7 @@ func AddNotifier(notifier Notifier) {
 // Status checks registered notifiers status. A module list is returned, each module corresponds to a registered notifier. A non nil error is returned if at least one registered notifier is in error
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, notifier := range notifiersCollection {
 		mod, notifierAliveError := notifier.Status()
@@ -35,19 +36,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": notifierAliveError,
 			}).Warning("Notifier is not alive")
-			aggregatedErrorMessage.WriteString(notifierAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, notifierAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 // Reset empties registered notifiers list
@@ -71,7 +65,7 @@ func NotifyRecentEpisode(episode *Episode) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	episode.Notified = true
@@ -91,7 +85,7 @@ func NotifyEpisodeDownloadStart(episode *Episode) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -113,7 +107,7 @@ func NotifyNewMovie(m *Movie) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	m.Notified = true
@@ -133,7 +127,7 @@ func NotifyMovieDownloadStart(m *Movie) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -150,7 +144,7 @@ func NotifyDownloadedEpisode(episode *Episode) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -167,7 +161,7 @@ func NotifyDownloadedMovie(m *Movie) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -185,7 +179,7 @@ func NotifyFailedEpisode(episode *Episode) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -203,7 +197,7 @@ func NotifyFailedMovie(m *Movie) error {
 
 	err := SendNotification(notificationTitle, notificationContent)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
@@ -216,18 +210,21 @@ func SendNotification(title, content string) error {
 		return nil
 	}
 
+	var sendingErrors *multierror.Error
 	var noNotificationSent bool
 	noNotificationSent = true
 	for _, notifier := range notifiersCollection {
 		err := notifier.Send(title, content)
-		if err == nil {
+		if err != nil {
+			sendingErrors = multierror.Append(sendingErrors, err)
+		} else {
 			noNotificationSent = false
 		}
 	}
 
 	if noNotificationSent {
-		return errors.New("Could not send any notification")
-	} else {
-		return nil
+		return sendingErrors
 	}
+
+	return nil
 }

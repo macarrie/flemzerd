@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 
 	log "github.com/macarrie/flemzerd/logging"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
 )
@@ -149,16 +151,23 @@ func Check() {
 
 	err := unix.Access(Config.Library.ShowPath, unix.W_OK)
 	if err != nil {
-		log.Error("Cannot write into library show path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder")
+		log.WithFields(log.Fields{
+			"error": err,
+			"path":  Config.Library.ShowPath,
+		}).Error("Cannot write into library show path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder")
 	}
 	err = unix.Access(Config.Library.MoviePath, unix.W_OK)
 	if err != nil {
-		log.Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
+		log.WithFields(log.Fields{
+			"error": err,
+			"path":  Config.Library.MoviePath,
+		}).Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
 	}
 	err = unix.Access(Config.Library.CustomTmpPath, unix.W_OK)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"path": Config.Library.CustomTmpPath,
+			"path":  Config.Library.CustomTmpPath,
+			"error": err,
 		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
 		ConfigurationFatal(1)
 	}
@@ -212,7 +221,7 @@ func Load() error {
 	if readErr != nil {
 		return ConfigurationError{
 			File: viper.ConfigFileUsed(),
-			Err:  readErr,
+			Err:  errors.Wrap(readErr, "cannot read configuration file"),
 		}
 	}
 
@@ -223,7 +232,7 @@ func Load() error {
 	if unmarshalError != nil {
 		return ConfigurationError{
 			File: viper.ConfigFileUsed(),
-			Err:  unmarshalError,
+			Err:  errors.Wrap(unmarshalError, "cannot parse configuration file"),
 		}
 	}
 

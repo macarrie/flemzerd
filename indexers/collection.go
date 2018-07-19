@@ -1,8 +1,6 @@
 package indexer
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"sort"
 
@@ -10,6 +8,9 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
+
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 )
 
 var indexersCollection []Indexer
@@ -23,7 +24,7 @@ func AddIndexer(indexer Indexer) {
 
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, indexer := range indexersCollection {
 		mod, indexerAliveError := indexer.Status()
@@ -31,19 +32,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": indexerAliveError,
 			}).Warning("Indexer is not alive")
-			aggregatedErrorMessage.WriteString(indexerAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, indexerAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 func Reset() {
@@ -52,7 +46,7 @@ func Reset() {
 
 func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
 	var torrentList []Torrent
-	var err error
+	var errorList *multierror.Error
 
 	for _, indexer := range indexersCollection {
 		ind, ok := indexer.(TVIndexer)
@@ -70,6 +64,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
+			errorList = multierror.Append(errorList, err)
 			continue
 		}
 
@@ -95,15 +90,15 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
 
 	if len(torrentList) == 0 {
-		return []Torrent{}, errors.New("No torrents found for episode")
+		return []Torrent{}, errors.Wrap(errorList, "No torrents found for episode")
 	}
 
-	return torrentList, err
+	return torrentList, errors.Wrap(errorList, "errors occurred while retrieving torrents")
 }
 
 func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	var torrentList []Torrent
-	var err error
+	var errorList *multierror.Error
 
 	for _, indexer := range indexersCollection {
 		ind, ok := indexer.(MovieIndexer)
@@ -121,6 +116,7 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 				"movie":   movie.Title,
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
+			errorList = multierror.Append(errorList, err)
 			continue
 		}
 
@@ -139,7 +135,7 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	}
 
 	if len(torrentList) == 0 {
-		return []Torrent{}, errors.New("No torrents found for movie")
+		return []Torrent{}, errors.Wrap(errorList, "No torrents found for episode")
 	}
 
 	sort.Slice(torrentList[:], func(i, j int) bool {
@@ -147,12 +143,11 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	})
 
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
-	log.Warning("After quality filter: ", len(torrentList))
+	log.Debug("After quality filter: ", len(torrentList))
 	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
+	log.Debug("After year check: ", len(torrentList))
 
-	log.Warning("After year check: ", len(torrentList))
-
-	return torrentList, err
+	return torrentList, errors.Wrap(errorList, "errors occurred while retrieving torrents")
 }
 
 func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {

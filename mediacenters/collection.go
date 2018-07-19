@@ -1,18 +1,17 @@
 package mediacenter
 
 import (
-	"bytes"
-	"errors"
-
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	multierror "github.com/hashicorp/go-multierror"
 )
 
 var mediaCenterCollection []MediaCenter
 
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, mc := range mediaCenterCollection {
 		mod, mcAliveError := mc.Status()
@@ -20,19 +19,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": mcAliveError,
 			}).Warning("MediaCenter is not alive")
-			aggregatedErrorMessage.WriteString(mcAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, mcAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 func Reset() {
