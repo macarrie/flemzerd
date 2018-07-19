@@ -3,7 +3,7 @@ image: golang:latest
 cache:
     paths:
         - server/ui/node_modules
-        - install/vidocq
+        - $GOPATH/src
 
 before_script:
   - go get -u golang.org/x/vgo
@@ -13,6 +13,9 @@ before_script:
   - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
+  - mkdir -p $GOPATH/src/github.com/macarrie/flemzerd
+  - cp -r $CI_PROJECT_DIR/* $GOPATH/src/github.com/macarrie/flemzerd
+  - cd $GOPATH/src/github.com/macarrie/flemzerd
 
 stages:
     - test
@@ -21,15 +24,21 @@ stages:
 test:
     stage: test
     script:
-      - make install/vidocq
-      - cp install/vidocq /usr/bin/vidocq
+      - make tmp/vidocq/target/release/vidocq
+      - cp tmp/vidocq/target/release/vidocq /usr/bin/vidocq
       - vgo vet ./...
       - make test
 
-build:
+.build_def: &build_definition
     stage: build
     script:
-      - make build
+      - GOOS=${GOOS} GOARCH=${GOARCH} make build
     artifacts:
       paths:
-        - flemzerd
+        - package/flemzerd*
+
+build_linux_amd64:
+    <<: *build_definition
+    variables:
+        GOOS: 'linux'
+        GOARCH: 'amd64'
