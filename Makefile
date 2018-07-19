@@ -1,10 +1,8 @@
 PKGS=$(shell vgo list ./... | grep -v vendor)
-HOME=$(shell echo $HOME)
 
 VERSION=$(shell git describe --tags --always)
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
-GOPATH=$(HOME)/go
 
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
 
@@ -23,6 +21,8 @@ webui: server/ui/node_modules
 	cd server/ui && ./node_modules/@angular/cli/bin/ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
 
 tmp/vidocq/target/release/vidocq:
+	echo $$HOME
+	echo $$HOME/go
 	-rm -rf tmp
 	mkdir -p tmp
 	git clone https://github.com/macarrie/vidocq tmp/vidocq
@@ -60,7 +60,7 @@ test:
 	@echo "mode: count" > cover/coverage.cov
 	@for d in $(PKGS); \
 	do \
-		tests_in_package=$$(ls $(GOPATH)/src/$$d | grep _test.go | wc -l); \
+		tests_in_package=$$(ls $$GOPATH/src/$$d | grep _test.go | wc -l); \
 		if [ $$tests_in_package -gt 0 ]; \
 		then \
 			vgo test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
