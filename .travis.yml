@@ -14,7 +14,6 @@ install:
     - go get -u golang.org/x/vgo
 
 script:
-    - vgo vet ./...
     - make test
 
 after_success:

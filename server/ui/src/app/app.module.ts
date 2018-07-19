@@ -15,6 +15,8 @@ import { EpisodeDetailsComponent } from './episode-details/episode-details.compo
 import { DownloadingItemComponent } from './downloading-item/downloading-item.component';
 import { MovieMiniatureComponent } from './movie-miniature/movie-miniature.component';
 import { MovieDetailsComponent } from './movie-details/movie-details.component';
+import { NotificationsCenterComponent } from './notifications-center/notifications-center.component';
+import { NotificationComponent } from './notification/notification.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import { MovieDetailsComponent } from './movie-details/movie-details.component';
     EpisodeDetailsComponent,
     DownloadingItemComponent,
     MovieMiniatureComponent,
-    MovieDetailsComponent
+    MovieDetailsComponent,
+    NotificationsCenterComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,

@@ -13,7 +13,7 @@ import { ConfigService } from '../config.service';
 @Component({
     selector: 'app-tvshows',
     templateUrl: './tvshows.component.html',
-    styleUrls: ['./tvshows.component.scss']
+    styleUrls: ['../media.miniatures.scss']
 })
 export class TvshowsComponent implements OnInit {
     trackedShows :TvShow[];
@@ -41,7 +41,7 @@ export class TvshowsComponent implements OnInit {
     getConfig() {
         this.configService.getConfig().subscribe(config => {
             this.config = config;
-        })
+        });
     }
 
     refreshTvShows() :void {

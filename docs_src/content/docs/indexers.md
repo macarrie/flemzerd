@@ -7,3 +7,18 @@ draft = false
 bref = "Indexer modules are responsible for searching torrents to download for a specific TV show episode or movie."
 toc = true
 +++
+
+## Indexers overview
+---
+
+## Available Providers
+---
+
+### Torznab
+---
+ Blablabla
+
+## Create your own Provider
+---
+
+Interface to implement

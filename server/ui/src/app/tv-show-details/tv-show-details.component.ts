@@ -15,7 +15,7 @@ import { UtilsService } from '../utils.service';
 @Component({
     selector: 'app-tv-show-details',
     templateUrl: './tv-show-details.component.html',
-    styleUrls: ['./tv-show-details.component.scss']
+    styleUrls: ['../media.details.scss']
 })
 export class TvShowDetailsComponent implements OnInit {
     tvshow :TvShow;

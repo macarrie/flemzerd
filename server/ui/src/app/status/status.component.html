@@ -6,8 +6,7 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" *ngFor="let watchlist of watchlists"
-                    [ngClass]="watchlist.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" *ngFor="let watchlist of watchlists">
                     <span>{{ watchlist.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!watchlist.Status.Alive">ERROR</span>
@@ -29,8 +28,7 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" *ngFor="let provider of providers"
-                    [ngClass]="provider.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" *ngFor="let provider of providers">
                     <span>{{ provider.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!provider.Status.Alive">ERROR</span>
@@ -54,9 +52,8 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item border" 
-                    *ngFor="let notifier of notifiers"
-                    [ngClass]="notifier.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" 
+                    *ngFor="let notifier of notifiers">
                     <span>{{ notifier.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!notifier.Status.Alive">ERROR</span>
@@ -77,8 +74,7 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" *ngFor="let indexer of indexers"
-                    [ngClass]="indexer.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" *ngFor="let indexer of indexers">
                     <span>{{ indexer.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!indexer.Status.Alive">ERROR</span>
@@ -102,8 +98,7 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" *ngFor="let downloader of downloaders"
-                    [ngClass]="downloader.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" *ngFor="let downloader of downloaders">
                     <span>{{ downloader.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!downloader.Status.Alive">ERROR</span>
@@ -124,8 +119,7 @@
                 <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
             </ul>
             <ul class="list-group">
-                <li class="list-group-item" *ngFor="let mc of mediacenters"
-                    [ngClass]="mc.Status.Alive ? 'border-success' : 'border-danger'">
+                <li class="list-group-item" *ngFor="let mc of mediacenters">
                     <span>{{ mc.Name }}</span>
                     <span class="badge badge-pill badge-danger float-right"
                           *ngIf="!mc.Status.Alive">ERROR</span>

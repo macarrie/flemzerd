@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"time"
 
+	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -31,11 +32,6 @@ type Token struct {
 
 type PushbulletNotifier struct {
 	Name string
-}
-
-type Notification struct {
-	Title   string
-	Content string
 }
 
 type User struct {
@@ -167,11 +163,13 @@ func (n *PushbulletNotifier) GetName() string {
 	return "Pushbullet"
 }
 
-func (notifier *PushbulletNotifier) Send(title, content string) error {
-	log.WithFields(log.Fields{
-		"title":   title,
-		"content": content,
-	}).Debug("Sending Pushbullet notification")
+func (notifier *PushbulletNotifier) Send(notif Notification) error {
+	log.Debug("Sending Pushbullet notification")
+
+	title, content, err := notifier_helper.GetNotificationText(notif)
+	if err != nil {
+		return err
+	}
 
 	params := map[string]string{"type": "note", "title": title, "body": content}
 	response, err := performAPIRequest("POST", "v2/pushes", params)
@@ -180,9 +178,7 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.WithFields(log.Fields{
-			"http_error": response.StatusCode,
-		}).Warning("Unable to send notification")
+		return fmt.Errorf("Unable to send notification: HTTP status code %d", response.StatusCode)
 	}
 
 	return nil

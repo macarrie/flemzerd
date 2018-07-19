@@ -1,5 +1,5 @@
 [system]
-    episode_check_interval = 15.0
+    check_interval = 15.0
     torrent_download_attempts_limit = 20.0
 
 [interface]

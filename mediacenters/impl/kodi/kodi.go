@@ -19,23 +19,26 @@ type KodiMediaCenter struct {
 var module Module
 
 func New() (k *KodiMediaCenter, err error) {
+	module = Module{
+		Name: "kodi",
+		Type: "mediacenter",
+		Status: ModuleStatus{
+			Alive: false,
+		},
+	}
+
 	k = &KodiMediaCenter{}
 
 	client, err := kodi_helper.CreateKodiClient(configuration.Config.MediaCenters["kodi"]["address"], configuration.Config.MediaCenters["kodi"]["port"])
 	if err != nil {
 		k.Client = nil
-		return k, fmt.Errorf("Cannot connect to kodi mediacenter: %s", err.Error())
+		msg := fmt.Sprintf("Cannot connect to kodi mediacenter: %s", err.Error())
+		module.Status.Message = msg
+		return k, errors.New(msg)
 	}
-	k.Client = client
 
-	module = Module{
-		Name: "kodi",
-		Type: "mediacenter",
-		Status: ModuleStatus{
-			Alive:   true,
-			Message: "",
-		},
-	}
+	k.Client = client
+	module.Status.Alive = true
 
 	return k, nil
 }

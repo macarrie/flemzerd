@@ -1,51 +1,51 @@
-/* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,500');
 @import url('https://fonts.googleapis.com/css?family=Alex+Brush');
+@import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,700,700i');
+@import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
 
-// Colors
-
-$primary: #BF3A30;
-$secondary: #864BA2;
-$success: #689F38;
-$info: #1976D2;
-$warning: #FFA000;
-$danger: #D32F2F;
-$dark: #444444;
-$light: #F5F5F5;
-
-$theme-colors: () !default;
-$theme-colors: map-merge((
-"primary":    $primary,
-"secondary":  $secondary,
-"success":    $success,
-"info":       $info,
-"warning":    $warning,
-"danger":     $danger,
-"light":      $light,
-"dark":       $dark
-), $theme-colors);
-
-$body-bg: $light;
-$body-color: $dark;
-
-$link-hover-decoration: none;
-
-$font-header: "Roboto Slab";
+@import "vars.scss";
 
 @import "./assets/scss/bootstrap/bootstrap-reboot.scss";
 @import "./assets/scss/bootstrap/bootstrap.scss";
 
+// Overload
+///////////////////////////////
+///////////////////////////////
 
-body {
-    font-family: Roboto, sans-serif;
+h1, h2, h3, h4, h5, h6, 
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3, .display-4 {
+    font-family: $font-header;
     font-weight: 300;
-    font-size: 14px;
-    overflow-x: hidden;
+    margin-top: 30px;
 }
 
-a:hover  {
-    cursor: pointer;
+button, 
+.btn, 
+.badge, 
+.sans-serif {
+    font-family: $font-header !important;
+    font-weight: 400 !important;
+}
+
+.title-gradient a {
+    color: transparent !important;
+    background-color: $primary;
+    background-image: linear-gradient(315deg, $primary -25%, $secondary 125%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    font-family: $content-font;
+    font-weight: 400;
+    font-size: 16px;
+    overflow-x: hidden;
+    margin-bottom: 100px;
 }
 
 .material-icons.md-18 { 
@@ -57,30 +57,92 @@ a:hover  {
 .material-icons.md-36 { font-size: 36px;  }
 .material-icons.md-48 { font-size: 48px;  }
 
-a i.material-icons {
-    font-size: 16px;
-    margin-right: 3px;
-    position: relative;
-    top: 3px;
+a {
+    color: lighten($info, 10%);
+
+    &:hover  {
+        cursor: pointer;
+        color: $info;
+    }
+    i.material-icons {
+        font-size: 16px;
+        margin-right: 3px;
+        position: relative;
+        top: 3px;
+    }
 }
 
-.spin {
-    animation: fa-spin 2s infinite linear;
+
+ul.list-group {
+    box-shadow: 0 0 3px $light;
+
+    li.list-group-item {
+        border: none;
+        border-top: 1px dashed darken($light, 10%);
+        border-bottom: 1px dashed darken($light, 10%);
+        background: #F00;
+        background: linear-gradient(#FFFFFF, darken(#FFFFFF, 1%));
+    }
+
+    li.list-group-item:first-child {
+        border-top: none;
+    }
+    li.list-group-item:last-child {
+        border-bottom: none;
+    }
 }
+
+hr {
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.doc_content {
+    font-size: 18px;
+
+    p, ul, pre {
+        margin-left: 15px;
+        max-width: 800px;
+    }
+
+    ul li {
+        margin-bottom: 10px;
+    }
+}
+
+blockquote {
+    border-left: 4px solid darken($light, 5%);
+    font-style: italic;
+    color: darken($light, 40%);
+}
+
+pre {
+    border-left: 4px solid $info;
+    background: #fff;
+    padding: 10px;
+}
+
+code {
+    font-size: 12px;
+}
+
+// Navbar
+///////////////////////////////
+///////////////////////////////
 
 .navbar {
     background: $light;
     border-top: 3px solid $primary;
     border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
     border-image-slice: 1;
+    font-family: $font-header;
 
     a {
         margin: 5px;
     }
 
     .navbar-brand {
-        font-size: 50px;
-        line-height: 30px;
+        font-size: 50px !important;
+        line-height: 30px !important;
         font-family: "Alex Brush";
         margin-right: 30px;
         padding-left: 15px;
@@ -91,208 +153,45 @@ a i.material-icons {
         background-clip: text;
         -webkit-background-clip: text;
     }
-}
 
+    .notifications_counter {
+        span.badge {
+            position: relative;
+            left: -12px;
 
+            background-color: $light;
+            color: $dark;
+            box-shadow: 0 0 2px $secondary;
+        }
 
+        &.alerted {
+            span.badge  {
+                background-color: $danger;
+                color: $light;
+                font-weight: bold !important;
+                box-shadow: none;
+            }
+        }
 
-h1, h2, h3, h4, h5, h6, 
-.h1, .h2, .h3, .h4, .h5, .h6,
-.display-1, .display-2, .display-3, .display-4 {
-    font-family: $font-header;
-}
-
-.show-status-btn {
-    padding: 0 5px;
-    position: relative;
-    top: -5px;
-    font-weight: normal;
-    font-size: 12px;
-}
-
-img.black_and_white {
-    filter: saturate(200%) grayscale(100%) brightness(50%);
-    opacity: 0.8;
-    transition-property: filter, opacity;
-    transition-duration: 0.2s;
-}
-
-.overlay-green {
-    background-color: rgba(36, 183, 36, 0.4);
-}
-
-.overlay-red {
-    background-color: rgba(216, 61, 47, 0.4);
-}
-
-.overlay-gray {
-    background-color: rgba(200, 200, 200, 0.4);
-}
-
-.media-card {
-    .card-img-overlay {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        span {
-            display: table-cell;
-            vertical-align: middle;
+        &.active {
+            background: darken($light, 10%);
+            border-radius: 4px;
         }
     }
 
-
-    a {
-        text-decoration: none;
-        color: $dark;
-
-        &:hover {
-            color: lighten($dark, 15%);
-        }
-    }
-
-    .btn {
-        background: transparent;
+    .navbar-toggler {
         border: none;
-        font-size: 12px;
-        opacity: 0.8;
-        padding: 0;
-        margin: 0;
-
-        &:hover {
-            opacity: 1;
-        }
-    }
-
-    .btn-delete-item {
-        position: absolute;
-        right: 0;
-        top: 0;
-        margin-right: 2px;
-    }
-
-    .btn-mark {
-        position: absolute;
-        left: 0;
-        top: 0;
-        margin-left: 2px;
-    }
-
-    &:hover {
-        img.black_and_white {
-            filter: none;
-            opacity: 1;
-        }
-
-        img {
-            filter: brightness(70%);
-            opacity: 1;
-        }
-
-        .card-img-overlay {
-            display: none;
-        }
     }
 }
 
-#full_background {
-    content: '';
-    padding: 0;
-    margin: 0;
-
-    position: fixed;
-    left: 0;
-    right: 0;
-
-    display: block;
+.footer {
+    position: absolute;
+    bottom: 0;
     width: 100%;
-    height: 100%;
-    z-index: -1;
+    height: 60px;
 
-    background-color: $dark;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    background-size: cover;
-    filter: grayscale(90%) brightness(30%) blur(2px);
-    transform: scale(1.1);
-}
-
-.mediadetails {
-    color: $light;
-}
-
-.external-links-banner {
-    display: inline;
-
-    a {
-        font-style: italic;
-        font-weight: bold;
-        text-decoration: none;
-    }
-
-    a:hover {
-        opacity: 0.7;
-    }
-
-    .imdb {
-        color: #f9ff94;
-    }
-
-    .trakt {
-        color: #ff5f68;
-    }
-
-    .tmdb {
-        color: #45f6bb;
-    }
-}
-
-.action-bar {
-    height: 30px;
-    line-height: 30px;
-    background: rgba(255, 255, 255, 0.05);
-    margin-bottom: 20px;
-    padding: 3px;
-
-    button, a {
-        background: transparent;
-        padding: 0 5px;
-        border: none;
-        font-weight: bold;
-        font-size: 12px;
-
-        i {
-            margin-right: 5px;
-        }
-    }
-}
-
-.action-bar.removed-element {
-    background: #a51717;
-
-    a, button {
-        color: #ddd !important;
-    }
-}
-
-.badge-primary {
-    background-color: $primary;
-    background-image: linear-gradient(315deg, $primary -50%, $secondary 150%);
-}
-
-.episode-list-future {
-    color: $dark;
-    background: #eee;
-
-    .badge {
-        background: $dark;
-    }
-}
-
-.title-gradient a {
-    color: transparent !important;
-    background-color: $primary;
-    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-    background-clip: text;
-    -webkit-background-clip: text;
+    border-top: none;
+    border-bottom: 3px solid $primary;
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    border-image-slice: 1;
 }

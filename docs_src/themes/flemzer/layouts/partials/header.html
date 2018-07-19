@@ -7,10 +7,13 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="navbar-nav">
+            <div class="navbar-nav ml-auto">
                 {{ $currentPage := . }}
                 {{ range .Site.Menus.main }}
-                <li><a href="{{ .URL }}" {{if  $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}>{{ .Name }}</a></li>
+                <li><a href="{{ .URL }}" class="nav-item nav-link btn btn-sm btn-light" {{if  $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}>
+                        <i class="material-icons">book</i>
+                        {{ .Name }}
+                    </a></li>
                 {{end}}
             </div>
         </div>

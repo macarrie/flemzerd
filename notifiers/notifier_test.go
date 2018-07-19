@@ -57,11 +57,11 @@ func (n MockErrorNotifier) Init() error {
 	return nil
 }
 
-func (n MockNotifier) Send(title, content string) error {
+func (n MockNotifier) Send(notif Notification) error {
 	mockNotificationCounter += 1
 	return nil
 }
 
-func (n MockErrorNotifier) Send(title, content string) error {
+func (n MockErrorNotifier) Send(notif Notification) error {
 	return fmt.Errorf("Error when sending notification")
 }

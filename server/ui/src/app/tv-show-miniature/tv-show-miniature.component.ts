@@ -6,7 +6,7 @@ import { TvshowsService } from '../tvshows.service';
 @Component({
     selector: 'tv-show-miniature',
     templateUrl: './tv-show-miniature.component.html',
-    styleUrls: ['./tv-show-miniature.component.scss']
+    styleUrls: ['../media.miniatures.scss']
 })
 export class TvShowMiniatureComponent implements OnInit {
     @Input() tvshow :TvShow;

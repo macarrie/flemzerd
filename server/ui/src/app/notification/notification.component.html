@@ -1,0 +1,76 @@
+<table *ngIf="notification"
+    [class.notification_read]="notification.Read">
+    <tr>
+        <td [ngClass]="getStatusPill(notification)"><div></div></td>
+        <td class="notification_collapse"
+            (click)="toggleContent = !toggleContent">
+            <a class="btn btn-sm p-0 text-muted">
+                <i class="material-icons md-18" *ngIf="!toggleContent">expand_more</i>
+                <i class="material-icons md-18" *ngIf="toggleContent">expand_less</i>
+            </a>
+        </td>
+        <td (click)="toggleContent = !toggleContent">
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_EPISODE">
+                New episode aired: <a routerLink="/episodes/{{ notification.Episode.ID }}"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_MOVIE">
+                New movie: <a routerLink="/movies/{{ notification.Movie.ID }}">{{ notification.Movie.Title }}</a>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
+                Download started: 
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
+                Download success
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
+                Download failure
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
+                {{ notification.Title }}
+            </span>
+        </td>
+        <td class="text-muted text-right">
+            <small>
+                {{ utils.formatDate(notification.CreatedAt, 'ddd DD MMM hh:mm') }}
+            </small>
+        </td>
+        <td *ngIf="!notification.Read"
+            class="notification_action_button text-right"
+            (click)="changeReadState(notification, true)">
+            <a class="btn btn-sm p-0">
+                <i class="material-icons md-18">check</i>
+            </a>
+        </td>
+    </tr>
+    <tr *ngIf="toggleContent">
+        <td></td>
+        <td></td>
+        <td colspan="2">
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_EPISODE">
+                <blockquote class="pl-2">{{ notification.Episode.Overview }}</blockquote>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_MOVIE">
+                <blockquote class="pl-2">{{ notification.Movie.Overview }}</blockquote>
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
+                DOWNLOAD START
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
+                DOWNLOAD SUCCESS
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
+                DOWNLOAD FAILURE
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
+                {{ notification.Content }}
+            </span>
+        </td>
+        <td></td>
+    </tr>
+</table>

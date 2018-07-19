@@ -33,6 +33,9 @@ export class SettingsComponent implements OnInit {
     }
 
     keys(obj :any) {
+        if (obj == undefined) {
+            return [];
+        }
         return Object.keys(obj);
     }
 
