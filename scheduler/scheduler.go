@@ -547,9 +547,9 @@ func poll(recoveryDone *bool) {
 		log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
 	}
 
-	if err = unix.Access(Config.Library.CustomTmpPath, unix.W_OK); err != nil {
+	if err := unix.Access(configuration.Config.Library.CustomTmpPath, unix.W_OK); err != nil {
 		log.WithFields(log.Fields{
-			"path": Config.Library.CustomTmpPath,
+			"path": configuration.Config.Library.CustomTmpPath,
 		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
 		executeDownloadChain = false
 	}
