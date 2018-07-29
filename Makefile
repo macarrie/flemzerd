@@ -9,7 +9,7 @@ GOARCH=$(shell $(GO) env GOARCH)
 
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
 
-FLAGS=-X github.com/macarrie/flemzerd/configuration.Version=$(VERSION) -X github.com/macarrie/flemzerd/configuration.TRAKT_CLIENT_SECRET=$(FLZ_TRAKT_CLIENT_SECRET) -X github.com/macarrie/flemzerd/configuration.TELEGRAM_BOT_TOKEN=$(FLZ_TELEGRAM_BOT_TOKEN) -X github.com/macarrie/flemzerd/configuration.TMDB_API_KEY=$(FLZ_TMDB_API_KEY) -X github.com/macarrie/flemzerd/configuration.TVDB_API_KEY=$(FLZ_TVDB_API_KEY)
+LDFLAGS=-X github.com/macarrie/flemzerd/configuration.Version=$(VERSION) -X github.com/macarrie/flemzerd/configuration.TRAKT_CLIENT_SECRET=$(FLZ_TRAKT_CLIENT_SECRET) -X github.com/macarrie/flemzerd/configuration.TELEGRAM_BOT_TOKEN=$(FLZ_TELEGRAM_BOT_TOKEN) -X github.com/macarrie/flemzerd/configuration.TMDB_API_KEY=$(FLZ_TMDB_API_KEY) -X github.com/macarrie/flemzerd/configuration.TVDB_API_KEY=$(FLZ_TVDB_API_KEY)
 
 MAKEFLAGS += --silent
 
@@ -46,6 +46,12 @@ bin:
 	mkdir -p bin/
 	$(GO) build -v -ldflags="$(FLAGS)" -o bin/flemzerd
 	echo -e "\tBinary build complete: bin/flemzerd"
+
+
+## docker: Build flemzerd docker image
+docker:
+	docker build -t flemzerd -f Dockerfile .
+
 
 ## package: Create package with binary, dependencies and installation scripts
 package:

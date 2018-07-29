@@ -169,7 +169,6 @@ func Check() {
 			"path":  Config.Library.CustomTmpPath,
 			"error": err,
 		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
-		ConfigurationFatal(1)
 	}
 
 	_, kodi := Config.MediaCenters["kodi"]
