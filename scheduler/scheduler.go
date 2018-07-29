@@ -7,6 +7,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
+	"golang.org/x/sys/unix"
 
 	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
@@ -544,6 +545,13 @@ func poll(recoveryDone *bool) {
 
 	if _, err := mediacenter.Status(); err != nil {
 		log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
+	}
+
+	if err = unix.Access(Config.Library.CustomTmpPath, unix.W_OK); err != nil {
+		log.WithFields(log.Fields{
+			"path": Config.Library.CustomTmpPath,
+		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
+		executeDownloadChain = false
 	}
 
 	if recoveryDone != nil && !*recoveryDone && executeDownloadChain {
