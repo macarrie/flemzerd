@@ -1,14 +1,15 @@
 package tvdb
 
 import (
-	"errors"
 	"net/url"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
 	"github.com/pioz/tvdb"
+	"github.com/pkg/errors"
 )
 
 type TVDBProvider struct {
@@ -46,7 +47,7 @@ func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 				"error":    err,
 			}).Error("Cannot connect to thetvdb")
 		}
-		return &TVDBProvider{}, err
+		return &TVDBProvider{}, errors.Wrap(err, "cannot connect to TMDB")
 	} else {
 		log.Debug("Connection to TheTVDB successful")
 		return &TVDBProvider{Client: client, LastTokenUpdate: time.Now()}, nil
@@ -82,7 +83,7 @@ func (tvdbProvider *TVDBProvider) Status() (Module, error) {
 		module.Status.Message = ""
 	}
 
-	return module, err
+	return module, errors.Wrap(err, "cannot login to TVDB")
 }
 
 func (tvdbProvider *TVDBProvider) GetName() string {
@@ -130,7 +131,7 @@ func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) 
 				"provider":    module.Name,
 				"error":       err,
 			}).Warn("Cannot retrieve episodes of tv show")
-			return []Episode{}, err
+			return []Episode{}, errors.Wrap(err, "cannot get show episodes from TVDB")
 		} else {
 			log.WithFields(log.Fields{
 				"name":      tvShow.Name,
@@ -158,7 +159,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 			"provider":    module.Name,
 			"error":       err,
 		}).Warn("Cannot get next aired episodes of the tv show")
-		return []Episode{}, err
+		return []Episode{}, errors.Wrap(err, "cannot get episodes from TVDB")
 	} else {
 		log.WithFields(log.Fields{
 			"tvshow_name": tvShow.Name,
@@ -188,7 +189,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 			"provider":    module.Name,
 			"error":       err,
 		}).Warn("Cannot get recently aired episodes of the tv show")
-		return []Episode{}, err
+		return []Episode{}, errors.Wrap(err, "cannot get recent episodes from TVDB")
 	}
 	log.WithFields(log.Fields{
 		"tvshow_name": tvShow.Name,
@@ -253,12 +254,12 @@ func handleTvShowNotFoundError(tvShowName string, err error) error {
 		log.WithFields(log.Fields{
 			"provider": module.Name,
 		}).Warning("Could not connect to provider, authentication failed for unkonwn reasons")
-		return err
+		return errors.Wrap(err, "cannot connect to TVDB (auth error)")
 	} else {
 		log.WithFields(log.Fields{
 			"provider": module.Name,
 		}).Error("Unknown error encountered while getting show information from The TVDB")
-		return err
+		return errors.Wrap(err, "cannot get show from TVDB")
 	}
 }
 

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +11,8 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	"github.com/pkg/errors"
 )
 
 ///////////////
@@ -149,7 +150,7 @@ func (notifier *PushbulletNotifier) Status() (Module, error) {
 	response, err := performAPIRequest("GET", "v2/users/me", nil)
 	if err != nil {
 		returnStruct.Status.Message = err.Error()
-		return returnStruct, err
+		return returnStruct, errors.Wrap(err, "error during Pushbullet API request")
 	}
 
 	if response.StatusCode != 200 {
@@ -175,7 +176,7 @@ func (notifier *PushbulletNotifier) Send(title, content string) error {
 	params := map[string]string{"type": "note", "title": title, "body": content}
 	response, err := performAPIRequest("POST", "v2/pushes", params)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error during Pushbullet API request")
 	}
 
 	if response.StatusCode != http.StatusOK {

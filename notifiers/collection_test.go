@@ -26,15 +26,13 @@ func init() {
 }
 
 func TestStatus(t *testing.T) {
-	n1 := MockNotifier{}
-	notifiersCollection = []Notifier{n1}
+	notifiersCollection = []Notifier{MockNotifier{}}
 	_, err := Status()
 	if err != nil {
 		t.Error("Expected to have no error for notifier status")
 	}
 
-	n2 := MockErrorNotifier{}
-	notifiersCollection = []Notifier{n1, n2}
+	notifiersCollection = []Notifier{MockNotifier{}, MockErrorNotifier{}}
 
 	mods, err := Status()
 	if len(mods) != 2 {
@@ -83,6 +81,7 @@ func TestSendNotification(t *testing.T) {
 		t.Error("Expected to send ", n, " notifications, but ", mockNotificationCounter, " notifications have been sent")
 	}
 
+	// If some notifications have been sent, do not return an error
 	AddNotifier(MockErrorNotifier{})
 	err := SendNotification("Title", "Content")
 	if err != nil {

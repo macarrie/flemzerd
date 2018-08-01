@@ -1,8 +1,6 @@
 package downloader
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -16,6 +14,8 @@ import (
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
 
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 	"github.com/rs/xid"
 )
 
@@ -34,7 +34,7 @@ func AddDownloader(d Downloader) {
 
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, downloader := range downloadersCollection {
 		mod, downloaderAliveError := downloader.Status()
@@ -42,19 +42,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": downloaderAliveError,
 			}).Warning("Downloader is not alive")
-			aggregatedErrorMessage.WriteString(downloaderAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, downloaderAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 func Reset() {
@@ -68,7 +61,7 @@ func AddTorrent(t Torrent) (string, error) {
 
 	id, err := downloadersCollection[0].AddTorrent(t)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "cannot add torrent in downloader")
 	}
 
 	return id, nil
@@ -103,7 +96,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 			e.DownloadingItem.FailedTorrents = append(e.DownloadingItem.FailedTorrents, torrent)
 			e.DownloadingItem.CurrentTorrent = Torrent{}
 			db.Client.Save(&e)
-			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error()), false
+			return errors.Wrap(err, "Couldn't add torrent in downloader. Skipping to next torrent in list"), false
 		}
 
 		e.DownloadingItem.CurrentTorrent = torrent
@@ -127,7 +120,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 			"torrent": torrent.Name,
 		}).Debug("Error during torrent download. Finish current torrent download")
 
-		return downloadErr, false
+		return errors.Wrap(downloadErr, "error during download"), false
 	}
 
 	// If function has not returned yet, download ended with no errors !
@@ -173,7 +166,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 			m.DownloadingItem.FailedTorrents = append(m.DownloadingItem.FailedTorrents, torrent)
 			m.DownloadingItem.CurrentTorrent = Torrent{}
 			db.Client.Save(&m)
-			return fmt.Errorf("Couldn't add torrent in downloader. Skipping to next torrent in list. Error: %s", err.Error()), false
+			return errors.Wrap(err, "Couldn't add torrent in downloader. Skipping to next torrent in list"), false
 		}
 
 		m.DownloadingItem.CurrentTorrent = torrent
@@ -197,7 +190,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 			"torrent": torrent.Name,
 		}).Debug("Error during torrent download. Finish current torrent download")
 
-		return downloadErr, false
+		return errors.Wrap(downloadErr, "error during download"), false
 	}
 
 	// If function has not returned yet, download ended with no errors !
@@ -247,7 +240,7 @@ func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool)
 
 		status, err := GetTorrentStatus(t)
 		if err != nil {
-			return err, false
+			return errors.Wrap(err, "error when getting download status"), false
 		}
 
 		switch status {
@@ -505,13 +498,13 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(episode.TvShow.Name), episode.Season, episode.Season, episode.Number)
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
-		return fmt.Errorf("Could not create library folder for episode: %s", err.Error())
+		return errors.Wrap(err, "Could not create library folder for episode")
 	}
 
 	target := fmt.Sprintf("%s/%s", destinationPath, episode.DownloadingItem.CurrentTorrent.Name)
 	err = os.Rename(episode.DownloadingItem.CurrentTorrent.DownloadDir, target)
 	if err != nil {
-		return fmt.Errorf("Could not move episode to library: %s", err.Error())
+		return errors.Wrap(err, "Could not move episode to library")
 	}
 
 	err = os.Remove(episode.DownloadingItem.CurrentTorrent.DownloadDir)
@@ -538,13 +531,13 @@ func MoveMovieToLibrary(movie *Movie) error {
 	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(movie.Title))
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
-		return fmt.Errorf("Could not create library folder for movie: %s", err.Error())
+		return errors.Wrap(err, "Could not create library folder for movie")
 	}
 
 	target := fmt.Sprintf("%s/%s", destinationPath, movie.DownloadingItem.CurrentTorrent.Name)
 	err = os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, target)
 	if err != nil {
-		return fmt.Errorf("Could not move movie to library: %s", err.Error())
+		return errors.Wrap(err, "Could not move movie to library")
 	}
 
 	err = os.Remove(movie.DownloadingItem.CurrentTorrent.DownloadDir)

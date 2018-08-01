@@ -3,7 +3,6 @@ package torznab
 import (
 	"crypto/tls"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"time"
 
@@ -15,6 +14,8 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/rs/xid"
+
+	"github.com/pkg/errors"
 )
 
 type TorznabIndexer struct {
@@ -87,14 +88,14 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
 		returnStruct.Status.Message = err.Error()
-		return returnStruct, err
+		return returnStruct, errors.Wrap(err, "error while constructing HTTP request to torznab indexer")
 	}
 	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
 		returnStruct.Status.Message = err.Error()
-		return returnStruct, err
+		return returnStruct, errors.Wrap(err, "error while performing HTTP request to torznab indexer")
 	}
 	defer response.Body.Close()
 
@@ -133,19 +134,19 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
-		return []Torrent{}, err
+		return []Torrent{}, errors.Wrap(err, "error while constructing HTTP request to torznab indexer")
 	}
 	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return []Torrent{}, err
+		return []Torrent{}, errors.Wrap(err, "error while performing HTTP request to torznab indexer")
 	}
 	defer response.Body.Close()
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
-		return []Torrent{}, readError
+		return []Torrent{}, errors.Wrap(readError, "error while reading HTTP result from torznab indexer request")
 	}
 
 	if len(body) == 0 {
@@ -155,7 +156,7 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
-		return []Torrent{}, parseErr
+		return []Torrent{}, errors.Wrap(parseErr, "cannot parse search results xml")
 	}
 
 	// Get seeders count for each torrent
@@ -199,19 +200,19 @@ func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Tor
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
 	if err != nil {
-		return []Torrent{}, err
+		return []Torrent{}, errors.Wrap(err, "error while constructing HTTP request to torznab indexer")
 	}
 	request.Close = true
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		return []Torrent{}, err
+		return []Torrent{}, errors.Wrap(err, "error while performing HTTP request to torznab indexer")
 	}
 	defer response.Body.Close()
 
 	body, readError := ioutil.ReadAll(response.Body)
 	if readError != nil {
-		return []Torrent{}, err
+		return []Torrent{}, errors.Wrap(readError, "error while reading HTTP result from torznab indexer request")
 	}
 
 	if len(body) == 0 {
@@ -221,7 +222,7 @@ func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Tor
 	var searchResults TorrentSearchResults
 	parseErr := xml.Unmarshal(body, &searchResults)
 	if parseErr != nil {
-		return []Torrent{}, parseErr
+		return []Torrent{}, errors.Wrap(parseErr, "cannot parse search results xml")
 	}
 
 	// Get seeders count for each torrent

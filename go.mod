@@ -13,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/go-telegram-bot-api/telegram-bot-api v0.0.0-20180328131029-0e0af0c480ea
 	github.com/golang/protobuf v1.1.0
+	github.com/hashicorp/go-multierror v0.0.0-20180717150148-3d5d8f294aa0
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/jinzhu/gorm v1.9.1
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
@@ -30,6 +31,7 @@ require (
 	github.com/pdf/kodirpc v0.0.1
 	github.com/pelletier/go-toml v1.1.0
 	github.com/pioz/tvdb v0.0.0-20171110111739-0359b91e22a8
+	github.com/pkg/errors v0.8.0
 	github.com/rs/xid v1.2.0
 	github.com/ryanbradynd05/go-tmdb v0.0.0-20180524153255-bbb88dee73c7
 	github.com/sirupsen/logrus v1.0.5

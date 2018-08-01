@@ -1,7 +1,6 @@
 package tmdb
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"time"
@@ -10,6 +9,8 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tmdb "github.com/ryanbradynd05/go-tmdb"
+
+	"github.com/pkg/errors"
 )
 
 type TMDBProvider struct {
@@ -67,7 +68,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	} else {
 		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
 		if err != nil {
-			return TvShow{}, err
+			return TvShow{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
 
 		if len(results.Results) > 0 {
@@ -77,7 +78,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 
 	show, err := tmdbProvider.Client.GetTvInfo(id, nil)
 	if err != nil {
-		return TvShow{}, err
+		return TvShow{}, errors.Wrap(err, "cannot get show from TMDB")
 	}
 
 	return convertShow(*show), nil
@@ -88,7 +89,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	if tvShow.MediaIds.Tmdb == 0 {
 		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
 		if err != nil {
-			return []Episode{}, err
+			return []Episode{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
 
 		if results.TotalResults != 0 {
@@ -98,7 +99,10 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		}
 	}
 
-	show, _ := tmdbProvider.Client.GetTvInfo(int(tvShow.MediaIds.Tmdb), nil)
+	show, err := tmdbProvider.Client.GetTvInfo(int(tvShow.MediaIds.Tmdb), nil)
+	if err != nil {
+		return []Episode{}, errors.Wrap(err, "cannot get show info from TMDB")
+	}
 
 	season, err := tmdbProvider.Client.GetTvSeasonInfo(show.ID, show.NumberOfSeasons, nil)
 	if err != nil {
@@ -109,7 +113,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 			"season":      show.NumberOfSeasons,
 			"error":       err,
 		}).Warning("Cannot get recently aired episodes of the tv show")
-		return []Episode{}, err
+		return []Episode{}, errors.Wrap(err, "cannot get season info from TMDB")
 	}
 
 	var episodeList []Episode
@@ -155,7 +159,7 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 	} else {
 		results, err := tmdbProvider.Client.SearchMovie(m.Name, nil)
 		if err != nil {
-			return Movie{}, err
+			return Movie{}, errors.Wrap(err, "cannot find movie in TMDB")
 		}
 		if len(results.Results) > 0 {
 			id = results.Results[0].ID
@@ -163,7 +167,11 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 
 	}
 
-	movie, _ := tmdbProvider.Client.GetMovieInfo(id, nil)
+	movie, err := tmdbProvider.Client.GetMovieInfo(id, nil)
+	if err != nil {
+		return Movie{}, errors.Wrap(err, "cannot get movie info from TMDB")
+	}
+
 	return convertMovie(*movie), nil
 }
 
@@ -174,7 +182,7 @@ func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber
 			"show":   show.Name,
 			"season": seasonNumber,
 		}).Warning("Encountered error when querying season details from TMDB")
-		return []Episode{}, err
+		return []Episode{}, errors.Wrap(err, "cannot get show season info from TMDB")
 	}
 
 	var retList []Episode

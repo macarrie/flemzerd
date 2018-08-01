@@ -3,7 +3,6 @@ package transmission
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -12,6 +11,8 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tr "github.com/macarrie/transmission"
+
+	"github.com/pkg/errors"
 	"github.com/rs/xid"
 	"github.com/upgear/go-kit/retry"
 )
@@ -48,19 +49,16 @@ func convertTorrent(t tr.Torrent) Torrent {
 func updateTorrentList() error {
 	torrents, err := transmissionClient.GetTorrents()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "cannot get torrent list from transmission")
 	}
 
 	torrentList = torrents
 
-	return err
+	return nil
 }
 
 func getTransmissionTorrent(t Torrent) (tr.Torrent, error) {
 	for _, transmissionTorrent := range torrentList {
-		//torrentsMappingRWMutex.Lock()
-		//defer torrentsMappingRWMutex.Unlock()
-
 		if torrentsMapping[t.TorrentId] == transmissionTorrent.HashString {
 			return *transmissionTorrent, nil
 		}
@@ -94,7 +92,7 @@ func (d *TransmissionDownloader) Init() error {
 		Password: d.Password,
 	})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "cannot create transmission client")
 	}
 
 	transmissionClient = *client
@@ -125,7 +123,7 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 
 	request, err := http.NewRequest("POST", url, bytes.NewReader(jsonParams))
 	if err != nil {
-		return module, fmt.Errorf("Could not perform request to transmission: %v", err.Error())
+		return module, errors.Wrap(err, "cannot not create HTTP request for transmission")
 	}
 	request.SetBasicAuth(d.User, d.Password)
 
@@ -134,7 +132,7 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 		module.Status.Alive = false
 		module.Status.Message = err.Error()
 
-		return module, err
+		return module, errors.Wrap(err, "cannot perform HTTP request to transmission")
 	} else if res.StatusCode == http.StatusUnauthorized {
 		module.Status.Alive = false
 		module.Status.Message = "Credentials refused when attempting to connect to transmission daemon"
@@ -147,22 +145,18 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 		var retError error = nil
 		_, err := transmissionClient.FreeSpace(configuration.Config.Library.ShowPath)
 		if err != nil {
-			retError = fmt.Errorf("Error while checking access to show library path %s: %s", configuration.Config.Library.ShowPath, err.Error())
+			retError = errors.Wrapf(err, "Error while checking access to show library path %s", configuration.Config.Library.ShowPath)
 			module.Status.Alive = false
 			module.Status.Message = retError.Error()
 		}
 		_, err = transmissionClient.FreeSpace(configuration.Config.Library.MoviePath)
 		if err != nil {
-			retError = fmt.Errorf("Error while checking access to movie library path %s: %s", configuration.Config.Library.MoviePath, err.Error())
+			retError = errors.Wrapf(err, "Error while checking access to movie library path %s", configuration.Config.Library.MoviePath)
 			module.Status.Alive = false
 			module.Status.Message = retError.Error()
 		}
 
-		if retError != nil {
-			return module, retError
-		} else {
-			return module, nil
-		}
+		return module, retError
 	} else {
 		module.Status.Alive = false
 		module.Status.Message = fmt.Sprintf("Unknow return status code: %d", res.StatusCode)
@@ -177,49 +171,45 @@ func (d TransmissionDownloader) AddTorrent(t Torrent) (string, error) {
 		DownloadDir: t.DownloadDir,
 	})
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "cannot add torrent to transmission")
 	}
 
 	d.AddTorrentMapping(t.TorrentId, torrent.HashString)
-	err = retry.Double(3).Run(func() error {
+	if err = retry.Double(3).Run(func() error {
 		return updateTorrentList()
-	})
-	if err != nil {
-		return "", err
+	}); err != nil {
+		return "", errors.Wrap(err, "cannot update transmission torrent list")
 	}
 
 	return torrent.HashString, nil
 }
 
 func (d TransmissionDownloader) AddTorrentMapping(flemzerID string, transmissionID string) {
-	//torrentsMappingRWMutex.Lock()
 	torrentsMapping[flemzerID] = transmissionID
-	//torrentsMappingRWMutex.Unlock()
 }
 
 func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
 	transmissionTorrent, err := getTransmissionTorrent(t)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "cannot get torrent list from transmission")
 	}
 
 	removeErr := transmissionClient.RemoveTorrents([]*tr.Torrent{&transmissionTorrent}, false)
 	if removeErr != nil {
-		return removeErr
+		return errors.Wrap(removeErr, "cannot remove torrent from transmission")
 	}
 
 	return nil
 }
 
 func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	retry.Double(3).Run(func() error {
+	if err := retry.Double(3).Run(func() error {
 		return updateTorrentList()
-	})
+	}); err != nil {
+		return TORRENT_UNKNOWN_STATUS, errors.Wrap(err, "cannot update transmission torrent list")
+	}
 
 	for _, torrent := range torrentList {
-		//torrentsMappingRWMutex.Lock()
-		//defer torrentsMappingRWMutex.Unlock()
-
 		if torrentsMapping[t.TorrentId] == torrent.HashString {
 			err := retry.Double(3).Run(func() error {
 				return torrent.Update()
@@ -243,5 +233,5 @@ func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
 		}
 	}
 
-	return 0, errors.New("Could not find torrent in transmission")
+	return TORRENT_UNKNOWN_STATUS, errors.New("Could not find torrent in transmission")
 }

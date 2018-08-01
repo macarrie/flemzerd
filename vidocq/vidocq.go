@@ -8,6 +8,8 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	"github.com/pkg/errors"
 )
 
 var localVidocqAvailable bool
@@ -34,13 +36,14 @@ func GetInfo(name string) (MediaInfo, error) {
 	err := cmd.Run()
 	if err != nil {
 		log.Debug("[Vidocq] Could not get execute vidocq: ", err)
-		return MediaInfo{}, err
+		return MediaInfo{}, errors.Wrap(err, "cannot execute vidocq")
 	}
 
 	var mediaInfo MediaInfo
 	parseErr := json.Unmarshal(stdout.Bytes(), &mediaInfo)
 	if parseErr != nil {
 		log.Error("[Vidocq] Could not parse request result:", parseErr)
+		return MediaInfo{}, errors.Wrap(err, "cannot parse vidocq request result")
 	}
 
 	return mediaInfo, nil

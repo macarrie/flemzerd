@@ -3,13 +3,13 @@
 package watchlist
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+
+	multierror "github.com/hashicorp/go-multierror"
 )
 
 var watchlistsCollection []Watchlist
@@ -17,7 +17,7 @@ var watchlistsCollection []Watchlist
 // Status checks registered watchlists status. A module list is returned, each module corresponds to a registered watchlist. A non nil error is returned if at least one registered watchlist is in error
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, watchlist := range watchlistsCollection {
 		mod, watchlistAliveError := watchlist.Status()
@@ -25,19 +25,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": watchlistAliveError,
 			}).Warning("Watchlist is not alive")
-			aggregatedErrorMessage.WriteString(watchlistAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, watchlistAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 // Reset empties registered watchlists list
@@ -155,5 +148,5 @@ func GetWatchlist(name string) (Watchlist, error) {
 		}
 	}
 
-	return nil, errors.New(fmt.Sprintf("Watchlist %s not found in configuration", name))
+	return nil, fmt.Errorf("Watchlist %s not found in configuration", name)
 }

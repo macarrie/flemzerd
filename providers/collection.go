@@ -1,14 +1,14 @@
 package provider
 
 import (
-	"bytes"
-	"errors"
-
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
 	watchlist "github.com/macarrie/flemzerd/watchlists"
+
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 )
 
 var providersCollection []Provider
@@ -17,7 +17,7 @@ var Movies []Movie
 
 func Status() ([]Module, error) {
 	var modList []Module
-	var aggregatedErrorMessage bytes.Buffer
+	var errorList *multierror.Error
 
 	for _, provider := range providersCollection {
 		mod, providerAliveError := provider.Status()
@@ -25,19 +25,12 @@ func Status() ([]Module, error) {
 			log.WithFields(log.Fields{
 				"error": providerAliveError,
 			}).Warning("Provider is not alive")
-			aggregatedErrorMessage.WriteString(providerAliveError.Error())
-			aggregatedErrorMessage.WriteString("\n")
+			errorList = multierror.Append(errorList, providerAliveError)
 		}
 		modList = append(modList, mod)
 	}
 
-	var retError error
-	if aggregatedErrorMessage.Len() == 0 {
-		retError = nil
-	} else {
-		retError = errors.New(aggregatedErrorMessage.String())
-	}
-	return modList, retError
+	return modList, errorList.ErrorOrNil()
 }
 
 func Reset() {
