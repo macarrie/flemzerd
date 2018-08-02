@@ -9,6 +9,7 @@ import { MoviesComponent } from './movies/movies.component';
 import { MovieDetailsComponent } from './movie-details/movie-details.component';
 import { StatusComponent } from './status/status.component';
 import { SettingsComponent } from './settings/settings.component';
+import { NotificationsCenterComponent } from './notifications-center/notifications-center.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -19,7 +20,8 @@ const routes: Routes = [
     { path: 'movies', component: MoviesComponent },
     { path: 'movies/:id', component: MovieDetailsComponent },
     { path: 'status', component: StatusComponent },
-    { path: 'settings', component: SettingsComponent }
+    { path: 'settings', component: SettingsComponent },
+    { path: 'notifications', component: NotificationsCenterComponent }
 ];
 
 @NgModule({

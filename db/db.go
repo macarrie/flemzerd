@@ -21,7 +21,7 @@ var Session SessionData
 
 // InitDb initializes and migrates database tables
 func InitDb() {
-	Client.AutoMigrate(&SessionData{}, &TvShow{}, &TvSeason{}, &Episode{}, &Movie{}, &MediaIds{}, &Torrent{}, &DownloadingItem{})
+	Client.AutoMigrate(&SessionData{}, &TvShow{}, &TvSeason{}, &Episode{}, &Movie{}, &MediaIds{}, &Torrent{}, &DownloadingItem{}, &Notification{})
 }
 
 // Reset DB tables to an empty state. Mainly used in test suite.

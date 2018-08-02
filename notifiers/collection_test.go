@@ -66,6 +66,12 @@ func TestAddNotifier(t *testing.T) {
 func TestSendNotification(t *testing.T) {
 	n := 2
 
+	notif := Notification{
+		Type: NOTIFICATION_NEW_EPISODE,
+		Movie: Movie{
+			Title: "Test Movie",
+		},
+	}
 	notifiersCollection = []Notifier{}
 	mockNotificationCounter = 0
 	mockNotifiers := make([]MockNotifier, n)
@@ -75,7 +81,7 @@ func TestSendNotification(t *testing.T) {
 		AddNotifier(mockNotifiers[i])
 	}
 
-	SendNotification("Title", "Content")
+	SendNotification(notif)
 
 	if mockNotificationCounter != n {
 		t.Error("Expected to send ", n, " notifications, but ", mockNotificationCounter, " notifications have been sent")
@@ -83,20 +89,20 @@ func TestSendNotification(t *testing.T) {
 
 	// If some notifications have been sent, do not return an error
 	AddNotifier(MockErrorNotifier{})
-	err := SendNotification("Title", "Content")
+	err := SendNotification(notif)
 	if err != nil {
 		t.Error("Expected to have no error when sending notifications")
 	}
 
+	fmt.Printf("NotifiersCollection: %+v\n", notifiersCollection)
 	notifiersCollection = []Notifier{MockErrorNotifier{}}
-	err = SendNotification("Title", "Content")
-	if err == nil {
+	if err := SendNotification(notif); err == nil {
 		t.Error("Expected to have an error when sending notifications")
 	}
 
 	prev := mockNotificationCounter
 	configuration.Config.Notifications.Enabled = false
-	SendNotification("Title", "Content")
+	SendNotification(notif)
 	if mockNotificationCounter != prev {
 		t.Error("Expected notifications not to be sent because notifications are disabled in configuration")
 	}

@@ -1,0 +1,49 @@
+@import "../../vars.scss";
+
+table {
+    width: 100%;
+}
+
+.notif-icon {
+    width: 20px;
+
+    div {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    &.ok div {
+        background: $success;
+    }
+
+    &.warning div {
+        background: $warning;
+    }
+
+    &.critical div {
+        background: $danger;
+    }
+
+    &.unknown div {
+        background: darken($light, 25%);
+    }
+
+    &.info div {
+        background: $info;
+    }
+}
+
+td.notification_collapse {
+    width: 20px;
+}
+
+td.notification_action_button {
+    width: 45px;
+}
+
+table.notification_read {
+    opacity: 0.4;
+    color: lighten($dark, 40%);
+    font-style: italic;
+}

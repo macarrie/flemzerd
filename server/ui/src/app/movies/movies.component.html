@@ -49,7 +49,7 @@
                             <td>
                                 <span class="text-success"
                                       *ngIf="movie.DownloadingItem.Downloading"> <i class="material-icons md-18 float-left mr-1">check_circle_outline</i> Started at {{ utils.formatDate(movie.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
-                                    <span *ngIf="movie.DownloadingItem.Pending" class="font-italic"><i class="material-icons  md-18 float-left mr-1">search</i> Looking for torrents</span>
+                                <span *ngIf="movie.DownloadingItem.Pending" class="font-italic"><i class="material-icons  md-18 float-left mr-1">search</i> Looking for torrents</span>
                             </td>
                             <td class="text-center font-weight-bold"
                                 [ngClass]="movie.DownloadingItem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
@@ -57,7 +57,7 @@
                             </td>
                             <td>
                                 <a class="text-danger" (click)="stopDownload(movie)">
-                                        <i class="material-icons md-18 float-left">clear</i>
+                                    <i class="material-icons md-18 float-left">clear</i>
                                 </a>
                             </td>
                         </ng-container>
@@ -71,40 +71,42 @@
         <div class="col-12 mt-3">
             <span class="h3">Movies</span>
             <button class="btn btn-sm btn-light float-right">
-                <div *ngIf="refreshing_poll" class="font-italic">
+                <span *ngIf="refreshing_poll" class="font-italic">
                     <i class="material-icons md-18 float-left mr-1">refresh</i> Checking
-                </div>
-                <div *ngIf="!refreshing_poll" (click)="executePollLoop()">
+                </span>
+                <span *ngIf="!refreshing_poll" (click)="executePollLoop()">
                     <i class="material-icons md-18 float-left mr-1">refresh</i> Check now
-                </div>
+                </span>
             </button>
             <button class="btn btn-sm btn-light float-right">
-                    <div *ngIf="refreshing" class="font-italic">
-                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
-                    </div>
-                    <div *ngIf="!refreshing" (click)="refreshMovies()">
-                        <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
-                    </div>
+                <span *ngIf="refreshing" class="font-italic">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Refreshing
+                </span>
+                <span *ngIf="!refreshing" (click)="refreshMovies()">
+                    <i class="material-icons md-18 float-left mr-1">refresh</i> Refresh
+                </span>
             </button>
             <button class="btn btn-sm btn-light text-muted float-right"
                     (click)="show_downloaded_movies = !show_downloaded_movies">
-                <div *ngIf="!show_downloaded_movies">
-                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Downloaded
-                </div>
-                <div *ngIf="show_downloaded_movies">
-                        <i class="material-icons md-18 float-left mr-1">check_box</i> Downloaded
-                </div>
+                <span *ngIf="!show_downloaded_movies">
+                    <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Downloaded
+                </span>
+                <span *ngIf="show_downloaded_movies">
+                    <i class="material-icons md-18 float-left mr-1">check_box</i> Downloaded
+                </span>
             </button>
             <button class="btn btn-sm btn-light text-muted float-right"
                     (click)="show_removed_movies = !show_removed_movies">
-                <div *ngIf="!show_removed_movies">
-                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Removed
-                </div>
-                <div *ngIf="show_removed_movies">
-                        <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
-                </div>
+                <span *ngIf="!show_removed_movies">
+                    <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Removed
+                </span>
+                <span *ngIf="show_removed_movies">
+                    <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
+                </span>
             </button>
+        <hr />
         </div>
+
         <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let movie of trackedMovies">
             <movie-miniature [movie]="movie"></movie-miniature>
         </div>

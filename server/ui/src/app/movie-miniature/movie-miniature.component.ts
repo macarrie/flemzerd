@@ -6,7 +6,7 @@ import { MovieService } from '../movie.service';
 @Component({
     selector: 'movie-miniature',
     templateUrl: './movie-miniature.component.html',
-    styleUrls: ['./movie-miniature.component.scss']
+    styleUrls: ['../media.miniatures.scss']
 })
 export class MovieMiniatureComponent implements OnInit {
     @Input() movie :Movie;

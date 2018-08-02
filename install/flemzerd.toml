@@ -1,7 +1,7 @@
 # Global app parameters
 [system]
-    # New episode check interval (in minutes) (default: 15)
-    episode_check_interval = 15
+    # Check interval (in minutes) (default: 15)
+    check_interval = 15
     # Number of different torrents to try to download before declaring download as failed (default = 20)
     torrent_download_attempts_limit = 5
     # Enable tvshows tracking

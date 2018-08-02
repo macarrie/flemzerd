@@ -17,6 +17,7 @@ import (
 
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
+	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
 	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
@@ -156,6 +157,9 @@ func initNotifiers() {
 	log.Debug("Initializing Notifiers")
 	notifier.Reset()
 
+	// Always add event log notifier
+	notifier.AddNotifier(eventlog.New())
+
 	for name, notifierObject := range configuration.Config.Notifiers {
 		switch name {
 		case "pushbullet":
@@ -288,7 +292,7 @@ func Run(debug bool) {
 	//	 Load configuration objects
 	var recoveryDone bool = false
 
-	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
+	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.CheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting polling loop")
 		for {
@@ -560,6 +564,6 @@ func poll(recoveryDone *bool) {
 
 func ResetRunTicker() {
 	RunTicker.Stop()
-	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.EpisodeCheckInterval) * time.Minute)
+	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.CheckInterval) * time.Minute)
 	poll(nil)
 }

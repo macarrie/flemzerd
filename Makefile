@@ -42,8 +42,9 @@ package:
 
 build: package/$(PACKAGE_NAME)/dependencies/vidocq webui bin package
 
-#doc: webui
-	#cp server/ui/css/flemzer.css docs_src/themes/flemzer/static/css/flemzer.css
+doc:
+	cp package/$(PACKAGE_NAME)/ui/styles*.css docs_src/themes/flemzer/static/css/flemzer.css
+
 
 install: build
 	cd package/$(PACKAGE_NAME)/install/ && sudo ./install.sh && cd ..

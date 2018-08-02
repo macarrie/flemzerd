@@ -4,8 +4,6 @@
 package notifier
 
 import (
-	"fmt"
-
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
@@ -60,11 +58,10 @@ func NotifyRecentEpisode(episode *Episode) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: New episode aired (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", episode.Date, episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:    NOTIFICATION_NEW_EPISODE,
+		Episode: *episode,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -80,11 +77,11 @@ func NotifyEpisodeDownloadStart(episode *Episode) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Download start (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
-	notificationContent := "Torrents found for episode. Starting download"
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:    NOTIFICATION_DOWNLOAD_START,
+		Episode: *episode,
+	}); err != nil {
+		return err
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -102,11 +99,10 @@ func NotifyNewMovie(m *Movie) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%s", m.Title)
-	notificationContent := "Movie found in watchlist, adding to tracked movies"
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:  NOTIFICATION_NEW_MOVIE,
+		Movie: *m,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -122,11 +118,10 @@ func NotifyMovieDownloadStart(m *Movie) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Download start", m.Title)
-	notificationContent := "Torrents found for movie. Starting download"
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:  NOTIFICATION_DOWNLOAD_START,
+		Movie: *m,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -139,11 +134,10 @@ func NotifyDownloadedEpisode(episode *Episode) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Episode downloaded (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("New episode downloaded\n%v Season %03d Episode %03d: %v", episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
+		Episode: *episode,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -156,11 +150,10 @@ func NotifyDownloadedMovie(m *Movie) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Movie downloaded", m.Title)
-	notificationContent := "New movie downloaded\n"
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:  NOTIFICATION_DOWNLOAD_SUCCESS,
+		Movie: *m,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -174,11 +167,10 @@ func NotifyFailedEpisode(episode *Episode) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Episode download failed (S%03dE%03d)", episode.TvShow.Name, episode.Season, episode.Number)
-	notificationContent := fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", episode.TvShow.Name, episode.Season, episode.Number, episode.Name)
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:    NOTIFICATION_DOWNLOAD_FAILURE,
+		Episode: *episode,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -192,11 +184,10 @@ func NotifyFailedMovie(m *Movie) error {
 		return nil
 	}
 
-	notificationTitle := fmt.Sprintf("%v: Movie download failed", m.Title)
-	notificationContent := "Failed to download movie\n"
-
-	err := SendNotification(notificationTitle, notificationContent)
-	if err != nil {
+	if err := SendNotification(Notification{
+		Type:  NOTIFICATION_DOWNLOAD_FAILURE,
+		Movie: *m,
+	}); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
@@ -205,7 +196,7 @@ func NotifyFailedMovie(m *Movie) error {
 
 // SendNotification sends the notification with title and content using all registered notifiers.
 // If at least one notifier returns an error when sending the notification, the method exists with a non nil error
-func SendNotification(title, content string) error {
+func SendNotification(notif Notification) error {
 	if !configuration.Config.Notifications.Enabled {
 		return nil
 	}
@@ -214,8 +205,7 @@ func SendNotification(title, content string) error {
 	var noNotificationSent bool
 	noNotificationSent = true
 	for _, notifier := range notifiersCollection {
-		err := notifier.Send(title, content)
-		if err != nil {
+		if err := notifier.Send(notif); err != nil {
 			sendingErrors = multierror.Append(sendingErrors, err)
 		} else {
 			noNotificationSent = false

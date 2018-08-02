@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -95,11 +96,8 @@ func (t *TelegramNotifier) GetName() string {
 	return "telegram"
 }
 
-func (t *TelegramNotifier) Send(title, content string) error {
-	log.WithFields(log.Fields{
-		"title":   title,
-		"content": content,
-	}).Debug("Sending Telegram notification")
+func (t *TelegramNotifier) Send(notif Notification) error {
+	log.Debug("Sending Telegram notification")
 
 	if configuration.TELEGRAM_BOT_TOKEN == "" {
 		return errors.New("Telegram bot token not found")
@@ -108,9 +106,14 @@ func (t *TelegramNotifier) Send(title, content string) error {
 		return errors.New("Could not contact Telegram bot to send notification")
 	}
 
-	msg := tgbotapi.NewMessage(t.ChatID, content)
-	_, err := t.Client.Send(msg)
+	title, content, err := notifier_helper.GetNotificationText(notif)
 	if err != nil {
+		return err
+	}
+
+	notif_content := fmt.Sprintf("%s: \n%s", title, content)
+	msg := tgbotapi.NewMessage(t.ChatID, notif_content)
+	if _, err = t.Client.Send(msg); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Warning("Unable to send notification")

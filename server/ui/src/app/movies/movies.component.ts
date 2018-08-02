@@ -11,7 +11,7 @@ import { ConfigService } from '../config.service';
 @Component({
     selector: 'app-movies',
     templateUrl: './movies.component.html',
-    styleUrls: ['./movies.component.scss']
+    styleUrls: ['../media.miniatures.scss']
 })
 export class MoviesComponent implements OnInit {
     trackedMovies :Movie[];

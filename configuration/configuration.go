@@ -58,7 +58,7 @@ type Configuration struct {
 		NotifyFailure          bool `mapstructure:"notify_failure"`
 	}
 	System struct {
-		EpisodeCheckInterval         int    `mapstructure:"episode_check_interval"`
+		CheckInterval                int    `mapstructure:"check_interval"`
 		TorrentDownloadAttemptsLimit int    `mapstructure:"torrent_download_attempts_limit"`
 		TrackShows                   bool   `mapstructure:"track_shows"`
 		TrackMovies                  bool   `mapstructure:"track_movies"`
@@ -87,7 +87,7 @@ func setDefaultValues() {
 	viper.SetDefault("library.movie_path", "/var/lib/flemzerd/library/movies")
 	viper.SetDefault("library.custom_tmp_path", "/var/lib/flemzerd/tmp")
 
-	viper.SetDefault("system.episode_check_interval", 15)
+	viper.SetDefault("system.check_interval", 15)
 	viper.SetDefault("system.torrent_download_attempts_limit", 20)
 	viper.SetDefault("system.track_shows", true)
 	viper.SetDefault("system.track_movies", true)

@@ -1,0 +1,37 @@
+<div class="container">
+    <div class="row">
+        <div class="col-12 mt-2">
+            <div>
+                <span class="h3">Notifications</span>
+                    <button class="btn btn-sm btn-light float-right"
+                            (click)="markAllAsRead()">
+                        <i class="material-icons md-18 float-left">done_all</i>
+                        Mark all as read
+                    </button>
+                <button class="btn btn-sm btn-light text-muted float-right"
+                        (click)="show_read_notifications = !show_read_notifications">
+                    <span *ngIf="!show_read_notifications">
+                        <i class="material-icons md-18 float-left mr-1">check_box_outline_blank</i> Read
+                    </span>
+                    <span *ngIf="show_read_notifications">
+                        <i class="material-icons md-18 float-left mr-1">check_box</i> Read
+                    </span>
+                </button>
+            </div>
+            <hr />
+        </div>
+
+        <div class="col-12 mt-2">
+            <ul class="list-group" *ngIf="!notifications">
+                <li class="list-group-item text-center py-3 font-weight-light font-italic text-muted">Loading</li>
+            </ul>
+            <ul class="list-group" *ngIf="notifications">
+                <ng-container *ngFor="let notif of notifications">
+                    <li class="list-group-item" *ngIf="show_read_notifications || !notif.Read">
+                        <notification [notification]="notif"></notification>
+                    </li>
+                </ng-container>
+            </ul>
+        </div>
+    </div>
+</div>

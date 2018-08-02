@@ -14,8 +14,6 @@ export class UtilsService {
     }
 
     formatDate(date, format) :string {
-        //var d = new Date(date);
-        //return d.getFullYear()+ "/" +this.formatNumber(d.getMonth())+ "/" +this.formatNumber(d.getDay()); 
         return moment(date).format(format);
     }
 
