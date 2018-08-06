@@ -19,17 +19,15 @@ export class SettingsComponent implements OnInit {
     constructor(
         private configService :ConfigService,
         private http :HttpClient
-    ) {}
-
-    ngOnInit() {
-        this.getConfig();
-        this.GetTraktToken();
+    ) {
+        configService.config.subscribe(cfg => {
+            this.config = cfg;
+        });
     }
 
-    getConfig() {
-        this.configService.getConfig().subscribe(config => {
-            this.config = config;
-        })
+    ngOnInit() {
+        this.configService.getConfig();
+        this.GetTraktToken();
     }
 
     keys(obj :any) {

@@ -22,6 +22,7 @@ export class NotificationComponent implements OnInit {
 
     ngOnInit() {
         this.constants = Const;
+        //console.log(this.notification);
     }
 
     changeReadState(notif :Notification, read :boolean) {

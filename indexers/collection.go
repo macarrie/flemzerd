@@ -93,7 +93,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return []Torrent{}, errors.Wrap(errorList, "No torrents found for episode")
 	}
 
-	return torrentList, errors.Wrap(errorList, "errors occurred while retrieving torrents")
+	return torrentList, errorList.ErrorOrNil()
 }
 
 func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
@@ -147,7 +147,7 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
 	log.Debug("After year check: ", len(torrentList))
 
-	return torrentList, errors.Wrap(errorList, "errors occurred while retrieving torrents")
+	return torrentList, errorList.ErrorOrNil()
 }
 
 func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {

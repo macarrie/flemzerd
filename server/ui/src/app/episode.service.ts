@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { Subject }    from 'rxjs';
 
 import { Episode } from './episode';
 
@@ -10,12 +11,18 @@ import { Episode } from './episode';
 export class EpisodeService {
     constructor(private http :HttpClient) {}
 
+    private downloadingEpisodesSource =  new Subject<Episode[]>();
+
+    downloadingEpisodes = this.downloadingEpisodesSource.asObservable();
+
     getEpisode(id :number): Observable<Episode> {
         return this.http.get<Episode>('/api/v1/tvshows/episodes/' +id);
     }
 
-    getDownloadingEpisodes(): Observable<Episode[]> {
-        return this.http.get<Episode[]>('/api/v1/tvshows/downloading');
+    getDownloadingEpisodes() {
+        this.http.get<Episode[]>('/api/v1/tvshows/downloading').subscribe(episodes => {
+            this.downloadingEpisodesSource.next(episodes);
+        });
     }
 
     getBySeason(showID :number, seasonNumber :number) :Observable<Episode[]> {

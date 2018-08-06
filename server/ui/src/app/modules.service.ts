@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { Subject }    from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -8,27 +9,53 @@ import { HttpClient } from "@angular/common/http";
 export class ModulesService {
     constructor(private http :HttpClient) {}
 
-    getProviders() :Observable<any> {
-        return this.http.get('/api/v1/modules/providers/status');
+    private indexersSource = new Subject<any>();
+    private providersSource = new Subject<any>();
+    private downloadersSource = new Subject<any>();
+    private notifiersSource = new Subject<any>();
+    private watchlistsSource = new Subject<any>();
+    private mediacentersSource = new Subject<any>();
+
+    indexers = this.indexersSource.asObservable();
+    providers = this.providersSource.asObservable();
+    downloaders = this.downloadersSource.asObservable();
+    notifiers = this.notifiersSource.asObservable();
+    watchlists = this.watchlistsSource.asObservable();
+    mediacenters = this.mediacentersSource.asObservable();
+
+    getProviders() {
+        this.http.get('/api/v1/modules/providers/status').subscribe(mods => {
+            this.providersSource.next(mods);
+        });
     }
 
-    getIndexers() :Observable<any> {
-        return this.http.get('/api/v1/modules/indexers/status');
+    getIndexers() {
+        this.http.get('/api/v1/modules/indexers/status').subscribe(mods => {
+            this.indexersSource.next(mods);
+        });
     }
 
-    getDownloaders() :Observable<any> {
-        return this.http.get('/api/v1/modules/downloaders/status');
+    getDownloaders() {
+        this.http.get('/api/v1/modules/downloaders/status').subscribe(mods => {
+            this.downloadersSource.next(mods);
+        });
     }
 
-    getNotifiers() :Observable<any> {
-        return this.http.get('/api/v1/modules/notifiers/status');
+    getNotifiers() {
+        this.http.get('/api/v1/modules/notifiers/status').subscribe(mods => {
+            this.notifiersSource.next(mods);
+        });
     }
 
-    getWatchlists() :Observable<any> {
-        return this.http.get('/api/v1/modules/watchlists/status');
+    getWatchlists() {
+        this.http.get('/api/v1/modules/watchlists/status').subscribe(mods => {
+            this.watchlistsSource.next(mods);
+        });
     }
 
-    getMediaCenters() :Observable<any> {
-        return this.http.get('/api/v1/modules/mediacenters/status');
+    getMediaCenters() {
+        this.http.get('/api/v1/modules/mediacenters/status').subscribe(mods => {
+            this.mediacentersSource.next(mods);
+        });
     }
 }

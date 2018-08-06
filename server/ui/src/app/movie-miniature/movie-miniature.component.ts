@@ -16,7 +16,8 @@ export class MovieMiniatureComponent implements OnInit {
     ngOnInit() {}
 
     refreshMovie() :void {
-        this.movieService.getMovie(this.movie.ID).subscribe(movie => this.movie = movie);
+        //this.movieService.getMovie(this.movie.ID).subscribe(movie => this.movie = movie);
+        this.movieService.getMovies();
     }
 
     deleteMovie(movie :Movie) {

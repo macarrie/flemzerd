@@ -59,13 +59,16 @@
                 <blockquote class="pl-2">{{ notification.Movie.Overview }}</blockquote>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
-                DOWNLOAD START
+                <blockquote class="pl-2" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Overview }}</blockquote>
+                <blockquote class="pl-2" *ngIf="notification.Episode.ID != 0">{{ notification.Movie.Overview }}</blockquote>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
-                DOWNLOAD SUCCESS
+                <blockquote class="pl-2" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Overview }}</blockquote>
+                <blockquote class="pl-2" *ngIf="notification.Episode.ID != 0">{{ notification.Movie.Overview }}</blockquote>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
-                DOWNLOAD FAILURE
+                <blockquote class="pl-2" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Overview }}</blockquote>
+                <blockquote class="pl-2" *ngIf="notification.Episode.ID != 0">{{ notification.Movie.Overview }}</blockquote>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
                 {{ notification.Content }}
