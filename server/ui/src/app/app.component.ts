@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { NotificationsService } from './notifications.service';
+import { ConfigService } from './config.service';
 
 @Component({
     selector: 'app-root',
@@ -9,14 +10,22 @@ import { NotificationsService } from './notifications.service';
 })
 export class AppComponent {
     title = 'flemzer';
+
     notificationsCounter :number;
     notificationsRefresh :any;
 
+    configRefresh :any;
+    config :any;
+
     constructor(
-        private notificationsService :NotificationsService
+        private notificationsService :NotificationsService,
+        private configService :ConfigService
     ) {
         notificationsService.unreadNotificationsCount.subscribe(count => {
             this.notificationsCounter = count;
+        });
+        configService.config.subscribe(cfg => {
+            this.config = cfg;
         });
     }
 
@@ -26,5 +35,10 @@ export class AppComponent {
         this.notificationsRefresh = setInterval(() => {
             this.notificationsService.getNotifications();
         }, 10000);
+
+        this.configService.getConfig();
+        this.configRefresh = setInterval(() => {
+            this.configService.getConfig();
+        }, 60000);
     }
 }

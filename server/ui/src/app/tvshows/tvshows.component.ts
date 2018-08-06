@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
 
@@ -19,9 +19,12 @@ export class TvshowsComponent implements OnInit {
     trackedShows :TvShow[];
     removedShows :TvShow[];
     downloadingEpisodes :Episode[];
+
     refreshing :boolean;
     refreshing_poll :boolean;
+
     config :any;
+    showsRefresh :any;
 
     constructor(
         private http :HttpClient,
@@ -29,58 +32,57 @@ export class TvshowsComponent implements OnInit {
         private tvshowsService :TvshowsService,
         private episodeService :EpisodeService,
         private utils :UtilsService
-    ) {}
-
-    ngOnInit() {
-        this.getConfig();
-        this.getTrackedTvShows();
-        this.getRemovedTvShows();
-        this.getDownloadingEpisodes();
+    ) {
+        tvshowsService.trackedShows.subscribe(shows => {
+            this.trackedShows = shows;
+        });
+        tvshowsService.removedShows.subscribe(shows => {
+            this.removedShows = shows;
+        });
+        episodeService.downloadingEpisodes.subscribe(episodes => {
+            this.downloadingEpisodes = episodes;
+        });
+        tvshowsService.refreshing.subscribe(bool => {
+            this.refreshing = bool;
+        });
+        configService.config.subscribe(cfg => {
+            this.config = cfg;
+        });
     }
 
-    getConfig() {
-        this.configService.getConfig().subscribe(config => {
-            this.config = config;
-        });
+    ngOnInit() {
+        this.tvshowsService.getShows();
+        this.episodeService.getDownloadingEpisodes();
+        this.configService.getConfig();
+
+        this.showsRefresh = setInterval(() => {
+            this.configService.getConfig();
+            this.tvshowsService.getShows();
+            this.episodeService.getDownloadingEpisodes();
+        }, 30000);
+    }
+
+    ngOnDestroy() {
+        clearInterval(this.showsRefresh);
     }
 
     refreshTvShows() :void {
-        this.refreshing = true;
-        this.tvshowsService.refreshTvShows().subscribe(data => {
-            this.getTrackedTvShows();
-            this.getRemovedTvShows();
-            this.refreshing = false;
-        });
+        this.tvshowsService.getShows();
     }
 
     executePollLoop() :void {
         this.refreshing_poll = true;
         this.http.post('/api/v1/actions/poll', {}).subscribe(data => {
-            this.getTrackedTvShows();
-            this.getRemovedTvShows();
+            this.tvshowsService.getShows();
             this.refreshing_poll = false;
         });
-    }
-
-    getTrackedTvShows() :void {
-        this.tvshowsService.getTrackedTvShows().subscribe(tvshows => this.trackedShows = tvshows);
-    }
-
-    getRemovedTvShows() :void {
-        this.tvshowsService.getRemovedTvShows().subscribe(tvshows => this.removedShows = tvshows);
-    }
-
-    getDownloadingEpisodes() :void {
-        this.episodeService.getDownloadingEpisodes().subscribe(episodes => this.downloadingEpisodes = episodes);
     }
 
     stopDownload(episode :Episode) :void {
         episode.DownloadingItem.AbortPending = true;
         this.episodeService.stopDownload(episode.ID).subscribe(response => {
-            this.episodeService.getDownloadingEpisodes().subscribe(episodes => {
-                this.downloadingEpisodes = episodes;
-                episode.DownloadingItem.AbortPending = true;
-            });
+            this.episodeService.getDownloadingEpisodes();
+            episode.DownloadingItem.AbortPending = false;
         });
     }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { Subject }    from 'rxjs';
 
 import { Movie } from './movie';
 
@@ -10,24 +11,53 @@ import { Movie } from './movie';
 export class MovieService {
     constructor(private http :HttpClient) {}
 
-    refreshMovies() {
-        return this.http.post('/api/v1/modules/watchlists/refresh', {});
+    private trackedMoviesSource =  new Subject<Movie[]>();
+    private removedMoviesSource =  new Subject<Movie[]>();
+    private downloadedMoviesSource =  new Subject<Movie[]>();
+    private downloadingMoviesSource =  new Subject<Movie[]>();
+    private refreshingSource =  new Subject<boolean>();
+
+    trackedMovies = this.trackedMoviesSource.asObservable();
+    removedMovies = this.removedMoviesSource.asObservable();
+    downloadedMovies = this.downloadedMoviesSource.asObservable();
+    downloadingMovies = this.downloadingMoviesSource.asObservable();
+    refreshing = this.refreshingSource.asObservable();
+
+    getMovies() {
+        this.refreshingSource.next(true);
+        this.getTrackedMovies();
+        this.getRemovedMovies();
+        this.getDownloadedMovies();
+        this.getDownloadingMovies();
+
+        // Sleep for 1s to have a visual refresh feedback
+        setTimeout(() => {
+            this.refreshingSource.next(false);
+        }, 3000);
     }
 
-    getTrackedMovies(): Observable<Movie[]> {
-        return this.http.get<Movie[]>('/api/v1/movies/tracked');
+    getTrackedMovies() {
+        this.http.get<Movie[]>('/api/v1/movies/tracked').subscribe(movies => {
+            this.trackedMoviesSource.next(movies);
+        });
     }
 
-    getRemovedMovies(): Observable<Movie[]> {
-        return this.http.get<Movie[]>('/api/v1/movies/removed');
+    getRemovedMovies() {
+        this.http.get<Movie[]>('/api/v1/movies/removed').subscribe(movies => {
+            this.removedMoviesSource.next(movies);
+        });
     }
 
-    getDownloadedMovies(): Observable<Movie[]> {
-        return this.http.get<Movie[]>('/api/v1/movies/downloaded');
+    getDownloadedMovies() {
+        this.http.get<Movie[]>('/api/v1/movies/downloaded').subscribe(movies => {
+            this.downloadedMoviesSource.next(movies);
+        });
     }
 
-    getDownloadingMovies(): Observable<Movie[]> {
-        return this.http.get<Movie[]>('/api/v1/movies/downloading');
+    getDownloadingMovies() {
+        this.http.get<Movie[]>('/api/v1/movies/downloading').subscribe(movies => {
+            this.downloadingMoviesSource.next(movies);
+        });
     }
 
     getMovie(id :number) :Observable<Movie> {

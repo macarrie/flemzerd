@@ -16,7 +16,8 @@ export class TvShowMiniatureComponent implements OnInit {
     ngOnInit() {}
 
     refreshShow() :void {
-        this.tvshowsService.getShow(this.tvshow.ID).subscribe(tvshow => this.tvshow = tvshow);
+        //this.tvshowsService.getShow(this.tvshow.ID).subscribe(tvshow => this.tvshow = tvshow);
+        this.tvshowsService.getShows();
     }
 
     deleteShow(id :number) {

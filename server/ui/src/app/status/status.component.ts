@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ModulesService } from '../modules.service';
 
@@ -15,52 +15,50 @@ export class StatusComponent implements OnInit {
     watchlists :any;
     mediacenters :any;
 
+    modulesRefresh :any;
+
     constructor(
         private modulesService :ModulesService
-    ) {}
+    ) {
+        modulesService.providers.subscribe(providers => {
+            this.providers = providers;
+        });
+        modulesService.indexers.subscribe(indexers => {
+            this.indexers = indexers;
+        });
+        modulesService.downloaders.subscribe(downloaders => {
+            this.downloaders = downloaders;
+        });
+        modulesService.notifiers.subscribe(notifiers => {
+            this.notifiers = notifiers;
+        });
+        modulesService.watchlists.subscribe(watchlists => {
+            this.watchlists = watchlists;
+        });
+        modulesService.mediacenters.subscribe(mediacenters => {
+            this.mediacenters = mediacenters;
+        });
+    }
 
     ngOnInit() {
-        this.getProviders();
-        this.getIndexers();
-        this.getDownloaders();
-        this.getNotifiers();
-        this.getWatchlists();
-        this.getMediaCenters();
+        this.modulesService.getProviders();
+        this.modulesService.getIndexers();
+        this.modulesService.getDownloaders();
+        this.modulesService.getNotifiers();
+        this.modulesService.getWatchlists();
+        this.modulesService.getMediaCenters();
+
+        this.modulesRefresh = setInterval(() => {
+        this.modulesService.getProviders();
+        this.modulesService.getIndexers();
+        this.modulesService.getDownloaders();
+        this.modulesService.getNotifiers();
+        this.modulesService.getWatchlists();
+        this.modulesService.getMediaCenters();
+        }, 60000)
     }
 
-    getProviders() {
-        this.modulesService.getProviders().subscribe(providers => {
-            this.providers = providers;
-        })
-    }
-
-    getIndexers() {
-        this.modulesService.getIndexers().subscribe(indexers => {
-            this.indexers = indexers;
-        })
-    }
-
-    getDownloaders() {
-        this.modulesService.getDownloaders().subscribe(downloaders => {
-            this.downloaders = downloaders;
-        })
-    }
-
-    getNotifiers() {
-        this.modulesService.getNotifiers().subscribe(notifiers => {
-            this.notifiers = notifiers;
-        })
-    }
-
-    getWatchlists() {
-        this.modulesService.getWatchlists().subscribe(watchlists => {
-            this.watchlists = watchlists;
-        })
-    }
-
-    getMediaCenters() {
-        this.modulesService.getMediaCenters().subscribe(mediacenters => {
-            this.mediacenters = mediacenters;
-        })
+    ngOnDestroy() {
+         clearInterval(this.modulesRefresh);
     }
 }

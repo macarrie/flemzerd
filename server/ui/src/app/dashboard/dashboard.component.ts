@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { TvShow } from '../tvshow';
 import { Movie } from '../movie';
@@ -20,37 +20,43 @@ export class DashboardComponent implements OnInit {
     downloadedMovies :Movie[];
     downloadingMovies :Movie[];
 
+    dashboardRefresh :any;
+
     constructor(
         private tvshowsService :TvshowsService,
         private episodeService :EpisodeService,
         private movieService :MovieService
-    ) {}
+    ) {
+        movieService.trackedMovies.subscribe(movies => {
+            this.trackedMovies = movies;
+        });
+        movieService.downloadedMovies.subscribe(movies => {
+            this.downloadedMovies = movies;
+        });
+        movieService.downloadingMovies.subscribe(movies => {
+            this.downloadingMovies = movies;
+        });
+        tvshowsService.trackedShows.subscribe(shows => {
+            this.trackedShows = shows;
+        });
+        episodeService.downloadingEpisodes.subscribe(episodes => {
+            this.downloadingEpisodes = episodes;
+        });
+    }
 
     ngOnInit() {
-        this.getTrackedTvShows();
-        this.getDownloadingEpisodes();
-        this.getTrackedMovies();
-        this.getDownloadedMovies();
-        this.getDownloadingMovies();
+        this.movieService.getMovies();
+        this.tvshowsService.getTrackedTvShows();
+        this.episodeService.getDownloadingEpisodes();
+
+        this.dashboardRefresh = setInterval(() => {
+            this.movieService.getMovies();
+            this.tvshowsService.getTrackedTvShows();
+            this.episodeService.getDownloadingEpisodes();
+        }, 30000);
     }
 
-    getTrackedTvShows() :void {
-        this.tvshowsService.getTrackedTvShows().subscribe(tvshows => this.trackedShows = tvshows);
-    }
-
-    getDownloadingEpisodes() :void {
-        this.episodeService.getDownloadingEpisodes().subscribe(episodes => this.downloadingEpisodes = episodes);
-    }
-
-    getTrackedMovies() :void {
-        this.movieService.getTrackedMovies().subscribe(movies => this.trackedMovies = movies);
-    }
-
-    getDownloadedMovies() :void {
-        this.movieService.getDownloadedMovies().subscribe(movies => this.downloadedMovies = movies);
-    }
-
-    getDownloadingMovies() :void {
-        this.movieService.getDownloadingMovies().subscribe(movies => this.downloadingMovies = movies);
+    ngOnDestroy() {
+        clearInterval(this.dashboardRefresh);
     }
 }

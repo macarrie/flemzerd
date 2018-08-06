@@ -31,7 +31,9 @@
             <td><b>Download directory</b></td>
             <td class="text-muted font-italic"
                 *ngIf="downloadingitem.CurrentTorrent.DownloadDir">
-                {{ downloadingitem.CurrentTorrent.DownloadDir }}
+                <code>
+                    {{ downloadingitem.CurrentTorrent.DownloadDir }}
+                </code>
             </td>
             <td class="text-muted font-italic"
                 *ngIf="!downloadingitem.CurrentTorrent.DownloadDir">
