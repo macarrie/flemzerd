@@ -59,7 +59,8 @@ func (p MockTVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Name: "Test show",
+		Name:         "Test show",
+		OriginalName: "Test show",
 	}, nil
 }
 func (p MockTVProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
@@ -101,7 +102,8 @@ func (p MockMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Title: "Test Movie",
+		Title:         "Test Movie",
+		OriginalTitle: "Test Movie",
 	}, nil
 }
 

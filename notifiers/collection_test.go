@@ -69,7 +69,8 @@ func TestSendNotification(t *testing.T) {
 	notif := Notification{
 		Type: NOTIFICATION_NEW_EPISODE,
 		Movie: Movie{
-			Title: "Test Movie",
+			Title:         "Test Movie",
+			OriginalTitle: "Test Movie",
 		},
 	}
 	notifiersCollection = []Notifier{}
@@ -116,7 +117,8 @@ func TestNotifyEpisode(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Name: "Test TVShow",
+		Name:         "Test TVShow",
+		OriginalName: "Test TVShow",
 	}
 
 	episode := Episode{
@@ -192,7 +194,8 @@ func TestNotifyMovie(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Title: "Test movie",
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
 	}
 
 	m := MockNotifier{}
@@ -257,7 +260,8 @@ func TestNotifyDownloadStart(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Name: "Test TVShow",
+		Name:         "Test TVShow",
+		OriginalName: "Test TVShow",
 	}
 
 	episode := Episode{
@@ -275,7 +279,8 @@ func TestNotifyDownloadStart(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Title: "Test movie",
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
 	}
 
 	count := mockNotificationCounter

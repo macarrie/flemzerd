@@ -11,25 +11,25 @@
         </td>
         <td (click)="toggleContent = !toggleContent">
             <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_EPISODE">
-                New episode aired: <a routerLink="/episodes/{{ notification.Episode.ID }}"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+                New episode aired: <a routerLink="/episodes/{{ notification.Episode.ID }}"> {{ notification.Episode.TvShow.OriginalName }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_MOVIE">
-                New movie: <a routerLink="/movies/{{ notification.Movie.ID }}">{{ notification.Movie.Title }}</a>
+                New movie: <a routerLink="/movies/{{ notification.Movie.ID }}">{{ notification.Movie.OriginalTitle }}</a>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
                 Download started: 
-                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
-                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.OriginalTitle }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.OriginalName }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
                 Download success
-                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
-                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.OriginalTitle }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.OriginalName }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
                 Download failure
-                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.Title }}</a>
-                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.Name }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.OriginalTitle }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.OriginalName }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
                 {{ notification.Title }}

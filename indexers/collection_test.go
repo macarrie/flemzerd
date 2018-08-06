@@ -77,8 +77,8 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	}
 
 	torrentList, err := GetTorrentForEpisode("Test show", 1, 0)
-	if err == nil {
-		t.Error("Expected to have zero results and an error, go no error instead: ")
+	if err != nil {
+		t.Error("Expected to have zero results and no error, got an error instead: ")
 	}
 	if len(torrentList) != 0 {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
@@ -108,8 +108,9 @@ func TestGetTorrentForMovie(t *testing.T) {
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
 	torrentList, _ := GetTorrentForMovie(Movie{
-		Title: "Test movie",
-		Date:  movieDate,
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+		Date:          movieDate,
 	})
 	if len(torrentList) != 6 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
@@ -122,15 +123,16 @@ func TestGetTorrentForMovie(t *testing.T) {
 	torrentList, err := GetTorrentForMovie(Movie{
 		Date: movieDate,
 	})
-	if err == nil {
-		t.Error("Expected to have zero results and an error, go no error instead: ")
+	if err != nil {
+		t.Error("Expected to have zero results and no error, got an error instead: ")
 	}
 	if len(torrentList) != 0 {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
 	}
 
 	torrentList, _ = GetTorrentForMovie(Movie{
-		Title: "error",
+		Title:         "error",
+		OriginalTitle: "error",
 	})
 	if len(torrentList) > 0 {
 		t.Error("Expected to have no torrents when getting torrents for movie")

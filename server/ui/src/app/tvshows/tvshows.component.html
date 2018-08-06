@@ -43,7 +43,7 @@
                         <ng-container *ngIf="!episode.DownloadingItem.AbortPending">
                             <td class="align-middle">
                                 <a routerLink="/episodes/{{ episode.ID }}">
-                                    {{ episode.TvShow.Name }} S{{utils.formatNumber(episode.Season)}}E{{ utils.formatNumber(episode.Number) }} : {{ episode.Name }}
+                                    {{ episode.TvShow.OriginalName }} S{{utils.formatNumber(episode.Season)}}E{{ utils.formatNumber(episode.Number) }} : {{ episode.Name }}
                                 </a>
                             </td>
                             <td class="align-middle">

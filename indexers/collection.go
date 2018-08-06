@@ -10,7 +10,6 @@ import (
 	"github.com/macarrie/flemzerd/vidocq"
 
 	multierror "github.com/hashicorp/go-multierror"
-	"github.com/pkg/errors"
 )
 
 var indexersCollection []Indexer
@@ -90,7 +89,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
 
 	if len(torrentList) == 0 {
-		return []Torrent{}, errors.Wrap(errorList, "No torrents found for episode")
+		return []Torrent{}, errorList.ErrorOrNil()
 	}
 
 	return torrentList, errorList.ErrorOrNil()
@@ -109,11 +108,11 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 			continue
 		}
 
-		indexerSearch, err := ind.GetTorrentForMovie(movie.Title)
+		indexerSearch, err := ind.GetTorrentForMovie(movie.OriginalTitle)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"indexer": indexer.GetName(),
-				"movie":   movie.Title,
+				"movie":   movie.OriginalTitle,
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
@@ -124,18 +123,18 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 			torrentList = append(torrentList, indexerSearch...)
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movie.Title,
+				"movie":   movie.OriginalTitle,
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movie.Title,
+				"movie":   movie.OriginalTitle,
 			}).Info("No torrents found")
 		}
 	}
 
 	if len(torrentList) == 0 {
-		return []Torrent{}, errors.Wrap(errorList, "No torrents found for episode")
+		return []Torrent{}, errorList.ErrorOrNil()
 	}
 
 	sort.Slice(torrentList[:], func(i, j int) bool {

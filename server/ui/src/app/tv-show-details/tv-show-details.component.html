@@ -34,10 +34,10 @@
     <div class="container mediadetails">
         <div class="row">
             <div class="col-4">
-                <img class="rounded" width="100%" [attr.src]="tvshow.Poster" [attr.alt]="tvshow.Name">
+                <img class="rounded" width="100%" [attr.src]="tvshow.Poster" [attr.alt]="tvshow.OriginalName">
             </div>
             <div class="col-8 pl-0 pr-5">
-                <span class="h2">{{ tvshow.Name }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
+                <span class="h2">{{ tvshow.OriginalName }} </span> <span class="h3 text-muted">({{ utils.getYear(tvshow.FirstAired) }})</span>
                 <button class="ml-2 btn btn-sm show-status-btn"
                         [ngClass]="showStatusClasses">
                     {{ getStatusText(tvshow) }}

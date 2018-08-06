@@ -158,7 +158,8 @@ func TestWaitForDownload(t *testing.T) {
 
 func TestDownloadEpisode(t *testing.T) {
 	show := TvShow{
-		Name: "test show",
+		Name:         "test show",
+		OriginalName: "test show",
 	}
 
 	testTorrent := Torrent{
@@ -201,7 +202,8 @@ func TestDownloadEpisode(t *testing.T) {
 
 func TestDownloadMovie(t *testing.T) {
 	testMovie := Movie{
-		Title: "test movie",
+		Title:         "test movie",
+		OriginalTitle: "test movie",
 	}
 
 	testTorrent := Torrent{
@@ -251,7 +253,8 @@ func TestMoveEpisodeToLibrary(t *testing.T) {
 	testEpisode := Episode{
 		Name: "test episode",
 		TvShow: TvShow{
-			Name: "test show",
+			Name:         "test show",
+			OriginalName: "test show",
 		},
 		Season: 1,
 		Number: 1,
@@ -281,7 +284,8 @@ func TestMoveMovieToLibrary(t *testing.T) {
 	}
 
 	testMovie := Movie{
-		Title: "test movie",
+		Title:         "test movie",
+		OriginalTitle: "test movie",
 		DownloadingItem: DownloadingItem{
 			CurrentTorrent: testTorrent,
 		},

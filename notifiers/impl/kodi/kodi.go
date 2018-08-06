@@ -85,38 +85,38 @@ func (k *KodiNotifier) Send(notif Notification) error {
 
 	switch notif.Type {
 	case NOTIFICATION_NEW_EPISODE:
-		title = fmt.Sprintf("%v S%03dE%03d ", notif.Episode.TvShow.Name, notif.Episode.Season, notif.Episode.Number)
+		title = fmt.Sprintf("%v S%03dE%03d ", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
 		content = "Episode aired"
 
 	case NOTIFICATION_NEW_MOVIE:
-		title = fmt.Sprintf("%s", notif.Movie.Title)
+		title = fmt.Sprintf("%s", notif.Movie.OriginalTitle)
 		content = "Movie found in watchlists"
 
 	case NOTIFICATION_DOWNLOAD_START:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.Name, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.Title)
+			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
 		}
 		content = "Starting download"
 
 	case NOTIFICATION_DOWNLOAD_SUCCESS:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.Name, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
 			content = "Episode downloaded"
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.Title)
+			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
 			content = "Movie downloaded"
 		}
 
 	case NOTIFICATION_DOWNLOAD_FAILURE:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.Name, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.Title)
+			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
 		}
 		content = "Download failed"
 

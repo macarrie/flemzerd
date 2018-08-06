@@ -19,7 +19,8 @@ func TestTorrentIsFailed(t *testing.T) {
 		Link:      "test.torrent",
 	}
 	movie := Movie{
-		Title: "movie",
+		Title:         "movie",
+		OriginalTitle: "movie",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
@@ -45,16 +46,19 @@ func TestGetTrackedItems(t *testing.T) {
 		Name: "t2",
 	}
 	m1 := Movie{
-		Title: "m1",
+		Title:         "m1",
+		OriginalTitle: "m1",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
 	}
 	m2 := Movie{
-		Title: "m2",
+		Title:         "m2",
+		OriginalTitle: "m2",
 	}
 	m3 := Movie{
-		Title: "m3",
+		Title:         "m3",
+		OriginalTitle: "m3",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
@@ -92,13 +96,15 @@ func TestGetDownloadingItems(t *testing.T) {
 		},
 	}
 	m1 := Movie{
-		Title: "m1",
+		Title:         "m1",
+		OriginalTitle: "m1",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
 	}
 	m2 := Movie{
-		Title: "m2",
+		Title:         "m2",
+		OriginalTitle: "m2",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
@@ -135,13 +141,15 @@ func TestGetDownloadedItems(t *testing.T) {
 		},
 	}
 	m1 := Movie{
-		Title: "m1",
+		Title:         "m1",
+		OriginalTitle: "m1",
 		DownloadingItem: DownloadingItem{
 			Downloaded: true,
 		},
 	}
 	m2 := Movie{
-		Title: "m2",
+		Title:         "m2",
+		OriginalTitle: "m2",
 		DownloadingItem: DownloadingItem{
 			Downloaded: true,
 		},
