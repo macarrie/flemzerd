@@ -146,7 +146,7 @@ func downloadEpisode(c *gin.Context) {
 
 	log.WithFields(log.Fields{
 		"id":      id,
-		"show":    ep.TvShow.Name,
+		"show":    ep.TvShow.OriginalName,
 		"episode": ep.Name,
 		"season":  ep.Season,
 		"number":  ep.Number,

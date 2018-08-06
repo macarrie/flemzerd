@@ -127,7 +127,8 @@ func TestFindMovie(t *testing.T) {
 
 func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	testShow := TvShow{
-		Name: "Test show",
+		Name:         "Test show",
+		OriginalName: "Test show",
 	}
 
 	providersCollection = []Provider{}
@@ -150,7 +151,8 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 
 func TestGetSeasonEpisodeList(t *testing.T) {
 	testShow := TvShow{
-		Name: "Test show",
+		Name:         "Test show",
+		OriginalName: "Test show",
 	}
 
 	providersCollection = []Provider{}
@@ -242,14 +244,16 @@ func TestRemoveDuplicate(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Name: "test",
+		Name:         "test",
+		OriginalName: "test",
 	}
 
 	testMovie := Movie{
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Title: "test",
+		Title:         "test",
+		OriginalTitle: "test",
 	}
 
 	uniqueTVList := removeDuplicateShows([]TvShow{testShow, testShow})

@@ -87,7 +87,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
 func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	if tvShow.MediaIds.Tmdb == 0 {
-		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
+		results, err := tmdbProvider.Client.SearchTv(tvShow.OriginalName, nil)
 		if err != nil {
 			return []Episode{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
@@ -107,7 +107,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	season, err := tmdbProvider.Client.GetTvSeasonInfo(show.ID, show.NumberOfSeasons, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.Name,
+			"tvshow_name": tvShow.OriginalName,
 			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"season":      show.NumberOfSeasons,
@@ -129,7 +129,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		externalids, err := tmdbProvider.Client.GetTvEpisodeExternalIds(show.ID, ep.Season, ep.Number, nil)
 		if err != nil {
 			log.WithFields(log.Fields{
-				"tvshow_name": tvShow.Name,
+				"tvshow_name": tvShow.OriginalName,
 				"id":          tvShow.Model.ID,
 				"provider":    module.Name,
 				"season":      ep.Season,
@@ -179,7 +179,7 @@ func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber
 	results, err := tmdbProvider.Client.GetTvSeasonInfo(show.MediaIds.Tmdb, seasonNumber, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":   show.Name,
+			"show":   show.OriginalName,
 			"season": seasonNumber,
 		}).Warning("Encountered error when querying season details from TMDB")
 		return []Episode{}, errors.Wrap(err, "cannot get show season info from TMDB")
@@ -254,6 +254,7 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		FirstAired:       firstAired,
 		Overview:         tvShow.Overview,
 		Name:             tvShow.Name,
+		OriginalName:     tvShow.OriginalName,
 		Status:           status,
 		Seasons:          seasons,
 		NumberOfSeasons:  tvShow.NumberOfSeasons,

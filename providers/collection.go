@@ -200,8 +200,8 @@ func removeDuplicateMovies(array []Movie) []Movie {
 	var ret []Movie
 
 	for _, movie := range array {
-		if !occurences[movie.Title] {
-			occurences[movie.Title] = true
+		if !occurences[movie.OriginalTitle] {
+			occurences[movie.OriginalTitle] = true
 			ret = append(ret, movie)
 		}
 	}

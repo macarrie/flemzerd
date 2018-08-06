@@ -5,7 +5,7 @@
                     width="100%"
                     [attr.src]="tvshow.Poster"
                     [class.black_and_white]="tvshow.DeletedAt != null || tvshow.Status == 3"
-                    [attr.alt]="tvshow.Name">
+                    [attr.alt]="tvshow.OriginalName">
             <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red"
                  *ngIf="tvshow.DeletedAt != null">
                 <span>

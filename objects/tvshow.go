@@ -22,6 +22,7 @@ type TvShow struct {
 	FirstAired       time.Time
 	Overview         string
 	Name             string
+	OriginalName     string
 	Status           int
 	NumberOfEpisodes int
 	NumberOfSeasons  int

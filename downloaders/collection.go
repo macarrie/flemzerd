@@ -125,7 +125,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 
 	// If function has not returned yet, download ended with no errors !
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.Name,
+		"show":   e.TvShow.OriginalName,
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -140,7 +140,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 	err = MoveEpisodeToLibrary(e)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":           e.TvShow.Name,
+			"show":           e.TvShow.OriginalName,
 			"episode":        e.Name,
 			"season":         e.Season,
 			"number":         e.Number,
@@ -195,7 +195,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 
 	// If function has not returned yet, download ended with no errors !
 	log.WithFields(log.Fields{
-		"name": m.Title,
+		"name": m.OriginalTitle,
 	}).Info("Movie successfully downloaded")
 	notifier.NotifyDownloadedMovie(m)
 
@@ -207,7 +207,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 	err = MoveMovieToLibrary(m)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"movie":          m.Title,
+			"movie":          m.OriginalTitle,
 			"temporary_path": m.DownloadingItem.CurrentTorrent.DownloadDir,
 			"library_path":   configuration.Config.Library.MoviePath,
 			"error":          err,
@@ -262,7 +262,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 	}
 
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.Name,
+		"show":   e.TvShow.OriginalName,
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -296,7 +296,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
-				"show":   e.TvShow.Name,
+				"show":   e.TvShow.OriginalName,
 				"season": e.Season,
 				"number": e.Number,
 				"name":   e.Name,
@@ -343,7 +343,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 	}
 
 	log.WithFields(log.Fields{
-		"name": m.Title,
+		"name": m.OriginalTitle,
 	}).Info("Starting download process")
 
 	m.DownloadingItem.Pending = false
@@ -374,7 +374,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
-				"movie": m.Title,
+				"movie": m.OriginalTitle,
 			}).Info("Download manually aborted. Cleaning up current download artifacts.")
 
 			currentDownloadPath := m.DownloadingItem.CurrentTorrent.DownloadDir
@@ -413,7 +413,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 func AbortEpisodeDownload(e *Episode) {
 	log.WithFields(log.Fields{
 		"id":      e.ID,
-		"show":    e.TvShow.Name,
+		"show":    e.TvShow.OriginalName,
 		"episode": e.Name,
 		"season":  e.Season,
 		"number":  e.Number,
@@ -436,7 +436,7 @@ func AbortEpisodeDownload(e *Episode) {
 func AbortMovieDownload(m *Movie) {
 	log.WithFields(log.Fields{
 		"id":    m.ID,
-		"title": m.Title,
+		"title": m.OriginalTitle,
 	}).Info("Aborting movie download")
 
 	if !m.DownloadingItem.Pending {
@@ -455,7 +455,7 @@ func AbortMovieDownload(m *Movie) {
 
 func MarkEpisodeFailedDownload(e *Episode) {
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.Name,
+		"show":   e.TvShow.OriginalName,
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -470,7 +470,7 @@ func MarkEpisodeFailedDownload(e *Episode) {
 
 func MarkMovieFailedDownload(m *Movie) {
 	log.WithFields(log.Fields{
-		"movie": m.Title,
+		"movie": m.OriginalTitle,
 	}).Error("Download failed, no torrents could be downloaded")
 
 	notifier.NotifyFailedMovie(m)
@@ -487,7 +487,7 @@ func sanitizeStringForFilename(src string) string {
 
 func MoveEpisodeToLibrary(episode *Episode) error {
 	log.WithFields(log.Fields{
-		"show":           episode.TvShow.Name,
+		"show":           episode.TvShow.OriginalName,
 		"episode":        episode.Name,
 		"season":         episode.Season,
 		"number":         episode.Number,
@@ -495,7 +495,7 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(episode.TvShow.Name), episode.Season, episode.Season, episode.Number)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(episode.TvShow.OriginalName), episode.Season, episode.Season, episode.Number)
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return errors.Wrap(err, "Could not create library folder for episode")
@@ -523,12 +523,12 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 
 func MoveMovieToLibrary(movie *Movie) error {
 	log.WithFields(log.Fields{
-		"movie":          movie.Title,
+		"movie":          movie.OriginalTitle,
 		"temporary_path": movie.DownloadingItem.CurrentTorrent.DownloadDir,
 		"library_path":   configuration.Config.Library.MoviePath,
 	}).Debug("Moving movie to library")
 
-	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(movie.Title))
+	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(movie.OriginalTitle))
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return errors.Wrap(err, "Could not create library folder for movie")

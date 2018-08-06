@@ -318,7 +318,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 	if episode.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
-			"show":   episode.TvShow.Name,
+			"show":   episode.TvShow.OriginalName,
 			"number": episode.Number,
 			"season": episode.Season,
 			"name":   episode.Name,
@@ -328,7 +328,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 	if episode.DownloadingItem.Downloading {
 		log.WithFields(log.Fields{
-			"show":   episode.TvShow.Name,
+			"show":   episode.TvShow.OriginalName,
 			"number": episode.Number,
 			"season": episode.Season,
 			"name":   episode.Name,
@@ -339,7 +339,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	episode.DownloadingItem.Pending = true
 	db.Client.Save(&episode)
 
-	torrentList, err := indexer.GetTorrentForEpisode(episode.TvShow.Name, episode.Season, episode.Number)
+	torrentList, err := indexer.GetTorrentForEpisode(episode.TvShow.OriginalName, episode.Season, episode.Number)
 	if err != nil {
 		log.Warning(err)
 		return
@@ -349,7 +349,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 		torrentList = append([]Torrent{episode.DownloadingItem.CurrentTorrent}, torrentList...)
 	}
 	log.WithFields(log.Fields{
-		"movie": episode.TvShow.Name,
+		"movie": episode.TvShow.OriginalName,
 		"nb":    len(torrentList),
 	}).Debug("Torrents found")
 
@@ -367,14 +367,14 @@ func DownloadEpisode(episode Episode, recovery bool) {
 func DownloadMovie(movie Movie, recovery bool) {
 	if movie.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
-			"movie": movie.Title,
+			"movie": movie.OriginalTitle,
 		}).Debug("Movie already downloaded, nothing to do")
 		return
 	}
 
 	if movie.DownloadingItem.Downloading {
 		log.WithFields(log.Fields{
-			"movie": movie.Title,
+			"movie": movie.OriginalTitle,
 		}).Debug("Movie already being downloaded, nothing to do")
 		return
 	}
@@ -391,7 +391,7 @@ func DownloadMovie(movie Movie, recovery bool) {
 		torrentList = append([]Torrent{movie.DownloadingItem.CurrentTorrent}, torrentList...)
 	}
 	log.WithFields(log.Fields{
-		"movie": movie.Title,
+		"movie": movie.OriginalTitle,
 		"nb":    len(torrentList),
 	}).Debug("Torrents found")
 
@@ -453,7 +453,7 @@ func RecoverDownloadingItems() {
 		db.Client.Save(&m)
 
 		log.WithFields(log.Fields{
-			"name": m.Title,
+			"name": m.OriginalTitle,
 		}).Debug("Launched download processing recovery")
 
 		recoveryMovie := m
@@ -507,7 +507,7 @@ func poll(recoveryDone *bool) {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-					"show":  show.Name,
+					"show":  show.OriginalName,
 				}).Warning("No recent episodes found")
 				continue
 			}
@@ -542,7 +542,7 @@ func poll(recoveryDone *bool) {
 		for _, movie := range provider.Movies {
 			if movie.Date.After(time.Now()) {
 				log.WithFields(log.Fields{
-					"movie":        movie.Title,
+					"movie":        movie.OriginalTitle,
 					"release_date": movie.Date,
 				}).Debug("Movie not yet released, ignoring")
 				continue
