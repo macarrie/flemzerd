@@ -88,10 +88,6 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
 	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
 
-	if len(torrentList) == 0 {
-		return []Torrent{}, errorList.ErrorOrNil()
-	}
-
 	return torrentList, errorList.ErrorOrNil()
 }
 
@@ -133,18 +129,12 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 		}
 	}
 
-	if len(torrentList) == 0 {
-		return []Torrent{}, errorList.ErrorOrNil()
-	}
-
 	sort.Slice(torrentList[:], func(i, j int) bool {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
-	log.Debug("After quality filter: ", len(torrentList))
 	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
-	log.Debug("After year check: ", len(torrentList))
 
 	return torrentList, errorList.ErrorOrNil()
 }

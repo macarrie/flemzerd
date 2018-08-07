@@ -5,6 +5,7 @@ export class Const {
     public static NOTIFICATION_DOWNLOAD_SUCCESS = 3;
     public static NOTIFICATION_DOWNLOAD_FAILURE = 4;
     public static NOTIFICATION_TEXT = 5;
+    public static NOTIFICATION_NO_TORRENT = 6;
 
     public static OK = 0;
     public static WARNING = 1;

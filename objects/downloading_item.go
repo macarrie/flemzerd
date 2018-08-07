@@ -12,4 +12,5 @@ type DownloadingItem struct {
 	CurrentDownloaderId string
 	DownloadFailed      bool
 	AbortPending        bool
+	TorrentsNotFound    bool
 }

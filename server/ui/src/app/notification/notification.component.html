@@ -34,6 +34,11 @@
             <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
                 {{ notification.Title }}
             </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NO_TORRENT">
+                No torrents found: 
+                <a routerLink="/movies/{{ notification.Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ notification.Movie.OriginalTitle }}</a>
+                <a routerLink="/episodes/{{ notification.Episode.ID }}" *ngIf="notification.Episode.ID != 0"> {{ notification.Episode.TvShow.OriginalName }} S{{ utils.formatNumber(notification.Episode.Season) }}E{{ utils.formatNumber(notification.Episode.Number) }}: {{ notification.Episode.Name }}</a>
+            </span>
         </td>
         <td class="text-muted text-right">
             <small>
@@ -72,6 +77,9 @@
             </span>
             <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
                 {{ notification.Content }}
+            </span>
+            <span *ngIf="notification.Type == constants.NOTIFICATION_NO_TORRENT">
+                No torrents have been found for media. Try adding new indexers or wait for torrents to be available (for recently released movies or episodes)
             </span>
         </td>
         <td></td>
