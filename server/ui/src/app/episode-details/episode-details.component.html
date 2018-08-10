@@ -84,45 +84,7 @@
 
     <div class="container-fluid no-gutters bg-light mt-4">
         <div class="container p-2">
-            <div class="row">
-                <div class="col-12 my-3">
-                    <span class="h4">Download status</span>
-                </div>
-                <div class="col-12"
-                     *ngIf="episode.DownloadingItem.Downloaded">
-                    <div class="mb-3">
-                        <span class="h6 text-success">
-                            <i class="material-icons md-18">check</i> Episode downloaded successfully
-                        </span>
-                    </div>
-                    <downloading-item [downloadingitem]="episode.DownloadingItem"></downloading-item>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="episode.DownloadingItem.Downloading && !episode.DownloadingItem.Downloaded">
-                    <div class="mb-3">
-                        <span class="h6">
-                            <i class="material-icons md-18">swap_vert</i> Download in progress
-                        </span>
-                    </div>
-                    <downloading-item [downloadingitem]="episode.DownloadingItem"></downloading-item>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="!episode.DownloadingItem.Downloading && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Pending">
-                    <div class="mb-3 text-center">
-                        <span class="h5 text-muted">
-                            Not downloading
-                        </span>
-                    </div>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="episode.DownloadingItem.Pending">
-                    <div class="mb-3 text-center">
-                        <span class="h5 text-muted">
-                            Looking for torrents
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <downloading-item [downloadingitem]="episode.DownloadingItem"></downloading-item>
         </div>
     </div>
 </div>

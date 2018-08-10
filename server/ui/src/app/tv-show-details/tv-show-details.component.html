@@ -127,7 +127,7 @@
                             <tr *ngFor="let episode of season"
                                 [class.episode-list-future]="utils.dateIsInFuture(episode.Date)">
                                 <td>
-                                    <span class="badge badge-primary mr-1">{{ utils.formatNumber(episode.Season) }}x{{ utils.formatNumber(episode.Number) }}</span> 
+                                    <span class="badge badge-primary mr-1">{{ utils.formatNumber(episode.Season) }}x{{ utils.formatNumber(episode.Number) }}</span>
                                     <a routerLink="/episodes/{{ episode.ID }}">
                                         {{ episode.Name }}
                                     </a>
@@ -138,11 +138,17 @@
                                        *ngIf="episode.DownloadingItem.Downloaded">
                                         <i class="material-icons">check</i>
                                     </a>
-                                    <a class="btn btn-sm p-0"
-                                       (click)="downloadEpisode(episode)"
-                                       *ngIf="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
-                                        <i class="material-icons">cloud_download</i>
-                                    </a>
+                                    <div *ngIf="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
+                                        <a class="btn btn-sm p-0"
+                                           (click)="downloadEpisode(episode)">
+                                            <i class="material-icons">cloud_download</i>
+                                        </a>
+                                        <div class="btn btn-sm">
+                                            <i class="material-icons text-warning md-18"
+                                               *ngIf="episode.DownloadingItem.TorrentsNotFound"
+                                               title="No torrents found for episode on last download">warning</i>
+                                        </div>
+                                    </div>
                                     <a class="btn btn-sm p-0" *ngIf="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
                                         <i class="material-icons">swap_vert</i>
                                     </a>

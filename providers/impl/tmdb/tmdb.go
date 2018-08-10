@@ -178,10 +178,6 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 	results, err := tmdbProvider.Client.GetTvSeasonInfo(show.MediaIds.Tmdb, seasonNumber, nil)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"show":   show.OriginalName,
-			"season": seasonNumber,
-		}).Warning("Encountered error when querying season details from TMDB")
 		return []Episode{}, errors.Wrap(err, "cannot get show season info from TMDB")
 	}
 

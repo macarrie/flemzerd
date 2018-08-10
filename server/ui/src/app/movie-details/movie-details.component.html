@@ -79,46 +79,6 @@
     </div>
 
     <div class="container-fluid no-gutters bg-light mt-4">
-        <div class="container p-2">
-            <div class="row">
-                <div class="col-12 my-3">
-                    <span class="h4">Download status</span>
-                </div>
-                <div class="col-12"
-                     *ngIf="movie.DownloadingItem.Downloaded">
-                    <div class="mb-3">
-                        <span class="h6 text-success">
-                            <i class="material-icons md-18">check</i> Movie downloaded successfully
-                        </span>
-                    </div>
-                    <downloading-item [downloadingitem]="movie.DownloadingItem"></downloading-item>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded">
-                    <div class="mb-3">
-                        <span class="h6">
-                            <i class="material-icons md-18">swap_vert</i> Download in progress
-                        </span>
-                    </div>
-                    <downloading-item [downloadingitem]="movie.DownloadingItem"></downloading-item>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="!movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && !movie.DownloadingItem.Pending">
-                    <div class="mb-3 text-center">
-                        <span class="h5 text-muted">
-                            Not downloading
-                        </span>
-                    </div>
-                </div>
-                <div class="col-12 my-3"
-                     *ngIf="movie.DownloadingItem.Pending">
-                    <div class="mb-3 text-center">
-                        <span class="h5 text-muted">
-                            Looking for torrents
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <downloading-item [downloadingitem]="movie.DownloadingItem"></downloading-item>
     </div>
 </div>

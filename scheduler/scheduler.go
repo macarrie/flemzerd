@@ -519,7 +519,7 @@ func poll(recoveryDone *bool) {
 	}
 
 	if _, err := provider.Status(); err != nil {
-		log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
+		log.Error("No provider alive. Impossible to retrieve media informations, stopping download chain until next polling.")
 		executeDownloadChain = false
 	} else {
 		//Even if not able to download, retrieve media info for UI if enabled
@@ -532,12 +532,12 @@ func poll(recoveryDone *bool) {
 	}
 
 	if _, err := indexer.Status(); err != nil {
-		log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
+		log.Error("No indexer alive. Impossible to retrieve torrents for media, stopping download chain until next polling.")
 		executeDownloadChain = false
 	}
 
 	if _, err := downloader.Status(); err != nil {
-		log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
+		log.Error("No downloader alive. Impossible to download media, stopping download chain until next polling.")
 		executeDownloadChain = false
 	}
 
@@ -545,7 +545,7 @@ func poll(recoveryDone *bool) {
 		log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
 	}
 
-	if recoveryDone != nil && !*recoveryDone {
+	if recoveryDone != nil && !*recoveryDone && executeDownloadChain {
 		RecoverDownloadingItems()
 		*recoveryDone = true
 	}

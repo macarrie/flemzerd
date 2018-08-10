@@ -46,4 +46,10 @@ table.notification_read {
     opacity: 0.4;
     color: lighten($dark, 40%);
     font-style: italic;
+
+    &:hover {
+        opacity: 1;
+        color: $dark;
+        font-style: normal;
+    }
 }
