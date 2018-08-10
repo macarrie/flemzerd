@@ -1,51 +1,105 @@
 <div *ngIf="!downloadingitem">
-    <div>
+    <div class="container p-2">
         Loading
     </div>
 </div>
 
 <div *ngIf="downloadingitem">
-    <table class="table table-sm">
-        <tr *ngIf="!downloadingitem.Downloaded">
-            <td><b>Downloading</b></td>
-            <td>
-                <span class="text-danger"
-                      *ngIf="!downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
-                <span class="text-success"
-                      *ngIf="downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at {{ utils.formatDate(downloadingitem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
-            </td>
-        </tr>
-        <tr>
-            <td *ngIf="!downloadingitem.Downloaded"><b>Current download</b></td>
-            <td *ngIf="downloadingitem.Downloaded"><b>Downloaded torrent</b></td>
-            <td class="font-italic text-muted"
-                *ngIf="downloadingitem.CurrentTorrent.Name">
-                {{ downloadingitem.CurrentTorrent.Name }}
-            </td>
-            <td class="font-italic text-muted"
-                *ngIf="!downloadingitem.CurrentTorrent.Name">
-                Unknown
-            </td>
-        </tr>
-        <tr>
-            <td><b>Download directory</b></td>
-            <td class="text-muted font-italic"
-                *ngIf="downloadingitem.CurrentTorrent.DownloadDir">
-                <code>
-                    {{ downloadingitem.CurrentTorrent.DownloadDir }}
-                </code>
-            </td>
-            <td class="text-muted font-italic"
-                *ngIf="!downloadingitem.CurrentTorrent.DownloadDir">
-                Unknown
-            </td>
-        </tr>
-        <tr [ngClass]="downloadingitem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
-            <td><b>Failed torrents</b></td>
-            <td>
-                <b>{{ downloadingitem.FailedTorrents.length }}</b>
-            </td>
-        </tr>
-    </table>
+    <div class="container p-2">
+        <div class="row">
+            <div class="col-12 my-3">
+                <span class="h4">Download status</span>
+            </div>
+            <div class="col-12"
+                 *ngIf="downloadingitem.Downloaded">
+                <div class="mb-3">
+                    <span class="h6 text-success">
+                        <i class="material-icons md-18">check</i> Movie downloaded successfully
+                    </span>
+                </div>
+                <downloading-item [downloadingitem]="downloadingitem"></downloading-item>
+            </div>
+            <div class="col-12 my-3"
+                 *ngIf="downloadingitem.Downloading && !downloadingitem.Downloaded">
+                <div class="mb-3">
+                    <span class="h6">
+                        <i class="material-icons md-18">swap_vert</i> Download in progress
+                    </span>
+                </div>
+                <table class="table table-sm">
+                    <tr *ngIf="!downloadingitem.Downloaded">
+                        <td><b>Downloading</b></td>
+                        <td>
+                            <span class="text-danger"
+                                  *ngIf="!downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
+                            <span class="text-success"
+                                  *ngIf="downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at {{ utils.formatDate(downloadingitem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY') }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td *ngIf="!downloadingitem.Downloaded"><b>Current download</b></td>
+                        <td *ngIf="downloadingitem.Downloaded"><b>Downloaded torrent</b></td>
+                        <td class="font-italic text-muted"
+                            *ngIf="downloadingitem.CurrentTorrent.Name">
+                            {{ downloadingitem.CurrentTorrent.Name }}
+                        </td>
+                        <td class="font-italic text-muted"
+                            *ngIf="!downloadingitem.CurrentTorrent.Name">
+                            Unknown
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Download directory</b></td>
+                        <td class="text-muted font-italic"
+                            *ngIf="downloadingitem.CurrentTorrent.DownloadDir">
+                            <code>
+                                {{ downloadingitem.CurrentTorrent.DownloadDir }}
+                            </code>
+                        </td>
+                        <td class="text-muted font-italic"
+                            *ngIf="!downloadingitem.CurrentTorrent.DownloadDir">
+                            Unknown
+                        </td>
+                    </tr>
+                    <tr [ngClass]="downloadingitem.FailedTorrents.length > 0 ? 'text-danger' : 'text-success'">
+                        <td><b>Failed torrents</b></td>
+                        <td>
+                            <b>{{ downloadingitem.FailedTorrents.length }}</b>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-12 my-3"
+                 *ngIf="!downloadingitem.Downloading && !downloadingitem.Downloaded && !downloadingitem.Pending && !downloadingitem.TorrentsNotFound">
+                <div class="mb-3 text-center">
+                    <span class="h5 text-muted">
+                        Not downloading
+                    </span>
+                </div>
+            </div>
+            <div class="col-12 my-3"
+                 *ngIf="!downloadingitem.Downloading && !downloadingitem.Downloaded && !downloadingitem.Pending && downloadingitem.TorrentsNotFound">
+                <div class="mb-3 text-center">
+                    <span class="h5 text-muted">
+                        <i class="material-icons text-warning md-18">warning</i>
+                        <span class="font-weight-bold">
+                            No torrents found
+                        </span>
+                        <hr />
+                        No torrents have been found during last download. <br />
+                        Try again later (in case of recent releases) or after adding new indexers.
+                    </span>
+                </div>
+            </div>
+            <div class="col-12 my-3"
+                 *ngIf="downloadingitem.Pending">
+                <div class="mb-3 text-center">
+                    <span class="h5 text-muted">
+                        Looking for torrents
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 

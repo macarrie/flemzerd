@@ -348,16 +348,42 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	if recovery && episode.DownloadingItem.CurrentTorrent.ID != 0 {
 		torrentList = append([]Torrent{episode.DownloadingItem.CurrentTorrent}, torrentList...)
 	}
-	log.WithFields(log.Fields{
-		"movie": episode.TvShow.OriginalName,
-		"nb":    len(torrentList),
-	}).Debug("Torrents found")
 
 	toDownload := downloader.FillEpisodeToDownloadTorrentList(&episode, torrentList)
 	if len(toDownload) == 0 {
-		downloader.MarkEpisodeFailedDownload(&episode)
+		log.WithFields(log.Fields{
+			"show":    episode.TvShow.OriginalName,
+			"episode": episode.Name,
+			"nb":      len(torrentList),
+		}).Warning("No torrents found")
+
+		episode.DownloadingItem.Downloading = false
+		episode.DownloadingItem.Pending = false
+		episode.DownloadingItem.TorrentsNotFound = true
+		episode.DownloadingItem.Pending = false
+		db.Client.Save(&episode)
+
+		if err := notifier.SendNotification(Notification{
+			Type:    NOTIFICATION_NO_TORRENTS,
+			Episode: episode,
+		}); err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Warning("Could not send 'no torrents found' notification")
+		}
+
 		return
+	} else {
+		log.WithFields(log.Fields{
+			"show":    episode.TvShow.OriginalName,
+			"episode": episode.Name,
+			"nb":      len(torrentList),
+		}).Debug("Torrents found")
+
+		episode.DownloadingItem.TorrentsNotFound = false
+		db.Client.Save(&episode)
 	}
+
 	notifier.NotifyEpisodeDownloadStart(&episode)
 	downloader.EpisodeDownloadRoutines[episode.ID] = make(chan bool)
 
@@ -390,17 +416,40 @@ func DownloadMovie(movie Movie, recovery bool) {
 	if recovery && movie.DownloadingItem.CurrentTorrent.ID != 0 {
 		torrentList = append([]Torrent{movie.DownloadingItem.CurrentTorrent}, torrentList...)
 	}
-	log.WithFields(log.Fields{
-		"movie": movie.OriginalTitle,
-		"nb":    len(torrentList),
-	}).Debug("Torrents found")
 
 	toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
 	if len(toDownload) == 0 {
-		log.Error("Download list empty")
-		downloader.MarkMovieFailedDownload(&movie)
+		log.WithFields(log.Fields{
+			"movie": movie.OriginalTitle,
+			"nb":    len(torrentList),
+		}).Debug("Torrents found")
+
+		movie.DownloadingItem.Downloading = false
+		movie.DownloadingItem.Pending = false
+		movie.DownloadingItem.TorrentsNotFound = true
+		movie.DownloadingItem.Pending = false
+		db.Client.Save(&movie)
+
+		if err := notifier.SendNotification(Notification{
+			Type:  NOTIFICATION_NO_TORRENTS,
+			Movie: movie,
+		}); err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Warning("Could not send 'no torrents found' notification")
+		}
+
 		return
+	} else {
+		log.WithFields(log.Fields{
+			"movie": movie.OriginalTitle,
+			"nb":    len(torrentList),
+		}).Debug("Torrents found")
+
+		movie.DownloadingItem.TorrentsNotFound = false
+		db.Client.Save(&movie)
 	}
+
 	notifier.NotifyMovieDownloadStart(&movie)
 	downloader.MovieDownloadRoutines[movie.ID] = make(chan bool)
 
@@ -470,7 +519,7 @@ func poll(recoveryDone *bool) {
 	}
 
 	if _, err := provider.Status(); err != nil {
-		log.Error("No provider alive. Impossible to retrieve TVShow informations, stopping download chain until next polling.")
+		log.Error("No provider alive. Impossible to retrieve media informations, stopping download chain until next polling.")
 		executeDownloadChain = false
 	} else {
 		//Even if not able to download, retrieve media info for UI if enabled
@@ -483,12 +532,12 @@ func poll(recoveryDone *bool) {
 	}
 
 	if _, err := indexer.Status(); err != nil {
-		log.Error("No indexer alive. Impossible to retrieve torrents for TVShows, stopping download chain until next polling.")
+		log.Error("No indexer alive. Impossible to retrieve torrents for media, stopping download chain until next polling.")
 		executeDownloadChain = false
 	}
 
 	if _, err := downloader.Status(); err != nil {
-		log.Error("No downloader alive. Impossible to download TVShow, stopping download chain until next polling.")
+		log.Error("No downloader alive. Impossible to download media, stopping download chain until next polling.")
 		executeDownloadChain = false
 	}
 
@@ -496,7 +545,7 @@ func poll(recoveryDone *bool) {
 		log.Error("Mediacenter not alive. Post download library refresh may not be done correctly")
 	}
 
-	if recoveryDone != nil && !*recoveryDone {
+	if recoveryDone != nil && !*recoveryDone && executeDownloadChain {
 		RecoverDownloadingItems()
 		*recoveryDone = true
 	}

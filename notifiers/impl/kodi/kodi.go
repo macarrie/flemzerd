@@ -120,6 +120,15 @@ func (k *KodiNotifier) Send(notif Notification) error {
 		}
 		content = "Download failed"
 
+	case NOTIFICATION_NO_TORRENTS:
+		if notif.Episode.ID != 0 {
+			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
+		}
+		if notif.Movie.ID != 0 {
+			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
+		}
+		content = "No torrents found"
+
 	default:
 		return fmt.Errorf("Unable to send notification: Unknown notification type (%d)", notif.Type)
 	}

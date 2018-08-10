@@ -85,6 +85,11 @@ func getSeasonDetails(c *gin.Context) {
 
 	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"show":   show.OriginalName,
+			"season": seasonNumber,
+			"error":  err,
+		}).Warning("Encountered error when querying season details from TMDB")
 		c.JSON(http.StatusInternalServerError, gin.H{})
 		return
 	}
