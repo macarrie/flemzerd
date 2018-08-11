@@ -29,15 +29,37 @@
                (click)="restoreMovie(movie)">
                 <i class="material-icons">undo</i>Restore
             </a>
+            <a class="btn text-light float-right"
+               *ngIf="movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
+               (click)="changeDownloadedState(movie, false)">
+                <i class="material-icons">cloud_off</i>
+                Unmark as downloaded
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
+               (click)="changeDownloadedState(movie, true)">
+                <i class="material-icons">check</i>
+                Mark as downloaded
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="movie.UseDefaultTitle"
+               (click)="useDefaultTitle(movie, false)">
+                <i class="material-icons">flip_to_front</i>Use original title
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="!movie.UseDefaultTitle"
+               (click)="useDefaultTitle(movie, true)">
+                <i class="material-icons">flip_to_back</i>Use default title
+            </a>
         </div>
     </div>
     <div class="container mediadetails">
         <div class="row">
             <div class="col-4">
-                <img class="rounded" width="100%" [attr.src]="movie.Poster" [attr.alt]="movie.OriginalTitle">
+                <img class="rounded" width="100%" [attr.src]="movie.Poster" [attr.alt]="movie.Title">
             </div>
             <div class="col-8 pl-0 pr-5">
-                <span class="h2">{{ movie.OriginalTitle }} </span> <span class="h3 text-muted">({{ utils.getYear(movie.Date) }})</span>
+                <span class="h2">{{ getTitle(movie) }} </span> <span class="h3 text-muted">({{ utils.getYear(movie.Date) }})</span>
 
                 <div class="p-3">
                     See on

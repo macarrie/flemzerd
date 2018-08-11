@@ -7,4 +7,5 @@ export class TvShow {
     MediaIds;
     Seasons;
     DownloadingItem;
+    UseDefaultTitle :boolean;
 }

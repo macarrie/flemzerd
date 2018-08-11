@@ -89,7 +89,7 @@ func abortMovieDownload(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
-func changeMovieDownloadedState(c *gin.Context) {
+func updateMovie(c *gin.Context) {
 	id := c.Param("id")
 	var movie Movie
 	req := db.Client.Find(&movie, id)
@@ -98,10 +98,10 @@ func changeMovieDownloadedState(c *gin.Context) {
 		return
 	}
 
-	var itemInfo DownloadingItem
-	c.Bind(&itemInfo)
+	var movieFromRequest Movie
+	c.Bind(&movieFromRequest)
 
-	movie.DownloadingItem.Downloaded = itemInfo.Downloaded
+	movie = movieFromRequest
 	db.Client.Save(&movie)
 
 	c.JSON(http.StatusOK, movie)

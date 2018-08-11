@@ -61,4 +61,11 @@ export class TvshowsService {
             return this.http.post('/api/v1/tvshows/restore/' + id, {});
         }
     }
+
+    useDefaultTitle(show :TvShow, useDefault :boolean) :Observable<TvShow>{
+        if (show.ID != 0) {
+            show.UseDefaultTitle = useDefault;
+            return this.http.put<TvShow>('/api/v1/tvshows/details/' + show.ID, show);
+        }
+    }
 }

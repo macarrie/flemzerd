@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+import { Movie } from '../movie';
+import { TvShow } from '../tvshow';
 import { Notification } from '../notification';
 import { Const } from '../const';
 
@@ -28,6 +30,22 @@ export class NotificationComponent implements OnInit {
         this.notificationsService.changeReadState(notif, read).subscribe(notif => {
             this.notificationsService.getNotifications();
         });
+    }
+
+    getShowTitle(show :TvShow) :string {
+        if (show.UseDefaultTitle) {
+            return show.Name;
+        }
+
+        return show.OriginalName;
+    }
+
+    getMovieTitle(movie :Movie) :string {
+        if (movie.UseDefaultTitle) {
+            return movie.Title;
+        }
+
+        return movie.OriginalTitle;
     }
 
     getStatusPill(n :Notification) {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -115,18 +116,18 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
 	log.WithFields(log.Fields{
 		"id":       tvShow.Model.ID,
-		"name":     tvShow.OriginalName,
+		"name":     media_helper.GetShowTitle(tvShow),
 		"provider": module.Name,
 	}).Debug("Retrieving episodes list for a tv show")
 
-	tvShowSearchResult, err := tvdbProvider.Client.BestSearch(tvShow.OriginalName)
+	tvShowSearchResult, err := tvdbProvider.Client.BestSearch(media_helper.GetShowTitle(tvShow))
 	if err != nil {
-		return []Episode{}, handleTvShowNotFoundError(tvShow.OriginalName, err)
+		return []Episode{}, handleTvShowNotFoundError(media_helper.GetShowTitle(tvShow), err)
 	} else {
 		err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{})
 		if err != nil {
 			log.WithFields(log.Fields{
-				"tvshow_name": tvShow.OriginalName,
+				"tvshow_name": media_helper.GetShowTitle(tvShow),
 				"id":          tvShow.Model.ID,
 				"provider":    module.Name,
 				"error":       err,
@@ -134,7 +135,7 @@ func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) 
 			return []Episode{}, errors.Wrap(err, "cannot get show episodes from TVDB")
 		} else {
 			log.WithFields(log.Fields{
-				"name":      tvShow.OriginalName,
+				"name":      media_helper.GetShowTitle(tvShow),
 				"tvshow_id": tvShow.Model.ID,
 				"provider":  module.Name,
 			}).Debug("Episodes found")
@@ -154,7 +155,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.OriginalName,
+			"tvshow_name": media_helper.GetShowTitle(tvShow),
 			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"error":       err,
@@ -162,7 +163,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 		return []Episode{}, errors.Wrap(err, "cannot get episodes from TVDB")
 	} else {
 		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.OriginalName,
+			"tvshow_name": media_helper.GetShowTitle(tvShow),
 			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 		}).Debug("Getting list of episodes that haven't be aired yet")
@@ -170,7 +171,7 @@ func (tvdbProvider *TVDBProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, err
 		futureEpisodes := filterEpisodesAiredBetweenDates(episodes, &now, nil)
 
 		log.WithFields(log.Fields{
-			"tvshow_name":    tvShow.OriginalName,
+			"tvshow_name":    media_helper.GetShowTitle(tvShow),
 			"id":             tvShow.Model.ID,
 			"nb_of_episodes": len(futureEpisodes),
 			"provider":       module.Name,
@@ -184,7 +185,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	episodes, err := tvdbProvider.GetEpisodes(tvShow)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.OriginalName,
+			"tvshow_name": media_helper.GetShowTitle(tvShow),
 			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"error":       err,
@@ -192,7 +193,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		return []Episode{}, errors.Wrap(err, "cannot get recent episodes from TVDB")
 	}
 	log.WithFields(log.Fields{
-		"tvshow_name": tvShow.OriginalName,
+		"tvshow_name": media_helper.GetShowTitle(tvShow),
 		"id":          tvShow.Model.ID,
 		"provider":    module.Name,
 	}).Debug("Getting list of episodes that haven recently been aired")
@@ -203,7 +204,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	recentlyAiredEpisodes := filterEpisodesAiredBetweenDates(episodes, &oldestDate, &now)
 
 	log.WithFields(log.Fields{
-		"tvshow_name":    tvShow.OriginalName,
+		"tvshow_name":    media_helper.GetShowTitle(tvShow),
 		"id":             tvShow.Model.ID,
 		"nb_of_episodes": len(recentlyAiredEpisodes),
 		"provider":       module.Name,

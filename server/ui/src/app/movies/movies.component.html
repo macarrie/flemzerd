@@ -43,7 +43,7 @@
                         <ng-container *ngIf="!movie.DeletedAt && !movie.DownloadingItem.AbortPending">
                             <td>
                                 <a routerLink="/movies/{{ movie.ID }}">
-                                    {{ movie.OriginalTitle }} ({{ utils.getYear(movie.Date) }})
+                                    {{ getTitle(movie) }} ({{ utils.getYear(movie.Date) }})
                                 </a>
                             </td>
                             <td>

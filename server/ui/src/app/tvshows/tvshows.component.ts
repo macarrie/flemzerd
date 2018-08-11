@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { takeUntil  } from 'rxjs/operators'; // for rxjs ^5.5.0 lettable operators
 
 import { TvShow } from '../tvshow';
 import { Episode } from '../episode';
@@ -15,7 +16,9 @@ import { ConfigService } from '../config.service';
     templateUrl: './tvshows.component.html',
     styleUrls: ['../media.miniatures.scss']
 })
-export class TvshowsComponent implements OnInit {
+export class TvshowsComponent implements OnInit, OnDestroy {
+    private subs :Subject<any> = new Subject();
+
     trackedShows :TvShow[];
     removedShows :TvShow[];
     downloadingEpisodes :Episode[];
@@ -33,19 +36,19 @@ export class TvshowsComponent implements OnInit {
         private episodeService :EpisodeService,
         private utils :UtilsService
     ) {
-        tvshowsService.trackedShows.subscribe(shows => {
+        tvshowsService.trackedShows.pipe(takeUntil(this.subs)).subscribe(shows => {
             this.trackedShows = shows;
         });
-        tvshowsService.removedShows.subscribe(shows => {
+        tvshowsService.removedShows.pipe(takeUntil(this.subs)).subscribe(shows => {
             this.removedShows = shows;
         });
-        episodeService.downloadingEpisodes.subscribe(episodes => {
+        episodeService.downloadingEpisodes.pipe(takeUntil(this.subs)).subscribe(episodes => {
             this.downloadingEpisodes = episodes;
         });
-        tvshowsService.refreshing.subscribe(bool => {
+        tvshowsService.refreshing.pipe(takeUntil(this.subs)).subscribe(bool => {
             this.refreshing = bool;
         });
-        configService.config.subscribe(cfg => {
+        configService.config.pipe(takeUntil(this.subs)).subscribe(cfg => {
             this.config = cfg;
         });
     }
@@ -64,6 +67,16 @@ export class TvshowsComponent implements OnInit {
 
     ngOnDestroy() {
         clearInterval(this.showsRefresh);
+        this.subs.next();
+        this.subs.complete();
+    }
+
+    getTitle(show :TvShow) :string {
+        if (show.UseDefaultTitle) {
+            return show.Name;
+        }
+
+        return show.OriginalName;
     }
 
     refreshTvShows() :void {

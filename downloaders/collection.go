@@ -9,6 +9,7 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	notifier "github.com/macarrie/flemzerd/notifiers"
@@ -125,7 +126,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 
 	// If function has not returned yet, download ended with no errors !
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.OriginalName,
+		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -140,7 +141,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 	err = MoveEpisodeToLibrary(e)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":           e.TvShow.OriginalName,
+			"show":           media_helper.GetShowTitle(e.TvShow),
 			"episode":        e.Name,
 			"season":         e.Season,
 			"number":         e.Number,
@@ -195,7 +196,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 
 	// If function has not returned yet, download ended with no errors !
 	log.WithFields(log.Fields{
-		"name": m.OriginalTitle,
+		"name": media_helper.GetMovieTitle(*m),
 	}).Info("Movie successfully downloaded")
 	notifier.NotifyDownloadedMovie(m)
 
@@ -207,7 +208,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 	err = MoveMovieToLibrary(m)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"movie":          m.OriginalTitle,
+			"movie":          media_helper.GetMovieTitle(*m),
 			"temporary_path": m.DownloadingItem.CurrentTorrent.DownloadDir,
 			"library_path":   configuration.Config.Library.MoviePath,
 			"error":          err,
@@ -262,7 +263,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 	}
 
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.OriginalName,
+		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -296,7 +297,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
-				"show":   e.TvShow.OriginalName,
+				"show":   media_helper.GetShowTitle(e.TvShow),
 				"season": e.Season,
 				"number": e.Number,
 				"name":   e.Name,
@@ -343,7 +344,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 	}
 
 	log.WithFields(log.Fields{
-		"name": m.OriginalTitle,
+		"name": media_helper.GetMovieTitle(m),
 	}).Info("Starting download process")
 
 	m.DownloadingItem.Pending = false
@@ -374,7 +375,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
-				"movie": m.OriginalTitle,
+				"movie": media_helper.GetMovieTitle(m),
 			}).Info("Download manually aborted. Cleaning up current download artifacts.")
 
 			currentDownloadPath := m.DownloadingItem.CurrentTorrent.DownloadDir
@@ -413,7 +414,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 func AbortEpisodeDownload(e *Episode) {
 	log.WithFields(log.Fields{
 		"id":      e.ID,
-		"show":    e.TvShow.OriginalName,
+		"show":    media_helper.GetShowTitle(e.TvShow),
 		"episode": e.Name,
 		"season":  e.Season,
 		"number":  e.Number,
@@ -436,7 +437,7 @@ func AbortEpisodeDownload(e *Episode) {
 func AbortMovieDownload(m *Movie) {
 	log.WithFields(log.Fields{
 		"id":    m.ID,
-		"title": m.OriginalTitle,
+		"title": media_helper.GetMovieTitle(*m),
 	}).Info("Aborting movie download")
 
 	if !m.DownloadingItem.Pending {
@@ -455,7 +456,7 @@ func AbortMovieDownload(m *Movie) {
 
 func MarkEpisodeFailedDownload(e *Episode) {
 	log.WithFields(log.Fields{
-		"show":   e.TvShow.OriginalName,
+		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
 		"name":   e.Name,
@@ -470,7 +471,7 @@ func MarkEpisodeFailedDownload(e *Episode) {
 
 func MarkMovieFailedDownload(m *Movie) {
 	log.WithFields(log.Fields{
-		"movie": m.OriginalTitle,
+		"movie": media_helper.GetMovieTitle(*m),
 	}).Error("Download failed, no torrents could be downloaded")
 
 	notifier.NotifyFailedMovie(m)
@@ -487,7 +488,7 @@ func sanitizeStringForFilename(src string) string {
 
 func MoveEpisodeToLibrary(episode *Episode) error {
 	log.WithFields(log.Fields{
-		"show":           episode.TvShow.OriginalName,
+		"show":           media_helper.GetShowTitle(episode.TvShow),
 		"episode":        episode.Name,
 		"season":         episode.Season,
 		"number":         episode.Number,
@@ -495,7 +496,7 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		"library_path":   configuration.Config.Library.ShowPath,
 	}).Debug("Moving episode to library")
 
-	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(episode.TvShow.OriginalName), episode.Season, episode.Season, episode.Number)
+	destinationPath := fmt.Sprintf("%s/%s/Season %d/s%02de%02d", configuration.Config.Library.ShowPath, sanitizeStringForFilename(media_helper.GetShowTitle(episode.TvShow)), episode.Season, episode.Season, episode.Number)
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return errors.Wrap(err, "Could not create library folder for episode")
@@ -523,12 +524,12 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 
 func MoveMovieToLibrary(movie *Movie) error {
 	log.WithFields(log.Fields{
-		"movie":          movie.OriginalTitle,
+		"movie":          media_helper.GetMovieTitle(*movie),
 		"temporary_path": movie.DownloadingItem.CurrentTorrent.DownloadDir,
 		"library_path":   configuration.Config.Library.MoviePath,
 	}).Debug("Moving movie to library")
 
-	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(movie.OriginalTitle))
+	destinationPath := fmt.Sprintf("%s/%s", configuration.Config.Library.MoviePath, sanitizeStringForFilename(media_helper.GetMovieTitle(*movie)))
 	err := os.MkdirAll(destinationPath, 0755)
 	if err != nil {
 		return errors.Wrap(err, "Could not create library folder for movie")

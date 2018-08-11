@@ -5,6 +5,7 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 	kodi_helper "github.com/macarrie/flemzerd/helpers/kodi"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -85,38 +86,38 @@ func (k *KodiNotifier) Send(notif Notification) error {
 
 	switch notif.Type {
 	case NOTIFICATION_NEW_EPISODE:
-		title = fmt.Sprintf("%v S%03dE%03d ", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
+		title = fmt.Sprintf("%v S%03dE%03d ", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
 		content = "Episode aired"
 
 	case NOTIFICATION_NEW_MOVIE:
-		title = fmt.Sprintf("%s", notif.Movie.OriginalTitle)
+		title = fmt.Sprintf("%s", media_helper.GetMovieTitle(notif.Movie))
 		content = "Movie found in watchlists"
 
 	case NOTIFICATION_DOWNLOAD_START:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
+			title = fmt.Sprintf("%v", media_helper.GetMovieTitle(notif.Movie))
 		}
 		content = "Starting download"
 
 	case NOTIFICATION_DOWNLOAD_SUCCESS:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
 			content = "Episode downloaded"
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
+			title = fmt.Sprintf("%v", media_helper.GetMovieTitle(notif.Movie))
 			content = "Movie downloaded"
 		}
 
 	case NOTIFICATION_DOWNLOAD_FAILURE:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalName, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
+			title = fmt.Sprintf("%v", media_helper.GetMovieTitle(notif.Movie))
 		}
 		content = "Download failed"
 

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable, of, Subject } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { takeUntil  } from 'rxjs/operators'; // for rxjs ^5.5.0 lettable operators
 
 import { ConfigService } from '../config.service';
 
@@ -9,8 +10,11 @@ import { ConfigService } from '../config.service';
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
+    private subs :Subject<any> = new Subject();
+
     config :any;
+
     trakt_auth :boolean = false;
     trakt_device_code :any;
     trakt_token :any;
@@ -20,7 +24,7 @@ export class SettingsComponent implements OnInit {
         private configService :ConfigService,
         private http :HttpClient
     ) {
-        configService.config.subscribe(cfg => {
+        configService.config.pipe(takeUntil(this.subs)).subscribe(cfg => {
             this.config = cfg;
         });
     }
@@ -28,6 +32,11 @@ export class SettingsComponent implements OnInit {
     ngOnInit() {
         this.configService.getConfig();
         this.GetTraktToken();
+    }
+
+    ngOnDestroy() {
+        this.subs.next();
+        this.subs.complete();
     }
 
     keys(obj :any) {

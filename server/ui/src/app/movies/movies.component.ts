@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
+import { takeUntil  } from 'rxjs/operators'; // for rxjs ^5.5.0 lettable operators
 
 import { Movie } from '../movie';
 
@@ -13,7 +14,9 @@ import { ConfigService } from '../config.service';
     templateUrl: './movies.component.html',
     styleUrls: ['../media.miniatures.scss']
 })
-export class MoviesComponent implements OnInit {
+export class MoviesComponent implements OnInit, OnDestroy {
+    private subs :Subject<any> = new Subject();
+
     trackedMovies :Movie[];
     removedMovies :Movie[];
     downloadedMovies :Movie[];
@@ -32,22 +35,22 @@ export class MoviesComponent implements OnInit {
         private movieService :MovieService,
         private utils :UtilsService
     ) {
-        movieService.trackedMovies.subscribe(movies => {
+        movieService.trackedMovies.pipe(takeUntil(this.subs)).subscribe(movies => {
             this.trackedMovies = movies;
         });
-        movieService.removedMovies.subscribe(movies => {
+        movieService.removedMovies.pipe(takeUntil(this.subs)).subscribe(movies => {
             this.removedMovies = movies;
         });
-        movieService.downloadedMovies.subscribe(movies => {
+        movieService.downloadedMovies.pipe(takeUntil(this.subs)).subscribe(movies => {
             this.downloadedMovies = movies;
         });
-        movieService.downloadingMovies.subscribe(movies => {
+        movieService.downloadingMovies.pipe(takeUntil(this.subs)).subscribe(movies => {
             this.downloadingMovies = movies;
         });
-        movieService.refreshing.subscribe(bool => {
+        movieService.refreshing.pipe(takeUntil(this.subs)).subscribe(bool => {
             this.refreshing = bool;
         });
-        configService.config.subscribe(cfg => {
+        configService.config.pipe(takeUntil(this.subs)).subscribe(cfg => {
             this.config = cfg;
         });
     }
@@ -63,6 +66,8 @@ export class MoviesComponent implements OnInit {
 
     ngOnDestroy() {
         clearInterval(this.moviesRefresh);
+        this.subs.next();
+        this.subs.complete();
     }
 
     refreshMovies() :void {
@@ -80,21 +85,13 @@ export class MoviesComponent implements OnInit {
         });
     }
 
-    //getTrackedMovies() :void {
-    //this.movieService.getTrackedMovies().subscribe(movies => this.trackedMovies = movies);
-    //}
+    getTitle(movie :Movie) :string {
+        if (movie.UseDefaultTitle) {
+            return movie.Title;
+        }
 
-    //getRemovedMovies() :void {
-    //this.movieService.getRemovedMovies().subscribe(movies => this.removedMovies = movies);
-    //}
-
-    //getDownloadedMovies() :void {
-    //this.movieService.getDownloadedMovies().subscribe(movies => this.downloadedMovies = movies);
-    //}
-
-    //getDownloadingMovies() :void {
-    //this.movieService.getDownloadingMovies().subscribe(movies => this.downloadingMovies = movies);
-    //}
+        return movie.OriginalTitle;
+    }
 
     stopDownload(movie :Movie) :void {
         movie.DownloadingItem.AbortPending = true;

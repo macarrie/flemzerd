@@ -11,6 +11,7 @@ import { TvshowsService } from '../tvshows.service';
 import { EpisodeService } from '../episode.service';
 import { FanartService } from '../fanart.service';
 import { UtilsService } from '../utils.service';
+import { ConfigService } from '../config.service';
 
 @Component({
     selector: 'app-tv-show-details',
@@ -23,17 +24,33 @@ export class TvShowDetailsComponent implements OnInit {
     background_image :string;
     showStatusClasses = {};
 
+    config :any;
+
     constructor(
         private tvshowsService :TvshowsService,
         private episodeService :EpisodeService,
         private fanartService :FanartService,
+        private configService :ConfigService,
         private utils :UtilsService,
         private route :ActivatedRoute,
         private location :Location
-    ) {}
+    ) {
+        configService.config.subscribe(cfg => {
+            this.config = cfg;
+        });
+    }
 
     ngOnInit() {
+        this.configService.getConfig();
         this.getShow();
+    }
+
+    getTitle(show :TvShow) :string {
+        if (show.UseDefaultTitle) {
+            return show.Name;
+        }
+
+        return show.OriginalName;
     }
 
     getShow() :void {
@@ -61,6 +78,12 @@ export class TvShowDetailsComponent implements OnInit {
                     });
                 }
             }
+        });
+    }
+
+    useDefaultTitle(show :TvShow, defaultTitle :boolean) {
+        this.tvshowsService.useDefaultTitle(show, defaultTitle).subscribe(show => {
+            this.getShow();
         });
     }
 

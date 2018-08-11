@@ -7,4 +7,5 @@ export class Movie {
     MediaIds;
     Seasons;
     DownloadingItem;
+    UseDefaultTitle :boolean;
 }
