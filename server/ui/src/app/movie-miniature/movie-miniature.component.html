@@ -5,7 +5,7 @@
                     width="100%"
                     [attr.src]="movie.Poster"
                     [class.black_and_white]="movie.DeletedAt != null || movie.DownloadingItem.Downloaded"
-                    [attr.alt]="movie.OriginalTitle">
+                    [attr.alt]="movie.Title">
             <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red"
                  *ngIf="movie.DeletedAt != null">
                 <span>

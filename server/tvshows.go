@@ -12,6 +12,7 @@ import (
 	"github.com/macarrie/flemzerd/scheduler"
 
 	"github.com/macarrie/flemzerd/db"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -64,6 +65,24 @@ func getShowDetails(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
+	c.JSON(http.StatusOK, show)
+}
+
+func updateShow(c *gin.Context) {
+	id := c.Param("id")
+	var show TvShow
+	req := db.Client.Find(&show, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var showFromRequest TvShow
+	c.Bind(&showFromRequest)
+
+	show = showFromRequest
+	db.Client.Save(&show)
+
 	c.JSON(http.StatusOK, show)
 }
 
@@ -151,7 +170,7 @@ func downloadEpisode(c *gin.Context) {
 
 	log.WithFields(log.Fields{
 		"id":      id,
-		"show":    ep.TvShow.OriginalName,
+		"show":    media_helper.GetShowTitle(ep.TvShow),
 		"episode": ep.Name,
 		"season":  ep.Season,
 		"number":  ep.Number,

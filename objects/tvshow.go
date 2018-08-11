@@ -27,6 +27,7 @@ type TvShow struct {
 	NumberOfEpisodes int
 	NumberOfSeasons  int
 	Seasons          []TvSeason
+	UseDefaultTitle  bool
 }
 
 type TvSeason struct {

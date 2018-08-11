@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/macarrie/flemzerd/configuration"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
@@ -104,11 +105,11 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 			continue
 		}
 
-		indexerSearch, err := ind.GetTorrentForMovie(movie.OriginalTitle)
+		indexerSearch, err := ind.GetTorrentForMovie(media_helper.GetMovieTitle(movie))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"indexer": indexer.GetName(),
-				"movie":   movie.OriginalTitle,
+				"movie":   media_helper.GetMovieTitle(movie),
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
@@ -119,12 +120,12 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 			torrentList = append(torrentList, indexerSearch...)
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movie.OriginalTitle,
+				"movie":   media_helper.GetMovieTitle(movie),
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"movie":   movie.OriginalTitle,
+				"movie":   media_helper.GetMovieTitle(movie),
 			}).Info("No torrents found")
 		}
 	}

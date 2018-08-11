@@ -29,6 +29,14 @@ export class MovieDetailsComponent implements OnInit {
         this.getMovie();
     }
 
+    getTitle(movie :Movie) :string {
+        if (movie.UseDefaultTitle) {
+            return movie.Title;
+        }
+
+        return movie.OriginalTitle;
+    }
+
     getMovie() :void {
         const id = +this.route.snapshot.paramMap.get('id');
         this.movieService.getMovie(id).subscribe(movie => {
@@ -56,6 +64,12 @@ export class MovieDetailsComponent implements OnInit {
 
     changeDownloadedState(m :Movie, downloaded :boolean) {
         this.movieService.changeDownloadedState(m, downloaded).subscribe(movie => {
+            this.getMovie();
+        });
+    }
+
+    useDefaultTitle(m :Movie, defaultTitle :boolean) {
+        this.movieService.useDefaultTitle(m, defaultTitle).subscribe(movie => {
             this.getMovie();
         });
     }

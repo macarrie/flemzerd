@@ -34,7 +34,7 @@ export class AppComponent {
         this.notificationsService.getNotifications();
         this.notificationsRefresh = setInterval(() => {
             this.notificationsService.getNotifications();
-        }, 10000);
+        }, 30000);
 
         this.configService.getConfig();
         this.configRefresh = setInterval(() => {

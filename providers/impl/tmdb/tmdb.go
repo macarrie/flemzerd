@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	tmdb "github.com/ryanbradynd05/go-tmdb"
@@ -87,7 +88,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
 func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	if tvShow.MediaIds.Tmdb == 0 {
-		results, err := tmdbProvider.Client.SearchTv(tvShow.OriginalName, nil)
+		results, err := tmdbProvider.Client.SearchTv(media_helper.GetShowTitle(tvShow), nil)
 		if err != nil {
 			return []Episode{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
@@ -107,7 +108,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	season, err := tmdbProvider.Client.GetTvSeasonInfo(show.ID, show.NumberOfSeasons, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"tvshow_name": tvShow.OriginalName,
+			"tvshow_name": media_helper.GetShowTitle(tvShow),
 			"id":          tvShow.Model.ID,
 			"provider":    module.Name,
 			"season":      show.NumberOfSeasons,
@@ -129,7 +130,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		externalids, err := tmdbProvider.Client.GetTvEpisodeExternalIds(show.ID, ep.Season, ep.Number, nil)
 		if err != nil {
 			log.WithFields(log.Fields{
-				"tvshow_name": tvShow.OriginalName,
+				"tvshow_name": media_helper.GetShowTitle(tvShow),
 				"id":          tvShow.Model.ID,
 				"provider":    module.Name,
 				"season":      ep.Season,
@@ -178,6 +179,10 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 	results, err := tmdbProvider.Client.GetTvSeasonInfo(show.MediaIds.Tmdb, seasonNumber, nil)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"show":   media_helper.GetShowTitle(show),
+			"season": seasonNumber,
+		}).Warning("Encountered error when querying season details from TMDB")
 		return []Episode{}, errors.Wrap(err, "cannot get show season info from TMDB")
 	}
 

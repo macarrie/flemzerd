@@ -66,9 +66,15 @@ export class MovieService {
 
     changeDownloadedState(m :Movie, downloaded :boolean) :Observable<Movie>{
         if (m.ID != 0) {
-            return this.http.put<Movie>('/api/v1/movies/details/' + m.ID, {
-                "Downloaded": downloaded
-            });
+            m.DownloadingItem.Downloaded = downloaded;
+            return this.http.put<Movie>('/api/v1/movies/details/' + m.ID, m);
+        }
+    }
+
+    useDefaultTitle(m :Movie, useDefault :boolean) :Observable<Movie>{
+        if (m.ID != 0) {
+            m.UseDefaultTitle = useDefault;
+            return this.http.put<Movie>('/api/v1/movies/details/' + m.ID, m);
         }
     }
 

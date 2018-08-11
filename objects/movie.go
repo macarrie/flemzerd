@@ -18,4 +18,5 @@ type Movie struct {
 	Notified          bool
 	DownloadingItem   DownloadingItem
 	DownloadingItemID int
+	UseDefaultTitle   bool
 }

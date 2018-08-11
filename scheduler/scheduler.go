@@ -32,6 +32,7 @@ import (
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -318,7 +319,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 	if episode.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
-			"show":   episode.TvShow.OriginalName,
+			"show":   media_helper.GetShowTitle(episode.TvShow),
 			"number": episode.Number,
 			"season": episode.Season,
 			"name":   episode.Name,
@@ -328,7 +329,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 	if episode.DownloadingItem.Downloading {
 		log.WithFields(log.Fields{
-			"show":   episode.TvShow.OriginalName,
+			"show":   media_helper.GetShowTitle(episode.TvShow),
 			"number": episode.Number,
 			"season": episode.Season,
 			"name":   episode.Name,
@@ -339,7 +340,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	episode.DownloadingItem.Pending = true
 	db.Client.Save(&episode)
 
-	torrentList, err := indexer.GetTorrentForEpisode(episode.TvShow.OriginalName, episode.Season, episode.Number)
+	torrentList, err := indexer.GetTorrentForEpisode(media_helper.GetShowTitle(episode.TvShow), episode.Season, episode.Number)
 	if err != nil {
 		log.Warning(err)
 		return
@@ -352,7 +353,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	toDownload := downloader.FillEpisodeToDownloadTorrentList(&episode, torrentList)
 	if len(toDownload) == 0 {
 		log.WithFields(log.Fields{
-			"show":    episode.TvShow.OriginalName,
+			"show":    media_helper.GetShowTitle(episode.TvShow),
 			"episode": episode.Name,
 			"nb":      len(torrentList),
 		}).Warning("No torrents found")
@@ -393,14 +394,14 @@ func DownloadEpisode(episode Episode, recovery bool) {
 func DownloadMovie(movie Movie, recovery bool) {
 	if movie.DownloadingItem.Downloaded {
 		log.WithFields(log.Fields{
-			"movie": movie.OriginalTitle,
+			"movie": media_helper.GetMovieTitle(movie),
 		}).Debug("Movie already downloaded, nothing to do")
 		return
 	}
 
 	if movie.DownloadingItem.Downloading {
 		log.WithFields(log.Fields{
-			"movie": movie.OriginalTitle,
+			"movie": media_helper.GetMovieTitle(movie),
 		}).Debug("Movie already being downloaded, nothing to do")
 		return
 	}
@@ -420,7 +421,7 @@ func DownloadMovie(movie Movie, recovery bool) {
 	toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
 	if len(toDownload) == 0 {
 		log.WithFields(log.Fields{
-			"movie": movie.OriginalTitle,
+			"movie": media_helper.GetMovieTitle(movie),
 			"nb":    len(torrentList),
 		}).Debug("Torrents found")
 
@@ -556,7 +557,7 @@ func poll(recoveryDone *bool) {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-					"show":  show.OriginalName,
+					"show":  media_helper.GetShowTitle(show),
 				}).Warning("No recent episodes found")
 				continue
 			}
@@ -591,7 +592,7 @@ func poll(recoveryDone *bool) {
 		for _, movie := range provider.Movies {
 			if movie.Date.After(time.Now()) {
 				log.WithFields(log.Fields{
-					"movie":        movie.OriginalTitle,
+					"movie":        media_helper.GetMovieTitle(movie),
 					"release_date": movie.Date,
 				}).Debug("Movie not yet released, ignoring")
 				continue
