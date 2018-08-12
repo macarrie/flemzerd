@@ -47,10 +47,10 @@ doc:
 
 
 install: build
-	cd package/$(PACKAGE_NAME)/install/ && sudo ./install.sh && cd ..
+	cd package/$(PACKAGE_NAME)/ && sudo ./install.sh && cd ..
 
 update: build
-	cd package/$(PACKAGE_NAME)/install/ && sudo ./update.sh && cd ..
+	cd package/$(PACKAGE_NAME)/ && sudo ./update.sh && cd ..
 
 test:
 	-rm -rf cover
