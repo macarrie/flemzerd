@@ -20,6 +20,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     trakt_token :any;
     trakt_auth_errors :any;
 
+    telegram_chat_id :number = 0;
+    telegram_auth_code :number = 0;
+
     constructor(
         private configService :ConfigService,
         private http :HttpClient
@@ -32,6 +35,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.configService.getConfig();
         this.GetTraktToken();
+        this.GetTelegramChatID();
     }
 
     ngOnDestroy() {
@@ -97,10 +101,52 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     GetTraktToken() {
         this.http.get("/api/v1/modules/watchlists/trakt/token").subscribe(response => {
-                if (response["access_token"] != "") {
-                    this.trakt_auth = true;
-                    this.trakt_token = response;
-                }
+            if (response["access_token"] != "") {
+                this.trakt_auth = true;
+                this.trakt_token = response;
+            }
+        });
+    };
+
+    GetTelegramChatID() {
+        this.http.get("/api/v1/modules/notifiers/telegram/chatid").subscribe(response => {
+            if (response["chat_id"] != 0) {
+                this.telegram_chat_id = response["chat_id"];
+            }
+        });
+    };
+
+    startTelegramAuth() {
+        this.http.get("/api/v1/modules/notifiers/telegram/auth", {observe: 'response'}).subscribe(response => {
+            if (response.status == 200) {
+                var waitForAuthCode = setInterval(() => {
+                    this.http.get("/api/v1/modules/notifiers/telegram/auth_code", {observe: 'response'}).subscribe(response => {
+                        if (response.body["auth_code"] != "") {
+                            this.telegram_auth_code = response.body["auth_code"];
+                            clearInterval(waitForAuthCode);
+                            var waitForChatID = setInterval(() => {
+                                this.GetTelegramChatID();
+
+                                if (this.telegram_chat_id != 0) {
+                                    clearInterval(waitForChatID);
+                                }
+                            }, 3000);
+                            setTimeout(function() {
+                                clearInterval(waitForChatID);
+                            }, 120 * 1000);
+                        }
+                    });
+                }, 2000);
+                setTimeout(function() {
+                    clearInterval(waitForAuthCode);
+                }, 10000);
+                return;
+            } else if (response.status == 204) {
+                console.log("Telegram auth already done");
+            } else {
+                console.log("Telegram auth error");
+            }
+            return;
         });
     };
 }
