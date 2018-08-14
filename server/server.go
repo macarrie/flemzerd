@@ -87,6 +87,13 @@ func initRouter() {
 			notifiers := modules.Group("/notifiers")
 			{
 				notifiers.GET("/status", getNotifiersStatus)
+
+				telegramRoutes := notifiers.Group("/telegram")
+				{
+					telegramRoutes.GET("/auth", performTelegramAuth)
+					telegramRoutes.GET("/chatid", getTelegramChatID)
+					telegramRoutes.GET("/auth_code", getTelegramAuthCode)
+				}
 			}
 
 			downloaders := modules.Group("/downloaders")

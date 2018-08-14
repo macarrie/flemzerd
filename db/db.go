@@ -165,7 +165,8 @@ func SaveTraktToken(token string) {
 	Client.Save(&Session)
 }
 
-// Gets trakt token stored in Session data struct
-func LoadTraktToken() string {
-	return Session.TraktToken
+// Saves given token as Trakt token in database
+func SaveTelegramChatID(chat_id int64) {
+	Session.TelegramChatID = chat_id
+	Client.Save(&Session)
 }
