@@ -46,7 +46,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 	p := getTVProvider()
 	if p != nil {
 		show, err := (*p).GetShow(ids)
-		show.MediaIds = ids
+		show.MediaIds = mergeMediaIds(ids, show.MediaIds)
 		if err != nil {
 			return TvShow{}, err
 		}
@@ -228,4 +228,48 @@ func getMovieProvider() *MovieProvider {
 		}
 	}
 	return nil
+}
+
+func mergeMediaIds(m1, m2 MediaIds) MediaIds {
+	merged := MediaIds{}
+
+	if m1.ID != 0 {
+		merged.ID = m1.ID
+	}
+	if m1.Name != "" {
+		merged.Name = m1.Name
+	}
+	if m1.Trakt != 0 {
+		merged.Trakt = m1.Trakt
+	}
+	if m1.Tmdb != 0 {
+		merged.Tmdb = m1.Tmdb
+	}
+	if m1.Imdb != "" {
+		merged.Imdb = m1.Imdb
+	}
+	if m1.Tvdb != 0 {
+		merged.Tvdb = m1.Tvdb
+	}
+
+	if merged.ID != 0 && m2.ID != 0 {
+		merged.ID = m2.ID
+	}
+	if merged.Name != "" && m2.Name != "" {
+		merged.Name = m2.Name
+	}
+	if merged.Trakt == 0 && m2.Trakt != 0 {
+		merged.Trakt = m2.Trakt
+	}
+	if merged.Tmdb == 0 && m2.Tmdb != 0 {
+		merged.Tmdb = m2.Tmdb
+	}
+	if merged.Imdb == "" && m2.Imdb != "" {
+		merged.Imdb = m2.Imdb
+	}
+	if merged.Tvdb == 0 && m2.Tvdb != 0 {
+		merged.Tvdb = m2.Tvdb
+	}
+
+	return merged
 }

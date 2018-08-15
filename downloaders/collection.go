@@ -295,7 +295,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 
 		var torrentDownload error
 		var downloadAborted bool
-		if recoveryDone {
+		if recoveryDone || !recovery {
 			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(&e, false, stopChannel)
 		} else {
 			recoveryDone = true
@@ -373,7 +373,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 
 		var torrentDownload error
 		var downloadAborted bool
-		if recoveryDone {
+		if recoveryDone || !recovery {
 			torrentDownload, downloadAborted = MovieHandleTorrentDownload(&m, false, stopChannel)
 		} else {
 			recoveryDone = true
