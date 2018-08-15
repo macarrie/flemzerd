@@ -177,6 +177,10 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 }
 
 func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	if show.MediaIds.Tmdb == 0 {
+		return []Episode{}, errors.New("No tmdb id found on show")
+	}
+
 	results, err := tmdbProvider.Client.GetTvSeasonInfo(show.MediaIds.Tmdb, seasonNumber, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -260,6 +264,9 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		Seasons:          seasons,
 		NumberOfSeasons:  tvShow.NumberOfSeasons,
 		NumberOfEpisodes: tvShow.NumberOfEpisodes,
+		MediaIds: MediaIds{
+			Tmdb: tvShow.ID,
+		},
 	}
 }
 

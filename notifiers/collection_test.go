@@ -95,7 +95,6 @@ func TestSendNotification(t *testing.T) {
 		t.Error("Expected to have no error when sending notifications")
 	}
 
-	fmt.Printf("NotifiersCollection: %+v\n", notifiersCollection)
 	notifiersCollection = []Notifier{MockErrorNotifier{}}
 	if err := SendNotification(notif); err == nil {
 		t.Error("Expected to have an error when sending notifications")

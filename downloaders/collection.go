@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -21,8 +22,11 @@ import (
 )
 
 var downloadersCollection []Downloader
+
 var EpisodeDownloadRoutines map[uint](chan bool)
 var MovieDownloadRoutines map[uint](chan bool)
+
+var downloadRoutinesMutex sync.Mutex
 
 func init() {
 	EpisodeDownloadRoutines = make(map[uint](chan bool))
@@ -229,6 +233,7 @@ func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool)
 			"torrent": t.Name,
 		}).Debug("Checking torrent download progress")
 
+		downloadRoutinesMutex.Lock()
 		// Check if download has been manually stopped
 		select {
 		case <-stopChannel:
@@ -238,6 +243,7 @@ func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool)
 				"torrent": t.Name,
 			}).Debug("Download in progress")
 		}
+		downloadRoutinesMutex.Unlock()
 
 		status, err := GetTorrentStatus(t)
 		if err != nil {
@@ -289,7 +295,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 
 		var torrentDownload error
 		var downloadAborted bool
-		if recoveryDone {
+		if recoveryDone || !recovery {
 			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(&e, false, stopChannel)
 		} else {
 			recoveryDone = true
@@ -367,7 +373,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 
 		var torrentDownload error
 		var downloadAborted bool
-		if recoveryDone {
+		if recoveryDone || !recovery {
 			torrentDownload, downloadAborted = MovieHandleTorrentDownload(&m, false, stopChannel)
 		} else {
 			recoveryDone = true
@@ -421,7 +427,10 @@ func AbortEpisodeDownload(e *Episode) {
 	}).Info("Aborting episode download")
 
 	if !e.DownloadingItem.Pending {
+		downloadRoutinesMutex.Lock()
 		close(EpisodeDownloadRoutines[e.ID])
+		downloadRoutinesMutex.Unlock()
+
 		e.DownloadingItem.AbortPending = true
 	} else {
 		e.DownloadingItem.AbortPending = false
@@ -441,7 +450,10 @@ func AbortMovieDownload(m *Movie) {
 	}).Info("Aborting movie download")
 
 	if !m.DownloadingItem.Pending {
+		downloadRoutinesMutex.Lock()
 		close(MovieDownloadRoutines[m.ID])
+		downloadRoutinesMutex.Unlock()
+
 		m.DownloadingItem.AbortPending = true
 	} else {
 		m.DownloadingItem.AbortPending = false
@@ -508,14 +520,6 @@ func MoveEpisodeToLibrary(episode *Episode) error {
 		return errors.Wrap(err, "Could not move episode to library")
 	}
 
-	err = os.Remove(episode.DownloadingItem.CurrentTorrent.DownloadDir)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"path":  episode.DownloadingItem.CurrentTorrent.DownloadDir,
-			"error": err,
-		}).Warning("Could not remove temporary folder for download")
-	}
-
 	episode.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath
 	db.Client.Save(episode)
 
@@ -539,14 +543,6 @@ func MoveMovieToLibrary(movie *Movie) error {
 	err = os.Rename(movie.DownloadingItem.CurrentTorrent.DownloadDir, target)
 	if err != nil {
 		return errors.Wrap(err, "Could not move movie to library")
-	}
-
-	err = os.Remove(movie.DownloadingItem.CurrentTorrent.DownloadDir)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"path":  movie.DownloadingItem.CurrentTorrent.DownloadDir,
-			"error": err,
-		}).Warning("Could not remove temporary folder for download")
 	}
 
 	movie.DownloadingItem.CurrentTorrent.DownloadDir = destinationPath

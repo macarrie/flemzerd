@@ -43,6 +43,7 @@ func Load() error {
 		log.Fatal("Cannot open db: ", err)
 	}
 	Client = dbObj.Set("gorm:auto_preload", true)
+	Client.DB().SetMaxOpenConns(1)
 
 	InitDb()
 

@@ -358,20 +358,24 @@ func DownloadEpisode(episode Episode, recovery bool) {
 			"nb":      len(torrentList),
 		}).Warning("No torrents found")
 
+		// Dont send notification when no torrents have been found on previous torrent download
+		if !episode.DownloadingItem.TorrentsNotFound {
+			if err := notifier.SendNotification(Notification{
+				Type:    NOTIFICATION_NO_TORRENTS,
+				Episode: episode,
+			}); err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Warning("Could not send 'no torrents found' notification")
+			} else {
+				episode.DownloadingItem.TorrentsNotFound = true
+			}
+		}
+
 		episode.DownloadingItem.Downloading = false
 		episode.DownloadingItem.Pending = false
-		episode.DownloadingItem.TorrentsNotFound = true
 		episode.DownloadingItem.Pending = false
 		db.Client.Save(&episode)
-
-		if err := notifier.SendNotification(Notification{
-			Type:    NOTIFICATION_NO_TORRENTS,
-			Episode: episode,
-		}); err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Warning("Could not send 'no torrents found' notification")
-		}
 
 		return
 	} else {
@@ -425,20 +429,23 @@ func DownloadMovie(movie Movie, recovery bool) {
 			"nb":    len(torrentList),
 		}).Debug("Torrents found")
 
+		if !movie.DownloadingItem.TorrentsNotFound {
+			if err := notifier.SendNotification(Notification{
+				Type:  NOTIFICATION_NO_TORRENTS,
+				Movie: movie,
+			}); err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Warning("Could not send 'no torrents found' notification")
+			} else {
+				movie.DownloadingItem.TorrentsNotFound = true
+			}
+		}
+
 		movie.DownloadingItem.Downloading = false
 		movie.DownloadingItem.Pending = false
-		movie.DownloadingItem.TorrentsNotFound = true
 		movie.DownloadingItem.Pending = false
 		db.Client.Save(&movie)
-
-		if err := notifier.SendNotification(Notification{
-			Type:  NOTIFICATION_NO_TORRENTS,
-			Movie: movie,
-		}); err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Warning("Could not send 'no torrents found' notification")
-		}
 
 		return
 	} else {

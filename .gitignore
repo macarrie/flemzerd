@@ -2,8 +2,10 @@
 # Test binary, build with `go test -c`
 *.test
 vendor/
+tmp/
 flemzerd
 server/ui/node_modules
+install/vidocq
 
 ### Intellij IDEA
 .idea/

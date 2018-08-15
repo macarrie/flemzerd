@@ -300,3 +300,24 @@ func TestGetProvider(t *testing.T) {
 		t.Error("MovieProvider retrieved from getMovieProvider is not of type MovieProvider")
 	}
 }
+
+func TestMergeMediaIds(t *testing.T) {
+	m1 := MediaIds{
+		Name: "test",
+		Tmdb: 1000,
+	}
+
+	m2 := MediaIds{
+		Tvdb: 1000,
+		Imdb: "test",
+	}
+
+	mergedIds := mergeMediaIds(m1, m2)
+
+	if mergedIds.Name != "test" {
+		t.Errorf("Expected merged IDs name to be 'test', got '%s' instead", mergedIds.Name)
+	}
+	if mergedIds.Tvdb != 1000 {
+		t.Errorf("Expected merged IDs TVDB ID to be '1000', got '%d' instead", mergedIds.Tvdb)
+	}
+}
