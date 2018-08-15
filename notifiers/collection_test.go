@@ -320,3 +320,15 @@ func TestNotifyDownloadStart(t *testing.T) {
 		t.Error("Expected error when notifying movie download start with MockErrorNotifier")
 	}
 }
+
+func TestGetNotifier(t *testing.T) {
+	notifiersCollection = []Notifier{MockNotifier{}}
+
+	if _, err := GetNotifier("Unknown"); err == nil {
+		t.Error("Expected to have error when getting unknown notifier, got none")
+	}
+
+	if _, err := GetNotifier("MockNotifier"); err != nil {
+		t.Errorf("Got error while retrieving known notifier: %s", err.Error())
+	}
+}

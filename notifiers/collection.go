@@ -4,6 +4,8 @@
 package notifier
 
 import (
+	"fmt"
+
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
@@ -217,4 +219,16 @@ func SendNotification(notif Notification) error {
 	}
 
 	return nil
+}
+
+// GetNotifier returns the registered notifier with name "name". An non-nil error is returned if no registered notifier are found with the required name
+func GetNotifier(name string) (Notifier, error) {
+	for _, n := range notifiersCollection {
+		mod, _ := n.Status()
+		if mod.Name == name {
+			return n, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Notifier %s not found in configuration", name)
 }

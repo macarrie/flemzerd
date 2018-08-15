@@ -199,6 +199,25 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item" *ngFor="let notifier of keys(config.Notifiers)">
                      {{ notifier }} 
+                    <span *ngIf="notifier == 'telegram' && telegram_chat_id"
+                    class="sans-serif text-success float-right font-weight-light font-italic">
+                        <small>
+                            configured
+                        </small>
+                    </span>
+                    <button *ngIf="notifier == 'telegram' && !telegram_chat_id"
+                    class="btn btn-outline-danger btn-sm float-right font-weight-light"
+                    (click)="startTelegramAuth()">
+                        Connect to Telegram
+                    </button>
+                    <div *ngIf="notifier == 'telegram'">
+                        <div *ngIf="!telegram_chat_id && telegram_auth_code">
+                            <hr />
+
+                            Send the following code to <code>@flemzerd_bot</code> Telegram bot to link flemzerd with Telegram
+                            <h5 class="font-weight-bold text-center text-info mt-2">{{ telegram_auth_code }}</h5>
+                        </div>
+                    </div>
                 </li>
             </ul>
         </div>

@@ -171,13 +171,7 @@ func TestGetDownloadedItems(t *testing.T) {
 	}
 }
 
-func TestTraktToken(t *testing.T) {
-	token := "test"
-
-	SaveTraktToken(token)
-
-	savedToken := LoadTraktToken()
-	if savedToken != token {
-		t.Errorf("Expected token from db to be %s, got %s instead", token, savedToken)
-	}
+func TestSaveTraktAndTelegramInfos(t *testing.T) {
+	SaveTraktToken("test")
+	SaveTelegramChatID(1234)
 }

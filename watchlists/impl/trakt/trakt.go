@@ -152,7 +152,7 @@ func New() (t *TraktWatchlist, err error) {
 	if token != "" {
 		t.Token.AccessToken = token
 	} else {
-		log.Warning("No Trakt token found. User will need to authorize access to Trakt")
+		log.Warning("No Trakt token found. User will need to authorize access to Trakt in UI")
 	}
 
 	module = Module{
