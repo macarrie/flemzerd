@@ -83,7 +83,6 @@ func NotifyEpisodeDownloadStart(episode *Episode) error {
 		Type:    NOTIFICATION_DOWNLOAD_START,
 		Episode: *episode,
 	}); err != nil {
-		return err
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 

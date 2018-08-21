@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -19,15 +20,15 @@ func init() {
 }
 
 func TestAddIndexer(t *testing.T) {
-	AddIndexer(MockTVIndexer{})
+	AddIndexer(mock.TVIndexer{})
 	if len(indexersCollection) != 1 {
 		t.Error("Indexer not added to list of indexers")
 	}
 }
 
 func TestStatus(t *testing.T) {
-	ind1 := MockTVIndexer{}
-	ind2 := MockMovieIndexer{}
+	ind1 := mock.TVIndexer{}
+	ind2 := mock.ErrorMovieIndexer{}
 
 	indexersCollection = []Indexer{ind1, ind2}
 
@@ -39,7 +40,7 @@ func TestStatus(t *testing.T) {
 		t.Error("Expected to have aggregated error for indexer status")
 	}
 
-	ind3 := MockOkTVIndexer{}
+	ind3 := mock.TVIndexer{}
 	indexersCollection = []Indexer{ind3}
 	mods, err = Status()
 	if err != nil {
@@ -48,7 +49,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	ind := MockMovieIndexer{}
+	ind := mock.MovieIndexer{}
 	AddIndexer(ind)
 	Reset()
 
@@ -58,10 +59,10 @@ func TestReset(t *testing.T) {
 }
 
 func TestGetTorrentForEpisode(t *testing.T) {
-	ind1 := MockTVIndexer{}
-	ind2 := MockTVIndexer{}
-	ind3 := MockMovieIndexer{}
-	ind4 := MockMovieIndexer{}
+	ind1 := mock.TVIndexer{}
+	ind2 := mock.TVIndexer{}
+	ind3 := mock.MovieIndexer{}
+	ind4 := mock.MovieIndexer{}
 	configuration.Config.System.PreferredMediaQuality = "720p"
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
@@ -98,10 +99,10 @@ func TestGetTorrentForEpisode(t *testing.T) {
 }
 
 func TestGetTorrentForMovie(t *testing.T) {
-	ind1 := MockTVIndexer{}
-	ind2 := MockTVIndexer{}
-	ind3 := MockMovieIndexer{}
-	ind4 := MockMovieIndexer{}
+	ind1 := mock.TVIndexer{}
+	ind2 := mock.TVIndexer{}
+	ind3 := mock.MovieIndexer{}
+	ind4 := mock.MovieIndexer{}
 	configuration.Config.System.PreferredMediaQuality = "720p"
 	movieDate := time.Date(2018, time.January, 10, 13, 0, 0, 0, time.UTC)
 
@@ -147,5 +148,18 @@ func TestMin(t *testing.T) {
 
 	if min(3, 2) != 2 {
 		t.Errorf("Expected min(3, 2) to be 2, got %d instead", min(3, 2))
+	}
+}
+
+func TestGetSpecificIndexer(t *testing.T) {
+	p := mock.TVIndexer{}
+	indexersCollection = []Indexer{p}
+
+	if _, err := GetIndexer("Unknown"); err == nil {
+		t.Error("Expected to have error when getting unknown indexer, got none")
+	}
+
+	if _, err := GetIndexer("TVIndexer"); err != nil {
+		t.Errorf("Got error while retrieving known indexer: %s", err.Error())
 	}
 }

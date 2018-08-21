@@ -13,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/go-telegram-bot-api/telegram-bot-api v0.0.0-20180328131029-0e0af0c480ea
 	github.com/golang/protobuf v1.1.0
+	github.com/hashicorp/errwrap v0.0.0-20180715044906-d6c0cd880357 // indirect
 	github.com/hashicorp/go-multierror v0.0.0-20180717150148-3d5d8f294aa0
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/jinzhu/gorm v1.9.1
@@ -22,6 +23,7 @@ require (
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
 	github.com/macarrie/transmission v0.0.0-20180521203359-2a6f6cd93675
 	github.com/magiconair/properties v1.8.0
+	github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739 // indirect
 	github.com/mattn/go-isatty v0.0.3
 	github.com/mattn/go-sqlite3 v1.7.0
 	github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675

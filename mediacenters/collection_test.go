@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/macarrie/flemzerd/db"
+	mock "github.com/macarrie/flemzerd/mocks"
 )
 
 func init() {
@@ -13,7 +14,7 @@ func init() {
 
 func TestAddMediaCenter(t *testing.T) {
 	mcLength := len(mediaCenterCollection)
-	m := MockMediaCenter{}
+	m := mock.MediaCenter{}
 	AddMediaCenter(m)
 
 	if len(mediaCenterCollection) != mcLength+1 {
@@ -22,8 +23,8 @@ func TestAddMediaCenter(t *testing.T) {
 }
 
 func TestStatus(t *testing.T) {
-	m1 := MockMediaCenter{}
-	m2 := MockMediaCenter{}
+	m1 := mock.MediaCenter{}
+	m2 := mock.MediaCenter{}
 
 	mediaCenterCollection = []MediaCenter{m1, m2}
 
@@ -35,7 +36,7 @@ func TestStatus(t *testing.T) {
 		t.Errorf("Expected to have 2 mediacenter modules status, got %d instead", len(mods))
 	}
 
-	AddMediaCenter(MockErrorMediaCenter{})
+	AddMediaCenter(mock.ErrorMediaCenter{})
 	_, err = Status()
 	if err == nil {
 		t.Error("Expected to have aggregated error for mediacenter status")
@@ -43,7 +44,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	m := MockMediaCenter{}
+	m := mock.MediaCenter{}
 	AddMediaCenter(m)
 	Reset()
 
@@ -55,13 +56,27 @@ func TestReset(t *testing.T) {
 func TestRefreshLibrary(t *testing.T) {
 	db.ResetDb()
 
-	refreshCounter = 0
-	AddMediaCenter(MockMediaCenter{})
-	AddMediaCenter(MockErrorMediaCenter{})
+	mc1 := mock.MediaCenter{}
+	count := mc1.GetRefreshCount()
+	AddMediaCenter(mc1)
+	AddMediaCenter(mock.ErrorMediaCenter{})
 	RefreshLibrary()
 
-	if refreshCounter != 1 {
-		t.Errorf("Expected library to have been refresh 1 time, got %d refresh instead", refreshCounter)
+	if mc1.GetRefreshCount() != count+1 {
+		t.Errorf("Expected library to have been refresh 1 time, got %d refresh instead", mc1.GetRefreshCount())
 	}
 
+}
+
+func TestGetMediaCenter(t *testing.T) {
+	mc1 := mock.MediaCenter{}
+	mediaCenterCollection = []MediaCenter{mc1}
+
+	if _, err := GetMediaCenter("Unknown"); err == nil {
+		t.Error("Expected to have error when getting unknown mediacenter, got none")
+	}
+
+	if _, err := GetMediaCenter("MediaCenter"); err != nil {
+		t.Errorf("Got error while retrieving known mediacenter: %s", err.Error())
+	}
 }

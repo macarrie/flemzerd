@@ -49,7 +49,7 @@ func TestLoad(t *testing.T) {
 	if len(Config.Providers) != 2 {
 		t.Error("Providers not correctly loaded")
 	}
-	if len(Config.Notifiers) != 2 {
+	if len(Config.Notifiers) != 3 {
 		t.Error("Notifiers not correctly loaded")
 	}
 	if len(Config.Indexers["torznab"]) != 2 {

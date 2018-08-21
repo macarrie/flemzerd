@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -23,14 +24,19 @@ import (
 
 var downloadersCollection []Downloader
 
-var EpisodeDownloadRoutines map[uint](chan bool)
-var MovieDownloadRoutines map[uint](chan bool)
+type ContextStorage struct {
+	Context context.Context
+	Cancel  func()
+}
+
+var EpisodeDownloadRoutines map[uint](ContextStorage)
+var MovieDownloadRoutines map[uint](ContextStorage)
 
 var downloadRoutinesMutex sync.Mutex
 
 func init() {
-	EpisodeDownloadRoutines = make(map[uint](chan bool))
-	MovieDownloadRoutines = make(map[uint](chan bool))
+	EpisodeDownloadRoutines = make(map[uint](ContextStorage))
+	MovieDownloadRoutines = make(map[uint](ContextStorage))
 }
 
 func AddDownloader(d Downloader) {
@@ -92,7 +98,7 @@ func GetTorrentStatus(t Torrent) (int, error) {
 	return downloadersCollection[0].GetTorrentStatus(t)
 }
 
-func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bool) (err error, aborted bool) {
+func EpisodeHandleTorrentDownload(ctx context.Context, e *Episode, recovery bool) (err error, aborted bool) {
 	torrent := e.DownloadingItem.CurrentTorrent
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
@@ -111,7 +117,7 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 
 	StartTorrent(torrent)
 
-	downloadErr, downloadAborted := WaitForDownload(torrent, stopChannel)
+	downloadErr, downloadAborted := WaitForDownload(ctx, torrent)
 	if downloadAborted {
 		return nil, downloadAborted
 	}
@@ -159,10 +165,17 @@ func EpisodeHandleTorrentDownload(e *Episode, recovery bool, stopChannel chan bo
 
 	RemoveTorrent(torrent)
 
+	downloadRoutinesMutex.Lock()
+	ctxStore, ok := EpisodeDownloadRoutines[e.ID]
+	if ok {
+		ctxStore.Cancel()
+	}
+	downloadRoutinesMutex.Unlock()
+
 	return nil, false
 }
 
-func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) (err error, aborted bool) {
+func MovieHandleTorrentDownload(ctx context.Context, m *Movie, recovery bool) (err error, aborted bool) {
 	torrent := m.DownloadingItem.CurrentTorrent
 	if !recovery {
 		torrentId, err := AddTorrent(torrent)
@@ -181,7 +194,7 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 
 	StartTorrent(torrent)
 
-	downloadErr, downloadAborted := WaitForDownload(torrent, stopChannel)
+	downloadErr, downloadAborted := WaitForDownload(ctx, torrent)
 	if downloadAborted {
 		return nil, downloadAborted
 	}
@@ -223,10 +236,17 @@ func MovieHandleTorrentDownload(m *Movie, recovery bool, stopChannel chan bool) 
 
 	RemoveTorrent(torrent)
 
+	downloadRoutinesMutex.Lock()
+	ctxStore, ok := MovieDownloadRoutines[m.ID]
+	if ok {
+		ctxStore.Cancel()
+	}
+	downloadRoutinesMutex.Unlock()
+
 	return nil, false
 }
 
-func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool) {
+func WaitForDownload(ctx context.Context, t Torrent) (err error, aborted bool) {
 	downloadLoopTicker := time.NewTicker(1 * time.Minute)
 	for {
 		log.WithFields(log.Fields{
@@ -236,7 +256,7 @@ func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool)
 		downloadRoutinesMutex.Lock()
 		// Check if download has been manually stopped
 		select {
-		case <-stopChannel:
+		case <-ctx.Done():
 			return nil, true
 		default:
 			log.WithFields(log.Fields{
@@ -261,7 +281,7 @@ func WaitForDownload(t Torrent, stopChannel chan bool) (err error, aborted bool)
 	}
 }
 
-func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, recovery bool) error {
+func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, recovery bool) error {
 	recoveryDone := false
 
 	if e.DownloadingItem.Downloaded || e.DownloadingItem.Downloading {
@@ -296,10 +316,10 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 		var torrentDownload error
 		var downloadAborted bool
 		if recoveryDone || !recovery {
-			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(&e, false, stopChannel)
+			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(ctx, &e, false)
 		} else {
 			recoveryDone = true
-			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(&e, true, stopChannel)
+			torrentDownload, downloadAborted = EpisodeHandleTorrentDownload(ctx, &e, true)
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
@@ -343,7 +363,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, stopChannel chan bool, re
 	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
-func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recovery bool) error {
+func DownloadMovie(ctx context.Context, m Movie, torrentList []Torrent, recovery bool) error {
 	recoveryDone := true
 	if m.DownloadingItem.Downloaded || m.DownloadingItem.Downloading {
 		return errors.New("Movie downloading or already downloaded. Skipping")
@@ -374,10 +394,10 @@ func DownloadMovie(m Movie, torrentList []Torrent, stopChannel chan bool, recove
 		var torrentDownload error
 		var downloadAborted bool
 		if recoveryDone || !recovery {
-			torrentDownload, downloadAborted = MovieHandleTorrentDownload(&m, false, stopChannel)
+			torrentDownload, downloadAborted = MovieHandleTorrentDownload(ctx, &m, false)
 		} else {
 			recoveryDone = true
-			torrentDownload, downloadAborted = MovieHandleTorrentDownload(&m, true, stopChannel)
+			torrentDownload, downloadAborted = MovieHandleTorrentDownload(ctx, &m, true)
 		}
 		if downloadAborted {
 			log.WithFields(log.Fields{
@@ -428,7 +448,10 @@ func AbortEpisodeDownload(e *Episode) {
 
 	if !e.DownloadingItem.Pending {
 		downloadRoutinesMutex.Lock()
-		close(EpisodeDownloadRoutines[e.ID])
+		ctxStore, ok := EpisodeDownloadRoutines[e.ID]
+		if ok {
+			ctxStore.Cancel()
+		}
 		downloadRoutinesMutex.Unlock()
 
 		e.DownloadingItem.AbortPending = true
@@ -451,7 +474,10 @@ func AbortMovieDownload(m *Movie) {
 
 	if !m.DownloadingItem.Pending {
 		downloadRoutinesMutex.Lock()
-		close(MovieDownloadRoutines[m.ID])
+		ctxStore, ok := MovieDownloadRoutines[m.ID]
+		if ok {
+			ctxStore.Cancel()
+		}
 		downloadRoutinesMutex.Unlock()
 
 		m.DownloadingItem.AbortPending = true
@@ -579,4 +605,16 @@ func FillMovieToDownloadTorrentList(m *Movie, list []Torrent) []Torrent {
 	} else {
 		return torrentList[:10]
 	}
+}
+
+// GetDownloader returns the registered downloader with name "name". An non-nil error is returned if no registered downloader are found with the required name
+func GetDownloader(name string) (Downloader, error) {
+	for _, d := range downloadersCollection {
+		mod, _ := d.Status()
+		if mod.Name == name {
+			return d, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Downloader %s not found in configuration", name)
 }

@@ -13,7 +13,7 @@ var module Module
 func New() (t *ManualWatchlist, err error) {
 	t = &ManualWatchlist{}
 	module = Module{
-		Name: "Manual",
+		Name: t.GetName(),
 		Type: "watchlist",
 		Status: ModuleStatus{
 			Alive:   true,

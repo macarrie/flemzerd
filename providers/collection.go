@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"fmt"
+
 	"github.com/macarrie/flemzerd/db"
 	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
@@ -94,7 +96,28 @@ func FindMovie(query MediaIds) (Movie, error) {
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 	p := getTVProvider()
 	if p != nil {
-		return (*p).GetRecentlyAiredEpisodes(show)
+		var retList []Episode
+		episodes, err := (*p).GetRecentlyAiredEpisodes(show)
+		if err != nil {
+			return []Episode{}, err
+		}
+
+		for _, e := range episodes {
+			reqEpisode := Episode{}
+			req := db.Client.Where(Episode{
+				Name:   e.Name,
+				Season: e.Season,
+				Number: e.Number,
+			}).Find(&reqEpisode)
+			if req.RecordNotFound() {
+				e.TvShow = show
+				db.Client.Create(&e)
+			} else {
+				e = reqEpisode
+			}
+			retList = append(retList, e)
+		}
+		return retList, nil
 	}
 
 	return []Episode{}, errors.New("Cannot find any TV provider in configuration")
@@ -272,4 +295,16 @@ func mergeMediaIds(m1, m2 MediaIds) MediaIds {
 	}
 
 	return merged
+}
+
+// GetProvider returns the registered provider with name "name". An non-nil error is returned if no registered provider are found with the required name
+func GetProvider(name string) (Provider, error) {
+	for _, p := range providersCollection {
+		mod, _ := p.Status()
+		if mod.Name == name {
+			return p, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Provider %s not found in configuration", name)
 }

@@ -20,16 +20,14 @@
 
 # Provider used to retrieve media info
 [providers]
-    [providers.tmdb]
-        apikey = "API_KEY"
-
-    [providers.tvdb]
-        apikey = "API_KEY"
+    tmdb = []
+    tvdb = []
 
 # List of different notification ways
 [notifiers]
     desktop = []
     kodi = []
+    telegram = []
 
     [notifiers.pushbullet]
         accessToken = "ACCESS_TOKEN"

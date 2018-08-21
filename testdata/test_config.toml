@@ -1,49 +1,58 @@
 [system]
     check_interval = 15.0
     torrent_download_attempts_limit = 20.0
+    track_shows = true
+    track_movies = true
+    preferred_media_quality = "720p"
 
 [interface]
     enabled = true
     port = 8080.0
 
 [providers]
-  [providers.tmdb]
-      apikey = "API_KEY"
+    [providers.tmdb]
+        apikey = "API_KEY"
 
-  [providers.tvdb]
-      apikey = "API_KEY"
+    [providers.tvdb]
+        apikey = "API_KEY"
 
 [notifiers]
     desktop = []
+    telegram = []
 
-      [notifiers.pushbullet]
-      accessToken = "ACCESS_TOKEN"
+    [notifiers.pushbullet]
+        accessToken = "ACCESS_TOKEN"
 
 [indexers]
     [[indexers.torznab]]
-    name = "Indexer 1"
-    url = "http://first-indexer:8080/torznab"
-    apikey = "API_KEY"
+        name = "Indexer 1"
+        url = "http://first-indexer:8080/torznab"
+        apikey = "API_KEY"
 
     [[indexers.torznab]]
-    name = "Indexer 2"
-    url = "http://second-indexer:9164/url/to/torznab/endpoint"
-    apikey = "API_KEY"
+        name = "Indexer 2"
+        url = "http://second-indexer:9164/url/to/torznab/endpoint"
+        apikey = "API_KEY"
 
 [downloaders]
     [downloaders.transmission]
-    address = "localhost"
-    port = 9091.0
-    user = "USERNAME"
-    password = "PASSWORD"
+        address = "localhost"
+        port = 9091.0
+        user = "USERNAME"
+        password = "PASSWORD"
 
 [watchlists]
     trakt = []
     manual = [
-      "TV_SHOW_1",
-      "TV_SHOW_2",
-      "TV_SHOW_3"
+        "TV_SHOW_1",
+        "TV_SHOW_2",
+        "TV_SHOW_3"
     ]
+
+[mediacenters]
+    [mediacenters.kodi] 
+        address = "ADDRESS"
+        port = 1234
 
 [notifications]
     enabled = true
