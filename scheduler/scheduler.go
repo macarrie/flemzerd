@@ -392,10 +392,12 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 	notifier.NotifyEpisodeDownloadStart(&episode)
 	ctx, cancel := context.WithCancel(context.Background())
+	downloader.DownloadRoutinesMutex.Lock()
 	downloader.EpisodeDownloadRoutines[episode.ID] = downloader.ContextStorage{
 		Context: ctx,
 		Cancel:  cancel,
 	}
+	downloader.DownloadRoutinesMutex.Unlock()
 
 	go downloader.DownloadEpisode(ctx, episode, toDownload, recovery)
 }
@@ -465,10 +467,12 @@ func DownloadMovie(movie Movie, recovery bool) {
 
 	notifier.NotifyMovieDownloadStart(&movie)
 	ctx, cancel := context.WithCancel(context.Background())
+	downloader.DownloadRoutinesMutex.Lock()
 	downloader.MovieDownloadRoutines[movie.ID] = downloader.ContextStorage{
 		Context: ctx,
 		Cancel:  cancel,
 	}
+	downloader.DownloadRoutinesMutex.Unlock()
 
 	go downloader.DownloadMovie(ctx, movie, toDownload, recovery)
 }
