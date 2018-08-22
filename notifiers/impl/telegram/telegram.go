@@ -41,7 +41,6 @@ func New() (t *TelegramNotifier, err error) {
 		return nil, errors.Wrap(err, "error when creating Telegram bot")
 	}
 
-	bot.Debug = true
 	t.Client = bot
 
 	chat_id := db.Session.TelegramChatID

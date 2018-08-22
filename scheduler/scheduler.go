@@ -497,7 +497,6 @@ func RecoverDownloadingItems() {
 		ep.DownloadingItem.Pending = false
 		ep.DownloadingItem.Downloading = false
 		ep.DownloadingItem.Downloaded = false
-		ep.DownloadingItem.AbortPending = false
 		db.Client.Save(&ep)
 
 		log.WithFields(log.Fields{
@@ -518,7 +517,6 @@ func RecoverDownloadingItems() {
 		m.DownloadingItem.Pending = false
 		m.DownloadingItem.Downloading = false
 		m.DownloadingItem.Downloaded = false
-		m.DownloadingItem.AbortPending = false
 		db.Client.Save(&m)
 
 		log.WithFields(log.Fields{

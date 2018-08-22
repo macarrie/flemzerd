@@ -253,18 +253,6 @@ func WaitForDownload(ctx context.Context, t Torrent) (err error, aborted bool) {
 			"torrent": t.Name,
 		}).Debug("Checking torrent download progress")
 
-		DownloadRoutinesMutex.Lock()
-		// Check if download has been manually stopped
-		select {
-		case <-ctx.Done():
-			return nil, true
-		default:
-			log.WithFields(log.Fields{
-				"torrent": t.Name,
-			}).Debug("Download in progress")
-		}
-		DownloadRoutinesMutex.Unlock()
-
 		status, err := GetTorrentStatus(t)
 		if err != nil {
 			return errors.Wrap(err, "error when getting download status"), false
@@ -277,7 +265,12 @@ func WaitForDownload(ctx context.Context, t Torrent) (err error, aborted bool) {
 			// Download complete ! Return with no error
 			return nil, false
 		}
-		<-downloadLoopTicker.C
+		select {
+		case <-downloadLoopTicker.C:
+			continue
+		case <-ctx.Done():
+			return nil, true
+		}
 	}
 }
 
@@ -332,11 +325,9 @@ func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, reco
 			currentDownloadPath := e.DownloadingItem.CurrentTorrent.DownloadDir
 			RemoveTorrent(e.DownloadingItem.CurrentTorrent)
 			os.Remove(currentDownloadPath)
+			db.Client.Unscoped().Delete(&e.DownloadingItem)
 
-			e.DownloadingItem.AbortPending = false
-			e.DownloadingItem.FailedTorrents = []Torrent{}
-			e.DownloadingItem.CurrentTorrent = Torrent{}
-			e.DownloadingItem.CurrentDownloaderId = ""
+			e.DownloadingItem = DownloadingItem{}
 			db.Client.Save(&e)
 			db.Client.Delete(&e)
 
@@ -408,7 +399,6 @@ func DownloadMovie(ctx context.Context, m Movie, torrentList []Torrent, recovery
 			RemoveTorrent(m.DownloadingItem.CurrentTorrent)
 			os.Remove(currentDownloadPath)
 
-			m.DownloadingItem.AbortPending = false
 			m.DownloadingItem.FailedTorrents = []Torrent{}
 			m.DownloadingItem.CurrentTorrent = Torrent{}
 			m.DownloadingItem.CurrentDownloaderId = ""
@@ -453,10 +443,6 @@ func AbortEpisodeDownload(e *Episode) {
 			ctxStore.Cancel()
 		}
 		DownloadRoutinesMutex.Unlock()
-
-		e.DownloadingItem.AbortPending = true
-	} else {
-		e.DownloadingItem.AbortPending = false
 	}
 
 	e.DownloadingItem.Pending = false
@@ -479,10 +465,6 @@ func AbortMovieDownload(m *Movie) {
 			ctxStore.Cancel()
 		}
 		DownloadRoutinesMutex.Unlock()
-
-		m.DownloadingItem.AbortPending = true
-	} else {
-		m.DownloadingItem.AbortPending = false
 	}
 
 	m.DownloadingItem.Pending = false
