@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/macarrie/flemzerd/db"
+	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -14,7 +15,7 @@ func init() {
 
 func TestAddWatchlist(t *testing.T) {
 	watchlistLength := len(watchlistsCollection)
-	w := MockWatchlist{}
+	w := mock.Watchlist{}
 	AddWatchlist(w)
 
 	if len(watchlistsCollection) != watchlistLength+1 {
@@ -23,8 +24,8 @@ func TestAddWatchlist(t *testing.T) {
 }
 
 func TestStatus(t *testing.T) {
-	w1 := MockWatchlist{}
-	w2 := MockWatchlist{}
+	w1 := mock.Watchlist{}
+	w2 := mock.Watchlist{}
 
 	watchlistsCollection = []Watchlist{w1, w2}
 
@@ -36,7 +37,7 @@ func TestStatus(t *testing.T) {
 		t.Errorf("Expected to have 2 watchlist modules status, got %d instead", len(mods))
 	}
 
-	AddWatchlist(MockErrorWatchlist{})
+	AddWatchlist(mock.ErrorWatchlist{})
 	_, err = Status()
 	if err == nil {
 		t.Error("Expected to have aggregated error for watchlist status")
@@ -44,7 +45,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	w := MockWatchlist{}
+	w := mock.Watchlist{}
 	AddWatchlist(w)
 	Reset()
 
@@ -56,9 +57,9 @@ func TestReset(t *testing.T) {
 func TestGetShows(t *testing.T) {
 	db.ResetDb()
 
-	w1 := MockWatchlist{}
-	w2 := MockWatchlist{}
-	w3 := MockErrorWatchlist{}
+	w1 := mock.Watchlist{}
+	w2 := mock.Watchlist{}
+	w3 := mock.ErrorWatchlist{}
 
 	watchlistsCollection = []Watchlist{w1, w2, w3}
 
@@ -85,9 +86,9 @@ func TestGetShows(t *testing.T) {
 func TestGetMovies(t *testing.T) {
 	db.ResetDb()
 
-	w1 := MockWatchlist{}
-	w2 := MockWatchlist{}
-	w3 := MockErrorWatchlist{}
+	w1 := mock.Watchlist{}
+	w2 := mock.Watchlist{}
+	w3 := mock.ErrorWatchlist{}
 
 	watchlistsCollection = []Watchlist{w1, w2, w3}
 
@@ -130,14 +131,14 @@ func TestRemoveDuplicates(t *testing.T) {
 }
 
 func TestGetWatchlist(t *testing.T) {
-	w1 := MockWatchlist{}
+	w1 := mock.Watchlist{}
 	watchlistsCollection = []Watchlist{w1}
 
 	if _, err := GetWatchlist("Unknown"); err == nil {
 		t.Error("Expected to have error when getting unknown watchlist, got none")
 	}
 
-	if _, err := GetWatchlist("MockWatchlist"); err != nil {
+	if _, err := GetWatchlist("Watchlist"); err != nil {
 		t.Errorf("Got error while retrieving known watchlist: %s", err.Error())
 	}
 }

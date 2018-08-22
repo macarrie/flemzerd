@@ -123,6 +123,11 @@
                         <i class="material-icons md-18 float-left">cloud_download</i>
                     </button>
                 </div>
+                <div class="col-12 py-4" *ngIf="!season && i > 0">
+                    <div class="float-left">
+                        <span class="h6">Loading season {{ i }} details</span>
+                    </div>
+                </div>
                 <div class="col-12" *ngIf="season && season.collapse && i > 0">
                     <table class="table">
                         <thead>

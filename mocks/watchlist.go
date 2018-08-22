@@ -1,4 +1,4 @@
-package watchlist
+package mock
 
 import (
 	"fmt"
@@ -6,12 +6,12 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 )
 
-type MockWatchlist struct{}
-type MockErrorWatchlist struct{}
+type Watchlist struct{}
+type ErrorWatchlist struct{}
 
-func (w MockWatchlist) Status() (Module, error) {
+func (w Watchlist) Status() (Module, error) {
 	return Module{
-		Name: "MockWatchlist",
+		Name: "Watchlist",
 		Type: "watchlist",
 		Status: ModuleStatus{
 			Alive:   true,
@@ -20,10 +20,10 @@ func (w MockWatchlist) Status() (Module, error) {
 	}, nil
 }
 
-func (w MockErrorWatchlist) Status() (Module, error) {
+func (w ErrorWatchlist) Status() (Module, error) {
 	var err error = fmt.Errorf("Watchlist error")
 	return Module{
-		Name: "MockErrorWatchlist",
+		Name: "ErrorWatchlist",
 		Type: "watchlist",
 		Status: ModuleStatus{
 			Alive:   false,
@@ -32,14 +32,14 @@ func (w MockErrorWatchlist) Status() (Module, error) {
 	}, err
 }
 
-func (w MockWatchlist) GetName() string {
-	return "MockWatchlist"
+func (w Watchlist) GetName() string {
+	return "Watchlist"
 }
-func (w MockErrorWatchlist) GetName() string {
-	return "MockErrorWatchlist"
+func (w ErrorWatchlist) GetName() string {
+	return "ErrorWatchlist"
 }
 
-func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {
+func (w Watchlist) GetTvShows() ([]MediaIds, error) {
 	return []MediaIds{
 		MediaIds{
 			Name: "test show",
@@ -47,11 +47,11 @@ func (w MockWatchlist) GetTvShows() ([]MediaIds, error) {
 	}, nil
 }
 
-func (w MockErrorWatchlist) GetTvShows() ([]MediaIds, error) {
+func (w ErrorWatchlist) GetTvShows() ([]MediaIds, error) {
 	return []MediaIds{}, fmt.Errorf("Error while getting TV Shows from watchlist")
 }
 
-func (w MockWatchlist) GetMovies() ([]MediaIds, error) {
+func (w Watchlist) GetMovies() ([]MediaIds, error) {
 	return []MediaIds{
 		MediaIds{
 			Name: "test movie",
@@ -59,6 +59,6 @@ func (w MockWatchlist) GetMovies() ([]MediaIds, error) {
 	}, nil
 }
 
-func (w MockErrorWatchlist) GetMovies() ([]MediaIds, error) {
+func (w ErrorWatchlist) GetMovies() ([]MediaIds, error) {
 	return []MediaIds{}, fmt.Errorf("Error while getting movies from watchlist")
 }

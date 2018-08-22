@@ -27,12 +27,20 @@ var module Module
 func New() (t *TelegramNotifier, err error) {
 	t = &TelegramNotifier{}
 
+	module = Module{
+		Name: t.GetName(),
+		Type: "notifier",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}
+
 	bot, err := tgbotapi.NewBotAPI(configuration.TELEGRAM_BOT_TOKEN)
 	if err != nil {
 		return nil, errors.Wrap(err, "error when creating Telegram bot")
 	}
 
-	bot.Debug = true
 	t.Client = bot
 
 	chat_id := db.Session.TelegramChatID
@@ -40,15 +48,6 @@ func New() (t *TelegramNotifier, err error) {
 		t.ChatID = chat_id
 	} else {
 		log.Warning("No Telegram chat ID found. User will need to authorize access to Telegram in UI")
-	}
-
-	module = Module{
-		Name: "telegram",
-		Type: "notifier",
-		Status: ModuleStatus{
-			Alive:   true,
-			Message: "",
-		},
 	}
 
 	return t, nil

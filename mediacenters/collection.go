@@ -1,6 +1,8 @@
 package mediacenter
 
 import (
+	"fmt"
+
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -48,4 +50,16 @@ func RefreshLibrary() {
 			}).Warning("Failed to refresh media center library")
 		}
 	}
+}
+
+// GetMediaCenter returns the registered mediacenter with name "name". An non-nil error is returned if no registered mediacenter are found with the required name
+func GetMediaCenter(name string) (MediaCenter, error) {
+	for _, mc := range mediaCenterCollection {
+		mod, _ := mc.Status()
+		if mod.Name == name {
+			return mc, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Mediacenter %s not found in configuration", name)
 }

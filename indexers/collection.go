@@ -135,7 +135,9 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	})
 
 	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
-	torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
+	if movie.Date.Year() != 1 {
+		torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
+	}
 
 	return torrentList, errorList.ErrorOrNil()
 }
@@ -233,4 +235,16 @@ func min(a, b int) int {
 	}
 
 	return b
+}
+
+// GetIndexer returns the registered indexer with name "name". An non-nil error is returned if no registered indexer are found with the required name
+func GetIndexer(name string) (Indexer, error) {
+	for _, ind := range indexersCollection {
+		mod, _ := ind.Status()
+		if mod.Name == name {
+			return ind, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Indexer %s not found in configuration", name)
 }

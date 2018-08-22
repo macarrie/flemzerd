@@ -285,7 +285,7 @@ func Run(debug bool) {
 	if dbErr != nil {
 		log.WithFields(log.Fields{
 			"error": dbErr,
-		}).Warning("Could not load retention data. Starting daemon with empty retention")
+		}).Warning("Could not connect to database. Starting daemon without any previous data")
 	}
 
 	initConfiguration(debug)
@@ -390,9 +390,8 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	}
 
 	notifier.NotifyEpisodeDownloadStart(&episode)
-	downloader.EpisodeDownloadRoutines[episode.ID] = make(chan bool)
 
-	go downloader.DownloadEpisode(episode, toDownload, downloader.EpisodeDownloadRoutines[episode.ID], recovery)
+	go downloader.DownloadEpisode(episode, toDownload, recovery)
 }
 
 func DownloadMovie(movie Movie, recovery bool) {
@@ -459,9 +458,8 @@ func DownloadMovie(movie Movie, recovery bool) {
 	}
 
 	notifier.NotifyMovieDownloadStart(&movie)
-	downloader.MovieDownloadRoutines[movie.ID] = make(chan bool)
 
-	go downloader.DownloadMovie(movie, toDownload, downloader.MovieDownloadRoutines[movie.ID], recovery)
+	go downloader.DownloadMovie(movie, toDownload, recovery)
 }
 
 func RecoverDownloadingItems() {
@@ -484,7 +482,6 @@ func RecoverDownloadingItems() {
 		ep.DownloadingItem.Pending = false
 		ep.DownloadingItem.Downloading = false
 		ep.DownloadingItem.Downloaded = false
-		ep.DownloadingItem.AbortPending = false
 		db.Client.Save(&ep)
 
 		log.WithFields(log.Fields{
@@ -492,7 +489,6 @@ func RecoverDownloadingItems() {
 			"season":  ep.Season,
 			"number":  ep.Number,
 		}).Debug("Launched download processing recovery")
-
 		recoveryEpisode := ep
 		go DownloadEpisode(recoveryEpisode, true)
 
@@ -506,7 +502,6 @@ func RecoverDownloadingItems() {
 		m.DownloadingItem.Pending = false
 		m.DownloadingItem.Downloading = false
 		m.DownloadingItem.Downloaded = false
-		m.DownloadingItem.AbortPending = false
 		db.Client.Save(&m)
 
 		log.WithFields(log.Fields{
@@ -570,19 +565,6 @@ func poll(recoveryDone *bool) {
 			}
 
 			for _, recentEpisode := range recentEpisodes {
-				reqEpisode := Episode{}
-				req := db.Client.Where(Episode{
-					Name:   recentEpisode.Name,
-					Season: recentEpisode.Season,
-					Number: recentEpisode.Number,
-				}).Find(&reqEpisode)
-				if req.RecordNotFound() {
-					recentEpisode.TvShow = show
-					db.Client.Create(&recentEpisode)
-				} else {
-					recentEpisode = reqEpisode
-				}
-
 				err := notifier.NotifyRecentEpisode(&recentEpisode)
 				if err != nil {
 					log.Warning(err)

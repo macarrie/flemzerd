@@ -13,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.3.0
 	github.com/go-telegram-bot-api/telegram-bot-api v0.0.0-20180328131029-0e0af0c480ea
 	github.com/golang/protobuf v1.1.0
+	github.com/hashicorp/errwrap v0.0.0-20180715044906-d6c0cd880357
 	github.com/hashicorp/go-multierror v0.0.0-20180717150148-3d5d8f294aa0
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/jinzhu/gorm v1.9.1

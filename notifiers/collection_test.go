@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
+	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -26,13 +27,13 @@ func init() {
 }
 
 func TestStatus(t *testing.T) {
-	notifiersCollection = []Notifier{MockNotifier{}}
+	notifiersCollection = []Notifier{mock.Notifier{}}
 	_, err := Status()
 	if err != nil {
 		t.Error("Expected to have no error for notifier status")
 	}
 
-	notifiersCollection = []Notifier{MockNotifier{}, MockErrorNotifier{}}
+	notifiersCollection = []Notifier{mock.Notifier{}, mock.ErrorNotifier{}}
 
 	mods, err := Status()
 	if len(mods) != 2 {
@@ -44,7 +45,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	n := MockNotifier{}
+	n := mock.Notifier{}
 	AddNotifier(n)
 	Reset()
 
@@ -55,7 +56,7 @@ func TestReset(t *testing.T) {
 
 func TestAddNotifier(t *testing.T) {
 	notifiersLength := len(notifiersCollection)
-	m := MockNotifier{}
+	m := mock.Notifier{}
 	AddNotifier(m)
 
 	if len(notifiersCollection) != notifiersLength+1 {
@@ -74,36 +75,37 @@ func TestSendNotification(t *testing.T) {
 		},
 	}
 	notifiersCollection = []Notifier{}
-	mockNotificationCounter = 0
-	mockNotifiers := make([]MockNotifier, n)
+	mockNotifiers := make([]mock.Notifier, n)
+	n1 := mockNotifiers[0]
+	count := n1.GetNotificationCount()
 
 	for i := range mockNotifiers {
-		mockNotifiers[i] = MockNotifier{}
+		mockNotifiers[i] = mock.Notifier{}
 		AddNotifier(mockNotifiers[i])
 	}
 
 	SendNotification(notif)
 
-	if mockNotificationCounter != n {
-		t.Error("Expected to send ", n, " notifications, but ", mockNotificationCounter, " notifications have been sent")
+	if n1.GetNotificationCount() != count+n {
+		t.Error("Expected to send ", n, " notifications, but ", n1.GetNotificationCount(), " notifications have been sent")
 	}
 
 	// If some notifications have been sent, do not return an error
-	AddNotifier(MockErrorNotifier{})
+	AddNotifier(mock.ErrorNotifier{})
 	err := SendNotification(notif)
 	if err != nil {
 		t.Error("Expected to have no error when sending notifications")
 	}
 
-	notifiersCollection = []Notifier{MockErrorNotifier{}}
+	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
 	if err := SendNotification(notif); err == nil {
 		t.Error("Expected to have an error when sending notifications")
 	}
 
-	prev := mockNotificationCounter
+	prev := n1.GetNotificationCount()
 	configuration.Config.Notifications.Enabled = false
 	SendNotification(notif)
-	if mockNotificationCounter != prev {
+	if n1.GetNotificationCount() != prev {
 		t.Error("Expected notifications not to be sent because notifications are disabled in configuration")
 	}
 	configuration.Config.Notifications.Enabled = true
@@ -131,28 +133,28 @@ func TestNotifyEpisode(t *testing.T) {
 		Date:   time.Now(),
 	}
 
-	m := MockNotifier{}
+	m := mock.Notifier{}
 	AddNotifier(m)
 
-	mockNotificationCounter = 0
+	count := m.GetNotificationCount()
 
 	NotifyRecentEpisode(&episode)
-	if mockNotificationCounter != 1 {
+	if m.GetNotificationCount() != count+1 {
 		t.Error("Expected recent notification to be sent, got none")
 	}
 
 	NotifyDownloadedEpisode(&episode)
-	if mockNotificationCounter != 2 {
+	if m.GetNotificationCount() != count+2 {
 		t.Error("Expected downloaded notification to be sent, got none")
 	}
 
 	NotifyFailedEpisode(&episode)
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
 
 	NotifyRecentEpisode(&episode)
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 
@@ -163,13 +165,13 @@ func TestNotifyEpisode(t *testing.T) {
 	NotifyFailedEpisode(&episode)
 	NotifyRecentEpisode(&episode)
 
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
 	}
 
 	configuration.Config.Notifications.Enabled = true
 
-	notifiersCollection = []Notifier{MockErrorNotifier{}}
+	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
 
 	episode.Notified = false
 	err := NotifyRecentEpisode(&episode)
@@ -197,28 +199,28 @@ func TestNotifyMovie(t *testing.T) {
 		OriginalTitle: "Test movie",
 	}
 
-	m := MockNotifier{}
+	m := mock.Notifier{}
 	AddNotifier(m)
 
-	mockNotificationCounter = 0
+	count := m.GetNotificationCount()
 
 	NotifyNewMovie(&movie)
-	if mockNotificationCounter != 1 {
+	if m.GetNotificationCount() != count+1 {
 		t.Error("Expected movie notification to be sent, got none")
 	}
 
 	NotifyDownloadedMovie(&movie)
-	if mockNotificationCounter != 2 {
+	if m.GetNotificationCount() != count+2 {
 		t.Error("Expected downloaded movie notification to be sent, got none")
 	}
 
 	NotifyFailedMovie(&movie)
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
 
 	NotifyNewMovie(&movie)
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected notification not to be sent because episode is on retention, but a notification has been sent anyway")
 	}
 
@@ -229,11 +231,11 @@ func TestNotifyMovie(t *testing.T) {
 	NotifyFailedMovie(&movie)
 	NotifyNewMovie(&movie)
 
-	if mockNotificationCounter != 3 {
+	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected notification not to be sent because notifications are disabled, but notifications have been sent anyway")
 	}
 
-	notifiersCollection = []Notifier{MockErrorNotifier{}}
+	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
 	configuration.Config.Notifications.Enabled = true
 
 	movie.Notified = false
@@ -253,7 +255,8 @@ func TestNotifyMovie(t *testing.T) {
 
 func TestNotifyDownloadStart(t *testing.T) {
 	notifiersCollection = []Notifier{}
-	AddNotifier(MockNotifier{})
+	n := mock.Notifier{}
+	AddNotifier(n)
 
 	show := TvShow{
 		Model: gorm.Model{
@@ -282,52 +285,52 @@ func TestNotifyDownloadStart(t *testing.T) {
 		OriginalTitle: "Test movie",
 	}
 
-	count := mockNotificationCounter
+	count := n.GetNotificationCount()
 	NotifyEpisodeDownloadStart(&episode)
-	if mockNotificationCounter != count+1 {
+	if n.GetNotificationCount() != count+1 {
 		t.Error("Expected notification to be sent when notifying episode download start")
 	}
 
-	count = mockNotificationCounter
+	count = n.GetNotificationCount()
 	NotifyMovieDownloadStart(&movie)
-	if mockNotificationCounter != count+1 {
+	if n.GetNotificationCount() != count+1 {
 		t.Error("Expected notification to be sent when notifying movie download start")
 	}
 
 	configuration.Config.Notifications.NotifyDownloadStart = false
-	count = mockNotificationCounter
+	count = n.GetNotificationCount()
 	NotifyEpisodeDownloadStart(&episode)
-	if mockNotificationCounter != count {
+	if n.GetNotificationCount() != count {
 		t.Error("Expected notification not to be sent when notifying episode download start because of configuration params")
 	}
 
-	count = mockNotificationCounter
+	count = n.GetNotificationCount()
 	NotifyMovieDownloadStart(&movie)
-	if mockNotificationCounter != count {
+	if n.GetNotificationCount() != count {
 		t.Error("Expected notification not to be sent when notifying movie download start because of configuration params")
 	}
 
 	configuration.Config.Notifications.NotifyDownloadStart = true
-	notifiersCollection = []Notifier{MockErrorNotifier{}}
+	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
 	err := NotifyEpisodeDownloadStart(&episode)
 	if err == nil {
-		t.Error("Expected error when notifying episode download start with MockErrorNotifier")
+		t.Error("Expected error when notifying episode download start with mock.ErrorNotifier")
 	}
 
 	err = NotifyMovieDownloadStart(&movie)
 	if err == nil {
-		t.Error("Expected error when notifying movie download start with MockErrorNotifier")
+		t.Error("Expected error when notifying movie download start with mock.ErrorNotifier")
 	}
 }
 
 func TestGetNotifier(t *testing.T) {
-	notifiersCollection = []Notifier{MockNotifier{}}
+	notifiersCollection = []Notifier{mock.Notifier{}}
 
 	if _, err := GetNotifier("Unknown"); err == nil {
 		t.Error("Expected to have error when getting unknown notifier, got none")
 	}
 
-	if _, err := GetNotifier("MockNotifier"); err != nil {
+	if _, err := GetNotifier("Notifier"); err != nil {
 		t.Errorf("Got error while retrieving known notifier: %s", err.Error())
 	}
 }

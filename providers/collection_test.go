@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/db"
+	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 	watchlist "github.com/macarrie/flemzerd/watchlists"
 )
@@ -16,7 +17,7 @@ func init() {
 
 func TestAddProvider(t *testing.T) {
 	providersLength := len(providersCollection)
-	p := MockTVProvider{}
+	p := mock.TVProvider{}
 	AddProvider(p)
 
 	if len(providersCollection) != providersLength+1 {
@@ -25,8 +26,8 @@ func TestAddProvider(t *testing.T) {
 }
 
 func TestStatus(t *testing.T) {
-	pr1 := MockTVProvider{}
-	pr2 := MockMovieProvider{}
+	pr1 := mock.TVProvider{}
+	pr2 := mock.MovieProvider{}
 
 	providersCollection = []Provider{pr1, pr2}
 
@@ -38,7 +39,7 @@ func TestStatus(t *testing.T) {
 		t.Error("Expected not to have error for provider status")
 	}
 
-	AddProvider(MockErrorProvider{})
+	AddProvider(mock.ErrorProvider{})
 	_, err = Status()
 	if err == nil {
 		t.Error("Expected to have aggregated error for provider status")
@@ -46,7 +47,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	p := MockMovieProvider{}
+	p := mock.MovieProvider{}
 	AddProvider(p)
 	Reset()
 
@@ -67,21 +68,21 @@ func TestFindShow(t *testing.T) {
 		t.Error("Expected to have error when calling FindShow with no TV providers in collection")
 	}
 
-	AddProvider(MockTVProvider{})
+	AddProvider(mock.TVProvider{})
 
 	show, err := FindShow(testShow)
 	if err != nil {
 		t.Error("Got error during FindShow: ", err)
 	}
-	if show.Model.ID != 1000 {
-		t.Errorf("Expected show with id 1000, got id %v instead\n", show.Model.ID)
+	if show.Model.ID != 1 {
+		t.Errorf("Expected show with id 1, got id %v instead\n", show.Model.ID)
 	}
 
-	providersCollection = []Provider{MockErrorProvider{}}
+	providersCollection = []Provider{mock.ErrorProvider{}}
 
 	_, err = FindShow(testShow)
 	if err == nil {
-		t.Error("Expected to have error when calling FindShow with MockErrorProvider")
+		t.Error("Expected to have error when calling FindShow with mock.ErrorProvider")
 	}
 }
 
@@ -90,6 +91,7 @@ func TestFindMovie(t *testing.T) {
 	testMovie := MediaIds{
 		Name: "Test Movie",
 	}
+	db.Client.Save(&testMovie)
 
 	providersCollection = []Provider{}
 	_, err := FindMovie(testMovie)
@@ -97,15 +99,15 @@ func TestFindMovie(t *testing.T) {
 		t.Error("Expected to have error when calling FindMovie with no TV providers in collection")
 	}
 
-	p := MockMovieProvider{}
+	p := mock.MovieProvider{}
 	providersCollection = []Provider{p}
 
 	movie, err := FindMovie(testMovie)
 	if err != nil {
 		t.Error("Got error during FindMovie: ", err)
 	}
-	if movie.Model.ID != 1000 {
-		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Model.ID)
+	if movie.Model.ID != 1 {
+		t.Errorf("Expected movie with id 1, got id %v instead\n", movie.Model.ID)
 	}
 
 	//Calling find movie a second should get object from Db
@@ -113,15 +115,15 @@ func TestFindMovie(t *testing.T) {
 	if err != nil {
 		t.Error("Got error during FindMovie: ", err)
 	}
-	if movie.Model.ID != 1000 {
-		t.Errorf("Expected movie with id 1000, got id %v instead\n", movie.Model.ID)
+	if movie.Model.ID != 1 {
+		t.Errorf("Expected movie with id 1, got id %v instead\n", movie.Model.ID)
 	}
 
-	providersCollection = []Provider{MockErrorProvider{}}
+	providersCollection = []Provider{mock.ErrorProvider{}}
 
 	_, err = FindMovie(testMovie)
 	if err == nil {
-		t.Error("Expected to have error when calling FindMovie with MockErrorProvider")
+		t.Error("Expected to have error when calling FindMovie with mock.ErrorProvider")
 	}
 }
 
@@ -137,15 +139,15 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 		t.Error("Expected to have error when calling FindRecentlyAiredEpisodesForShow with no TV providers in collection")
 	}
 
-	p := MockTVProvider{}
+	p := mock.TVProvider{}
 	providersCollection = []Provider{p}
 
 	episodeList, err := FindRecentlyAiredEpisodesForShow(testShow)
 	if err != nil {
 		t.Error("Got error during FindRecentlyAiredEpisodesForShow: ", err)
 	}
-	if episodeList[0].Model.ID != 1000 {
-		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
+	if episodeList[0].Model.ID != 1 {
+		t.Errorf("Expected episode with id 1, got id %v instead\n", episodeList[0].Model.ID)
 	}
 }
 
@@ -161,15 +163,15 @@ func TestGetSeasonEpisodeList(t *testing.T) {
 		t.Error("Expected to have error when calling GetSeasonEpisodeList with no TV providers in collection")
 	}
 
-	p := MockTVProvider{}
+	p := mock.TVProvider{}
 	providersCollection = []Provider{p}
 
 	episodeList, err := GetSeasonEpisodeList(testShow, 1)
 	if err != nil {
 		t.Error("Got error during GetSeasonEpisodeList: ", err)
 	}
-	if episodeList[0].Model.ID != 1000 {
-		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
+	if episodeList[0].Model.ID != 1 {
+		t.Errorf("Expected episode with id 1, got id %v instead\n", episodeList[0].Model.ID)
 	}
 
 	// Calling the method a second times gets episodes from DB
@@ -177,8 +179,8 @@ func TestGetSeasonEpisodeList(t *testing.T) {
 	if err != nil {
 		t.Error("Got error during GetSeasonEpisodeList: ", err)
 	}
-	if episodeList[0].Model.ID != 1000 {
-		t.Errorf("Expected episode with id 1000, got id %v instead\n", episodeList[0].Model.ID)
+	if episodeList[0].Model.ID != 1 {
+		t.Errorf("Expected episode with id 1, got id %v instead\n", episodeList[0].Model.ID)
 	}
 
 	_, err = GetSeasonEpisodeList(testShow, 1000)
@@ -189,8 +191,8 @@ func TestGetSeasonEpisodeList(t *testing.T) {
 
 func TestGetInfoFromConfig(t *testing.T) {
 	db.ResetDb()
-	pr1 := MockTVProvider{}
-	pr2 := MockMovieProvider{}
+	pr1 := mock.TVProvider{}
+	pr2 := mock.MovieProvider{}
 
 	providersCollection = []Provider{pr1, pr2}
 
@@ -207,22 +209,22 @@ func TestGetInfoFromConfig(t *testing.T) {
 
 	db.ResetDb()
 
-	w1 := MockWatchlist{}
-	w2 := MockWatchlist{}
+	w1 := mock.Watchlist{}
+	w2 := mock.Watchlist{}
 	watchlist.AddWatchlist(w1)
 	watchlist.AddWatchlist(w2)
 
-	providersCollection = []Provider{MockErrorProvider{}}
+	providersCollection = []Provider{mock.ErrorProvider{}}
 
 	GetTVShowsInfoFromConfig()
 	GetMoviesInfoFromConfig()
 
 	if len(TVShows) != 0 {
-		t.Error("Expected to have no elements in tvshows from watchlists because only MockErrorProvider is defined")
+		t.Error("Expected to have no elements in tvshows from watchlists because only mock.ErrorProvider is defined")
 	}
 
 	if len(Movies) != 0 {
-		t.Error("Expected to have no elements in movies from watchlists because only MockErrorProvider is defined")
+		t.Error("Expected to have no elements in movies from watchlists because only mock.ErrorProvider is defined")
 	}
 
 	providersCollection = []Provider{pr1, pr2}
@@ -270,8 +272,8 @@ func TestRemoveDuplicate(t *testing.T) {
 func TestGetProvider(t *testing.T) {
 	providersCollection = []Provider{}
 
-	p1 := MockTVProvider{}
-	p2 := MockMovieProvider{}
+	p1 := mock.TVProvider{}
+	p2 := mock.MovieProvider{}
 
 	if tvProvider := getTVProvider(); tvProvider != nil {
 		t.Error("Expected to not being able to retrieve tv provider")
@@ -319,5 +321,18 @@ func TestMergeMediaIds(t *testing.T) {
 	}
 	if mergedIds.Tvdb != 1000 {
 		t.Errorf("Expected merged IDs TVDB ID to be '1000', got '%d' instead", mergedIds.Tvdb)
+	}
+}
+
+func TestGetSpecificProvider(t *testing.T) {
+	p := mock.TVProvider{}
+	providersCollection = []Provider{p}
+
+	if _, err := GetProvider("Unknown"); err == nil {
+		t.Error("Expected to have error when getting unknown provider, got none")
+	}
+
+	if _, err := GetProvider("TVProvider"); err != nil {
+		t.Errorf("Got error while retrieving known provider: %s", err.Error())
 	}
 }
