@@ -10,11 +10,15 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
+
+	log "github.com/macarrie/flemzerd/logging"
 	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 func init() {
+	log.Setup(true)
+
 	db.DbPath = "/tmp/flemzerd.db"
 	db.Load()
 }
@@ -184,20 +188,20 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := DownloadEpisode(context.Background(), episode, []Torrent{testTorrent}, false)
+	err := DownloadEpisode(episode, []Torrent{testTorrent}, false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(context.Background(), episode, []Torrent{testTorrent2, testTorrent}, false)
+	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = DownloadEpisode(context.Background(), episode, []Torrent{testTorrent2, testTorrent}, false)
+	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
@@ -221,20 +225,20 @@ func TestDownloadMovie(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := DownloadMovie(context.Background(), testMovie, []Torrent{testTorrent}, false)
+	err := DownloadMovie(testMovie, []Torrent{testTorrent}, false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(context.Background(), testMovie, []Torrent{testTorrent, testTorrent2, testTorrent}, false)
+	err = DownloadMovie(testMovie, []Torrent{testTorrent, testTorrent2, testTorrent}, false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = DownloadMovie(context.Background(), testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
@@ -382,5 +386,65 @@ func TestFillMovieToDownload(t *testing.T) {
 	})
 	if len(torrentList) > 10 {
 		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
+	}
+}
+
+func TestAbortDownload(t *testing.T) {
+	downloadersCollection = []Downloader{mock.StalledDownloader{}}
+
+	torrent1 := Torrent{
+		TorrentId: "1",
+	}
+	torrent2 := Torrent{
+		TorrentId: "2",
+	}
+
+	movie := Movie{
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		Title:         "test movie",
+		OriginalTitle: "test movie",
+	}
+	episode := Episode{
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		Name:   "test episode",
+		Season: 1,
+		Number: 1,
+		TvShow: TvShow{
+			Model: gorm.Model{
+				ID: 1000,
+			},
+			Name:         "test show",
+			OriginalName: "test show",
+		},
+	}
+
+	go DownloadEpisode(episode, []Torrent{torrent1, torrent2}, false)
+	AbortEpisodeDownload(&episode)
+	if episode.DownloadingItem.Downloading {
+		t.Error("Expected download to be stopped")
+	}
+
+	go DownloadMovie(movie, []Torrent{torrent1, torrent2}, false)
+	AbortMovieDownload(&movie)
+	if movie.DownloadingItem.Downloading {
+		t.Error("Expected download to be stopped")
+	}
+
+	downloadersCollection = []Downloader{mock.Downloader{}}
+}
+
+func TestGetDownloader(t *testing.T) {
+	downloadersCollection = []Downloader{mock.Downloader{}}
+
+	if _, err := GetDownloader("Unknown"); err == nil {
+		t.Error("Expected to have error when getting unknown notifier, got none")
+	}
+
+	if _, err := GetDownloader("Downloader"); err != nil {
+		t.Errorf("Got error while retrieving known notifier: %s", err.Error())
 	}
 }

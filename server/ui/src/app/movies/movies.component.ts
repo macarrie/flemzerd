@@ -94,10 +94,8 @@ export class MoviesComponent implements OnInit, OnDestroy {
     }
 
     stopDownload(movie :Movie) :void {
-        movie.DownloadingItem.AbortPending = true;
         this.movieService.stopDownload(movie.ID).subscribe(response => {
             this.movieService.getDownloadingMovies();
-            movie.DownloadingItem.AbortPending = false;
         });
     }
 }

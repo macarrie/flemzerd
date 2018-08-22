@@ -92,10 +92,8 @@ export class TvshowsComponent implements OnInit, OnDestroy {
     }
 
     stopDownload(episode :Episode) :void {
-        episode.DownloadingItem.AbortPending = true;
         this.episodeService.stopDownload(episode.ID).subscribe(response => {
             this.episodeService.getDownloadingEpisodes();
-            episode.DownloadingItem.AbortPending = false;
         });
     }
 }

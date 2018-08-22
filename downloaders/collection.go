@@ -32,7 +32,7 @@ type ContextStorage struct {
 var EpisodeDownloadRoutines map[uint](ContextStorage)
 var MovieDownloadRoutines map[uint](ContextStorage)
 
-var DownloadRoutinesMutex sync.Mutex
+var downloadRoutinesMutex sync.Mutex
 
 func init() {
 	EpisodeDownloadRoutines = make(map[uint](ContextStorage))
@@ -165,12 +165,12 @@ func EpisodeHandleTorrentDownload(ctx context.Context, e *Episode, recovery bool
 
 	RemoveTorrent(torrent)
 
-	DownloadRoutinesMutex.Lock()
+	downloadRoutinesMutex.Lock()
 	ctxStore, ok := EpisodeDownloadRoutines[e.ID]
 	if ok {
 		ctxStore.Cancel()
 	}
-	DownloadRoutinesMutex.Unlock()
+	downloadRoutinesMutex.Unlock()
 
 	return nil, false
 }
@@ -236,12 +236,12 @@ func MovieHandleTorrentDownload(ctx context.Context, m *Movie, recovery bool) (e
 
 	RemoveTorrent(torrent)
 
-	DownloadRoutinesMutex.Lock()
+	downloadRoutinesMutex.Lock()
 	ctxStore, ok := MovieDownloadRoutines[m.ID]
 	if ok {
 		ctxStore.Cancel()
 	}
-	DownloadRoutinesMutex.Unlock()
+	downloadRoutinesMutex.Unlock()
 
 	return nil, false
 }
@@ -274,7 +274,7 @@ func WaitForDownload(ctx context.Context, t Torrent) (err error, aborted bool) {
 	}
 }
 
-func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, recovery bool) error {
+func DownloadEpisode(e Episode, torrentList []Torrent, recovery bool) error {
 	recoveryDone := false
 
 	if e.DownloadingItem.Downloaded || e.DownloadingItem.Downloading {
@@ -291,6 +291,19 @@ func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, reco
 	e.DownloadingItem.Pending = false
 	e.DownloadingItem.Downloading = true
 	db.Client.Save(&e)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer func() {
+		cancel()
+		delete(EpisodeDownloadRoutines, e.ID)
+	}()
+
+	downloadRoutinesMutex.Lock()
+	EpisodeDownloadRoutines[e.ID] = ContextStorage{
+		Context: ctx,
+		Cancel:  cancel,
+	}
+	downloadRoutinesMutex.Unlock()
 
 	if recovery {
 		AddTorrentMapping(e.DownloadingItem.CurrentTorrent.TorrentId, e.DownloadingItem.CurrentDownloaderId)
@@ -325,11 +338,11 @@ func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, reco
 			currentDownloadPath := e.DownloadingItem.CurrentTorrent.DownloadDir
 			RemoveTorrent(e.DownloadingItem.CurrentTorrent)
 			os.Remove(currentDownloadPath)
-			db.Client.Unscoped().Delete(&e.DownloadingItem)
 
+			db.Client.Unscoped().Delete(&e.DownloadingItem)
 			e.DownloadingItem = DownloadingItem{}
+
 			db.Client.Save(&e)
-			db.Client.Delete(&e)
 
 			return nil
 		}
@@ -354,7 +367,7 @@ func DownloadEpisode(ctx context.Context, e Episode, torrentList []Torrent, reco
 	return errors.New("No torrents in current torrent list could be downloaded")
 }
 
-func DownloadMovie(ctx context.Context, m Movie, torrentList []Torrent, recovery bool) error {
+func DownloadMovie(m Movie, torrentList []Torrent, recovery bool) error {
 	recoveryDone := true
 	if m.DownloadingItem.Downloaded || m.DownloadingItem.Downloading {
 		return errors.New("Movie downloading or already downloaded. Skipping")
@@ -367,6 +380,19 @@ func DownloadMovie(ctx context.Context, m Movie, torrentList []Torrent, recovery
 	m.DownloadingItem.Pending = false
 	m.DownloadingItem.Downloading = true
 	db.Client.Save(&m)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer func() {
+		cancel()
+		delete(MovieDownloadRoutines, m.ID)
+	}()
+
+	downloadRoutinesMutex.Lock()
+	MovieDownloadRoutines[m.ID] = ContextStorage{
+		Context: ctx,
+		Cancel:  cancel,
+	}
+	downloadRoutinesMutex.Unlock()
 
 	if recovery {
 		AddTorrentMapping(m.DownloadingItem.CurrentTorrent.TorrentId, m.DownloadingItem.CurrentDownloaderId)
@@ -399,9 +425,8 @@ func DownloadMovie(ctx context.Context, m Movie, torrentList []Torrent, recovery
 			RemoveTorrent(m.DownloadingItem.CurrentTorrent)
 			os.Remove(currentDownloadPath)
 
-			m.DownloadingItem.FailedTorrents = []Torrent{}
-			m.DownloadingItem.CurrentTorrent = Torrent{}
-			m.DownloadingItem.CurrentDownloaderId = ""
+			db.Client.Unscoped().Delete(&m.DownloadingItem)
+			m.DownloadingItem = DownloadingItem{}
 
 			db.Client.Save(&m)
 
@@ -437,12 +462,12 @@ func AbortEpisodeDownload(e *Episode) {
 	}).Info("Aborting episode download")
 
 	if !e.DownloadingItem.Pending {
-		DownloadRoutinesMutex.Lock()
+		downloadRoutinesMutex.Lock()
 		ctxStore, ok := EpisodeDownloadRoutines[e.ID]
 		if ok {
 			ctxStore.Cancel()
 		}
-		DownloadRoutinesMutex.Unlock()
+		downloadRoutinesMutex.Unlock()
 	}
 
 	e.DownloadingItem.Pending = false
@@ -459,12 +484,12 @@ func AbortMovieDownload(m *Movie) {
 	}).Info("Aborting movie download")
 
 	if !m.DownloadingItem.Pending {
-		DownloadRoutinesMutex.Lock()
+		downloadRoutinesMutex.Lock()
 		ctxStore, ok := MovieDownloadRoutines[m.ID]
 		if ok {
 			ctxStore.Cancel()
 		}
-		DownloadRoutinesMutex.Unlock()
+		downloadRoutinesMutex.Unlock()
 	}
 
 	m.DownloadingItem.Pending = false
