@@ -10,6 +10,7 @@ import (
 type Downloader struct{}
 type ErrorDownloader struct{}
 type StalledDownloader struct{}
+type DLErrorDownloader struct{}
 
 var testTorrentsCount int
 
@@ -46,6 +47,17 @@ func (d StalledDownloader) Status() (Module, error) {
 		},
 	}, err
 }
+func (d DLErrorDownloader) Status() (Module, error) {
+	var err error = fmt.Errorf("Notifier error")
+	return Module{
+		Name: "DLErrorDownloader",
+		Type: "notifier",
+		Status: ModuleStatus{
+			Alive:   false,
+			Message: err.Error(),
+		},
+	}, err
+}
 
 // GetName
 func (d Downloader) GetName() string {
@@ -56,6 +68,9 @@ func (d ErrorDownloader) GetName() string {
 }
 func (d StalledDownloader) GetName() string {
 	return "StalledDownloader"
+}
+func (d DLErrorDownloader) GetName() string {
+	return "DLErrorDownloader"
 }
 
 // AddTorrent
@@ -70,6 +85,10 @@ func (d StalledDownloader) AddTorrent(t Torrent) (string, error) {
 	testTorrentsCount += 1
 	return "id", nil
 }
+func (d DLErrorDownloader) AddTorrent(t Torrent) (string, error) {
+	testTorrentsCount += 1
+	return "id", nil
+}
 
 // AddTorrentMapping
 func (d Downloader) AddTorrentMapping(flemzerId string, downloaderId string) {
@@ -79,6 +98,9 @@ func (d ErrorDownloader) AddTorrentMapping(flemzerId string, downloaderId string
 	return
 }
 func (d StalledDownloader) AddTorrentMapping(flemzerId string, downloaderId string) {
+	return
+}
+func (d DLErrorDownloader) AddTorrentMapping(flemzerId string, downloaderId string) {
 	return
 }
 
@@ -98,6 +120,12 @@ func (d StalledDownloader) RemoveTorrent(t Torrent) error {
 	}
 	return nil
 }
+func (d DLErrorDownloader) RemoveTorrent(t Torrent) error {
+	if testTorrentsCount > 0 {
+		testTorrentsCount -= 1
+	}
+	return nil
+}
 
 // Init
 func (d Downloader) Init() error {
@@ -107,6 +135,9 @@ func (d ErrorDownloader) Init() error {
 	return nil
 }
 func (d StalledDownloader) Init() error {
+	return nil
+}
+func (d DLErrorDownloader) Init() error {
 	return nil
 }
 
@@ -120,6 +151,9 @@ func (d ErrorDownloader) GetTorrentStatus(t Torrent) (int, error) {
 func (d StalledDownloader) GetTorrentStatus(t Torrent) (int, error) {
 	return TORRENT_DOWNLOADING, nil
 }
+func (d DLErrorDownloader) GetTorrentStatus(t Torrent) (int, error) {
+	return TORRENT_STOPPED, nil
+}
 
 // GetTorrentCount
 func (d Downloader) GetTorrentCount() int {
@@ -129,5 +163,8 @@ func (d ErrorDownloader) GetTorrentCount() int {
 	return testTorrentsCount
 }
 func (d StalledDownloader) GetTorrentCount() int {
+	return testTorrentsCount
+}
+func (d DLErrorDownloader) GetTorrentCount() int {
 	return testTorrentsCount
 }

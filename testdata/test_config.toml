@@ -10,6 +10,8 @@
     port = 8080.0
 
 [providers]
+    unknown = []
+
     [providers.tmdb]
         apikey = "API_KEY"
 
@@ -19,11 +21,15 @@
 [notifiers]
     desktop = []
     telegram = []
+    kodi = []
+
+    unknown = []
 
     [notifiers.pushbullet]
         accessToken = "ACCESS_TOKEN"
 
 [indexers]
+    unknown = []
     [[indexers.torznab]]
         name = "Indexer 1"
         url = "http://first-indexer:8080/torznab"
@@ -35,13 +41,14 @@
         apikey = "API_KEY"
 
 [downloaders]
+    unknown = []
+
     [downloaders.transmission]
         address = "localhost"
         port = 9091.0
-        user = "USERNAME"
-        password = "PASSWORD"
 
 [watchlists]
+    unknown = []
     trakt = []
     manual = [
         "TV_SHOW_1",
@@ -50,6 +57,7 @@
     ]
 
 [mediacenters]
+    unknown = []
     [mediacenters.kodi] 
         address = "ADDRESS"
         port = 1234

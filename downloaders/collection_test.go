@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/configuration"
@@ -205,6 +206,12 @@ func TestDownloadEpisode(t *testing.T) {
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
+
+	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
+	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
+	if err == nil {
+		t.Error("Expected torrent download to return an error because torrent status are unknown")
+	}
 }
 
 func TestDownloadMovie(t *testing.T) {
@@ -241,6 +248,12 @@ func TestDownloadMovie(t *testing.T) {
 	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
+	}
+
+	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
+	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	if err == nil {
+		t.Error("Expected torrent download to return an error because torrent status are unknown")
 	}
 }
 
@@ -423,17 +436,33 @@ func TestAbortDownload(t *testing.T) {
 	}
 
 	go DownloadEpisode(episode, []Torrent{torrent1, torrent2}, false)
+	time.Sleep(2 * time.Second)
 	AbortEpisodeDownload(&episode)
 	if episode.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
 	go DownloadMovie(movie, []Torrent{torrent1, torrent2}, false)
+	time.Sleep(2 * time.Second)
 	AbortMovieDownload(&movie)
 	if movie.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
+	// Test same download with recovery mode enabled
+	go DownloadEpisode(episode, []Torrent{torrent1, torrent2}, true)
+	time.Sleep(2 * time.Second)
+	AbortEpisodeDownload(&episode)
+	if episode.DownloadingItem.Downloading {
+		t.Error("Expected download to be stopped")
+	}
+
+	go DownloadMovie(movie, []Torrent{torrent1, torrent2}, true)
+	time.Sleep(2 * time.Second)
+	AbortMovieDownload(&movie)
+	if movie.DownloadingItem.Downloading {
+		t.Error("Expected download to be stopped")
+	}
 	downloadersCollection = []Downloader{mock.Downloader{}}
 }
 

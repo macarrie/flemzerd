@@ -374,7 +374,6 @@ func DownloadEpisode(episode Episode, recovery bool) {
 
 		episode.DownloadingItem.Downloading = false
 		episode.DownloadingItem.Pending = false
-		episode.DownloadingItem.Pending = false
 		db.Client.Save(&episode)
 
 		return
@@ -442,7 +441,6 @@ func DownloadMovie(movie Movie, recovery bool) {
 		}
 
 		movie.DownloadingItem.Downloading = false
-		movie.DownloadingItem.Pending = false
 		movie.DownloadingItem.Pending = false
 		db.Client.Save(&movie)
 
