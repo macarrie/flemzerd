@@ -46,19 +46,19 @@ func TestLoad(t *testing.T) {
 		t.Errorf("Error while loading configuration file: %s", err.Error())
 	}
 
-	if len(Config.Providers) != 2 {
+	if len(Config.Providers) != 3 {
 		t.Error("Providers not correctly loaded")
 	}
-	if len(Config.Notifiers) != 3 {
+	if len(Config.Notifiers) != 5 {
 		t.Error("Notifiers not correctly loaded")
 	}
 	if len(Config.Indexers["torznab"]) != 2 {
-		t.Error("Providers not correctly loaded")
+		t.Error("Indexers not correctly loaded")
 	}
-	if len(Config.Downloaders) != 1 {
+	if len(Config.Downloaders) != 2 {
 		t.Error("Downloaders not correctly loaded")
 	}
-	if len(Config.Watchlists) != 2 {
+	if len(Config.Watchlists) != 3 {
 		t.Error("Watchlists not correctly loaded")
 	}
 }

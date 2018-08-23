@@ -99,7 +99,6 @@ func getTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		},
 	}, nil
 }
-
 func (m TVIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
 	return getTorrentForEpisode(show, season, episode)
 }
