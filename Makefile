@@ -1,4 +1,5 @@
-include .env
+include env
+
 PROJECTNAME="flemzerd"
 GO=vgo
 PKGS=$(shell $(GO) list ./... | grep -v vendor)
