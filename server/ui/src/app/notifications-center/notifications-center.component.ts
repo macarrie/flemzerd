@@ -39,6 +39,10 @@ export class NotificationsCenterComponent implements OnInit, OnDestroy {
         this.subs.complete();
     }
 
+    deleteAll() {
+        this.notificationsService.deleteNotifications();
+    }
+
     markAllAsRead() {
         let requests = new Array<Observable<Notification>>();
         for (let notif of this.notifications) {

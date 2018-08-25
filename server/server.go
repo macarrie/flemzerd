@@ -124,6 +124,7 @@ func initRouter() {
 		notificationsRoute := v1.Group("/notifications")
 		{
 			notificationsRoute.GET("/all", getNotifications)
+			notificationsRoute.DELETE("/all", deleteNotifications)
 			notificationsRoute.GET("/read", getReadNotifications)
 			notificationsRoute.POST("/read/:id", changeNotificationReadState)
 			notificationsRoute.GET("/unread", getUnreadNotifications)

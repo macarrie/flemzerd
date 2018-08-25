@@ -42,4 +42,11 @@ export class NotificationsService {
             });
         }
     }
+
+    deleteNotifications() {
+        this.http.delete<Notification[]>('/api/v1/notifications/all').subscribe(notifs => {
+            this.notificationSource.next(notifs);
+            this.getUnreadNotificationCount();
+        });
+    }
 }
