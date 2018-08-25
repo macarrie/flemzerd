@@ -1,7 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import { Movie } from '../movie';
+
 import { MovieService } from '../movie.service';
+import { UtilsService } from '../utils.service';
 
 @Component({
     selector: 'movie-miniature',
@@ -11,7 +13,10 @@ import { MovieService } from '../movie.service';
 export class MovieMiniatureComponent implements OnInit {
     @Input() movie :Movie;
 
-    constructor(private movieService :MovieService) {}
+    constructor(
+        private movieService :MovieService,
+        private utils :UtilsService,
+    ) {}
 
     ngOnInit() {}
 

@@ -3,11 +3,16 @@
         <div class="col-12 mt-2">
             <div>
                 <span class="h3">Notifications</span>
-                    <button class="btn btn-sm btn-light float-right"
-                            (click)="markAllAsRead()">
-                        <i class="material-icons md-18 float-left">done_all</i>
-                        Mark all as read
-                    </button>
+                <button class="btn btn-sm btn-light float-right"
+                        (click)="deleteAll()">
+                    <i class="material-icons md-18 float-left">clear_all</i>
+                    Delete all
+                </button>
+                <button class="btn btn-sm btn-light float-right"
+                        (click)="markAllAsRead()">
+                    <i class="material-icons md-18 float-left">done_all</i>
+                    Mark all as read
+                </button>
                 <button class="btn btn-sm btn-light text-muted float-right"
                         (click)="show_read_notifications = !show_read_notifications">
                     <span *ngIf="!show_read_notifications">

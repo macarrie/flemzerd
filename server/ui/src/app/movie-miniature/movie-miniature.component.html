@@ -4,8 +4,14 @@
             <img    class="card-img"
                     width="100%"
                     [attr.src]="movie.Poster"
-                    [class.black_and_white]="movie.DeletedAt != null || movie.DownloadingItem.Downloaded"
+                    [class.black_and_white]="movie.DeletedAt != null || movie.DownloadingItem.Downloaded || utils.dateIsInFuture(movie.Date)"
                     [attr.alt]="movie.Title">
+            <div class="card-img-overlay text-white font-weight-bold font-italic overlay-yellow"
+                 *ngIf="utils.dateIsInFuture(movie.Date)">
+                <span>
+                    Future release
+                </span>
+            </div>
             <div class="card-img-overlay text-white font-weight-bold font-italic overlay-red"
                  *ngIf="movie.DeletedAt != null">
                 <span>

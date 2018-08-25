@@ -17,6 +17,12 @@ func getNotifications(c *gin.Context) {
 	c.JSON(http.StatusOK, notifs)
 }
 
+func deleteNotifications(c *gin.Context) {
+	db.Client.Unscoped().Delete(&Notification{})
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 func getReadNotifications(c *gin.Context) {
 	var notifs []Notification
 	db.Client.Where(&Notification{Read: true}).Order("created_at DESC").Find(&notifs)
