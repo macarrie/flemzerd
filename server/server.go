@@ -25,7 +25,7 @@ func initRouter() {
 	router.Use(static.Serve("/", static.LocalFile("/var/lib/flemzerd/server/ui", true)))
 
 	router.NoRoute(func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/")
+		c.File("/var/lib/flemzerd/server/ui/index.html")
 	})
 
 	v1 := router.Group("/api/v1")

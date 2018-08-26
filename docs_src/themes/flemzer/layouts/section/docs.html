@@ -2,20 +2,22 @@
 {{ define "header"}} {{ partial "header" .}} {{end}}
 
 {{ define "main"}}
-<div>
-    <div class="display-3 title-gradient text-center p-5"><a href="">Documentation</a></div>
-</div>
-<div id="container">
-    <div class="row">
-        {{ range .Data.Pages.ByWeight }}
-        <div class="col-12 col-md-4 mb-4">
-            <div class="bg-white rounded p-3">
-                <div class="h2 text-center my-3 title-gradient"><a href="{{ .Permalink }}">{{ .Title }}</a></div>
-                <p class="text-center">{{ .Params.description }}</p>
+<div class="container">
+    <div>
+        <div class="display-3 title-gradient text-center p-5"><a href="">Documentation</a></div>
+    </div>
+    <div id="container">
+        <div class="row">
+            {{ range .Data.Pages.ByWeight }}
+            <div class="col-12 col-md-4 mb-4">
+                <div class="bg-white rounded p-3">
+                    <div class="h2 text-center my-3 title-gradient"><a href="{{ .Permalink }}">{{ .Title }}</a></div>
+                    <p class="text-center">{{ .Params.description }}</p>
+                </div>
             </div>
+            {{ end }}
+    
         </div>
-        {{ end }}
-
     </div>
 </div>
 {{ end }}

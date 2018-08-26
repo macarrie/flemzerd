@@ -6,16 +6,12 @@ cache:
         - $GOPATH/src
 
 before_script:
-  - go get -u golang.org/x/vgo
   - apt-get update
   - apt-get install -y curl gcc g++ make clang
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
   - apt-get install -y nodejs
   - curl https://sh.rustup.rs -sSf | sh -s -- -y
   - export PATH=~/.cargo/bin:$PATH
-  - mkdir -p $GOPATH/src/github.com/macarrie/flemzerd
-  - cp -r $CI_PROJECT_DIR/* $GOPATH/src/github.com/macarrie/flemzerd
-  - cd $GOPATH/src/github.com/macarrie/flemzerd
 
 stages:
     - test

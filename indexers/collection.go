@@ -165,7 +165,7 @@ func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
 	for _, torrent := range list {
 		mediaInfo, err := vidocq.GetInfo(torrent.Name)
 		if err != nil {
-			log.Warning("An error occured during vidocq request: %s", err.Error())
+			log.Warning("An error occured during vidocq request", err.Error())
 			otherTorrents = append(otherTorrents, torrent)
 
 			continue

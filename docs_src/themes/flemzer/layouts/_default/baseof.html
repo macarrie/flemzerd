@@ -22,10 +22,8 @@
             {{ partial "header" }}
 		{{ end  }}
 
-		<div class="container">
-		    {{ block "main" .  }}
-		    {{ end  }}
-		</div>
+        {{ block "main" .  }}
+        {{ end  }}
 
 		{{ block "footer" .  }}
             {{ partial "footer" }}

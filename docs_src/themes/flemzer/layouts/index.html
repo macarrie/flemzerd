@@ -2,12 +2,87 @@
 {{ define "header"}} {{ partial "header" .}} {{end}}
 
 {{ define "main"}}
-<div id="main">
-    <div id="hero">
-        <h1>{{.Title}}</h1>
-        <p>{{.Description}}</p>
+<div class="doc_index_background"></div>
+<div class="jumbotron jumbotron-fluid mb-0">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-6 text-center">
+                <a class="btn btn-outline-light text-uppercase rounded-0 mr-4" href="https://github.com/macarrie/flemzerd/releases">Download</a>
+                <a class="btn btn-outline-light text-uppercase rounded-0 " href="/docs">Documentation</a>
+            </div>
+            <div class="col-6 text-center text-light py-5">
+                <div class="h2">
+                    Media library automation tool
+                </div>
+                <div class="text-light font-italic">
+                    Track your TV shows. Just add your shows and movies to the watchlist of your choice and let the flemzerd daemon do the work
+                </div>
+            </div>
+        </div>
     </div>
-    {{ .Content }}
+</div>
+
+<div class="container-fluid bg-light">
+    <div class="container">
+        <div class="row p-3">
+            <div class="col-8 text-center">
+                <div class="h4">
+                    Keep track of your TV Shows and movies
+                </div>
+                <div class="mt-3 text-muted font-italic">
+                    Add TV shows and movies to watchlists and keep track of them inside flemzer
+                </div>
+            </div>
+            <div class="col-4 text-center">
+                <img src="../img/screen1.png" class="img-fluid img-thumbnail">
+            </div>
+        </div>
+        <hr />
+        <div class="row p-3">
+            <div class="col-4 text-center">
+                <img src="../img/screen2.png" class="img-fluid img-thumbnail">
+            </div>
+            <div class="col-8 text-center">
+                <div class="h4">
+                    Integrate with your tools
+                </div>
+                <div class="mt-3 text-muted font-italic">
+                    Use your favorite external tools to handle your media. Compatible with kodi mediacenter, Jackett, Telegram
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row p-3">
+            <div class="col-8 text-center">
+                <div class="h4">
+                    Know what happends from far away
+                </div>
+                <div class="mt-3 text-muted font-italic">
+                    Get notified about events in flemzerd on your favorite notification channels (Pushbullet, Telegram, Desktop notifications)
+                </div>
+            </div>
+            <div class="col-4 text-center">
+                <img src="../img/screen3.png" class="img-fluid img-thumbnail">
+            </div>
+        </div>
+        <hr />
+        <div class="row p-3">
+            <div class="col-12 text-center">
+                <div class="h4">
+                    flemzerd is Open Source.
+                </div>
+                <div class="mt-3 text-muted font-italic">
+                    Do not hesitate to contribute or open issues on the GitHub repo
+                </div>
+                    <a class="btn btn-outline-secondary text-uppercase rounded-0 my-3" href="https://github.com/macarrie/flemzerd">GitHub repo</a>
+            </div>
+            <!--<div class="col-4 text-center">-->
+                <!--<div class="p-5">-->
+                    <!--<a class="btn btn-outline-secondary text-uppercase rounded-0 " href="https://github.com/macarrie/flemzerd">GitHub repo</a>-->
+                <!--</div>-->
+            <!--</div>-->
+        </div>
+    </div>
 </div>
 {{ end }}
 
