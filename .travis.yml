@@ -13,8 +13,21 @@ before_install:
     - pushd tmp/vidocq && cargo build --release && popd
     - export PATH=$PATH:$PWD/tmp/vidocq/target/release/
 
-script:
-    - make test
+jobs:
+    include:
+        - stage: test
+          script: make test
+
+        - stage: build
+          script: make build
+
+        - stage: docker
+          script: make build docker
+          deploy:
+              - provider: script
+                script: bash -c "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin; docker push macarrie/flemzerd"
+                on:
+                    all_branches: true
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash)
