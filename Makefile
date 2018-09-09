@@ -1,8 +1,8 @@
 include env
 
 PROJECTNAME="flemzerd"
-GO=vgo
-PKGS=$(shell $(GO) list ./... | grep -v vendor)
+GO=go
+PKGS=$(shell $(GO) list ./... | grep -v vendor | sed 's\#github.com/macarrie/flemzerd/*\#./\#')
 VERSION=$(shell git describe --tags --always)
 GOOS=$(shell $(GO) env GOOS)
 GOARCH=$(shell $(GO) env GOARCH)
@@ -59,10 +59,15 @@ package:
 ## build: Build project (binary depencies, webui and package)
 build: package/$(PACKAGE_NAME)/dependencies/vidocq webui bin package
 
+
+node_modules/node-sass/bin/node-sass:
+	npm install node-sass
+
+
 ## doc: Build documentation
-doc:
+doc: node_modules/node-sass/bin/node-sass
 	echo " > Building documentation files"
-	cp package/$(PACKAGE_NAME)/ui/styles*.css docs_src/themes/flemzer/static/css/flemzer.css
+	./node_modules/node-sass/bin/node-sass --output-style compressed server/ui/src/styles.scss docs_src/themes/flemzer/static/css/flemzer.css
 
 ## install: Install flemzerd on your machine
 install: build
@@ -83,7 +88,7 @@ test:
 	echo "mode: count" > cover/coverage.cov
 	for d in $(PKGS); \
 	do \
-		tests_in_package=$$(ls $$GOPATH/src/$$d | grep _test.go | wc -l); \
+		tests_in_package=$$(ls ./$$d | grep _test.go | wc -l); \
 		if [ $$tests_in_package -gt 0 ]; \
 		then \
 			$(GO) test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
@@ -110,7 +115,7 @@ watch:
 
 start-server: stop-server
 	touch /tmp/flemzerd.pid
-	sudo -E -u flemzer ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
+	./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
 
 stop-server:
 	-kill $$(cat /tmp/flemzerd.pid)

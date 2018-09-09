@@ -10,9 +10,10 @@
             <div class="navbar-nav ml-auto">
                 {{ $currentPage := . }}
                 {{ range .Site.Menus.main }}
-                <li><a href="{{ .URL }}" class="nav-item nav-link btn btn-sm btn-light" {{if  $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}>
-                        <i class="material-icons">book</i>
-                        {{ .Name }}
+                <li><a href="{{ .URL }}" class="nav-item nav-link btn btn-sm btn-light" {{if  $currentPage.IsMenuCurrent "main" . }} target="_blank" class="active"{{end}}>
+                        <b>
+                            {{ .Name }}
+                        </b>
                     </a></li>
                 {{end}}
             </div>

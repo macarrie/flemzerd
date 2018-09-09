@@ -27,11 +27,11 @@ Providers are external services such as [TheMovieDB](https://www.themoviedb.org/
 
 Providers can be TV Providers and Movie Providers at the same time. For example, The TVDB Provider is only a TV Provider because [TheTVDB](https://www.thetvdb.com/) only provides information for TV shows.
 The TMDB Provider is a TV and Movie Provider because [TheMovieDB](https://www.themoviedb.org/) contains informations about both media types.
-**
+
 ## Available Providers
 ---
 
-The Providers used by the flemzerd daemon are defined in the configuration files. In this configuration file, multiple you can define multiple Providers with the following constraints:
+The Providers used by the flemzerd daemon are defined in the configuration file. In this configuration file, multiple you can define multiple Providers with the following constraints:
 * If TV Shows tracking is enabled, you must define at least one TV Provider.
 * If movie tracking is enabled, you must define at least one Movie Provider.
 

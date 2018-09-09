@@ -27,6 +27,10 @@ button,
     font-weight: 400 !important;
 }
 
+.background-gradient {
+    background-image: linear-gradient(315deg, $primary -25%, $secondary 125%);
+}
+
 .title-gradient a {
     color: transparent !important;
     background-color: $primary;
@@ -125,6 +129,33 @@ code {
     font-size: 12px;
 }
 
+.img-thumbnail {
+    border-width: 2px;
+}
+
+div.toc_parent {
+    position: sticky;
+    top: 50px;
+    width: 100%;
+
+    .toc {
+        position: absolute;
+        right: 0;
+        max-width: 250px;
+        background: $light;
+        font-size: 16px;
+        padding-left: 20px;
+
+        ul, li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-left: 5px;
+            margin-top: 10px;
+        }
+    }
+}
+
 // Navbar
 ///////////////////////////////
 ///////////////////////////////
@@ -194,4 +225,14 @@ code {
     border-bottom: 3px solid $primary;
     border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
     border-image-slice: 1;
+}
+
+
+// Documentation index page
+///////////////////////////////
+///////////////////////////////
+
+.jumbotron-fluid {
+    background-color: transparent;
+    background-image: linear-gradient(315deg, rgba(191, 58, 48, .6) -25%, rgba($secondary, .6) 125%);
 }

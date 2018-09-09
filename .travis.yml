@@ -1,6 +1,9 @@
 language: go
 go:
-    - "1.10"
+    - "1.11"
+
+env:
+    - GO111MODULE=on
 
 before_install:
     - curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -9,9 +12,6 @@ before_install:
     - git clone https://github.com/macarrie/vidocq tmp/vidocq
     - pushd tmp/vidocq && cargo build --release && popd
     - export PATH=$PATH:$PWD/tmp/vidocq/target/release/
-
-install:
-    - go get -u golang.org/x/vgo
 
 script:
     - make test
