@@ -62,6 +62,8 @@ type Configuration struct {
 		TorrentDownloadAttemptsLimit int    `mapstructure:"torrent_download_attempts_limit"`
 		TrackShows                   bool   `mapstructure:"track_shows"`
 		TrackMovies                  bool   `mapstructure:"track_movies"`
+		AutomaticShowDownload        bool   `mapstructure:"automatic_show_download"`
+		AutomaticMovieDownload       bool   `mapstructure:"automatic_movie_download"`
 		PreferredMediaQuality        string `mapstructure:"preferred_media_quality"`
 	}
 	Library struct {
@@ -91,6 +93,8 @@ func setDefaultValues() {
 	viper.SetDefault("system.torrent_download_attempts_limit", 20)
 	viper.SetDefault("system.track_shows", true)
 	viper.SetDefault("system.track_movies", true)
+	viper.SetDefault("system.automatic_show_download", true)
+	viper.SetDefault("system.automatic_movie_download", true)
 	viper.SetDefault("system.preferred_media_quality", "")
 }
 

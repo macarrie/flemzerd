@@ -576,7 +576,7 @@ func poll(recoveryDone *bool) {
 					log.Warning(err)
 				}
 
-				if executeDownloadChain {
+				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload {
 					DownloadEpisode(recentEpisode, false)
 				}
 			}
@@ -598,7 +598,7 @@ func poll(recoveryDone *bool) {
 				log.Warning(err)
 			}
 
-			if executeDownloadChain {
+			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload {
 				DownloadMovie(movie, false)
 			}
 		}

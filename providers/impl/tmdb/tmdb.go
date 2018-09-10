@@ -267,6 +267,7 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		MediaIds: MediaIds{
 			Tmdb: tvShow.ID,
 		},
+		UseDefaultTitle: true,
 	}
 }
 
@@ -292,10 +293,11 @@ func convertMovie(movie tmdb.Movie) Movie {
 	}
 
 	return Movie{
-		Poster:        fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", movie.PosterPath),
-		Title:         movie.Title,
-		OriginalTitle: movie.OriginalTitle,
-		Overview:      movie.Overview,
-		Date:          releaseDate,
+		Poster:          fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", movie.PosterPath),
+		Title:           movie.Title,
+		OriginalTitle:   movie.OriginalTitle,
+		Overview:        movie.Overview,
+		Date:            releaseDate,
+		UseDefaultTitle: true,
 	}
 }

@@ -272,10 +272,11 @@ func convertShow(tvShow tvdb.Series) TvShow {
 	}
 
 	return TvShow{
-		Banner:     tvShow.Banner,
-		FirstAired: firstAired,
-		Overview:   tvShow.Overview,
-		Name:       tvShow.SeriesName,
+		Banner:          tvShow.Banner,
+		FirstAired:      firstAired,
+		Overview:        tvShow.Overview,
+		Name:            tvShow.SeriesName,
+		UseDefaultTitle: true,
 		// TODO: Update with correct status
 		Status: TVSHOW_UNKNOWN,
 	}
