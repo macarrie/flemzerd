@@ -8,6 +8,10 @@
     track_shows = true
     # Enable movie tracking
     track_movies = true
+    # Automatically download new TV Shows episodes when they air
+    automatic_show_download = true
+    # Automatically download movies when they are added into flemzerd
+    automatic_movie_download = true
     # Preferred quality (specified quality will be first in list of to download torrents) (possible values = 720p, 1080p)
     preferred_media_quality = "720p"
 
