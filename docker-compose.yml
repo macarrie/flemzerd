@@ -1,0 +1,29 @@
+version: "2"
+services:
+    flemzerd:
+        build: .
+        ports:
+            - "8400:8400"
+        volumes:
+            - /etc/flemzerd/flemzerd-docker.toml:/etc/flemzerd/flemzerd.toml
+            - /var/lib/flemzerd/db/:/var/lib/flemzerd/db
+            - /var/lib/flemzerd/tmp:/downloads
+        depends_on:
+            - transmission
+            - jackett
+
+    transmission:
+        image: linuxserver/transmission
+        ports:
+            - "8401:9091"
+        volumes:
+            - /etc/flemzerd/transmission/:/config
+            - /var/lib/flemzerd/tmp:/downloads
+
+    jackett:
+        image: linuxserver/jackett
+        ports:
+            - "8402:9117"
+        volumes:
+            - /etc/flemzerd/jackett/:/config
+            - /etc/localtime:/etc/localtime:ro

@@ -147,13 +147,8 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 		module.Status.Message = ""
 
 		var retError error = nil
-		if _, err := transmissionClient.FreeSpace(configuration.Config.Library.ShowPath); err != nil {
-			retError = errors.Wrapf(err, "Error while checking access to show library path %s", configuration.Config.Library.ShowPath)
-			module.Status.Alive = false
-			module.Status.Message = retError.Error()
-		}
-		if _, err := transmissionClient.FreeSpace(configuration.Config.Library.MoviePath); err != nil {
-			retError = errors.Wrapf(err, "Error while checking access to movie library path %s", configuration.Config.Library.MoviePath)
+		if _, err := transmissionClient.FreeSpace(configuration.Config.Library.CustomTmpPath); err != nil {
+			retError = errors.Wrapf(err, "Error while checking access to show library path %s", configuration.Config.Library.CustomTmpPath)
 			module.Status.Alive = false
 			module.Status.Message = retError.Error()
 		}

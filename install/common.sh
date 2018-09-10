@@ -48,10 +48,10 @@ function copy_binary {
 }
 
 function copy_server_files {
-     log_line "- Copying UI files"
-     mkdir -p $LIB/server/ui
-     cp -r ui/* $LIB/server/ui
-     print_done
+    log_line "- Copying UI files"
+    mkdir -p $LIB/server/ui
+    cp -r ui/* $LIB/server/ui
+    print_done
 }
 
 function create_user {
@@ -68,12 +68,13 @@ function create_user {
 function create_folder_structure {
     log_line "- Creating folder hierarchy"
     mkdir -p $LIB
-    mkdir -p $ETC
-    chown $USER:$GROUP $ETC
-    chown $USER:$GROUP $LIB
-    mkdir -p /var/lib/flemzerd/library/shows
-    mkdir -p /var/lib/flemzerd/library/movies
+    mkdir -p $LIB/db
+    mkdir -p $LIB/library/shows
+    mkdir -p $LIB/library/movies
     mkdir -p $LIB/tmp
+    mkdir -p $ETC
+    chown -R $USER:$GROUP $ETC
+    chown -R $USER:$GROUP $LIB
     chmod 0777 $LIB/tmp
 
     print_done
@@ -91,7 +92,16 @@ function copy_config_files {
 
 function backup_db {
     log_line "- Creating DB backup"
-    cp $LIB/flemzer.db $LIB/flemzer.db.$(date +%s).bkp
+    cp $LIB/db/flemzer.db $LIB/db/flemzer.db.$(date +%s).bkp
+    print_done
+}
+
+function copy_dependencies_config_files {
+    log_line "- Copying dependencies configuration files"
+    cp flemzerd-docker.toml $ETC
+    cp -r transmission $ETC/transmission
+    cp -r jackett $ETC/jackett
+    cp -r flemzerd-docker.toml $ETC
     print_done
 }
 

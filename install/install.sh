@@ -17,6 +17,7 @@ create_folder_structure
 copy_binary
 copy_server_files
 copy_config_files
+copy_dependencies_config_files
 
 create_systemd_unit
 reload_systemd_units
