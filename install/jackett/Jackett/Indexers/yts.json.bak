@@ -1,0 +1,20 @@
+[
+  {
+    "id": "sitelink",
+    "type": "inputstring",
+    "name": "Site Link",
+    "value": "https://yts.am/"
+  },
+  {
+    "id": "cookieheader",
+    "type": "hiddendata",
+    "name": "CookieHeader",
+    "value": "__cfduid=d947349fea07d65f7b2e306c5d9c088a51533028526; PHPSESSID=bu6612u39ruj9aeg1rcdcmk0c0"
+  },
+  {
+    "id": "lasterror",
+    "type": "hiddendata",
+    "name": "LastError",
+    "value": null
+  }
+]

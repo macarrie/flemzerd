@@ -20,6 +20,7 @@ stop_flemzerd
 copy_binary
 copy_server_files
 backup_db
+copy_dependencies_config_files
 
 start_flemzerd
 

@@ -1,0 +1,87 @@
+# Global app parameters
+[system]
+    # New episode check interval (in minutes) (default: 15)
+    check_interval = 15
+    # Number of different torrents to try to download before declaring download as failed (default = 20)
+    torrent_download_attempts_limit = 5
+    # Enable tvshows tracking
+    track_shows = true
+    # Enable movie tracking
+    track_movies = true
+    # Preferred quality (specified quality will be first in list of to download torrents) (possible values = 720p, 1080p)
+    preferred_media_quality = "720p"
+
+# WebUI settings
+[interface]
+    # Enable web interface
+    enabled = true
+    # Port used for web interface
+    port = 8400
+
+# Provider used to retrieve media info
+[providers]
+    [providers.tmdb]
+        apikey = "API_KEY"
+
+    #[providers.tvdb]
+        #apikey = "API_KEY"
+
+# List of different notification ways
+[notifiers]
+    desktop = []
+    #kodi = []
+
+    #[notifiers.pushbullet]
+        #accessToken = "ACCESS_TOKEN"
+
+# List of indexers used to search torrents
+[indexers]
+    [[indexers.torznab]]
+        name = "Jackett Aggregated indexer"
+        url = "http://jackett:9117/api/v2.0/indexers/all/results/torznab/"
+        apikey = "3g1d8w4j5denny00pws7tljnti0dedmi"
+
+# Download client to use
+[downloaders]
+    [downloaders.transmission]
+        address = "transmission"
+        port = 9091
+        user = "transmission"
+        password = "flemzerd_transmission"
+
+# List of watchlists
+[watchlists]
+    trakt = []
+    #manual = [
+        #"TV_SHOW_1",
+        #"TV_SHOW_2",
+        #"TV_SHOW_3"
+    #]
+
+#[mediacenters]
+    #[mediacenters.kodi] 
+        #address = "ADDRESS"
+        #port = 1234
+
+# Notifications parameters
+[notifications]
+    # Enable notifications (default = true)
+    enabled = true
+    # Send notification when a new episode is available (default = true)
+    notify_new_episode = true
+    # Send notification when a new movie is available (default = true)
+    notify_new_movie = true
+    # Send notification on download start
+    notify_download_start = true
+    # Send notification when a download is complete (default = true)
+    notify_download_complete = true
+    # Send notifications when a problem occurs before an episode download endend sucessfully (default = true)
+    notify_failure = true
+
+[library]
+    # Where to store TV Shows (absolute path). Folder hierarchy will be created if not existent
+    show_path = "/shows"
+    # Where to store movies (absolute path). Folder hierarchy will be created if not existent
+    movie_path = "/movies"
+    # Temporary download dir used to download media before moving them to library
+    custom_tmp_path = "/downloads"

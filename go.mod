@@ -23,6 +23,7 @@ require (
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
 	github.com/macarrie/transmission v0.0.0-20180521203359-2a6f6cd93675
 	github.com/magiconair/properties v1.8.0
+	github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739 // indirect
 	github.com/mattn/go-isatty v0.0.3
 	github.com/mattn/go-sqlite3 v1.7.0
 	github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
