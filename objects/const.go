@@ -22,7 +22,7 @@ const (
 )
 
 const (
-	DB_PATH = "/var/lib/flemzerd/flemzer.db"
+	DB_PATH = "/var/lib/flemzerd/db/flemzer.db"
 )
 
 const (
