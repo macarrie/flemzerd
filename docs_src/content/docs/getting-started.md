@@ -63,18 +63,27 @@ More information about general concepts of flemzerd, configuration options and m
 #### How to start
 ---
 
+* Run with all dependencies preconfigured (recommended):
+{{< highlight bash >}}
+docker-compose up
+{{< /highlight >}}
 * As a service (via systemctl)
 {{< highlight bash >}}
 systemctl start flemzerd
 {{< /highlight >}}
     * To enable at startup
-    {{< highlight bash >}}
-    systemctl enable flemzerd
-    {{< /highlight >}}
+{{< highlight bash >}}
+systemctl enable flemzerd
+{{< /highlight >}}
 * As a standalone binary
 {{< highlight bash >}}
 /usr/bin/flemzerd -d
 {{< /highlight >}}
+* As a docker image
+{{< highlight bash >}}
+docker run -v "/etc/flemzerd/flemzerd-docker.toml:/etc/flemzerd/flemzerd.toml" -v "/var/lib/flemzerd/db/:/var/lib/flemzerd/db" -v "/var/lib/flemzerd/tmp:/downloads" -it macarrie/flemzerd
+{{< /highlight >}}
+
 
 ## Build from source
 ---
@@ -94,3 +103,11 @@ make build
 {{< /highlight >}}
 
 This will generate a package under the `package/` folder, which is the same as the ones that can be downloaded as releases on Github. Install and update work as described previously.
+
+#### Build docker image from sources
+---
+
+With docker installed, build a docker image for the latest code with:
+{{< highlight bash >}}
+make docker
+{{< /highlight >}}

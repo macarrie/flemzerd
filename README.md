@@ -4,7 +4,7 @@
 > It watches your tv shows for new episodes, downloads them in the client of your choices, and updates your media center library if needed.
 
 
-Flemzerd is a daemon intended to track and handle your media library. We are often doing the same thing by hand: 
+Flemzerd is a daemon intended to track and handle your media library. We are often doing the same thing by hand:
 * Look regularly for new episodes of tv show
 * Once an episode is available, look for a way to download it
 * Launch download in your download client and wait for the download to end
@@ -24,8 +24,20 @@ The documentation containing detailed setup instructions, explanations and detai
 * ```make install```
 
 ## Update
+
 * Extract the package downloaded from the [Releases](https://github.com/macarrie/flemzerd/releases)
 * ```make update```
+
+## Usage
+
+* Use the binary directly:
+    ```./flemzerd -d```
+* Use the installed systemd service
+    ```systemctl start flemzerd```
+* Use the docker compose configuration found in the package. This contains all dependencies (Jackett, Transmission and preconfiguration)
+    ```docker-compose up```
+
+See the documentation for more details
 
 ## Release history
 
