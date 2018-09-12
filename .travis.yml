@@ -33,6 +33,11 @@ jobs:
                 script: bash -c "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin; docker push macarrie/flemzerd"
                 on:
                     branch: master
+              - provider: script
+                script: bash -c "echo \"$DOCKER_PASSWORD\" | docker login -u \"$DOCKER_USERNAME\" --password-stdin; docker tag macarrie/flemzerd macarrie/flemzer:$TRAVIS_TAG && docker push macarrie/flemzerd"
+                on:
+                    tags: true
+                    branch: master
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
