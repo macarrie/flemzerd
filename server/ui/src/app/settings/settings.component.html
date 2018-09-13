@@ -73,6 +73,20 @@
                           *ngIf="config.System.TrackMovies"><i class="material-icons float-right md-18">check_circle_outline</i></span>
                 </li>
                 <li class="list-group-item">
+                     Automatic show download
+                    <span class="float-right text-danger"
+                          *ngIf="!config.System.AutomaticShowDownload"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right text-success"
+                          *ngIf="config.System.AutomaticShowDownload"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
+                     Automatic movie download
+                    <span class="float-right text-danger"
+                          *ngIf="!config.System.AutomaticMovieDownload"><i class="material-icons float-right md-18">clear</i></span>
+                    <span class="float-right text-success"
+                          *ngIf="config.System.AutomaticMovieDownload"><i class="material-icons float-right md-18">check_circle_outline</i></span>
+                </li>
+                <li class="list-group-item">
                      Preferred media quality 
                     <span class="float-right text-muted" *ngIf="!config.System.PreferredMediaQuality">
                         None

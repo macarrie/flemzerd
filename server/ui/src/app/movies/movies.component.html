@@ -104,26 +104,26 @@
                     <i class="material-icons md-18 float-left mr-1">check_box</i> Removed
                 </span>
             </button>
-        <hr />
+            <hr />
         </div>
 
         <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let movie of trackedMovies">
-            <movie-miniature [movie]="movie"></movie-miniature>
+            <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
         </div>
-            <div class="my-3 col-6 col-lg-2 col-sm-4"
-                 *ngFor="let movie of downloadingMovies">
-                <movie-miniature [movie]="movie"></movie-miniature>
-            </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4"
+             *ngFor="let movie of downloadingMovies">
+            <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
+        </div>
         <ng-container *ngIf="show_downloaded_movies">
             <div class="my-3 col-6 col-lg-2 col-sm-4"
                  *ngFor="let movie of downloadedMovies">
-                <movie-miniature [movie]="movie"></movie-miniature>
+                <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
             </div>
         </ng-container>
         <ng-container *ngIf="show_removed_movies">
             <div class="my-3 col-6 col-lg-2 col-sm-4"
                  *ngFor="let movie of removedMovies">
-                <movie-miniature [movie]="movie"></movie-miniature>
+                <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
             </div>
         </ng-container>
     </div>
