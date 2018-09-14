@@ -107,11 +107,11 @@
             <hr />
         </div>
 
-        <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let movie of trackedMovies">
-            <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
-        </div>
         <div class="my-3 col-6 col-lg-2 col-sm-4"
              *ngFor="let movie of downloadingMovies">
+            <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
+        </div>
+        <div class="my-3 col-6 col-lg-2 col-sm-4" *ngFor="let movie of trackedMovies">
             <movie-miniature [movie]="movie" [config]="config"></movie-miniature>
         </div>
         <ng-container *ngIf="show_downloaded_movies">

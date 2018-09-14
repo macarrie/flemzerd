@@ -122,7 +122,7 @@ func GetDownloadingMovies() ([]Movie, error) {
 	Client.Find(&movies).Order("id DESC")
 
 	for _, m := range movies {
-		if m.DownloadingItem.Downloading && !m.DownloadingItem.Downloaded {
+		if (m.DownloadingItem.Downloading || m.DownloadingItem.Pending) && !m.DownloadingItem.Downloaded {
 			retList = append(retList, m)
 		}
 	}
