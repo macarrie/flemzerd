@@ -36,6 +36,10 @@ export class MovieMiniatureComponent implements OnInit {
         this.movieService.restoreMovie(id).subscribe(response => this.refreshMovie());
     }
 
+    downloadMovie(id :number) {
+        this.movieService.downloadMovie(id).subscribe(response => this.refreshMovie());
+    }
+
     changeDownloadedState(m :Movie, downloaded :boolean) {
         this.movieService.changeDownloadedState(m, downloaded).subscribe(movie => {
             this.refreshMovie();

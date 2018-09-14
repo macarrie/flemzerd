@@ -95,7 +95,7 @@ func downloadMovie(c *gin.Context) {
 	log.WithFields(log.Fields{
 		"id":    id,
 		"movie": media_helper.GetMovieTitle(movie),
-	}).Info("Launching individual episode download")
+	}).Info("Launching manual movie download")
 
 	scheduler.DownloadMovie(movie, false)
 
