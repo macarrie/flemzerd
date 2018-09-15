@@ -42,14 +42,19 @@
                 Mark as downloaded
             </a>
             <a class="btn text-light float-right"
-               *ngIf="movie.UseDefaultTitle"
+               *ngIf="movie.UseDefaultTitle && movie.Title != movie.OriginalTitle"
                (click)="useDefaultTitle(movie, false)">
                 <i class="material-icons">flip_to_front</i>Use original title
             </a>
             <a class="btn text-light float-right"
-               *ngIf="!movie.UseDefaultTitle"
+               *ngIf="!movie.UseDefaultTitle && movie.Title != movie.OriginalTitle"
                (click)="useDefaultTitle(movie, true)">
                 <i class="material-icons">flip_to_back</i>Use default title
+            </a>
+            <a class="btn text-light float-right"
+               *ngIf="movie.DeletedAt == null && !movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && !utils.dateIsInFuture(movie.Date)"
+               (click)="downloadMovie(movie.ID)">
+                <i class="material-icons">cloud_download</i>Download
             </a>
         </div>
     </div>

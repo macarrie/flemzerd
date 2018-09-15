@@ -30,12 +30,12 @@
                 <i class="material-icons">undo</i>Restore
             </a>
             <a class="btn text-light float-right"
-               *ngIf="tvshow.UseDefaultTitle"
+               *ngIf="tvshow.UseDefaultTitle && tvshow.Name != tvshow.OriginalName"
                (click)="useDefaultTitle(tvshow, false)">
                 <i class="material-icons">flip_to_front</i>Use original title
             </a>
             <a class="btn text-light float-right"
-               *ngIf="!tvshow.UseDefaultTitle"
+               *ngIf="!tvshow.UseDefaultTitle && tvshow.Name != tvshow.OriginalName"
                (click)="useDefaultTitle(tvshow, true)">
                 <i class="material-icons">flip_to_back</i>Use default title
             </a>

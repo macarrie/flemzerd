@@ -62,6 +62,11 @@ export class MovieDetailsComponent implements OnInit {
         });
     }
 
+    downloadMovie(id :number) {
+        this.movie.DownloadingItem.Pending = true;
+        this.movieService.downloadMovie(id).subscribe(response => this.getMovie());
+    }
+
     changeDownloadedState(m :Movie, downloaded :boolean) {
         this.movieService.changeDownloadedState(m, downloaded).subscribe(movie => {
             this.getMovie();
