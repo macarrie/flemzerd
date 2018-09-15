@@ -54,6 +54,22 @@ export class EpisodeDetailsComponent implements OnInit {
         });
     }
 
+    downloadEpisode(episode :Episode) :void {
+        if (episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || episode.DownloadingItem.Downloaded) {
+            return;
+        }
+
+        episode.DownloadingItem.Pending = true;
+        this.episodeService.downloadEpisode(episode).subscribe(
+            data =>  {
+                this.getEpisode();
+            },
+            error => {
+                episode.DownloadingItem.Pending = false;
+            }
+        );
+    }
+
     back() :void {
         this.location.back();
     }

@@ -13,7 +13,7 @@
                 </span>
             </div>
             <div class="card-img-overlay text-white font-weight-bold font-italic overlay-blue"
-                 *ngIf="movie.DeletedAt == null && (movie.DownloadingItem.DownloadingItem || movie.DownloadingItem.Pending)">
+                 *ngIf="movie.DeletedAt == null && (movie.DownloadingItem.Downloading || movie.DownloadingItem.Pending)">
                 <span *ngIf="movie.DownloadingItem.Downloading">
                     Downloading
                 </span>

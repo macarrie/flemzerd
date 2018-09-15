@@ -33,6 +33,11 @@
                (click)="changeDownloadedState(episode, true)">
                 <i class="material-icons">check</i>Mark as downloaded
             </a>
+            <a class="btn text-light float-right"
+               *ngIf="episode.DeletedAt == null && !episode.DownloadingItem.Pending && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Downloaded && !utils.dateIsInFuture(episode.Date)"
+               (click)="downloadEpisode(episode)">
+                <i class="material-icons">cloud_download</i>Download
+            </a>
         </div>
     </div>
     <div class="container mediadetails">
