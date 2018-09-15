@@ -65,6 +65,7 @@ func initRouter() {
 			moviesRoute.GET("/downloaded", getDownloadedMovies)
 			moviesRoute.GET("/details/:id", getMovieDetails)
 			moviesRoute.DELETE("/details/:id", deleteMovie)
+			moviesRoute.POST("/details/:id/download", downloadMovie)
 			moviesRoute.DELETE("/details/:id/download", abortMovieDownload)
 			moviesRoute.PUT("/details/:id", updateMovie)
 			moviesRoute.POST("/restore/:id", restoreMovie)

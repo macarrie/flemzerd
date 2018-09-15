@@ -84,6 +84,12 @@ export class MovieService {
         }
     }
 
+    downloadMovie(id :number) {
+        if (id != 0) {
+            return this.http.post('/api/v1/movies/details/' + id + '/download', {});
+        }
+    }
+
     stopDownload(id :number) {
         if (id != 0) {
             return this.http.delete('/api/v1/movies/details/' + id + '/download');

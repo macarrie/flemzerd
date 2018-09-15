@@ -6,8 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/scheduler"
 
 	"github.com/macarrie/flemzerd/db"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -73,6 +75,32 @@ func deleteMovie(c *gin.Context) {
 	}
 
 	c.AbortWithStatus(http.StatusNoContent)
+}
+
+func downloadMovie(c *gin.Context) {
+	id := c.Param("id")
+
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if req.RecordNotFound() {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if movie.DownloadingItem.Downloaded || movie.DownloadingItem.Downloading || movie.DownloadingItem.Pending {
+		c.AbortWithStatus(http.StatusNotModified)
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"id":    id,
+		"movie": media_helper.GetMovieTitle(movie),
+	}).Info("Launching manual movie download")
+
+	scheduler.DownloadMovie(movie, false)
+
+	c.JSON(http.StatusOK, gin.H{})
+	return
 }
 
 func abortMovieDownload(c *gin.Context) {

@@ -12,6 +12,7 @@ import { UtilsService } from '../utils.service';
 })
 export class MovieMiniatureComponent implements OnInit {
     @Input() movie :Movie;
+    @Input() config :any;
 
     constructor(
         private movieService :MovieService,
@@ -21,7 +22,6 @@ export class MovieMiniatureComponent implements OnInit {
     ngOnInit() {}
 
     refreshMovie() :void {
-        //this.movieService.getMovie(this.movie.ID).subscribe(movie => this.movie = movie);
         this.movieService.getMovies();
     }
 
@@ -34,6 +34,10 @@ export class MovieMiniatureComponent implements OnInit {
 
     restoreMovie(id :number) {
         this.movieService.restoreMovie(id).subscribe(response => this.refreshMovie());
+    }
+
+    downloadMovie(id :number) {
+        this.movieService.downloadMovie(id).subscribe(response => this.refreshMovie());
     }
 
     changeDownloadedState(m :Movie, downloaded :boolean) {
