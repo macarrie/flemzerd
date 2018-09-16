@@ -5,6 +5,7 @@ package db
 import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"golang.org/x/sys/unix"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -42,6 +43,15 @@ func Load() error {
 	if err != nil {
 		log.Fatal("Cannot open db: ", err)
 	}
+
+	err = unix.Access(DbPath, unix.W_OK)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"path":  DbPath,
+		}).Fatal("Cannot write into database")
+	}
+
 	Client = dbObj.Set("gorm:auto_preload", true)
 	Client.DB().SetMaxOpenConns(1)
 
