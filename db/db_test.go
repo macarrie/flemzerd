@@ -4,10 +4,23 @@ import (
 	"strconv"
 	"testing"
 
+	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 func init() {
+	DbFatal = func(code int) {
+		log.Error("Database fatal error: ", code)
+	}
+
+	DbPath = "/tmp/flemzerd.db"
+	Load()
+}
+
+func TestDBReadOnly(t *testing.T) {
+	DbPath = "../testdata/not_writable.db"
+	Load()
+
 	DbPath = "/tmp/flemzerd.db"
 	Load()
 }
