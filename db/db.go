@@ -3,6 +3,8 @@
 package db
 
 import (
+	"os"
+
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"golang.org/x/sys/unix"
@@ -19,6 +21,8 @@ var DbPath = DB_PATH
 
 // Current session data
 var Session SessionData
+
+var DbFatal func(code int) = os.Exit
 
 // InitDb initializes and migrates database tables
 func InitDb() {
@@ -49,7 +53,8 @@ func Load() error {
 		log.WithFields(log.Fields{
 			"error": err,
 			"path":  DbPath,
-		}).Fatal("Cannot write into database")
+		}).Error("Cannot write into database")
+		DbFatal(1)
 	}
 
 	Client = dbObj.Set("gorm:auto_preload", true)
