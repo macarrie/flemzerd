@@ -50,6 +50,12 @@ export class TvshowsService {
         return this.http.get<TvShow>('/api/v1/tvshows/details/' + id);
     }
 
+    updateShow(show :TvShow) :Observable<TvShow>{
+        if (show.ID != 0) {
+            return this.http.put<TvShow>('/api/v1/tvshows/details/' + show.ID, show);
+        }
+    }
+
     deleteShow(id :number) {
         if (id != 0) {
             return this.http.delete('/api/v1/tvshows/details/' + id);

@@ -52,6 +52,19 @@
                         [ngClass]="showStatusClasses">
                     {{ getStatusText(tvshow) }}
                 </button>
+                <div>
+                    <div class="float-left">
+                        <inline-editor 
+                          class="h2 d-inline"
+                          placeholder="Default title"
+                          type="text" 
+                          [(ngModel)]="title" 
+                          (onSave)="setCustomTitle($event)" 
+                          size=32
+                          name="showTitle"></inline-editor>
+                    </div>
+                        <span class="h3 text-muted ml-2 media_title_details">({{ utils.getYear(tvshow.FirstAired) }})</span>
+                </div>
 
                 <div class="p-3">
                     See on

@@ -5,6 +5,10 @@ import (
 )
 
 func GetMovieTitle(m Movie) string {
+	if m.CustomTitle != "" {
+		return m.CustomTitle
+	}
+
 	if m.UseDefaultTitle {
 		return m.Title
 	}
@@ -13,6 +17,10 @@ func GetMovieTitle(m Movie) string {
 }
 
 func GetShowTitle(s TvShow) string {
+	if s.CustomName != "" {
+		return s.CustomName
+	}
+
 	if s.UseDefaultTitle {
 		return s.Name
 	}

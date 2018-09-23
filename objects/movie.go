@@ -12,6 +12,7 @@ type Movie struct {
 	MediaIdsID        int
 	Title             string
 	OriginalTitle     string
+	CustomTitle       string
 	Overview          string
 	Poster            string
 	Date              time.Time

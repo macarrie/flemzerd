@@ -15,6 +15,7 @@ import { UtilsService } from '../utils.service';
 })
 export class MovieDetailsComponent implements OnInit {
     movie :Movie;
+    title :string;
     background_image :string;
 
     constructor(
@@ -30,6 +31,10 @@ export class MovieDetailsComponent implements OnInit {
     }
 
     getTitle(movie :Movie) :string {
+        if (movie.CustomTitle != "") {
+            return movie.CustomTitle;
+        }
+
         if (movie.UseDefaultTitle) {
             return movie.Title;
         }
@@ -41,6 +46,15 @@ export class MovieDetailsComponent implements OnInit {
         const id = +this.route.snapshot.paramMap.get('id');
         this.movieService.getMovie(id).subscribe(movie => {
             this.movie = movie;
+            this.title = this.getTitle(movie);
+            if (this.title == "") {
+                if (movie.UseDefaultTitle) {
+                    this.title = movie.Title;
+                } else {
+                    this.title = movie.OriginalTitle;
+                }
+            }
+
 
             this.fanartService.getMovieFanart(movie).subscribe(fanartObj => {
                 if (fanartObj["moviebackground"] && fanartObj["moviebackground"].length > 0) {
@@ -75,6 +89,13 @@ export class MovieDetailsComponent implements OnInit {
 
     useDefaultTitle(m :Movie, defaultTitle :boolean) {
         this.movieService.useDefaultTitle(m, defaultTitle).subscribe(movie => {
+            this.getMovie();
+        });
+    }
+
+    setCustomTitle(title :string) {
+        this.movie.CustomTitle = title;
+        this.movieService.updateMovie(this.movie).subscribe(movie => {
             this.getMovie();
         });
     }

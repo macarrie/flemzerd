@@ -3,6 +3,7 @@ export class TvShow {
     DeletedAt :string;
     Name: string;
     OriginalName: string;
+    CustomName: string;
     Status: number;
     MediaIds;
     Seasons;
