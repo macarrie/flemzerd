@@ -64,8 +64,19 @@
                 <img class="rounded" width="100%" [attr.src]="movie.Poster" [attr.alt]="movie.Title">
             </div>
             <div class="col-8 pl-0 pr-5">
-                <span class="h2">{{ getTitle(movie) }} </span> <span class="h3 text-muted">({{ utils.getYear(movie.Date) }})</span>
-
+                <div>
+                    <div class="float-left">
+                        <inline-editor 
+                          class="h2 d-inline"
+                          placeholder="Default title"
+                          type="text" 
+                          [(ngModel)]="title" 
+                          (onSave)="setCustomTitle($event)" 
+                          size=32
+                          name="movieTitle"></inline-editor>
+                    </div>
+                        <span class="h3 text-muted ml-2 media_title_details">({{ utils.getYear(movie.Date) }})</span>
+                </div>
                 <div class="p-3">
                     See on
                     <div class="external-links-banner">

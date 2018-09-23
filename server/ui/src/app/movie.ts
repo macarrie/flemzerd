@@ -3,6 +3,7 @@ export class Movie {
     DeletedAt :string;
     Title: string;
     OriginalTitle: string;
+    CustomTitle :string;
     Status: number;
     MediaIds;
     Seasons;

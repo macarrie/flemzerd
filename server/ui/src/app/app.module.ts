@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule }   from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -18,29 +19,33 @@ import { MovieDetailsComponent } from './movie-details/movie-details.component';
 import { NotificationsCenterComponent } from './notifications-center/notifications-center.component';
 import { NotificationComponent } from './notification/notification.component';
 
+import {InlineEditorModule} from '@qontu/ngx-inline-editor';
+
 @NgModule({
-  declarations: [
-    AppComponent,
-    DashboardComponent,
-    TvshowsComponent,
-    MoviesComponent,
-    StatusComponent,
-    SettingsComponent,
-    TvShowMiniatureComponent,
-    TvShowDetailsComponent,
-    EpisodeDetailsComponent,
-    DownloadingItemComponent,
-    MovieMiniatureComponent,
-    MovieDetailsComponent,
-    NotificationsCenterComponent,
-    NotificationComponent
-  ],
-  imports: [
-    BrowserModule,
-      AppRoutingModule,
-      HttpClientModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        DashboardComponent,
+        TvshowsComponent,
+        MoviesComponent,
+        StatusComponent,
+        SettingsComponent,
+        TvShowMiniatureComponent,
+        TvShowDetailsComponent,
+        EpisodeDetailsComponent,
+        DownloadingItemComponent,
+        MovieMiniatureComponent,
+        MovieDetailsComponent,
+        NotificationsCenterComponent,
+        NotificationComponent,
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        AppRoutingModule,
+        HttpClientModule,
+        InlineEditorModule,
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

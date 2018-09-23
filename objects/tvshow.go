@@ -23,6 +23,7 @@ type TvShow struct {
 	Overview         string
 	Name             string
 	OriginalName     string
+	CustomName       string
 	Status           int
 	NumberOfEpisodes int
 	NumberOfSeasons  int

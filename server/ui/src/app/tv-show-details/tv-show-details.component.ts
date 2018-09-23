@@ -23,6 +23,7 @@ export class TvShowDetailsComponent implements OnInit {
     seasons :Episode[][];
     background_image :string;
     showStatusClasses = {};
+    title :string;
 
     config :any;
 
@@ -46,6 +47,10 @@ export class TvShowDetailsComponent implements OnInit {
     }
 
     getTitle(show :TvShow) :string {
+        if (show.CustomName != "") {
+            return show.CustomName;
+        }
+
         if (show.UseDefaultTitle) {
             return show.Name;
         }
@@ -62,6 +67,14 @@ export class TvShowDetailsComponent implements OnInit {
                 'btn-outline-danger': this.tvshow.Status == 3,
                 'btn-outline-warning': this.tvshow.Status > 3,
             };
+            this.title = this.getTitle(tvshow);
+            if (this.title == "") {
+                if (tvshow.UseDefaultTitle) {
+                    this.title = tvshow.Name;
+                } else {
+                    this.title = tvshow.OriginalName;
+                }
+            }
 
             this.fanartService.getTvShowFanart(tvshow).subscribe(fanartObj => {
                 if (fanartObj["showbackground"] && fanartObj["showbackground"].length > 0) {
@@ -172,5 +185,11 @@ export class TvShowDetailsComponent implements OnInit {
         });
     }
 
+    setCustomTitle(title :string) {
+        this.tvshow.CustomName = title;
+        this.tvshowsService.updateShow(this.tvshow).subscribe(tvshow => {
+            this.getShow();
+        });
+    }
 }
 

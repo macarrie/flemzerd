@@ -78,6 +78,12 @@ export class MovieService {
         }
     }
 
+    updateMovie(m :Movie) :Observable<Movie>{
+        if (m.ID != 0) {
+            return this.http.put<Movie>('/api/v1/movies/details/' + m.ID, m);
+        }
+    }
+
     deleteMovie(id :number) {
         if (id != 0) {
             return this.http.delete('/api/v1/movies/details/' + id);

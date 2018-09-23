@@ -24,6 +24,11 @@
 
 .mediadetails {
     color: $light;
+
+    .media_title_details {
+        position: relative;
+        top: 4px;
+    }
 }
 
 .external-links-banner {
