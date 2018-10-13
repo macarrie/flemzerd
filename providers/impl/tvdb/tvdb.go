@@ -33,12 +33,10 @@ func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 	}
 
 	client := tvdb.Client{Apikey: apiKey}
-	err = client.Login()
 	log.WithFields(log.Fields{
 		"provider": module.Name,
 	}).Debug("Checking connection to TheTVDB")
-
-	if err != nil {
+	if err = client.Login(); err != nil {
 		if tvdb.HaveCodeError(401, err) {
 			log.Error("Cannot connect to thetvdb (API key not valid). Please check your API key and try again")
 		} else {
@@ -107,8 +105,8 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 			"TVDB-ID":  tvShow.ID,
 			"provider": module.Name,
 		}).Debug("TV show found")
-		return convertShow(tvShow), nil
 
+		return convertShow(tvShow), nil
 	}
 }
 
@@ -124,8 +122,7 @@ func (tvdbProvider *TVDBProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) 
 	if err != nil {
 		return []Episode{}, handleTvShowNotFoundError(media_helper.GetShowTitle(tvShow), err)
 	} else {
-		err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{})
-		if err != nil {
+		if err := tvdbProvider.Client.GetSeriesEpisodes(&tvShowSearchResult, url.Values{}); err != nil {
 			log.WithFields(log.Fields{
 				"tvshow":   media_helper.GetShowTitle(tvShow),
 				"id":       tvShow.Model.ID,
@@ -209,6 +206,7 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		"nb_of_episodes": len(recentlyAiredEpisodes),
 		"provider":       module.Name,
 	}).Debug("Successfully filtered list of episodes that have been recently aired")
+
 	return recentlyAiredEpisodes, nil
 }
 
@@ -290,7 +288,7 @@ func convertEpisode(episode tvdb.Episode) Episode {
 	}
 
 	return Episode{
-		//AbsoluteNumber: episode.AbsoluteNumber,
+		AbsoluteNumber: episode.AbsoluteNumber,
 		Number:   episode.AiredEpisodeNumber,
 		Season:   episode.AiredSeason,
 		Title:    episode.EpisodeName,

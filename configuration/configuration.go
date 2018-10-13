@@ -122,17 +122,6 @@ func Check() {
 		}).Error("Configuration error")
 	}
 
-	_, tvdb := Config.Providers["tvdb"]
-	if tvdb {
-		_, tvdbapikey := Config.Providers["tvdb"]["apikey"]
-
-		if !tvdbapikey {
-			log.WithFields(log.Fields{
-				"error": "Missing key(s)for tvdb provider (apikey required)",
-			}).Error("Configuration error")
-		}
-	}
-
 	if len(Config.Notifiers) == 0 && Config.Notifications.Enabled {
 		log.WithFields(log.Fields{
 			"error": "Notifications are enabled but no notifiers are defined. No notifications will be sent.",
