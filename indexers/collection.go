@@ -86,8 +86,8 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
 	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
+	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }
