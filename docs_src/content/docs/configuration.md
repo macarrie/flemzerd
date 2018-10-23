@@ -41,6 +41,7 @@ The configuration file is organized in different sections, each section correspo
     track_shows = true
     track_movies = true
     preferred_media_quality = "720p"
+    excluded_release_types = "cam,screener,telesync,telecine"
 {{< /highlight >}}
 
 ##### Options explanation
@@ -54,8 +55,9 @@ Track and download TV shows episodes found in Watchlists. Set to `false` to disa
 * `track_movies` (default: `true`)<br />
 Track and download movies found in Watchlists. Set to `false` to disable movies handling.
 * `preferred_media_quality` (default: `720p`)<br />
-  When getting torrents for media, flemzerd can sort them by quality, putting the one you chose in this option first. Possible values are: TODO FIND OPTIONS LIST
-
+  When getting torrents for media, flemzerd can sort them by quality, putting the one you chose in this option first. Possible values are: 480p, 576p, 720p, 900p, 1080p, 1440p, 2160p, 5k, 8k, 16k
+* `excluded_release_types` (default: `cam, screener, telesync, telecine`)<br />
+  When the following release types are detected in a torrent name, it will be excluded from download list. Possible values are: cam, screener, telesync, telecine, dvdrip, hdtv, webdl, blurayrip
 
 ### Interface settings
 ---

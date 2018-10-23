@@ -3,6 +3,7 @@ package indexer
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/macarrie/flemzerd/configuration"
 	media_helper "github.com/macarrie/flemzerd/helpers/media"
@@ -86,8 +87,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = FilterBadTorrentsForEpisode(torrentList, season, episode)
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
+	torrentList = FilterEpisodeTorrents(show, season, episode, torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }
@@ -134,56 +134,30 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = ApplyUsersPreferencesOnTorrents(torrentList)
-	if movie.Date.Year() != 1 {
-		torrentList = CheckYearOfTorrents(torrentList, movie.Date.Year())
-	}
+	torrentList = FilterMovieTorrents(movie, torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }
 
-func ApplyUsersPreferencesOnTorrents(list []Torrent) []Torrent {
-	log.WithFields(log.Fields{
-		"quality_filter": configuration.Config.System.PreferredMediaQuality,
-	}).Debug("Sorting list according to quality preferences")
+func FilterEpisodeTorrents(show string, season int, episode int, torrentList []Torrent) []Torrent {
+	torrentList = FilterTorrentEpisodeNumber(torrentList, season, episode)
+	torrentList = FilterTorrentQuality(torrentList)
+	torrentList = FilterTorrentReleaseType(torrentList)
 
-	var qualityFilteredList []Torrent
-	var otherTorrents []Torrent
-	var qualityFilter string
-
-	switch configuration.Config.System.PreferredMediaQuality {
-	case "720p", "1080p":
-		qualityFilter = configuration.Config.System.PreferredMediaQuality
-	default:
-		qualityFilter = ""
-	}
-
-	if qualityFilter == "" {
-		return list
-	}
-
-	for _, torrent := range list {
-		mediaInfo, err := vidocq.GetInfo(torrent.Name)
-		if err != nil {
-			log.Warning("An error occured during vidocq request", err.Error())
-			otherTorrents = append(otherTorrents, torrent)
-
-			continue
-		}
-
-		if mediaInfo.Quality == qualityFilter {
-			qualityFilteredList = append(qualityFilteredList, torrent)
-		} else {
-			otherTorrents = append(otherTorrents, torrent)
-		}
-	}
-
-	retList := append(qualityFilteredList, otherTorrents...)
-
-	return retList
+	return torrentList
 }
 
-func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torrent {
+func FilterMovieTorrents(movie Movie, torrentList []Torrent) []Torrent {
+	torrentList = FilterTorrentQuality(torrentList)
+	if movie.Date.Year() != 1 {
+		torrentList = FilterTorrentYear(torrentList, movie.Date.Year())
+	}
+	torrentList = FilterTorrentReleaseType(torrentList)
+
+	return torrentList
+}
+
+func FilterTorrentEpisodeNumber(list []Torrent, season int, episode int) []Torrent {
 	log.Debug("Checking torrent list for bad episodes")
 	var returnList []Torrent
 
@@ -206,7 +180,7 @@ func FilterBadTorrentsForEpisode(list []Torrent, season int, episode int) []Torr
 	return returnList
 }
 
-func CheckYearOfTorrents(list []Torrent, year int) []Torrent {
+func FilterTorrentYear(list []Torrent, year int) []Torrent {
 	log.Debug("Checking torrent list for bad movie torrents (wrong year)")
 	var returnList []Torrent
 
@@ -221,7 +195,7 @@ func CheckYearOfTorrents(list []Torrent, year int) []Torrent {
 			continue
 		}
 
-		if movieInfo.Year != 0 && movieInfo.Year == year {
+		if (movieInfo.Year != 0 && movieInfo.Year == year) || movieInfo.Year == 0 {
 			returnList = append(returnList, torrent)
 		}
 	}
@@ -229,12 +203,83 @@ func CheckYearOfTorrents(list []Torrent, year int) []Torrent {
 	return returnList
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func FilterTorrentReleaseType(list []Torrent) []Torrent {
+	log.WithFields(log.Fields{
+		"excluded_release_types": configuration.Config.System.ExcludedReleaseTypes,
+	}).Debug("Excluding release types from torrent list")
+
+	var releaseFilteredList []Torrent
+	var releaseTypeFilters []string
+
+	releaseTypeFilters = strings.Split(configuration.Config.System.ExcludedReleaseTypes, ",")
+	for i := range releaseTypeFilters {
+		releaseTypeFilters[i] = strings.TrimSpace(releaseTypeFilters[i])
 	}
 
-	return b
+	for _, torrent := range list {
+		mediaInfo, err := vidocq.GetInfo(torrent.Name)
+		if err != nil {
+			log.Warning("An error occured during vidocq request: ", err.Error())
+			releaseFilteredList = append(releaseFilteredList, torrent)
+
+			continue
+		}
+
+		releaseTypeExcluded := false
+		for _, releaseType := range releaseTypeFilters {
+			if releaseType != "" && releaseType == mediaInfo.ReleaseType {
+				releaseTypeExcluded = true
+			}
+		}
+
+		if !releaseTypeExcluded {
+			releaseFilteredList = append(releaseFilteredList, torrent)
+		}
+	}
+
+	return releaseFilteredList
+}
+
+func FilterTorrentQuality(list []Torrent) []Torrent {
+	log.WithFields(log.Fields{
+		"quality_filter": configuration.Config.System.PreferredMediaQuality,
+	}).Debug("Sorting list according to quality preferences")
+
+	var qualityFilteredList []Torrent
+	var otherTorrents []Torrent
+	var qualityFilters []string
+
+	qualityFilters = strings.Split(configuration.Config.System.PreferredMediaQuality, ",")
+	for i := range qualityFilters {
+		qualityFilters[i] = strings.TrimSpace(qualityFilters[i])
+	}
+
+	for _, torrent := range list {
+		mediaInfo, err := vidocq.GetInfo(torrent.Name)
+		if err != nil {
+			log.Warning("An error occured during vidocq request: ", err.Error())
+			otherTorrents = append(otherTorrents, torrent)
+
+			continue
+		}
+
+		qualityMatches := false
+		for _, quality := range qualityFilters {
+			if quality == mediaInfo.Quality {
+				qualityMatches = true
+			}
+		}
+
+		if qualityMatches {
+			qualityFilteredList = append(qualityFilteredList, torrent)
+		} else {
+			otherTorrents = append(otherTorrents, torrent)
+		}
+	}
+
+	retList := append(qualityFilteredList, otherTorrents...)
+
+	return retList
 }
 
 // GetIndexer returns the registered indexer with name "name". An non-nil error is returned if no registered indexer are found with the required name

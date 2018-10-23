@@ -8,8 +8,14 @@
     track_shows = true
     # Enable movie tracking
     track_movies = true
+    # Automatically download new TV Shows episodes when they air
+    automatic_show_download = true
+    # Automatically download movies when they are added into flemzerd
+    automatic_movie_download = false
     # Preferred quality (specified quality will be first in list of to download torrents) (possible values = 720p, 1080p)
     preferred_media_quality = "720p"
+    # When the following release types are detected in a torrent name, it will be excluded from download list (possible values = cam, screener, telesync, telecine, dvdrip, hdtv, webdl, blurayrip)
+    excluded_release_types = "cam,screener,telesync,telecine"
 
 # WebUI settings
 [interface]
