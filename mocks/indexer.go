@@ -83,7 +83,7 @@ func getTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 			Seeders: 1,
 		},
 		Torrent{
-			Name:    "Torrent2.s01e01.720p",
+			Name:    "Torrent2.s01e01.1080p",
 			Link:    "torrent2.torrent",
 			Seeders: 2,
 		},
@@ -91,6 +91,21 @@ func getTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 			Name:    "Torrent3.s01e01.720p",
 			Link:    "torrent3.torrent",
 			Seeders: 3,
+		},
+		Torrent{
+			Name:    "Torrent4.s01e01.cam",
+			Link:    "torrent4.cam.torrent",
+			Seeders: 4,
+		},
+		Torrent{
+			Name:    "Torrent4.s02e02.cam",
+			Link:    "torrent4.torrent",
+			Seeders: 4,
+		},
+		Torrent{
+			Name:    "Torrent4.s02e02.480p",
+			Link:    "torrent4.torrent",
+			Seeders: 4,
 		},
 		Torrent{
 			Name:    "Torrent4.s02e02",
@@ -132,9 +147,24 @@ func getTorrentForMovie(movieName string) ([]Torrent, error) {
 			Seeders: 3,
 		},
 		Torrent{
-			Name:    "Torrent4",
+			Name:    "Torrent4.cam",
 			Link:    "torrent4.torrent",
 			Seeders: 4,
+		},
+		Torrent{
+			Name:    "Torrent5.1994",
+			Link:    "torrent5.torrent",
+			Seeders: 4,
+		},
+		Torrent{
+			Name:    "Torrent6.2018.screener",
+			Link:    "torrent6.torrent",
+			Seeders: 4,
+		},
+		Torrent{
+			Name:    "Torrent7.480p.screener",
+			Link:    "torrent7.torrent",
+			Seeders: 2,
 		},
 	}, nil
 }

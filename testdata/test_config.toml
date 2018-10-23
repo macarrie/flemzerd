@@ -3,7 +3,8 @@
     torrent_download_attempts_limit = 20.0
     track_shows = true
     track_movies = true
-    preferred_media_quality = "720p"
+    preferred_media_quality = "720p,1080p"
+    excluded_release_types = "cam,screener,telesync,telecine"
 
 [interface]
     enabled = true

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	log "github.com/macarrie/flemzerd/logging"
 
@@ -65,6 +66,7 @@ type Configuration struct {
 		AutomaticShowDownload        bool   `mapstructure:"automatic_show_download"`
 		AutomaticMovieDownload       bool   `mapstructure:"automatic_movie_download"`
 		PreferredMediaQuality        string `mapstructure:"preferred_media_quality"`
+		ExcludedReleaseTypes         string `mapstructure:"excluded_release_types"`
 	}
 	Library struct {
 		ShowPath      string `mapstructure:"show_path"`
@@ -94,8 +96,9 @@ func setDefaultValues() {
 	viper.SetDefault("system.track_shows", true)
 	viper.SetDefault("system.track_movies", true)
 	viper.SetDefault("system.automatic_show_download", true)
-	viper.SetDefault("system.automatic_movie_download", true)
-	viper.SetDefault("system.preferred_media_quality", "")
+	viper.SetDefault("system.automatic_movie_download", false)
+	viper.SetDefault("system.preferred_media_quality", "720p")
+	viper.SetDefault("system.excluded_release_types", "cam,screener,telesync,telecine")
 }
 
 func UseFile(filePath string) {
@@ -186,6 +189,38 @@ func Check() {
 		if !kodiPort {
 			log.Warning("Kodi mediacenter port not defined. Using '9090'")
 			Config.MediaCenters["kodi"]["port"] = "9090"
+		}
+	}
+
+	qualityFilters := strings.Split(Config.System.PreferredMediaQuality, ",")
+	for i := range qualityFilters {
+		qualityFilters[i] = strings.TrimSpace(qualityFilters[i])
+	}
+	for _, filter := range qualityFilters {
+		switch filter {
+		case "480p", "576p", "720p", "900p", "1080p", "1440p", "2160p", "5k", "8k", "16k":
+		default:
+			log.WithFields(log.Fields{
+				"preferred_media_quality": Config.System.PreferredMediaQuality,
+				"invalid_quality_setting": filter,
+			}).Error("Invalid media quality preference parameter. No filter will be done on quality")
+			Config.System.PreferredMediaQuality = ""
+		}
+	}
+
+	releaseTypeFilters := strings.Split(Config.System.PreferredMediaQuality, ",")
+	for i := range qualityFilters {
+		releaseTypeFilters[i] = strings.TrimSpace(releaseTypeFilters[i])
+	}
+	for _, releaseType := range releaseTypeFilters {
+		switch releaseType {
+		case "cam", "telesync", "telecine", "screener", "dvdrip", "hdtv", "webdl", "blurayrip":
+		default:
+			log.WithFields(log.Fields{
+				"excluded_release_types":       Config.System.ExcludedReleaseTypes,
+				"invalid_release_type_setting": releaseType,
+			}).Error("Invalid release type preference parameter. No filter will be done on release types")
+			Config.System.ExcludedReleaseTypes = ""
 		}
 	}
 }

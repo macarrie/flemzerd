@@ -8,6 +8,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	mock "github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/vidocq"
 )
 
 func init() {
@@ -63,7 +64,8 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	ind2 := mock.TVIndexer{}
 	ind3 := mock.MovieIndexer{}
 	ind4 := mock.MovieIndexer{}
-	configuration.Config.System.PreferredMediaQuality = "720p"
+	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
+	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
@@ -90,9 +92,20 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		t.Error("Expected to have no torrents when getting torrents for episode")
 	}
 
-	configuration.Config.System.PreferredMediaQuality = ""
+	//Get torrent when vidocq is not available
+	vidocq.LocalVidocqAvailable = false
 	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
-	if len(torrentList) != 6 {
+	if len(torrentList) != 14 {
+		t.Errorf("Expected 14 torrents, got %d instead\n", len(torrentList))
+		return
+	}
+
+	//Get torrents with filters disabled
+	configuration.Config.System.PreferredMediaQuality = ""
+	configuration.Config.System.ExcludedReleaseTypes = ""
+	vidocq.LocalVidocqAvailable = true
+	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
+	if len(torrentList) != 8 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
 		return
 	}
@@ -103,7 +116,10 @@ func TestGetTorrentForMovie(t *testing.T) {
 	ind2 := mock.TVIndexer{}
 	ind3 := mock.MovieIndexer{}
 	ind4 := mock.MovieIndexer{}
-	configuration.Config.System.PreferredMediaQuality = "720p"
+	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
+	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
+	vidocq.LocalVidocqAvailable = true
+
 	movieDate := time.Date(2018, time.January, 10, 13, 0, 0, 0, time.UTC)
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
@@ -139,16 +155,30 @@ func TestGetTorrentForMovie(t *testing.T) {
 		t.Error("Expected to have no torrents when getting torrents for movie")
 	}
 
-}
-
-func TestMin(t *testing.T) {
-	if min(1, 2) != 1 {
-		t.Errorf("Expected min(1, 2) to be 1, got %d instead", min(1, 2))
+	//Get torrent when vidocq is not available
+	vidocq.LocalVidocqAvailable = false
+	torrentList, _ = GetTorrentForMovie(Movie{
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+		Date:          movieDate,
+	})
+	if len(torrentList) != 14 {
+		t.Errorf("Expected 14 torrents when vidocq is not available, got %d instead\n", len(torrentList))
 	}
 
-	if min(3, 2) != 2 {
-		t.Errorf("Expected min(3, 2) to be 2, got %d instead", min(3, 2))
+	//Get torrents with no filters
+	configuration.Config.System.PreferredMediaQuality = ""
+	configuration.Config.System.ExcludedReleaseTypes = ""
+	vidocq.LocalVidocqAvailable = true
+	torrentList, _ = GetTorrentForMovie(Movie{
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+		Date:          movieDate,
+	})
+	if len(torrentList) != 12 {
+		t.Errorf("Expected 12 torrents, got %d instead\n", len(torrentList))
 	}
+
 }
 
 func TestGetSpecificIndexer(t *testing.T) {

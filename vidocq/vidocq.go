@@ -12,20 +12,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-var localVidocqAvailable bool
+var LocalVidocqAvailable bool
 
 func init() {
 	_, err := exec.LookPath("vidocq")
 	if err != nil {
 		log.Debug("Local vidocq executable not found. Quality filters and torrent control will not be done")
-		localVidocqAvailable = false
+		LocalVidocqAvailable = false
 	} else {
-		localVidocqAvailable = true
+		LocalVidocqAvailable = true
 	}
 }
 
 func GetInfo(name string) (MediaInfo, error) {
-	if !localVidocqAvailable {
+	if !LocalVidocqAvailable {
 		return MediaInfo{}, fmt.Errorf("vidocq not available locally")
 	}
 

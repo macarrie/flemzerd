@@ -101,7 +101,7 @@ test:
 		tests_in_package=$$(ls ./$$d | grep _test.go | wc -l); \
 		if [ $$tests_in_package -gt 0 ]; \
 		then \
-			$(GO) test -covermode=count -coverprofile "cover/$${d##*/}.cov" "$$d"; \
+			$(GO) test -covermode=count -coverprofile "cover/$${d##*/}.testcov" "$$d"; \
 			ret=$$?; \
 			if [ $$ret -ne 0 ]; \
 			then \
@@ -109,7 +109,7 @@ test:
 			fi; \
 		fi; \
 	done;
-	tail -q -n +2 cover/*.cov >> cover/coverage.cov
+	tail -q -n +2 cover/*.testcov >> cover/coverage.cov
 	$(GO) tool cover -func=cover/coverage.cov
 
 
