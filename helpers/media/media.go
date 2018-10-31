@@ -17,13 +17,13 @@ func GetMovieTitle(m Movie) string {
 }
 
 func GetShowTitle(s TvShow) string {
-	if s.CustomName != "" {
-		return s.CustomName
+	if s.CustomTitle != "" {
+		return s.CustomTitle
 	}
 
 	if s.UseDefaultTitle {
-		return s.Name
+		return s.Title
 	}
 
-	return s.OriginalName
+	return s.OriginalTitle
 }

@@ -37,7 +37,7 @@ func getRemovedShows(c *gin.Context) {
 	var tvShows []TvShow
 	var retList []TvShow
 
-	if err := db.Client.Unscoped().Order("status").Order("name").Find(&tvShows).Error; err != nil {
+	if err := db.Client.Unscoped().Order("status").Order("title").Find(&tvShows).Error; err != nil {
 		log.Error("Error while getting removed shows from db: ", err)
 	}
 
@@ -86,6 +86,42 @@ func updateShow(c *gin.Context) {
 	c.JSON(http.StatusOK, show)
 }
 
+func changeTvshowCustomTitle(c *gin.Context) {
+	id := c.Param("id")
+	var tvshow TvShow
+	req := db.Client.Find(&tvshow, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var showFromRequest TvShow
+	c.BindJSON(&showFromRequest)
+
+	tvshow.CustomTitle = showFromRequest.CustomTitle
+	db.Client.Save(&tvshow)
+
+	c.JSON(http.StatusOK, tvshow)
+}
+
+func useTvshowDefaultTitle(c *gin.Context) {
+	id := c.Param("id")
+	var tvshow TvShow
+	req := db.Client.Find(&tvshow, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var showFromRequest TvShow
+	c.BindJSON(&showFromRequest)
+
+	tvshow.UseDefaultTitle = showFromRequest.UseDefaultTitle
+	db.Client.Save(&tvshow)
+
+	c.JSON(http.StatusOK, tvshow)
+}
+
 func getSeasonDetails(c *gin.Context) {
 	id := c.Param("id")
 	seasonNumber := c.Param("season_nb")
@@ -105,7 +141,7 @@ func getSeasonDetails(c *gin.Context) {
 	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":   show.OriginalName,
+			"show":   show.OriginalTitle,
 			"season": seasonNumber,
 			"error":  err,
 		}).Warning("Encountered error when querying season details from TMDB")
@@ -171,7 +207,7 @@ func downloadEpisode(c *gin.Context) {
 	log.WithFields(log.Fields{
 		"id":      id,
 		"show":    media_helper.GetShowTitle(ep.TvShow),
-		"episode": ep.Name,
+		"episode": ep.Title,
 		"season":  ep.Season,
 		"number":  ep.Number,
 	}).Info("Launching individual episode download")
@@ -210,18 +246,18 @@ func abortEpisodeDownload(c *gin.Context) {
 
 func changeEpisodeDownloadedState(c *gin.Context) {
 	id := c.Param("id")
-	var ep Episode
-	req := db.Client.Find(&ep, id)
+	var episode Episode
+	req := db.Client.Find(&episode, id)
 	if req.RecordNotFound() {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
 
-	var itemInfo DownloadingItem
-	c.Bind(&itemInfo)
+	var downloadingItemFromRequest DownloadingItem
+	c.BindJSON(&downloadingItemFromRequest)
 
-	ep.DownloadingItem.Downloaded = itemInfo.Downloaded
-	db.Client.Save(&ep)
+	episode.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
+	db.Client.Save(&episode)
 
-	c.JSON(http.StatusOK, ep)
+	c.JSON(http.StatusOK, episode)
 }

@@ -115,13 +115,13 @@ func TestGetMovies(t *testing.T) {
 func TestRemoveDuplicates(t *testing.T) {
 	uniqueList := removeDuplicates([]MediaIds{
 		MediaIds{
-			Name: "test1",
+			Title: "test1",
 		},
 		MediaIds{
-			Name: "test2",
+			Title: "test2",
 		},
 		MediaIds{
-			Name: "test1",
+			Title: "test1",
 		},
 	})
 

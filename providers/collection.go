@@ -105,7 +105,7 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 		for _, e := range episodes {
 			reqEpisode := Episode{}
 			req := db.Client.Where(Episode{
-				Name:   e.Name,
+				Title:  e.Title,
 				Season: e.Season,
 				Number: e.Number,
 			}).Find(&reqEpisode)
@@ -157,12 +157,12 @@ func GetTVShowsInfoFromConfig() {
 	showList = append(showList, showsFromWatchlists...)
 
 	for _, showIds := range showList {
-		showName := showIds.Name
+		showTitle := showIds.Title
 		show, err := FindShow(showIds)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-				"show":  showName,
+				"show":  showTitle,
 			}).Warning("Unable to get show informations")
 		} else {
 			if show.DeletedAt == nil {
@@ -185,12 +185,12 @@ func GetMoviesInfoFromConfig() {
 	movieList = append(movieList, moviesFromWatchlists...)
 
 	for _, movie := range movieList {
-		movieName := movie
+		movieTitle := movie
 		movie, err := FindMovie(movie)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-				"movie": movieName,
+				"movie": movieTitle,
 			}).Warning("Unable to get movie informations")
 		} else {
 			if movie.DeletedAt == nil {
@@ -210,8 +210,8 @@ func removeDuplicateShows(array []TvShow) []TvShow {
 	var ret []TvShow
 
 	for _, show := range array {
-		if !occurences[show.Name] {
-			occurences[show.Name] = true
+		if !occurences[show.Title] {
+			occurences[show.Title] = true
 			ret = append(ret, show)
 		}
 	}
@@ -259,8 +259,8 @@ func mergeMediaIds(m1, m2 MediaIds) MediaIds {
 	if m1.ID != 0 {
 		merged.ID = m1.ID
 	}
-	if m1.Name != "" {
-		merged.Name = m1.Name
+	if m1.Title != "" {
+		merged.Title = m1.Title
 	}
 	if m1.Trakt != 0 {
 		merged.Trakt = m1.Trakt
@@ -278,8 +278,8 @@ func mergeMediaIds(m1, m2 MediaIds) MediaIds {
 	if merged.ID != 0 && m2.ID != 0 {
 		merged.ID = m2.ID
 	}
-	if merged.Name != "" && m2.Name != "" {
-		merged.Name = m2.Name
+	if merged.Title != "" && m2.Title != "" {
+		merged.Title = m2.Title
 	}
 	if merged.Trakt == 0 && m2.Trakt != 0 {
 		merged.Trakt = m2.Trakt

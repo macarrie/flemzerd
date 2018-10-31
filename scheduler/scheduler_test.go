@@ -149,12 +149,12 @@ func TestDownloadMedia(t *testing.T) {
 	mediacenter.AddMediaCenter(mock.MediaCenter{})
 
 	episode := Episode{
-		Name:   "test_episode",
+		Title:  "test_episode",
 		Number: 0,
 		Season: 1,
 		TvShow: TvShow{
-			Name:         "test_show",
-			OriginalName: "test_show",
+			Title:         "test_show",
+			OriginalTitle: "test_show",
 		},
 	}
 	db.Client.Save(&episode)
@@ -395,7 +395,7 @@ func TestRecovery(t *testing.T) {
 		for _, recentEpisode := range recentEpisodes {
 			reqEpisode := Episode{}
 			req := db.Client.Where(Episode{
-				Name:   recentEpisode.Name,
+				Title:  recentEpisode.Title,
 				Season: recentEpisode.Season,
 				Number: recentEpisode.Number,
 			}).Find(&reqEpisode)

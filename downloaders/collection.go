@@ -139,7 +139,7 @@ func EpisodeHandleTorrentDownload(ctx context.Context, e *Episode, recovery bool
 		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
-		"name":   e.Name,
+		"title":  e.Title,
 	}).Info("Episode successfully downloaded")
 	notifier.NotifyDownloadedEpisode(e)
 
@@ -152,7 +152,7 @@ func EpisodeHandleTorrentDownload(ctx context.Context, e *Episode, recovery bool
 	if err != nil {
 		log.WithFields(log.Fields{
 			"show":           media_helper.GetShowTitle(e.TvShow),
-			"episode":        e.Name,
+			"episode":        e.Title,
 			"season":         e.Season,
 			"number":         e.Number,
 			"temporary_path": e.DownloadingItem.CurrentTorrent.DownloadDir,
@@ -213,7 +213,7 @@ func MovieHandleTorrentDownload(ctx context.Context, m *Movie, recovery bool) (e
 
 	// If function has not returned yet, download ended with no errors !
 	log.WithFields(log.Fields{
-		"name": media_helper.GetMovieTitle(*m),
+		"title": media_helper.GetMovieTitle(*m),
 	}).Info("Movie successfully downloaded")
 	notifier.NotifyDownloadedMovie(m)
 
@@ -285,7 +285,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, recovery bool) error {
 		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
-		"name":   e.Name,
+		"title":  e.Title,
 	}).Info("Starting download process")
 
 	e.DownloadingItem.Pending = false
@@ -332,7 +332,7 @@ func DownloadEpisode(e Episode, torrentList []Torrent, recovery bool) error {
 				"show":   media_helper.GetShowTitle(e.TvShow),
 				"season": e.Season,
 				"number": e.Number,
-				"name":   e.Name,
+				"title":  e.Title,
 			}).Info("Download manually aborted. Cleaning up current download artifacts.")
 
 			currentDownloadPath := e.DownloadingItem.CurrentTorrent.DownloadDir
@@ -374,7 +374,7 @@ func DownloadMovie(m Movie, torrentList []Torrent, recovery bool) error {
 	}
 
 	log.WithFields(log.Fields{
-		"name": media_helper.GetMovieTitle(m),
+		"title": media_helper.GetMovieTitle(m),
 	}).Info("Starting download process")
 
 	m.DownloadingItem.Pending = false
@@ -456,7 +456,7 @@ func AbortEpisodeDownload(e *Episode) {
 	log.WithFields(log.Fields{
 		"id":      e.ID,
 		"show":    media_helper.GetShowTitle(e.TvShow),
-		"episode": e.Name,
+		"episode": e.Title,
 		"season":  e.Season,
 		"number":  e.Number,
 	}).Info("Aborting episode download")
@@ -504,7 +504,7 @@ func MarkEpisodeFailedDownload(e *Episode) {
 		"show":   media_helper.GetShowTitle(e.TvShow),
 		"season": e.Season,
 		"number": e.Number,
-		"name":   e.Name,
+		"title":  e.Title,
 	}).Error("Download failed, no torrents could be downloaded")
 
 	notifier.NotifyFailedEpisode(e)
@@ -534,7 +534,7 @@ func sanitizeStringForFilename(src string) string {
 func MoveEpisodeToLibrary(episode *Episode) error {
 	log.WithFields(log.Fields{
 		"show":           media_helper.GetShowTitle(episode.TvShow),
-		"episode":        episode.Name,
+		"episode":        episode.Title,
 		"season":         episode.Season,
 		"number":         episode.Number,
 		"temporary_path": episode.DownloadingItem.CurrentTorrent.DownloadDir,

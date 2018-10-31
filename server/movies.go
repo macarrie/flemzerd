@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -68,7 +69,14 @@ func getMovieDetails(c *gin.Context) {
 func deleteMovie(c *gin.Context) {
 	id := c.Param("id")
 	var movie Movie
-	req := db.Client.Delete(&movie, id)
+	req := db.Client.Unscoped().Find(&movie, id)
+	if err := req.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	downloader.AbortMovieDownload(&movie)
+	req = db.Client.Delete(&movie, id)
 	if err := req.Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
@@ -129,7 +137,63 @@ func updateMovie(c *gin.Context) {
 	var movieFromRequest Movie
 	c.Bind(&movieFromRequest)
 
+	fmt.Printf("Movie from request: %+v\n", movieFromRequest)
+	fmt.Printf("Movie from db: %+v\n", movie)
 	movie = movieFromRequest
+	//db.Client.Save(&movie)
+
+	c.JSON(http.StatusOK, movie)
+}
+
+func changeMovieDownloadedState(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var downloadingItemFromRequest DownloadingItem
+	c.BindJSON(&downloadingItemFromRequest)
+
+	movie.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
+	db.Client.Save(&movie)
+
+	c.JSON(http.StatusOK, movie)
+}
+
+func changeMovieCustomTitle(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var movieFromRequest Movie
+	c.BindJSON(&movieFromRequest)
+
+	movie.CustomTitle = movieFromRequest.CustomTitle
+	db.Client.Save(&movie)
+
+	c.JSON(http.StatusOK, movie)
+}
+
+func useMovieDefaultTitle(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var movieFromRequest Movie
+	c.BindJSON(&movieFromRequest)
+
+	movie.UseDefaultTitle = movieFromRequest.UseDefaultTitle
 	db.Client.Save(&movie)
 
 	c.JSON(http.StatusOK, movie)

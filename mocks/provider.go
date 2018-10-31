@@ -55,8 +55,8 @@ func (p ErrorProvider) GetName() string {
 
 func (p TVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	return TvShow{
-		Name:         "Test show",
-		OriginalName: "Test show",
+		Title:         "Test show",
+		OriginalTitle: "Test show",
 	}, nil
 }
 func (p TVProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
@@ -70,7 +70,7 @@ func (p TVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 		Episode{
 			Number: 1,
 			Season: 1,
-			Name:   "Test episode",
+			Title:  "Test episode",
 		},
 	}, nil
 }
@@ -82,7 +82,7 @@ func (p TVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episo
 		Episode{
 			Number: 1,
 			Season: 1,
-			Name:   "Test episode",
+			Title:  "Test episode",
 		},
 	}, nil
 }

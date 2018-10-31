@@ -15,7 +15,7 @@ type Episode struct {
 	AbsoluteNumber    int
 	Number            int
 	Season            int
-	Name              string
+	Title             string
 	Date              time.Time
 	Overview          string
 	Notified          bool

@@ -102,13 +102,13 @@ func GetTrackedMovies() ([]Movie, error) {
 }
 
 // Returns tracked shows, and an error. Tracked shows are shows added from watchlists that have been retrieved from the local database?
-// Returned shows are ordered by status and name
+// Returned shows are ordered by status and title
 // A non nil error is returned if a problem was encoutered when getting shows from the database.
 func GetTrackedTvShows() ([]TvShow, error) {
 	var tvShows []TvShow
 
 	// TODO: Handle error
-	Client.Order("status").Order("name").Find(&tvShows)
+	Client.Order("status").Order("title").Find(&tvShows)
 
 	return tvShows, nil
 }
@@ -119,10 +119,16 @@ func GetTrackedTvShows() ([]TvShow, error) {
 func GetDownloadingEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	var retList []Episode
-	Client.Unscoped().Find(&episodes).Order("id DESC")
+	Client.Unscoped().Where("downloading_item_id <> 0").Order("id DESC").Find(&episodes)
 
-	for _, e := range episodes {
+	for index, e := range episodes {
+		if e.DownloadingItemID == 0 {
+			continue
+		}
+
+		Client.Model(&e).Association("DownloadingItem").Find(&episodes[index].DownloadingItem)
 		if (e.DownloadingItem.Downloading || e.DownloadingItem.Pending) && !e.DownloadingItem.Downloaded {
+			Client.Model(&e).Association("TvShow").Find(&episodes[index].TvShow)
 			retList = append(retList, e)
 		}
 	}
@@ -134,7 +140,7 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 func GetDownloadingMovies() ([]Movie, error) {
 	var movies []Movie
 	var retList []Movie
-	Client.Find(&movies).Order("id DESC")
+	Client.Where("downloading_item_id <> 0").Order("id DESC").Find(&movies)
 
 	for _, m := range movies {
 		if (m.DownloadingItem.Downloading || m.DownloadingItem.Pending) && !m.DownloadingItem.Downloaded {

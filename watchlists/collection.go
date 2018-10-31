@@ -78,7 +78,7 @@ func GetTvShows() ([]MediaIds, error) {
 	retList := []MediaIds{}
 	for _, showIds := range tvshows {
 		idsFromDb := MediaIds{}
-		req := db.Client.Where("name = ?", showIds.Name).Find(&idsFromDb)
+		req := db.Client.Where("title = ?", showIds.Title).Find(&idsFromDb)
 		if req.RecordNotFound() {
 			db.Client.Create(&showIds)
 			retList = append(retList, showIds)
@@ -113,7 +113,7 @@ func GetMovies() ([]MediaIds, error) {
 	retList := []MediaIds{}
 	for _, movieIds := range movieWatchlist {
 		idsFromDb := MediaIds{}
-		req := db.Client.Where("name = ?", movieIds.Name).Find(&idsFromDb)
+		req := db.Client.Where("title = ?", movieIds.Title).Find(&idsFromDb)
 		if req.RecordNotFound() {
 			db.Client.Create(&movieIds)
 			retList = append(retList, movieIds)
@@ -130,8 +130,8 @@ func removeDuplicates(array []MediaIds) []MediaIds {
 	var ret []MediaIds
 
 	for _, media := range array {
-		if !occurences[media.Name] {
-			occurences[media.Name] = true
+		if !occurences[media.Title] {
+			occurences[media.Title] = true
 			ret = append(ret, media)
 		}
 	}

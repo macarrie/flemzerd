@@ -42,7 +42,7 @@ func (w ErrorWatchlist) GetName() string {
 func (w Watchlist) GetTvShows() ([]MediaIds, error) {
 	return []MediaIds{
 		MediaIds{
-			Name: "test show",
+			Title: "test show",
 		},
 	}, nil
 }
@@ -54,7 +54,7 @@ func (w ErrorWatchlist) GetTvShows() ([]MediaIds, error) {
 func (w Watchlist) GetMovies() ([]MediaIds, error) {
 	return []MediaIds{
 		MediaIds{
-			Name: "test movie",
+			Title: "test movie",
 		},
 	}, nil
 }

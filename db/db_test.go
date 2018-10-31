@@ -53,10 +53,10 @@ func TestTorrentIsFailed(t *testing.T) {
 func TestGetTrackedItems(t *testing.T) {
 	ResetDb()
 	t1 := TvShow{
-		Name: "t1",
+		Title: "t1",
 	}
 	t2 := TvShow{
-		Name: "t2",
+		Title: "t2",
 	}
 	m1 := Movie{
 		Title:         "m1",
@@ -97,13 +97,13 @@ func TestGetTrackedItems(t *testing.T) {
 func TestGetDownloadingItems(t *testing.T) {
 	ResetDb()
 	e1 := Episode{
-		Name: "e1",
+		Title: "e1",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
 	}
 	e2 := Episode{
-		Name: "e2",
+		Title: "e2",
 		DownloadingItem: DownloadingItem{
 			Downloading: true,
 		},
@@ -142,13 +142,13 @@ func TestGetDownloadingItems(t *testing.T) {
 func TestGetDownloadedItems(t *testing.T) {
 	ResetDb()
 	e1 := Episode{
-		Name: "e1",
+		Title: "e1",
 		DownloadingItem: DownloadingItem{
 			Downloaded: true,
 		},
 	}
 	e2 := Episode{
-		Name: "e2",
+		Title: "e2",
 		DownloadingItem: DownloadingItem{
 			Downloaded: true,
 		},

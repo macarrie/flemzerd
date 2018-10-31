@@ -392,7 +392,7 @@ func (t *TraktWatchlist) GetTvShows() ([]MediaIds, error) {
 		var toReturn []MediaIds
 		for _, val := range results {
 			toReturn = append(toReturn, MediaIds{
-				Name:  val.Show.Title,
+				Title: val.Show.Title,
 				Trakt: val.Show.Ids.Trakt,
 				Tmdb:  val.Show.Ids.Tmdb,
 				Imdb:  val.Show.Ids.Imdb,
@@ -435,7 +435,7 @@ func (t *TraktWatchlist) GetMovies() ([]MediaIds, error) {
 		var toReturn []MediaIds
 		for _, val := range results {
 			toReturn = append(toReturn, MediaIds{
-				Name:  val.Movie.Title,
+				Title: val.Movie.Title,
 				Trakt: val.Movie.Ids.Trakt,
 				Tmdb:  val.Movie.Ids.Tmdb,
 				Imdb:  val.Movie.Ids.Imdb,
