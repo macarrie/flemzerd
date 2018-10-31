@@ -1,7 +1,9 @@
 package tvdb
 
 import (
+	"fmt"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -16,13 +18,24 @@ import (
 type TVDBProvider struct {
 	Client          tvdb.Client
 	LastTokenUpdate time.Time
+	Order           int
 }
 
 var module Module
 
 // Create new instance of the TVDB info provider
-func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
+func New(apiKey string, order string) (tvdbProvider *TVDBProvider, err error) {
 	t := &TVDBProvider{}
+	parsedOrder, err := strconv.Atoi(order)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"provider": t.GetName(),
+			"order":    order,
+		}).Error("Incorrect order defined in configuration.")
+		parsedOrder = 1
+	}
+	fmt.Printf("TVDB ORDER: %v\n", parsedOrder)
+
 	module = Module{
 		Name: t.GetName(),
 		Type: "provider",
@@ -36,20 +49,20 @@ func New(apiKey string) (tvdbProvider *TVDBProvider, err error) {
 	log.WithFields(log.Fields{
 		"provider": module.Name,
 	}).Debug("Checking connection to TheTVDB")
-	if err = client.Login(); err != nil {
-		if tvdb.HaveCodeError(401, err) {
-			log.Error("Cannot connect to thetvdb (API key not valid). Please check your API key and try again")
-		} else {
-			log.WithFields(log.Fields{
-				"details":  err,
-				"provider": module.Name,
-				"error":    err,
-			}).Error("Cannot connect to thetvdb")
-		}
+	if err := client.Login(); err != nil {
+		//if tvdb.HaveCodeError(401, err) {
+		//log.Error("Cannot connect to thetvdb (API key not valid). Please check your API key and try again")
+		//} else {
+		//log.WithFields(log.Fields{
+		//"details":  err,
+		//"provider": module.Name,
+		//"error":    err,
+		//}).Error("Cannot connect to thetvdb")
+		//}
 		return &TVDBProvider{}, errors.Wrap(err, "cannot connect to TMDB")
 	} else {
 		log.Debug("Connection to TheTVDB successful")
-		return &TVDBProvider{Client: client, LastTokenUpdate: time.Now()}, nil
+		return &TVDBProvider{Client: client, LastTokenUpdate: time.Now(), Order: parsedOrder}, nil
 	}
 }
 
@@ -89,16 +102,20 @@ func (tvdbProvider *TVDBProvider) GetName() string {
 	return "TVDB"
 }
 
+func (tvdbProvider *TVDBProvider) GetOrder() int {
+	return tvdbProvider.Order
+}
+
 // Get show from name
-func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
+func (tvdbProvider *TVDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	log.WithFields(log.Fields{
-		"title":    tvShowName,
+		"title":    tvShow.Title,
 		"provider": module.Name,
 	}).Debug("Searching show")
 
-	tvShow, err := tvdbProvider.Client.BestSearch(tvShowName)
+	show, err := tvdbProvider.Client.BestSearch(tvShow.Name)
 	if err != nil {
-		return TvShow{}, handleTvShowNotFoundError(tvShowName, err)
+		return TvShow{}, handleTvShowNotFoundError(tvShow.Name, err)
 	} else {
 		log.WithFields(log.Fields{
 			"title":    tvShow.SeriesName,
@@ -106,7 +123,30 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShowName string) (TvShow, error) {
 			"provider": module.Name,
 		}).Debug("TV show found")
 
-		return convertShow(tvShow), nil
+		return convertShow(show), nil
+	}
+}
+
+// Get specific episode from tvshow
+func (tvdbProvider *TVDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+	log.WithFields(log.Fields{
+		"name":     tvShow.Name,
+		"provider": module.Name,
+		"season":   seasonNb,
+		"episode":  episodeNb,
+	}).Debug("Getting episode")
+
+	show, err := tvdbProvider.Client.BestSearch(tvShow.Name)
+	if err != nil {
+		return Episode{}, errors.Wrap(err, "cannot get episode from TVDB")
+	}
+
+	episode := show.GetEpisode(seasonNb, episodeNb)
+
+	if episode == nil {
+		return Episode{}, errors.New("Cannot find episode for show from TVDB")
+	} else {
+		return convertEpisode(*episode), nil
 	}
 }
 
@@ -210,6 +250,12 @@ func (tvdbProvider *TVDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	return recentlyAiredEpisodes, nil
 }
 
+func (tvdbProvider *TVDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	// Method used for UI
+	// Not implemented for TVDB provider
+	return []Episode{}, nil
+}
+
 func filterEpisodesAiredBetweenDates(episodes []Episode, beginning *time.Time, end *time.Time) []Episode {
 	// Set beginning date to zero time if beginning date is nil
 	if beginning == nil {
@@ -289,10 +335,10 @@ func convertEpisode(episode tvdb.Episode) Episode {
 
 	return Episode{
 		AbsoluteNumber: episode.AbsoluteNumber,
-		Number:   episode.AiredEpisodeNumber,
-		Season:   episode.AiredSeason,
-		Title:    episode.EpisodeName,
-		Date:     firstAired,
-		Overview: episode.Overview,
+		Number:         episode.AiredEpisodeNumber,
+		Season:         episode.AiredSeason,
+		Title:          episode.EpisodeName,
+		Date:           firstAired,
+		Overview:       episode.Overview,
 	}
 }

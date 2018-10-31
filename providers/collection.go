@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/macarrie/flemzerd/db"
 	media_helper "github.com/macarrie/flemzerd/helpers/media"
@@ -94,28 +95,39 @@ func FindMovie(query MediaIds) (Movie, error) {
 }
 
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
-	p := getTVProvider()
-	if p != nil {
-		var retList []Episode
-		episodes, err := (*p).GetRecentlyAiredEpisodes(show)
+	// TODO: Get only first provider
+	// TODO: Determine if show is anime
+	// TODO: Compute episode absolute number if anime
+	providers := getTVProviderList()
+	initialProvider := getTVProvider()
+	if len(providers) != 0 {
+		recentEpisodes, err := (*initialProvider).GetRecentlyAiredEpisodes(show)
 		if err != nil {
 			return []Episode{}, err
 		}
 
-		for _, e := range episodes {
-			reqEpisode := Episode{}
-			req := db.Client.Where(Episode{
-				Title:  e.Title,
-				Season: e.Season,
-				Number: e.Number,
-			}).Find(&reqEpisode)
-			if req.RecordNotFound() {
-				e.TvShow = show
-				db.Client.Create(&e)
-			} else {
-				e = reqEpisode
+		var retList []Episode
+		for _, recentEpisode := range recentEpisodes {
+			for _, p := range providers {
+				e, err := (*p).GetEpisode(show.MediaIds, recentEpisode.Season, recentEpisode.Number)
+				if err != nil {
+					continue
+				}
+
+				reqEpisode := Episode{}
+				req := db.Client.Where(Episode{
+					Title:  e.Title,
+					Season: e.Season,
+					Number: e.Number,
+				}).Find(&reqEpisode)
+				if req.RecordNotFound() {
+					e.TvShow = show
+					db.Client.Create(&e)
+				} else {
+					e = reqEpisode
+				}
+				retList = append(retList, e)
 			}
-			retList = append(retList, e)
 		}
 		return retList, nil
 	}
@@ -234,13 +246,28 @@ func removeDuplicateMovies(array []Movie) []Movie {
 }
 
 func getTVProvider() *TVProvider {
+	list := getTVProviderList()
+	if len(list) > 0 {
+		return list[0]
+	}
+
+	return nil
+}
+
+func getTVProviderList() []*TVProvider {
+	var list []*TVProvider
 	for _, p := range providersCollection {
 		tvProvider, ok := p.(TVProvider)
 		if ok {
-			return &tvProvider
+			list = append(list, &tvProvider)
 		}
 	}
-	return nil
+
+	sort.Slice(list, func(i, j int) bool {
+		return (*list[i]).GetOrder() < (*list[j]).GetOrder()
+	})
+
+	return list
 }
 
 func getMovieProvider() *MovieProvider {
