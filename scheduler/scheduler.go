@@ -323,7 +323,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 			"show":   media_helper.GetShowTitle(episode.TvShow),
 			"number": episode.Number,
 			"season": episode.Season,
-			"name":   episode.Name,
+			"title":  episode.Title,
 		}).Debug("Episode already downloaded, nothing to do")
 		return
 	}
@@ -333,7 +333,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 			"show":   media_helper.GetShowTitle(episode.TvShow),
 			"number": episode.Number,
 			"season": episode.Season,
-			"name":   episode.Name,
+			"title":  episode.Title,
 		}).Debug("Episode already being downloaded, nothing to do")
 		return
 	}
@@ -355,7 +355,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	if len(toDownload) == 0 {
 		log.WithFields(log.Fields{
 			"show":    media_helper.GetShowTitle(episode.TvShow),
-			"episode": episode.Name,
+			"episode": episode.Title,
 			"nb":      len(torrentList),
 		}).Warning("No torrents found")
 
@@ -380,8 +380,8 @@ func DownloadEpisode(episode Episode, recovery bool) {
 		return
 	} else {
 		log.WithFields(log.Fields{
-			"show":    episode.TvShow.OriginalName,
-			"episode": episode.Name,
+			"show":    episode.TvShow.OriginalTitle,
+			"episode": episode.Title,
 			"nb":      len(torrentList),
 		}).Debug("Torrents found")
 
@@ -484,7 +484,7 @@ func RecoverDownloadingItems() {
 		db.Client.Save(&ep)
 
 		log.WithFields(log.Fields{
-			"episode": ep.Name,
+			"episode": ep.Title,
 			"season":  ep.Season,
 			"number":  ep.Number,
 		}).Debug("Launched download processing recovery")
@@ -504,7 +504,7 @@ func RecoverDownloadingItems() {
 		db.Client.Save(&m)
 
 		log.WithFields(log.Fields{
-			"name": m.OriginalTitle,
+			"title": m.OriginalTitle,
 		}).Debug("Launched download processing recovery")
 
 		recoveryMovie := m

@@ -59,7 +59,7 @@ func TestReset(t *testing.T) {
 func TestFindShow(t *testing.T) {
 	db.ResetDb()
 	testShow := MediaIds{
-		Name: "Test show",
+		Title: "Test show",
 	}
 
 	providersCollection = []Provider{}
@@ -89,7 +89,7 @@ func TestFindShow(t *testing.T) {
 func TestFindMovie(t *testing.T) {
 	db.ResetDb()
 	testMovie := MediaIds{
-		Name: "Test Movie",
+		Title: "Test Movie",
 	}
 	db.Client.Save(&testMovie)
 
@@ -129,8 +129,8 @@ func TestFindMovie(t *testing.T) {
 
 func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	testShow := TvShow{
-		Name:         "Test show",
-		OriginalName: "Test show",
+		Title:         "Test show",
+		OriginalTitle: "Test show",
 	}
 
 	providersCollection = []Provider{}
@@ -153,8 +153,8 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 
 func TestGetSeasonEpisodeList(t *testing.T) {
 	testShow := TvShow{
-		Name:         "Test show",
-		OriginalName: "Test show",
+		Title:         "Test show",
+		OriginalTitle: "Test show",
 	}
 
 	providersCollection = []Provider{}
@@ -246,8 +246,8 @@ func TestRemoveDuplicate(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Name:         "test",
-		OriginalName: "test",
+		Title:         "test",
+		OriginalTitle: "test",
 	}
 
 	testMovie := Movie{
@@ -305,8 +305,8 @@ func TestGetProvider(t *testing.T) {
 
 func TestMergeMediaIds(t *testing.T) {
 	m1 := MediaIds{
-		Name: "test",
-		Tmdb: 1000,
+		Title: "test",
+		Tmdb:  1000,
 	}
 
 	m2 := MediaIds{
@@ -316,8 +316,8 @@ func TestMergeMediaIds(t *testing.T) {
 
 	mergedIds := mergeMediaIds(m1, m2)
 
-	if mergedIds.Name != "test" {
-		t.Errorf("Expected merged IDs name to be 'test', got '%s' instead", mergedIds.Name)
+	if mergedIds.Title != "test" {
+		t.Errorf("Expected merged IDs name to be 'test', got '%s' instead", mergedIds.Title)
 	}
 	if mergedIds.Tvdb != 1000 {
 		t.Errorf("Expected merged IDs TVDB ID to be '1000', got '%d' instead", mergedIds.Tvdb)

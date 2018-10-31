@@ -118,8 +118,8 @@ func TestNotifyEpisode(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Name:         "Test TVShow",
-		OriginalName: "Test TVShow",
+		Title:         "Test TVShow",
+		OriginalTitle: "Test TVShow",
 	}
 
 	episode := Episode{
@@ -129,7 +129,7 @@ func TestNotifyEpisode(t *testing.T) {
 		TvShow: show,
 		Season: 3,
 		Number: 4,
-		Name:   "Test Episode S03E04",
+		Title:  "Test Episode S03E04",
 		Date:   time.Now(),
 	}
 
@@ -262,8 +262,8 @@ func TestNotifyDownloadStart(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Name:         "Test TVShow",
-		OriginalName: "Test TVShow",
+		Title:         "Test TVShow",
+		OriginalTitle: "Test TVShow",
 	}
 
 	episode := Episode{
@@ -273,7 +273,7 @@ func TestNotifyDownloadStart(t *testing.T) {
 		TvShow: show,
 		Season: 3,
 		Number: 4,
-		Name:   "Test Episode S03E04",
+		Title:  "Test Episode S03E04",
 		Date:   time.Now(),
 	}
 

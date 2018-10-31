@@ -14,6 +14,7 @@ require (
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5
 	github.com/fatih/gomodifytags v0.0.0-20180826164257-7987f52a7108 // indirect
 	github.com/fatih/motion v0.0.0-20180408211639-218875ebe238 // indirect
+	github.com/foolin/gin-template v0.0.0-20180515083052-089e62d1d723
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gin-contrib/static v0.0.0-20180301030858-73da7037e716
 	github.com/gin-gonic/gin v1.1.4
@@ -25,7 +26,7 @@ require (
 	github.com/hashicorp/errwrap v0.0.0-20180715044906-d6c0cd880357
 	github.com/hashicorp/go-multierror v0.0.0-20180717150148-3d5d8f294aa0
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
-	github.com/jinzhu/gorm v1.9.1
+	github.com/jinzhu/gorm v1.9.2
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
 	github.com/jinzhu/now v0.0.0-20180511015916-ed742868f2ae
 	github.com/josharian/impl v0.0.0-20180228163738-3d0f908298c4 // indirect
@@ -42,6 +43,7 @@ require (
 	github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nsf/gocode v0.0.0-20180902125341-7b1d4e18cdc5 // indirect
+	github.com/odwrtw/fanarttv v0.0.0-20170412122542-9f67d3cf0188
 	github.com/ogier/pflag v0.0.1
 	github.com/onsi/ginkgo v1.5.0
 	github.com/onsi/gomega v1.4.0

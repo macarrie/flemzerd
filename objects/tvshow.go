@@ -21,9 +21,9 @@ type TvShow struct {
 	Poster           string
 	FirstAired       time.Time
 	Overview         string
-	Name             string
-	OriginalName     string
-	CustomName       string
+	Title            string
+	OriginalTitle    string
+	CustomTitle      string
 	Status           int
 	NumberOfEpisodes int
 	NumberOfSeasons  int
@@ -38,4 +38,8 @@ type TvSeason struct {
 	SeasonNumber int
 	PosterPath   string
 	TvShowID     int
+}
+type SeasonDetails struct {
+	Info        TvSeason
+	EpisodeList []Episode
 }

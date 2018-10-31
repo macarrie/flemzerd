@@ -165,8 +165,8 @@ func TestWaitForDownload(t *testing.T) {
 
 func TestDownloadEpisode(t *testing.T) {
 	show := TvShow{
-		Name:         "test show",
-		OriginalName: "test show",
+		Title:         "test show",
+		OriginalTitle: "test show",
 	}
 
 	testTorrent := Torrent{
@@ -182,7 +182,7 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	episode := Episode{
-		Name:   "Test episode",
+		Title:  "Test episode",
 		TvShow: show,
 		Season: 4,
 		Number: 10,
@@ -272,10 +272,10 @@ func TestMoveEpisodeToLibrary(t *testing.T) {
 	}
 
 	testEpisode := Episode{
-		Name: "test episode",
+		Title: "test episode",
 		TvShow: TvShow{
-			Name:         "test show",
-			OriginalName: "test show",
+			Title:         "test show",
+			OriginalTitle: "test show",
 		},
 		Season: 1,
 		Number: 1,
@@ -423,15 +423,15 @@ func TestAbortDownload(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1000,
 		},
-		Name:   "test episode",
+		Title:  "test episode",
 		Season: 1,
 		Number: 1,
 		TvShow: TvShow{
 			Model: gorm.Model{
 				ID: 1000,
 			},
-			Name:         "test show",
-			OriginalName: "test show",
+			Title:         "test show",
+			OriginalTitle: "test show",
 		},
 	}
 

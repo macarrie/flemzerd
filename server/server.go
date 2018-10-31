@@ -3,12 +3,17 @@ package server
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 	"time"
 
+	gintemplate "github.com/foolin/gin-template"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/macarrie/flemzerd/configuration"
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
+	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
+
 	log "github.com/macarrie/flemzerd/logging"
 )
 
@@ -22,11 +27,54 @@ func init() {
 
 func initRouter() {
 	router = gin.Default()
-	router.Use(static.Serve("/", static.LocalFile("/var/lib/flemzerd/server/ui", true)))
+
+	router.HTMLRender = gintemplate.New(gintemplate.TemplateConfig{
+		Root:      "/var/lib/flemzerd/server/ui/templates",
+		Extension: ".tpl",
+		Master:    "layout/base",
+		Partials: []string{
+			"partials/movie_miniature",
+			"partials/tvshow_miniature",
+			"partials/module_status",
+			"partials/downloading_item",
+			"partials/notifications_list",
+			"partials/notification",
+			"partials/media_details_action_bar",
+			"partials/media_ids",
+		},
+		Funcs: template.FuncMap{
+			"isInFuture": func(date time.Time) bool {
+				return date.After(time.Now())
+			},
+			"getShowTitle":        media_helper.GetShowTitle,
+			"getMovieTitle":       media_helper.GetMovieTitle,
+			"getNotificationType": notifier_helper.GetNotificationType,
+		},
+		DisableCache: true,
+	})
+
+	router.Use(static.Serve("/static", static.LocalFile("/var/lib/flemzerd/server/ui/static", true)))
 
 	router.NoRoute(func(c *gin.Context) {
-		c.File("/var/lib/flemzerd/server/ui/index.html")
+		c.HTML(http.StatusNotFound, "404", gin.H{})
 	})
+
+	routes := router.Group("/")
+	{
+		routes.GET("/", func(c *gin.Context) {
+			c.Redirect(http.StatusMovedPermanently, "/dashboard")
+		})
+
+		routes.GET("/dashboard", ui_dashboard)
+		routes.GET("/tvshows", ui_tvshows)
+		routes.GET("/tvshows/:id", ui_tvshow)
+		routes.GET("/episodes/:id", ui_episode)
+		routes.GET("/movies", ui_movies)
+		routes.GET("/movies/:id", ui_movie)
+		routes.GET("/status", ui_status)
+		routes.GET("/settings", ui_settings)
+		routes.GET("/notifications", ui_notifications)
+	}
 
 	v1 := router.Group("/api/v1")
 	{
@@ -47,6 +95,8 @@ func initRouter() {
 			tvshowsRoute.GET("/downloaded", getDownloadedEpisodes)
 			tvshowsRoute.GET("/details/:id", getShowDetails)
 			tvshowsRoute.PUT("/details/:id", updateShow)
+			tvshowsRoute.PUT("/details/:id/custom_title", changeTvshowCustomTitle)
+			tvshowsRoute.PUT("/details/:id/use_default_title", useTvshowDefaultTitle)
 			tvshowsRoute.GET("/details/:id/seasons/:season_nb", getSeasonDetails)
 			tvshowsRoute.DELETE("/details/:id", deleteShow)
 			tvshowsRoute.POST("/restore/:id", restoreShow)
@@ -54,7 +104,7 @@ func initRouter() {
 			tvshowsRoute.POST("/episodes/:id/download", downloadEpisode)
 			tvshowsRoute.DELETE("/episodes/:id", deleteEpisode)
 			tvshowsRoute.DELETE("/episodes/:id/download", abortEpisodeDownload)
-			tvshowsRoute.PUT("/episodes/:id", changeEpisodeDownloadedState)
+			tvshowsRoute.PUT("/episodes/:id/download_state", changeEpisodeDownloadedState)
 		}
 
 		moviesRoute := v1.Group("/movies")
@@ -68,6 +118,9 @@ func initRouter() {
 			moviesRoute.POST("/details/:id/download", downloadMovie)
 			moviesRoute.DELETE("/details/:id/download", abortMovieDownload)
 			moviesRoute.PUT("/details/:id", updateMovie)
+			moviesRoute.PUT("/details/:id/download_state", changeMovieDownloadedState)
+			moviesRoute.PUT("/details/:id/custom_title", changeMovieCustomTitle)
+			moviesRoute.PUT("/details/:id/use_default_title", useMovieDefaultTitle)
 			moviesRoute.POST("/restore/:id", restoreMovie)
 		}
 
@@ -127,9 +180,11 @@ func initRouter() {
 			notificationsRoute.GET("/all", getNotifications)
 			notificationsRoute.DELETE("/all", deleteNotifications)
 			notificationsRoute.GET("/read", getReadNotifications)
+			notificationsRoute.POST("/read", markAllNotificationsAsRead)
 			notificationsRoute.POST("/read/:id", changeNotificationReadState)
 			notificationsRoute.GET("/unread", getUnreadNotifications)
 			notificationsRoute.POST("/unread/:id", changeNotificationReadState)
+			notificationsRoute.GET("/render/list", renderNotificationsList)
 		}
 
 	}

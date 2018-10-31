@@ -30,6 +30,12 @@ func getReadNotifications(c *gin.Context) {
 	c.JSON(http.StatusOK, notifs)
 }
 
+func markAllNotificationsAsRead(c *gin.Context) {
+	db.Client.Model(Notification{}).Updates(Notification{Read: true})
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 func getUnreadNotifications(c *gin.Context) {
 	var notifs []Notification
 	// Use plain SQL string instead of struct because GORM does not perform where on zero values when querying with structs
@@ -48,10 +54,20 @@ func changeNotificationReadState(c *gin.Context) {
 	}
 
 	var notifInfo Notification
-	c.Bind(&notifInfo)
+	c.BindJSON(&notifInfo)
 
 	notif.Read = notifInfo.Read
 	db.Client.Save(&notif)
 
 	c.JSON(http.StatusOK, notif)
+}
+
+func renderNotificationsList(c *gin.Context) {
+	var notifs []Notification
+	db.Client.Order("created_at DESC").Find(&notifs)
+
+	//Do not use master template for partial renders
+	c.HTML(http.StatusOK, "notifications_list_render.tpl", gin.H{
+		"notifications": notifs,
+	})
 }

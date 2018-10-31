@@ -45,7 +45,7 @@ func (t *ManualWatchlist) GetTvShows() ([]MediaIds, error) {
 	var shows []MediaIds
 	for _, show := range configuration.Config.Watchlists["manual"].([]interface{}) {
 		shows = append(shows, MediaIds{
-			Name: show.(string),
+			Title: show.(string),
 		})
 	}
 

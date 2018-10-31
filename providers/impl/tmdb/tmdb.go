@@ -59,7 +59,7 @@ func (tmdbProvider *TMDBProvider) GetName() string {
 // Get show from name
 func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	log.WithFields(log.Fields{
-		"name":     tvShow.Name,
+		"title":    tvShow.Title,
 		"provider": module.Name,
 	}).Debug("Searching show")
 
@@ -67,7 +67,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	if tvShow.Tmdb != 0 {
 		id = tvShow.Tmdb
 	} else {
-		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
+		results, err := tmdbProvider.Client.SearchTv(tvShow.Title, nil)
 		if err != nil {
 			return TvShow{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
@@ -108,11 +108,11 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 	season, err := tmdbProvider.Client.GetTvSeasonInfo(show.ID, show.NumberOfSeasons, nil)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"tvshow_name": media_helper.GetShowTitle(tvShow),
-			"id":          tvShow.Model.ID,
-			"provider":    module.Name,
-			"season":      show.NumberOfSeasons,
-			"error":       err,
+			"tvshow":   media_helper.GetShowTitle(tvShow),
+			"id":       tvShow.Model.ID,
+			"provider": module.Name,
+			"season":   show.NumberOfSeasons,
+			"error":    err,
 		}).Warning("Cannot get recently aired episodes of the tv show")
 		return []Episode{}, errors.Wrap(err, "cannot get season info from TMDB")
 	}
@@ -130,12 +130,12 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 		externalids, err := tmdbProvider.Client.GetTvEpisodeExternalIds(show.ID, ep.Season, ep.Number, nil)
 		if err != nil {
 			log.WithFields(log.Fields{
-				"tvshow_name": media_helper.GetShowTitle(tvShow),
-				"id":          tvShow.Model.ID,
-				"provider":    module.Name,
-				"season":      ep.Season,
-				"number":      ep.Number,
-				"error":       err,
+				"tvshow":   media_helper.GetShowTitle(tvShow),
+				"id":       tvShow.Model.ID,
+				"provider": module.Name,
+				"season":   ep.Season,
+				"number":   ep.Number,
+				"error":    err,
 			}).Warning("Cannot get external ids from Tmdb for episode")
 		}
 		filteredEpisodes[i].MediaIds = MediaIds{
@@ -150,7 +150,7 @@ func (tmdbProvider *TMDBProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epi
 
 func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 	log.WithFields(log.Fields{
-		"name":     m.Name,
+		"title":    m.Title,
 		"provider": module.Name,
 	}).Debug("Searching movie")
 
@@ -158,7 +158,7 @@ func (tmdbProvider *TMDBProvider) GetMovie(m MediaIds) (Movie, error) {
 	if m.Tmdb != 0 {
 		id = m.Tmdb
 	} else {
-		results, err := tmdbProvider.Client.SearchMovie(m.Name, nil)
+		results, err := tmdbProvider.Client.SearchMovie(m.Title, nil)
 		if err != nil {
 			return Movie{}, errors.Wrap(err, "cannot find movie in TMDB")
 		}
@@ -258,8 +258,8 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		Poster:           fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
 		FirstAired:       firstAired,
 		Overview:         tvShow.Overview,
-		Name:             tvShow.Name,
-		OriginalName:     tvShow.OriginalName,
+		Title:            tvShow.Name,
+		OriginalTitle:    tvShow.OriginalName,
 		Status:           status,
 		Seasons:          seasons,
 		NumberOfSeasons:  tvShow.NumberOfSeasons,
@@ -280,7 +280,7 @@ func convertEpisode(episode tmdb.TvEpisode) Episode {
 	return Episode{
 		Number:   episode.EpisodeNumber,
 		Season:   episode.SeasonNumber,
-		Name:     episode.Name,
+		Title:    episode.Name,
 		Date:     firstAired,
 		Overview: episode.Overview,
 	}

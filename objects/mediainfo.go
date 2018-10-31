@@ -19,7 +19,7 @@ type MediaInfo struct {
 
 type MediaIds struct {
 	gorm.Model
-	Name  string
+	Title string
 	Trakt int
 	Tmdb  int
 	Imdb  string

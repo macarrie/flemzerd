@@ -18,6 +18,7 @@ all: help
 server/ui/node_modules:
 	@echo " > Installing npm modules"
 	@cd server/ui && npm install
+	@cd server/ui && npm install --save-dev webpack
 	echo -e "\tNPM modules installed"
 
 ## webui: Build web interface and copy it into package folder
@@ -25,8 +26,10 @@ webui: server/ui/node_modules
 	echo " > Building Web interface"
 	echo -e "\tNode version: $$(node -v)"
 	echo -e "\tNPM version: $$(npm -v)"
-	mkdir -p ../../package/$(PACKAGE_NAME)/ui/
-	cd server/ui && ./node_modules/@angular/cli/bin/ng build --prod --output-path "../../package/$(PACKAGE_NAME)/ui/"
+	mkdir -p package/$(PACKAGE_NAME)/ui/
+	cd server/ui && ./node_modules/node-sass/bin/node-sass --output-style compressed src/static/css/style.scss src/static/css/style.css
+	cd server/ui && ./node_modules/webpack/bin/webpack.js
+	cp -r server/ui/src/* package/$(PACKAGE_NAME)/ui/
 	echo -e "\tInterface build complete: package/$(PACKAGE_NAME)/ui/"
 
 tmp/vidocq/vidocq:
@@ -124,7 +127,8 @@ watch:
 
 start-server: stop-server
 	touch /tmp/flemzerd.pid
-	sudo -E -u flemzer ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
+	#sudo -E -u flemzer ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
+	sudo -E ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
 
 stop-server:
 	-kill $$(cat /tmp/flemzerd.pid)
