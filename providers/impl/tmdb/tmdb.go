@@ -300,6 +300,13 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		return seasons[i].SeasonNumber < seasons[j].SeasonNumber
 	})
 
+	isAnime := false
+	for _, genre := range tvShow.Genres {
+		if genre.ID == 16 {
+			isAnime = true
+		}
+	}
+
 	return TvShow{
 		Poster:           fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
 		FirstAired:       firstAired,
@@ -314,6 +321,7 @@ func convertShow(tvShow tmdb.TV) TvShow {
 			Tmdb: tvShow.ID,
 		},
 		UseDefaultTitle: true,
+		IsAnime:         isAnime,
 	}
 }
 

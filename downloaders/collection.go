@@ -282,10 +282,11 @@ func DownloadEpisode(e Episode, torrentList []Torrent, recovery bool) error {
 	}
 
 	log.WithFields(log.Fields{
-		"show":   media_helper.GetShowTitle(e.TvShow),
-		"season": e.Season,
-		"number": e.Number,
-		"title":  e.Title,
+		"show":            media_helper.GetShowTitle(e.TvShow),
+		"season":          e.Season,
+		"number":          e.Number,
+		"absolute_number": e.AbsoluteNumber,
+		"title":           e.Title,
 	}).Info("Starting download process")
 
 	e.DownloadingItem.Pending = false

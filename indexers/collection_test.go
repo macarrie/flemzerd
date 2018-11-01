@@ -64,12 +64,20 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	ind2 := mock.TVIndexer{}
 	ind3 := mock.MovieIndexer{}
 	ind4 := mock.MovieIndexer{}
+
 	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
 	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
+	episode := Episode{
+		Season: 1,
+		Number: 1,
+		TvShow: TvShow{
+			Name: "Test show",
+		},
+	}
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
-	torrentList, _ := GetTorrentForEpisode("Test show", 1, 1)
+	torrentList, _ := GetTorrentForEpisode(episode)
 	if len(torrentList) != 6 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
 		return
@@ -79,7 +87,8 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		t.Error("Torrent list is not sorted by seeders")
 	}
 
-	torrentList, err := GetTorrentForEpisode("Test show", 1, 0)
+	episode.Number = 0
+	torrentList, err := GetTorrentForEpisode(episode)
 	if err != nil {
 		t.Error("Expected to have zero results and no error, got an error instead: ")
 	}
@@ -87,7 +96,9 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
 	}
 
-	torrentList, _ = GetTorrentForEpisode("Test show", 0, 1)
+	episode.Season = 0
+	episode.Number = 1
+	torrentList, _ = GetTorrentForEpisode(episode)
 	if len(torrentList) > 0 {
 		t.Error("Expected to have no torrents when getting torrents for episode")
 	}
@@ -105,6 +116,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	configuration.Config.System.ExcludedReleaseTypes = ""
 	vidocq.LocalVidocqAvailable = true
 	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
+
 	if len(torrentList) != 8 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
 		return

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"strconv"
 
+	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/rs/xid"
@@ -109,7 +110,7 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 	return returnStruct, nil
 }
 
-func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
+func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 	baseURL := torznabIndexer.Url
 
 	tr := &http.Transport{
@@ -127,9 +128,13 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(show string, season in
 	params := url.Values{}
 	params.Add("apikey", torznabIndexer.ApiKey)
 	params.Add("t", "tvsearch")
-	params.Add("q", show)
-	params.Add("season", strconv.Itoa(season))
-	params.Add("episode", strconv.Itoa(episode))
+	if episode.TvShow.IsAnime {
+		params.Add("q", fmt.Sprintf("%v %v", media_helper.GetShowTitle(episode.TvShow), episode.AbsoluteNumber))
+	} else {
+		params.Add("q", media_helper.GetShowTitle(episode.TvShow))
+		params.Add("season", strconv.Itoa(episode.Season))
+		params.Add("episode", strconv.Itoa(episode.Number))
+	}
 	urlObject.RawQuery = params.Encode()
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)

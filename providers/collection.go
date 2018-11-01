@@ -63,6 +63,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 				return show, nil
 			}
 		}
+
 		return showReq, nil
 	}
 
@@ -95,13 +96,9 @@ func FindMovie(query MediaIds) (Movie, error) {
 }
 
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
-	// TODO: Get only first provider
-	// TODO: Determine if show is anime
-	// TODO: Compute episode absolute number if anime
-	providers := getTVProviderList()
-	initialProvider := getTVProvider()
-	if len(providers) != 0 {
-		recentEpisodes, err := (*initialProvider).GetRecentlyAiredEpisodes(show)
+	p := getTVProvider()
+	if p != nil {
+		recentEpisodes, err := (*p).GetRecentlyAiredEpisodes(show)
 		if err != nil {
 			return []Episode{}, err
 		}
@@ -116,7 +113,7 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 
 				reqEpisode := Episode{}
 				req := db.Client.Where(Episode{
-					Title:  e.Title,
+					Name:   e.Title,
 					Season: e.Season,
 					Number: e.Number,
 				}).Find(&reqEpisode)
@@ -126,8 +123,25 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 				} else {
 					e = reqEpisode
 				}
-				retList = append(retList, e)
+
+				if e.TvShow.IsAnime {
+					previousSeasonsEpisodeCount := 0
+					for _, season := range show.Seasons {
+						if season.SeasonNumber < e.Season {
+							previousSeasonsEpisodeCount += season.EpisodeCount
+						}
+					}
+					if e.Number > previousSeasonsEpisodeCount {
+						e.AbsoluteNumber = e.Number
+						e.Number = e.Number - previousSeasonsEpisodeCount
+					} else {
+						e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
+					}
+				}
+				db.Client.Save(&e)
 			}
+
+			retList = append(retList, e)
 		}
 		return retList, nil
 	}
@@ -246,15 +260,6 @@ func removeDuplicateMovies(array []Movie) []Movie {
 }
 
 func getTVProvider() *TVProvider {
-	list := getTVProviderList()
-	if len(list) > 0 {
-		return list[0]
-	}
-
-	return nil
-}
-
-func getTVProviderList() []*TVProvider {
 	var list []*TVProvider
 	for _, p := range providersCollection {
 		tvProvider, ok := p.(TVProvider)
@@ -266,8 +271,11 @@ func getTVProviderList() []*TVProvider {
 	sort.Slice(list, func(i, j int) bool {
 		return (*list[i]).GetOrder() < (*list[j]).GetOrder()
 	})
+	if len(list) > 0 {
+		return list[0]
+	}
 
-	return list
+	return nil
 }
 
 func getMovieProvider() *MovieProvider {

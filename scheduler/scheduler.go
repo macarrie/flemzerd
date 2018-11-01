@@ -341,7 +341,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	episode.DownloadingItem.Pending = true
 	db.Client.Save(&episode)
 
-	torrentList, err := indexer.GetTorrentForEpisode(media_helper.GetShowTitle(episode.TvShow), episode.Season, episode.Number)
+	torrentList, err := indexer.GetTorrentForEpisode(episode)
 	if err != nil {
 		log.Warning(err)
 		return
