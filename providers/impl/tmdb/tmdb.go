@@ -103,7 +103,7 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 // Get specific episode from tvshow
 func (tmdbProvider *TMDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
 	log.WithFields(log.Fields{
-		"name":     tvShow.Name,
+		"name":     tvShow.Title,
 		"provider": module.Name,
 		"season":   seasonNb,
 		"episode":  episodeNb,
@@ -113,7 +113,7 @@ func (tmdbProvider *TMDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, epis
 	if tvShow.Tmdb != 0 {
 		id = tvShow.Tmdb
 	} else {
-		results, err := tmdbProvider.Client.SearchTv(tvShow.Name, nil)
+		results, err := tmdbProvider.Client.SearchTv(tvShow.Title, nil)
 		if err != nil {
 			return Episode{}, errors.Wrap(err, "cannot find show in TMDB")
 		}

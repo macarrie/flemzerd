@@ -105,41 +105,39 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 
 		var retList []Episode
 		for _, recentEpisode := range recentEpisodes {
-			for _, p := range providers {
-				e, err := (*p).GetEpisode(show.MediaIds, recentEpisode.Season, recentEpisode.Number)
-				if err != nil {
-					continue
-				}
-
-				reqEpisode := Episode{}
-				req := db.Client.Where(Episode{
-					Name:   e.Title,
-					Season: e.Season,
-					Number: e.Number,
-				}).Find(&reqEpisode)
-				if req.RecordNotFound() {
-					e.TvShow = show
-					db.Client.Create(&e)
-				} else {
-					e = reqEpisode
-				}
-
-				if e.TvShow.IsAnime {
-					previousSeasonsEpisodeCount := 0
-					for _, season := range show.Seasons {
-						if season.SeasonNumber < e.Season {
-							previousSeasonsEpisodeCount += season.EpisodeCount
-						}
-					}
-					if e.Number > previousSeasonsEpisodeCount {
-						e.AbsoluteNumber = e.Number
-						e.Number = e.Number - previousSeasonsEpisodeCount
-					} else {
-						e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
-					}
-				}
-				db.Client.Save(&e)
+			e, err := (*p).GetEpisode(show.MediaIds, recentEpisode.Season, recentEpisode.Number)
+			if err != nil {
+				continue
 			}
+
+			reqEpisode := Episode{}
+			req := db.Client.Where(Episode{
+				Title:  e.Title,
+				Season: e.Season,
+				Number: e.Number,
+			}).Find(&reqEpisode)
+			if req.RecordNotFound() {
+				e.TvShow = show
+				db.Client.Create(&e)
+			} else {
+				e = reqEpisode
+			}
+
+			if e.TvShow.IsAnime {
+				previousSeasonsEpisodeCount := 0
+				for _, season := range show.Seasons {
+					if season.SeasonNumber < e.Season {
+						previousSeasonsEpisodeCount += season.EpisodeCount
+					}
+				}
+				if e.Number > previousSeasonsEpisodeCount {
+					e.AbsoluteNumber = e.Number
+					e.Number = e.Number - previousSeasonsEpisodeCount
+				} else {
+					e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
+				}
+			}
+			db.Client.Save(&e)
 
 			retList = append(retList, e)
 		}

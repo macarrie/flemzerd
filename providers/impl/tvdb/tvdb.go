@@ -113,12 +113,12 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 		"provider": module.Name,
 	}).Debug("Searching show")
 
-	show, err := tvdbProvider.Client.BestSearch(tvShow.Name)
+	show, err := tvdbProvider.Client.BestSearch(tvShow.Title)
 	if err != nil {
-		return TvShow{}, handleTvShowNotFoundError(tvShow.Name, err)
+		return TvShow{}, handleTvShowNotFoundError(tvShow.Title, err)
 	} else {
 		log.WithFields(log.Fields{
-			"title":    tvShow.SeriesName,
+			"title":    tvShow.Title,
 			"TVDB-ID":  tvShow.ID,
 			"provider": module.Name,
 		}).Debug("TV show found")
@@ -130,13 +130,13 @@ func (tvdbProvider *TVDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 // Get specific episode from tvshow
 func (tvdbProvider *TVDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
 	log.WithFields(log.Fields{
-		"name":     tvShow.Name,
+		"name":     tvShow.Title,
 		"provider": module.Name,
 		"season":   seasonNb,
 		"episode":  episodeNb,
 	}).Debug("Getting episode")
 
-	show, err := tvdbProvider.Client.BestSearch(tvShow.Name)
+	show, err := tvdbProvider.Client.BestSearch(tvShow.Title)
 	if err != nil {
 		return Episode{}, errors.Wrap(err, "cannot get episode from TVDB")
 	}

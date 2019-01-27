@@ -71,7 +71,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		Season: 1,
 		Number: 1,
 		TvShow: TvShow{
-			Name: "Test show",
+			Title: "Test show",
 		},
 	}
 
@@ -104,8 +104,10 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	}
 
 	//Get torrent when vidocq is not available
+	episode.Season = 1
+	episode.Number = 1
 	vidocq.LocalVidocqAvailable = false
-	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
+	torrentList, _ = GetTorrentForEpisode(episode)
 	if len(torrentList) != 14 {
 		t.Errorf("Expected 14 torrents, got %d instead\n", len(torrentList))
 		return
@@ -115,7 +117,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 	configuration.Config.System.PreferredMediaQuality = ""
 	configuration.Config.System.ExcludedReleaseTypes = ""
 	vidocq.LocalVidocqAvailable = true
-	torrentList, _ = GetTorrentForEpisode("Test show", 1, 1)
+	torrentList, _ = GetTorrentForEpisode(episode)
 
 	if len(torrentList) != 8 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))

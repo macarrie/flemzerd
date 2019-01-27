@@ -66,7 +66,7 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 				"show":    media_helper.GetShowTitle(episode.TvShow),
 				"season":  episode.Season,
 				"number":  episode.Number,
-				"episode": episode.Name,
+				"episode": episode.Title,
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
@@ -80,7 +80,7 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 				"show":    media_helper.GetShowTitle(episode.TvShow),
 				"season":  episode.Season,
 				"number":  episode.Number,
-				"episode": episode.Name,
+				"episode": episode.Title,
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
@@ -88,7 +88,7 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 				"show":    media_helper.GetShowTitle(episode.TvShow),
 				"season":  episode.Season,
 				"number":  episode.Number,
-				"episode": episode.Name,
+				"episode": episode.Title,
 			}).Info("No torrents found")
 		}
 	}
@@ -97,7 +97,7 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = FilterEpisodeTorrents(show, season, episode, torrentList)
+	torrentList = FilterEpisodeTorrents(episode, torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }
@@ -149,8 +149,8 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	return torrentList, errorList.ErrorOrNil()
 }
 
-func FilterEpisodeTorrents(show string, season int, episode int, torrentList []Torrent) []Torrent {
-	torrentList = FilterTorrentEpisodeNumber(torrentList, season, episode)
+func FilterEpisodeTorrents(episode Episode, torrentList []Torrent) []Torrent {
+	torrentList = FilterTorrentEpisodeNumber(torrentList, episode)
 	torrentList = FilterTorrentQuality(torrentList)
 	torrentList = FilterTorrentReleaseType(torrentList)
 
@@ -167,7 +167,7 @@ func FilterMovieTorrents(movie Movie, torrentList []Torrent) []Torrent {
 	return torrentList
 }
 
-func FilterBadTorrentsForEpisode(list []Torrent, episode Episode) []Torrent {
+func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
 	log.Debug("Checking torrent list for bad episodes")
 	var returnList []Torrent
 

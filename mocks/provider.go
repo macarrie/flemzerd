@@ -100,7 +100,7 @@ func (p TVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Ep
 	return Episode{
 		Number: 1,
 		Season: 1,
-		Name:   "Test episode",
+		Title:  "Test episode",
 	}, nil
 }
 
