@@ -29,6 +29,7 @@ type TvShow struct {
 	NumberOfSeasons  int
 	Seasons          []TvSeason
 	UseDefaultTitle  bool
+	IsAnime          bool
 }
 
 type TvSeason struct {

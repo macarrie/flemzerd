@@ -12,7 +12,7 @@ type Indexer interface {
 type TVIndexer interface {
 	GetName() string
 	Status() (Module, error)
-	GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error)
+	GetTorrentForEpisode(episode Episode) ([]Torrent, error)
 }
 
 type MovieIndexer interface {

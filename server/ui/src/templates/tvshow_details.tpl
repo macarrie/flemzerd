@@ -56,6 +56,9 @@
             </div>
 
             <div class="container">
+                <div>
+                    ANIME: {{ .item.IsAnime }}
+                </div>
                 <div class="row">
                     <h4>Overview</h4>
                     <div class="col-12">
@@ -80,8 +83,8 @@
             <div>
                 <ul uk-accordion="multiple: true">
                     {{ range .seasonsdetails }}
+                    {{ if gt .Info.SeasonNumber 0 }}
                     <li>
-                        {{ if gt .Info.SeasonNumber 0 }}
                         <div class="uk-accordion-title" *ngIf="season && i > 0">
                             <div class="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" uk-grid>
                                 <div class="uk-width-expand" (click)="season.collapse = !season.collapse">
@@ -198,8 +201,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        {{ end }}
                     </li>
+                    {{ end }}
                     {{ end }}
                 </ul>
             </div>

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/macarrie/flemzerd/db"
 	media_helper "github.com/macarrie/flemzerd/helpers/media"
@@ -62,6 +63,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 				return show, nil
 			}
 		}
+
 		return showReq, nil
 	}
 
@@ -96,13 +98,18 @@ func FindMovie(query MediaIds) (Movie, error) {
 func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 	p := getTVProvider()
 	if p != nil {
-		var retList []Episode
-		episodes, err := (*p).GetRecentlyAiredEpisodes(show)
+		recentEpisodes, err := (*p).GetRecentlyAiredEpisodes(show)
 		if err != nil {
 			return []Episode{}, err
 		}
 
-		for _, e := range episodes {
+		var retList []Episode
+		for _, recentEpisode := range recentEpisodes {
+			e, err := (*p).GetEpisode(show.MediaIds, recentEpisode.Season, recentEpisode.Number)
+			if err != nil {
+				continue
+			}
+
 			reqEpisode := Episode{}
 			req := db.Client.Where(Episode{
 				Title:  e.Title,
@@ -115,6 +122,23 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 			} else {
 				e = reqEpisode
 			}
+
+			if e.TvShow.IsAnime {
+				previousSeasonsEpisodeCount := 0
+				for _, season := range show.Seasons {
+					if season.SeasonNumber < e.Season {
+						previousSeasonsEpisodeCount += season.EpisodeCount
+					}
+				}
+				if e.Number > previousSeasonsEpisodeCount {
+					e.AbsoluteNumber = e.Number
+					e.Number = e.Number - previousSeasonsEpisodeCount
+				} else {
+					e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
+				}
+			}
+			db.Client.Save(&e)
+
 			retList = append(retList, e)
 		}
 		return retList, nil
@@ -234,12 +258,21 @@ func removeDuplicateMovies(array []Movie) []Movie {
 }
 
 func getTVProvider() *TVProvider {
+	var list []*TVProvider
 	for _, p := range providersCollection {
 		tvProvider, ok := p.(TVProvider)
 		if ok {
-			return &tvProvider
+			list = append(list, &tvProvider)
 		}
 	}
+
+	sort.Slice(list, func(i, j int) bool {
+		return (*list[i]).GetOrder() < (*list[j]).GetOrder()
+	})
+	if len(list) > 0 {
+		return list[0]
+	}
+
 	return nil
 }
 

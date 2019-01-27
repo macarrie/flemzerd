@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -45,7 +46,7 @@ func Reset() {
 	indexersCollection = []Indexer{}
 }
 
-func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
+func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 	var torrentList []Torrent
 	var errorList *multierror.Error
 
@@ -58,11 +59,14 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 			continue
 		}
 
-		indexerSearch, err := ind.GetTorrentForEpisode(show, season, episode)
+		indexerSearch, err := ind.GetTorrentForEpisode(episode)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+				"show":    media_helper.GetShowTitle(episode.TvShow),
+				"season":  episode.Season,
+				"number":  episode.Number,
+				"episode": episode.Title,
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
@@ -73,12 +77,18 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 			torrentList = append(torrentList, indexerSearch...)
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+				"show":    media_helper.GetShowTitle(episode.TvShow),
+				"season":  episode.Season,
+				"number":  episode.Number,
+				"episode": episode.Title,
 			}).Info(len(indexerSearch), " torrents found")
 		} else {
 			log.WithFields(log.Fields{
 				"indexer": ind.GetName(),
-				"episode": fmt.Sprintf("%v S%03dE%03d", show, season, episode),
+				"show":    media_helper.GetShowTitle(episode.TvShow),
+				"season":  episode.Season,
+				"number":  episode.Number,
+				"episode": episode.Title,
 			}).Info("No torrents found")
 		}
 	}
@@ -87,7 +97,7 @@ func GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = FilterEpisodeTorrents(show, season, episode, torrentList)
+	torrentList = FilterEpisodeTorrents(episode, torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }
@@ -139,8 +149,8 @@ func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
 	return torrentList, errorList.ErrorOrNil()
 }
 
-func FilterEpisodeTorrents(show string, season int, episode int, torrentList []Torrent) []Torrent {
-	torrentList = FilterTorrentEpisodeNumber(torrentList, season, episode)
+func FilterEpisodeTorrents(episode Episode, torrentList []Torrent) []Torrent {
+	torrentList = FilterTorrentEpisodeNumber(torrentList, episode)
 	torrentList = FilterTorrentQuality(torrentList)
 	torrentList = FilterTorrentReleaseType(torrentList)
 
@@ -157,23 +167,34 @@ func FilterMovieTorrents(movie Movie, torrentList []Torrent) []Torrent {
 	return torrentList
 }
 
-func FilterTorrentEpisodeNumber(list []Torrent, season int, episode int) []Torrent {
+func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
 	log.Debug("Checking torrent list for bad episodes")
 	var returnList []Torrent
 
 	for _, torrent := range list {
-		episodeInfo, err := vidocq.GetInfo(torrent.Name)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"torrent": torrent.Name,
-			}).Warning("Error while getting media info for torrent: ", err)
+		if episode.TvShow.IsAnime {
+			if episode.AbsoluteNumber != 0 {
+				match, err := regexp.Match(fmt.Sprintf("%v", episode.AbsoluteNumber), []byte(torrent.Name))
+				if match && err == nil {
+					returnList = append(returnList, torrent)
+				}
+			} else {
+				returnList = append(returnList, torrent)
+			}
+		} else {
+			episodeInfo, err := vidocq.GetInfo(torrent.Name)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"torrent": torrent.Name,
+				}).Warning("Error while getting media info for torrent: ", err)
 
-			returnList = append(returnList, torrent)
-			continue
-		}
+				returnList = append(returnList, torrent)
+				continue
+			}
 
-		if episodeInfo.Season != 0 && episodeInfo.Season == season && episodeInfo.Episode != 0 && episodeInfo.Episode == episode {
-			returnList = append(returnList, torrent)
+			if episodeInfo.Season != 0 && episodeInfo.Season == episode.Season && episodeInfo.Episode != 0 && episodeInfo.Episode == episode.Number {
+				returnList = append(returnList, torrent)
+			}
 		}
 	}
 

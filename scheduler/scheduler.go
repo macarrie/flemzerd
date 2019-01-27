@@ -65,10 +65,10 @@ func initProviders() {
 	for providerType, _ := range configuration.Config.Providers {
 		switch providerType {
 		case "tmdb":
-			np, _ := tmdb.New(configuration.TMDB_API_KEY)
+			np, _ := tmdb.New(configuration.TMDB_API_KEY, configuration.Config.Providers[providerType]["order"])
 			newProviders = append(newProviders, np)
 		case "tvdb":
-			np, _ := tvdb.New(configuration.TVDB_API_KEY)
+			np, _ := tvdb.New(configuration.TVDB_API_KEY, configuration.Config.Providers[providerType]["order"])
 			newProviders = append(newProviders, np)
 		default:
 			log.WithFields(log.Fields{
@@ -341,7 +341,7 @@ func DownloadEpisode(episode Episode, recovery bool) {
 	episode.DownloadingItem.Pending = true
 	db.Client.Save(&episode)
 
-	torrentList, err := indexer.GetTorrentForEpisode(media_helper.GetShowTitle(episode.TvShow), episode.Season, episode.Number)
+	torrentList, err := indexer.GetTorrentForEpisode(episode)
 	if err != nil {
 		log.Warning(err)
 		return

@@ -67,12 +67,12 @@ func (m ErrorMovieIndexer) Status() (Module, error) {
 	}, err
 }
 
-func getTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
-	if episode == 0 {
+func getTorrentForEpisode(episode Episode) ([]Torrent, error) {
+	if episode.Number == 0 {
 		return []Torrent{}, nil
 	}
 
-	if season == 0 {
+	if episode.Season == 0 {
 		return []Torrent{}, fmt.Errorf(" error")
 	}
 
@@ -114,11 +114,11 @@ func getTorrentForEpisode(show string, season int, episode int) ([]Torrent, erro
 		},
 	}, nil
 }
-func (m TVIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
-	return getTorrentForEpisode(show, season, episode)
+func (m TVIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
+	return getTorrentForEpisode(episode)
 }
-func (m ErrorTVIndexer) GetTorrentForEpisode(show string, season int, episode int) ([]Torrent, error) {
-	return getTorrentForEpisode(show, season, episode)
+func (m ErrorTVIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
+	return getTorrentForEpisode(episode)
 }
 
 func getTorrentForMovie(movieName string) ([]Torrent, error) {

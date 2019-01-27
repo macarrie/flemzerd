@@ -53,6 +53,16 @@ func (p ErrorProvider) GetName() string {
 	return "ErrorProvider"
 }
 
+func (p TVProvider) GetOrder() int {
+	return 1
+}
+func (p MovieProvider) GetOrder() int {
+	return 1
+}
+func (p ErrorProvider) GetOrder() int {
+	return 1
+}
+
 func (p TVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	return TvShow{
 		Title:         "Test show",
@@ -86,6 +96,13 @@ func (p TVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episo
 		},
 	}, nil
 }
+func (p TVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+	return Episode{
+		Number: 1,
+		Season: 1,
+		Title:  "Test episode",
+	}, nil
+}
 
 func (p MovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
@@ -111,4 +128,7 @@ func (p ErrorProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Ep
 }
 func (p ErrorProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{}, fmt.Errorf("Provider error")
+}
+func (p ErrorProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+	return Episode{}, fmt.Errorf("Provider error")
 }

@@ -61,7 +61,7 @@ func (t *TelegramNotifier) Status() (Module, error) {
 		module.Status.Message = "Telegram bot token not found"
 		return module, errors.New(module.Status.Message)
 	}
-	if t.Client == nil {
+	if t == nil || t.Client == nil {
 		module.Status.Alive = false
 		module.Status.Message = "Could not connect to telegram bot: no client"
 		return module, errors.New(module.Status.Message)
@@ -88,7 +88,7 @@ func (t *TelegramNotifier) Send(notif Notification) error {
 	if configuration.TELEGRAM_BOT_TOKEN == "" {
 		return errors.New("Telegram bot token not found")
 	}
-	if t.Client == nil {
+	if t == nil || t.Client == nil {
 		return errors.New("Could not contact Telegram bot to send notification")
 	}
 

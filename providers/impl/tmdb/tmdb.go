@@ -3,6 +3,7 @@ package tmdb
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -16,14 +17,24 @@ import (
 
 type TMDBProvider struct {
 	Client *tmdb.TMDb
+	Order  int
 }
 
 var module Module
 
 // Create new instance of the tmdb info provider
-func New(apiKey string) (tmdbProvider *TMDBProvider, err error) {
+func New(apiKey string, order string) (tmdbProvider *TMDBProvider, err error) {
 	client := tmdb.Init(apiKey)
 	t := &TMDBProvider{}
+	parsedOrder, err := strconv.Atoi(order)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"provider": t.GetName(),
+			"order":    order,
+		}).Error("Incorrect order defined in configuration.")
+		parsedOrder = 1
+	}
+	fmt.Printf("TMDB ORDER: %v\n", parsedOrder)
 
 	module = Module{
 		Name: t.GetName(),
@@ -34,7 +45,7 @@ func New(apiKey string) (tmdbProvider *TMDBProvider, err error) {
 		},
 	}
 
-	return &TMDBProvider{Client: client}, nil
+	return &TMDBProvider{Client: client, Order: parsedOrder}, nil
 }
 
 // Check if Provider is alive
@@ -54,6 +65,10 @@ func (tmdbProvider *TMDBProvider) Status() (Module, error) {
 
 func (tmdbProvider *TMDBProvider) GetName() string {
 	return "TMDB"
+}
+
+func (tmdbProvider *TMDBProvider) GetOrder() int {
+	return tmdbProvider.Order
 }
 
 // Get show from name
@@ -83,6 +98,37 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 	}
 
 	return convertShow(*show), nil
+}
+
+// Get specific episode from tvshow
+func (tmdbProvider *TMDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+	log.WithFields(log.Fields{
+		"name":     tvShow.Title,
+		"provider": module.Name,
+		"season":   seasonNb,
+		"episode":  episodeNb,
+	}).Debug("Getting episode")
+
+	var id int
+	if tvShow.Tmdb != 0 {
+		id = tvShow.Tmdb
+	} else {
+		results, err := tmdbProvider.Client.SearchTv(tvShow.Title, nil)
+		if err != nil {
+			return Episode{}, errors.Wrap(err, "cannot find show in TMDB")
+		}
+
+		if len(results.Results) > 0 {
+			id = results.Results[0].ID
+		}
+	}
+
+	episode, err := tmdbProvider.Client.GetTvEpisodeInfo(id, seasonNb, episodeNb, nil)
+	if err != nil {
+		return Episode{}, errors.Wrap(err, "cannot get episode from TMDB")
+	}
+
+	return convertEpisode(*episode), nil
 }
 
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
@@ -254,6 +300,13 @@ func convertShow(tvShow tmdb.TV) TvShow {
 		return seasons[i].SeasonNumber < seasons[j].SeasonNumber
 	})
 
+	isAnime := false
+	for _, genre := range tvShow.Genres {
+		if genre.ID == 16 {
+			isAnime = true
+		}
+	}
+
 	return TvShow{
 		Poster:           fmt.Sprintf("https://image.tmdb.org/t/p/w500%s", tvShow.PosterPath),
 		FirstAired:       firstAired,
@@ -268,6 +321,7 @@ func convertShow(tvShow tmdb.TV) TvShow {
 			Tmdb: tvShow.ID,
 		},
 		UseDefaultTitle: true,
+		IsAnime:         isAnime,
 	}
 }
 
