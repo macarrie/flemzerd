@@ -7,6 +7,8 @@ VERSION=$(shell git describe --tags --always)
 GOOS=$(shell $(GO) env GOOS)
 GOARCH=$(shell $(GO) env GOARCH)
 
+CARGO=$(shell which cargo)
+
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
 VIDOCQ_VERSION=v0.1
 
@@ -37,7 +39,7 @@ tmp/vidocq/target/release/vidocq:
 	-rm -rf tmp
 	mkdir -p tmp
 	git clone https://github.com/macarrie/vidocq tmp/vidocq --branch $(VIDOCQ_VERSION)
-	cd tmp/vidocq && cargo build --release
+	cd tmp/vidocq && $(CARGO) build --release
 	echo -e "\tVidocq build into tmp/vidocq/target/release/vidocq"
 
 package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/target/release/vidocq
