@@ -32,18 +32,18 @@ webui: server/ui/node_modules
 	cp -r server/ui/src/* package/$(PACKAGE_NAME)/ui/
 	echo -e "\tInterface build complete: package/$(PACKAGE_NAME)/ui/"
 
-tmp/vidocq/vidocq:
-	echo " > Getting dependencies: vidocq"
+tmp/vidocq/target/release/vidocq:
+	echo " > Building dependencies: vidocq"
 	-rm -rf tmp
-	mkdir -p tmp/vidocq
-	curl "https://github.com/macarrie/vidocq/releases/download/$(VIDOCQ_VERSION)/vidocq" -o tmp/vidocq/vidocq -L
-	chmod a+x tmp/vidocq/vidocq
-	echo -e "\tVidocq binary copied to tmp/vidocq/vidocq"
+	mkdir -p tmp
+	git clone https://github.com/macarrie/vidocq tmp/vidocq --branch $(VIDOCQ_VERSION)
+	cd tmp/vidocq && cargo build --release
+	echo -e "\tVidocq build into tmp/vidocq/target/release/vidocq"
 
-package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/vidocq
+package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/target/release/vidocq
 	mkdir -p package/$(PACKAGE_NAME)/dependencies
-	cp tmp/vidocq/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
- 
+	cp tmp/vidocq/target/release/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
+
 ## bin: Build flemzerd binary
 bin: 
 	echo " > Building flemzerd binary"
