@@ -56,9 +56,6 @@
             </div>
 
             <div class="container">
-                <div>
-                    ANIME: {{ .item.IsAnime }}
-                </div>
                 <div class="row">
                     <h4>Overview</h4>
                     <div class="col-12">

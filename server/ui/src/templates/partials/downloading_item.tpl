@@ -62,8 +62,8 @@
                 {{ end }}
             </tr>
             {{ $failedClass := "text-danger" }}
-            {{ if eq (len .Downloading.FailedTorrents) 0 }}
-            {{ $failedClass = "text-success" }}
+            {{ if eq (len .DownloadingItem.FailedTorrents) 0 }}
+                {{ $failedClass = "text-success" }}
             {{ end }}
             <tr class="{{ $failedClass }}">
                 <td><b>Failed torrents</b></td>

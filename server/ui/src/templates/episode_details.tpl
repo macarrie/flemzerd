@@ -15,7 +15,6 @@
         <div class="uk-width-expand">
             <div class="uk-grid uk-grid-collapse uk-flex uk-flex-middle" uk-grid>
                 <div>
-                    TODO INLINE EDIT
                     <span class="uk-h2 d-inline">{{ getShowTitle .item.TvShow }} - {{ .item.Title }}</span>
                 </div>
                 <div>
