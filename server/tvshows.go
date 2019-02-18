@@ -218,6 +218,52 @@ func downloadEpisode(c *gin.Context) {
 	return
 }
 
+func downloadSeason(c *gin.Context) {
+	id := c.Param("id")
+	seasonNumber := c.Param("season_nb")
+	var show TvShow
+	req := db.Client.First(&show, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	seasonNb, err := strconv.Atoi(seasonNumber)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
+		return
+	}
+
+	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"show":   show.OriginalTitle,
+			"season": seasonNumber,
+			"error":  err,
+		}).Warning("Encountered error when querying season details from TMDB")
+		c.JSON(http.StatusInternalServerError, gin.H{})
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"show":   media_helper.GetShowTitle(show),
+		"season": seasonNumber,
+	}).Info("Launching season download")
+	for _, ep := range epList {
+		log.WithFields(log.Fields{
+			"id":      id,
+			"show":    media_helper.GetShowTitle(ep.TvShow),
+			"episode": ep.Title,
+			"season":  ep.Season,
+			"number":  ep.Number,
+		}).Info("Launching individual episode download")
+
+		scheduler.DownloadEpisode(ep, false)
+	}
+
+	c.JSON(http.StatusOK, epList)
+}
+
 func deleteEpisode(c *gin.Context) {
 	id := c.Param("id")
 	var ep Episode
@@ -260,4 +306,56 @@ func changeEpisodeDownloadedState(c *gin.Context) {
 	db.Client.Save(&episode)
 
 	c.JSON(http.StatusOK, episode)
+}
+
+func changeSeasonDownloadedState(c *gin.Context) {
+	id := c.Param("id")
+	seasonNumber := c.Param("season_nb")
+	var show TvShow
+	req := db.Client.First(&show, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var downloadingItemFromRequest DownloadingItem
+	c.BindJSON(&downloadingItemFromRequest)
+
+	seasonNb, err := strconv.Atoi(seasonNumber)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
+		return
+	}
+
+	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"show":   show.OriginalTitle,
+			"season": seasonNumber,
+			"error":  err,
+		}).Warning("Encountered error when querying season details from TMDB")
+		c.JSON(http.StatusInternalServerError, gin.H{})
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"show":       media_helper.GetShowTitle(show),
+		"season":     seasonNumber,
+		"downloaded": downloadingItemFromRequest.Downloaded,
+	}).Info("Changing season download state")
+	for _, ep := range epList {
+		log.WithFields(log.Fields{
+			"id":         id,
+			"show":       media_helper.GetShowTitle(ep.TvShow),
+			"episode":    ep.Title,
+			"season":     ep.Season,
+			"number":     ep.Number,
+			"downloaded": downloadingItemFromRequest.Downloaded,
+		}).Info("Changing episode downloaded state")
+
+		ep.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
+		db.Client.Save(&ep)
+	}
+
+	c.JSON(http.StatusOK, epList)
 }

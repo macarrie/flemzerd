@@ -98,6 +98,8 @@ func initRouter() {
 			tvshowsRoute.PUT("/details/:id/custom_title", changeTvshowCustomTitle)
 			tvshowsRoute.PUT("/details/:id/use_default_title", useTvshowDefaultTitle)
 			tvshowsRoute.GET("/details/:id/seasons/:season_nb", getSeasonDetails)
+			tvshowsRoute.POST("/details/:id/seasons/:season_nb/download", downloadSeason)
+			tvshowsRoute.PUT("/details/:id/seasons/:season_nb/download_state", changeSeasonDownloadedState)
 			tvshowsRoute.DELETE("/details/:id", deleteShow)
 			tvshowsRoute.POST("/restore/:id", restoreShow)
 			tvshowsRoute.GET("/episodes/:id", getEpisodeDetails)

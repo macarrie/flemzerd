@@ -3,7 +3,11 @@
      data-refresh-interval="60">
 </div>
 
+{{ if gt (len .notifications) 0 }}
 <div class="uk-container" uk-filter="target: .item-filter">
+{{ else }}
+<div class="uk-container">
+{{ end }}
     <div class="uk-grid" uk-grid>
         <div class="uk-width-expand">
             <span class="uk-h3">Notifications</span>

@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/macarrie/flemzerd/db"
 	media_helper "github.com/macarrie/flemzerd/helpers/media"
@@ -18,6 +19,7 @@ import (
 var providersCollection []Provider
 var TVShows []TvShow
 var Movies []Movie
+var watchlistRefreshMutex sync.Mutex
 
 func Status() ([]Module, error) {
 	var modList []Module
@@ -174,6 +176,9 @@ func GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 }
 
 func GetTVShowsInfoFromConfig() {
+	watchlistRefreshMutex.Lock()
+	defer watchlistRefreshMutex.Unlock()
+
 	var showObjects []TvShow
 	var showList []MediaIds
 
@@ -202,6 +207,9 @@ func GetTVShowsInfoFromConfig() {
 }
 
 func GetMoviesInfoFromConfig() {
+	watchlistRefreshMutex.Lock()
+	defer watchlistRefreshMutex.Unlock()
+
 	var movieObjects []Movie
 	var movieList []MediaIds
 

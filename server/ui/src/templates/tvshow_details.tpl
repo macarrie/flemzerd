@@ -78,34 +78,41 @@
     <div class="uk-background-default uk-border-rounded">
         <div class="uk-grid uk-child-width-1-1 uk-padding-small" uk-grid>
             <div>
-                <ul uk-accordion="multiple: true">
                     {{ range .seasonsdetails }}
                     {{ if gt .Info.SeasonNumber 0 }}
-                    <li>
-                        <div class="uk-accordion-title" *ngIf="season && i > 0">
+                        <div>
                             <div class="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" uk-grid>
                                 <div class="uk-width-expand" (click)="season.collapse = !season.collapse">
                                     <span class="uk-h3">Season {{ .Info.SeasonNumber }} </span><span class="uk-text-muted uk-h6">( {{ len .EpisodeList }} episodes )</span>
                                 </div>
                                 <div class="uk-width-auto">
                                     <ul class="uk-iconnav">
-                                        <li><a uk-tooltip="delay: 500; title: Mark whole season as not downloaded" 
+                                        <li uk-tooltip="delay: 500; title: Mark whole season as not downloaded" 
                                                class="uk-icon"
                                                uk-icon="icon: push; ratio: 0.75"
-                                               href=""></a></li>
-                                        <li><a uk-tooltip="delay: 500; title: Mark whole season as downloaded"
+                                               data-controller="season"
+                                               data-action="click->season#markNotDownloaded"
+                                               data-season-showid="{{ .Info.TvShowID }}"
+                                               data-season-number="{{ .Info.SeasonNumber }}" ></li>
+                                        <li uk-tooltip="delay: 500; title: Mark whole season as downloaded"
                                                class="uk-icon"
                                                uk-icon="icon: check; ratio: 0.75"
-                                               href=""></a></li>
-                                        <li><a uk-tooltip="delay: 500; title: Download the whole season"
+                                               data-controller="season"
+                                               data-action="click->season#markDownloaded"
+                                               data-season-showid="{{ .Info.TvShowID }}"
+                                               data-season-number="{{ .Info.SeasonNumber }}"></li>
+                                        <li uk-tooltip="delay: 500; title: Download the whole season"
                                                class="uk-icon"
                                                uk-icon="icon: download; ratio: 0.75"
-                                               href=""></a></li>
+                                               data-controller="season"
+                                               data-action="click->season#download"
+                                               data-season-showid="{{ .Info.TvShowID }}"
+                                               data-season-number="{{ .Info.SeasonNumber }}"></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="uk-accordion-content" *ngIf="season && season.collapse && i > 0">
+                        <div>
                             <table class="uk-table uk-table-divider uk-table-small">
                                 <thead>
                                     <tr>
@@ -198,10 +205,8 @@
                                 </tbody>
                             </table>
                         </div>
-                    </li>
                     {{ end }}
                     {{ end }}
-                </ul>
             </div>
         </div>
     </div>
