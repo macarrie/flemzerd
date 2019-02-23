@@ -128,9 +128,8 @@ watch:
 	done
 
 start-server: stop-server
-	touch /tmp/flemzerd.pid
 	#sudo -E -u flemzer ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
-	sudo -E ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
+	sudo -E ./bin/flemzerd
 
 stop-server:
 	-kill $$(cat /tmp/flemzerd.pid)
@@ -139,7 +138,7 @@ stop-server:
 ## start: Start dev server. Change in go files restarts compilation and server
 start:
 	echo " > Starting dev server"
-	@bash -c "trap 'make stop' EXIT; $(MAKE) bin start-server watch run='make bin start-server'"
+	$(MAKE) bin start-server
 
 ## stop: Stop dev server
 stop: stop-server

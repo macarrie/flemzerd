@@ -34,7 +34,6 @@ func New(apiKey string, order string) (tmdbProvider *TMDBProvider, err error) {
 		}).Error("Incorrect order defined in configuration.")
 		parsedOrder = 1
 	}
-	fmt.Printf("TMDB ORDER: %v\n", parsedOrder)
 
 	module = Module{
 		Name: t.GetName(),

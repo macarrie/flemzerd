@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -137,8 +136,6 @@ func updateMovie(c *gin.Context) {
 	var movieFromRequest Movie
 	c.Bind(&movieFromRequest)
 
-	fmt.Printf("Movie from request: %+v\n", movieFromRequest)
-	fmt.Printf("Movie from db: %+v\n", movie)
 	movie = movieFromRequest
 	//db.Client.Save(&movie)
 

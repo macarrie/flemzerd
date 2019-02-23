@@ -1,7 +1,6 @@
 package tvdb
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -34,7 +33,6 @@ func New(apiKey string, order string) (tvdbProvider *TVDBProvider, err error) {
 		}).Error("Incorrect order defined in configuration.")
 		parsedOrder = 1
 	}
-	fmt.Printf("TVDB ORDER: %v\n", parsedOrder)
 
 	module = Module{
 		Name: t.GetName(),

@@ -136,7 +136,6 @@ func (t *TelegramNotifier) Auth() {
 				continue
 			}
 
-			fmt.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 			if t.AuthCode != 0 && update.Message.Text == strconv.Itoa(t.AuthCode) {
 				t.ChatID = update.Message.Chat.ID
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Telegram linked sucessfully to flemzerd. Notifications will be sent through Telegram when the Telegram notifier is enabled in flemzerd.")

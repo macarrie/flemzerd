@@ -290,8 +290,16 @@ func DownloadEpisode(e Episode, torrentList []Torrent, recovery bool) error {
 	}).Info("Starting download process")
 
 	e.DownloadingItem.Pending = false
+	e.DownloadingItem.DownloadFailed = false
+	e.DownloadingItem.TorrentsNotFound = false
+	e.DownloadingItem.FailedTorrents = []Torrent{}
 	e.DownloadingItem.Downloading = true
 	db.Client.Save(&e)
+
+	log.WithFields(log.Fields{
+		"title":           e.Title,
+		"failed_torrents": len(e.DownloadingItem.FailedTorrents),
+	}).Info("Downloading Item")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
@@ -379,6 +387,9 @@ func DownloadMovie(m Movie, torrentList []Torrent, recovery bool) error {
 	}).Info("Starting download process")
 
 	m.DownloadingItem.Pending = false
+	m.DownloadingItem.DownloadFailed = false
+	m.DownloadingItem.TorrentsNotFound = false
+	m.DownloadingItem.FailedTorrents = []Torrent{}
 	m.DownloadingItem.Downloading = true
 	db.Client.Save(&m)
 

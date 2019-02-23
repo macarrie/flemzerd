@@ -2,6 +2,8 @@ package server
 
 import (
 	"net/http"
+	"sort"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 
@@ -100,22 +102,42 @@ func ui_tvshow(c *gin.Context) {
 	}
 
 	var seasonsDetails []SeasonDetails
-	for _, season := range show.Seasons {
-		epList, err := provider.GetSeasonEpisodeList(show, season.SeasonNumber)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"show":   show.OriginalTitle,
-				"season": season.SeasonNumber,
-				"error":  err,
-			}).Warning("Encountered error when querying season details")
-			c.JSON(http.StatusInternalServerError, gin.H{})
-			continue
-		}
-		seasonsDetails = append(seasonsDetails, SeasonDetails{
-			Info:        season,
-			EpisodeList: epList,
-		})
+	seasonDetailsChannel := make(chan SeasonDetails, len(show.Seasons))
+	var wg sync.WaitGroup
+
+	for index, _ := range show.Seasons {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+
+			epList, err := provider.GetSeasonEpisodeList(show, show.Seasons[i].SeasonNumber)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"show":   show.OriginalTitle,
+					"season": show.Seasons[i].SeasonNumber,
+					"error":  err,
+				}).Warning("Encountered error when querying season details")
+				c.JSON(http.StatusInternalServerError, gin.H{})
+				return
+			}
+			seasonDetailsChannel <- SeasonDetails{
+				Info:        show.Seasons[i],
+				EpisodeList: epList,
+			}
+
+			return
+		}(index)
 	}
+
+	wg.Wait()
+	close(seasonDetailsChannel)
+
+	for s := range seasonDetailsChannel {
+		seasonsDetails = append(seasonsDetails, s)
+	}
+	sort.Slice(seasonsDetails[:], func(i, j int) bool {
+		return seasonsDetails[i].Info.SeasonNumber < seasonsDetails[j].Info.SeasonNumber
+	})
 
 	c.HTML(http.StatusOK, "tvshow_details", gin.H{
 		"item":           show,
@@ -193,20 +215,66 @@ func ui_movie(c *gin.Context) {
 }
 
 func ui_status(c *gin.Context) {
-	providers, _ := provider.Status()
-	notifiers, _ := notifier.Status()
-	indexers, _ := indexer.Status()
-	downloaders, _ := downloader.Status()
-	mediacenters, _ := mediacenter.Status()
-	watchlists, _ := watchlist.Status()
+	providers := make(chan []Module, 1)
+	notifiers := make(chan []Module, 1)
+	indexers := make(chan []Module, 1)
+	downloaders := make(chan []Module, 1)
+	mediacenters := make(chan []Module, 1)
+	watchlists := make(chan []Module, 1)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		p, _ := provider.Status()
+		providers <- p
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		n, _ := notifier.Status()
+		notifiers <- n
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		i, _ := indexer.Status()
+		indexers <- i
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		d, _ := downloader.Status()
+		downloaders <- d
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		m, _ := mediacenter.Status()
+		mediacenters <- m
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		w, _ := watchlist.Status()
+		watchlists <- w
+	}()
+
+	wg.Wait()
 
 	c.HTML(http.StatusOK, "status", gin.H{
-		"providers":    providers,
-		"notifiers":    notifiers,
-		"indexers":     indexers,
-		"downloaders":  downloaders,
-		"mediacenters": mediacenters,
-		"watchlists":   watchlists,
+		"providers":    <-providers,
+		"notifiers":    <-notifiers,
+		"indexers":     <-indexers,
+		"downloaders":  <-downloaders,
+		"mediacenters": <-mediacenters,
+		"watchlists":   <-watchlists,
 	})
 }
 
