@@ -197,7 +197,7 @@ func Check() {
 		}
 	}
 
-	releaseTypeFilters := strings.Split(Config.System.PreferredMediaQuality, ",")
+	releaseTypeFilters := strings.Split(Config.System.ExcludedReleaseTypes, ",")
 	for i := range qualityFilters {
 		releaseTypeFilters[i] = strings.TrimSpace(releaseTypeFilters[i])
 	}

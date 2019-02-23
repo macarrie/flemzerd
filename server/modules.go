@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	downloader "github.com/macarrie/flemzerd/downloaders"
@@ -16,16 +17,53 @@ import (
 
 func getModulesStatus(c *gin.Context) {
 	var status []Module
+	var wg sync.WaitGroup
+	var statusMutex sync.Mutex
 
-	providers, _ := provider.Status()
-	notifiers, _ := notifier.Status()
-	indexers, _ := indexer.Status()
-	downloaders, _ := downloader.Status()
+	func() {
+		wg.Add(1)
+		defer statusMutex.Unlock()
+		defer wg.Done()
 
-	status = append(status, providers...)
-	status = append(status, notifiers...)
-	status = append(status, indexers...)
-	status = append(status, downloaders...)
+		providers, _ := provider.Status()
+		statusMutex.Lock()
+		status = append(status, providers...)
+	}()
+
+	func() {
+		wg.Add(1)
+		defer statusMutex.Unlock()
+		defer wg.Done()
+
+		notifiers, _ := notifier.Status()
+		statusMutex.Lock()
+		status = append(status, notifiers...)
+		wg.Done()
+	}()
+
+	func() {
+		wg.Add(1)
+		defer statusMutex.Unlock()
+		defer wg.Done()
+
+		indexers, _ := indexer.Status()
+		statusMutex.Lock()
+		status = append(status, indexers...)
+		wg.Done()
+	}()
+
+	func() {
+		wg.Add(1)
+		defer statusMutex.Unlock()
+		defer wg.Done()
+
+		downloaders, _ := downloader.Status()
+		statusMutex.Lock()
+		status = append(status, downloaders...)
+		wg.Done()
+	}()
+
+	wg.Wait()
 
 	c.JSON(http.StatusOK, status)
 }
