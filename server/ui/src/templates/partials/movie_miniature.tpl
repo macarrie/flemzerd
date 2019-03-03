@@ -83,8 +83,6 @@
         <button class="uk-icon"
                 uk-tooltip="delay: 500; title: Download"
                 uk-icon="icon: download; ratio: 0.75"
-                *ngIf="!movie.DownloadingItem.Downloaded && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Pending && movie.DeletedAt == null && !config?.System?.AutomaticMovieDownload && !utils.dateIsInFuture(movie.Date)"
-                (click)="downloadMovie(movie.ID)"
                 data-controller="movie"
                 data-action="click->movie#download"
                 data-movie-id="{{ .ID }}">

@@ -6,8 +6,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/macarrie/flemzerd/downloadable"
+
 	"github.com/macarrie/flemzerd/configuration"
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
@@ -46,27 +47,15 @@ func Reset() {
 	indexersCollection = []Indexer{}
 }
 
-func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
+func GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
 	var torrentList []Torrent
 	var errorList *multierror.Error
 
 	for _, indexer := range indexersCollection {
-		ind, ok := indexer.(TVIndexer)
-		if !ok {
-			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
-			}).Debug("Indexer does not support movies, skipping")
-			continue
-		}
-
-		indexerSearch, err := ind.GetTorrentForEpisode(episode)
+		indexerSearch, err := indexer.GetTorrents(d)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"indexer": ind.GetName(),
-				"show":    media_helper.GetShowTitle(episode.TvShow),
-				"season":  episode.Season,
-				"number":  episode.Number,
-				"episode": episode.Title,
+			d.GetLog().WithFields(log.Fields{
+				"indexer": indexer.GetName(),
 				"error":   err,
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
@@ -75,20 +64,13 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 
 		if len(indexerSearch) != 0 {
 			torrentList = append(torrentList, indexerSearch...)
-			log.WithFields(log.Fields{
-				"indexer": ind.GetName(),
-				"show":    media_helper.GetShowTitle(episode.TvShow),
-				"season":  episode.Season,
-				"number":  episode.Number,
-				"episode": episode.Title,
-			}).Info(len(indexerSearch), " torrents found")
+			d.GetLog().WithFields(log.Fields{
+				"indexer": indexer.GetName(),
+				"nb":      len(indexerSearch),
+			}).Info("Torrents found")
 		} else {
-			log.WithFields(log.Fields{
-				"indexer": ind.GetName(),
-				"show":    media_helper.GetShowTitle(episode.TvShow),
-				"season":  episode.Season,
-				"number":  episode.Number,
-				"episode": episode.Title,
+			d.GetLog().WithFields(log.Fields{
+				"indexer": indexer.GetName(),
 			}).Info("No torrents found")
 		}
 	}
@@ -97,54 +79,12 @@ func GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
 		return torrentList[i].Seeders > torrentList[j].Seeders
 	})
 
-	torrentList = FilterEpisodeTorrents(episode, torrentList)
-
-	return torrentList, errorList.ErrorOrNil()
-}
-
-func GetTorrentForMovie(movie Movie) ([]Torrent, error) {
-	var torrentList []Torrent
-	var errorList *multierror.Error
-
-	for _, indexer := range indexersCollection {
-		ind, ok := indexer.(MovieIndexer)
-		if !ok {
-			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
-			}).Debug("Indexer does not support movies, skipping")
-			continue
-		}
-
-		indexerSearch, err := ind.GetTorrentForMovie(media_helper.GetMovieTitle(movie))
-		if err != nil {
-			log.WithFields(log.Fields{
-				"indexer": indexer.GetName(),
-				"movie":   media_helper.GetMovieTitle(movie),
-				"error":   err,
-			}).Warning("Couldn't get torrents from indexer")
-			errorList = multierror.Append(errorList, err)
-			continue
-		}
-
-		if len(indexerSearch) != 0 {
-			torrentList = append(torrentList, indexerSearch...)
-			log.WithFields(log.Fields{
-				"indexer": ind.GetName(),
-				"movie":   media_helper.GetMovieTitle(movie),
-			}).Info(len(indexerSearch), " torrents found")
-		} else {
-			log.WithFields(log.Fields{
-				"indexer": ind.GetName(),
-				"movie":   media_helper.GetMovieTitle(movie),
-			}).Info("No torrents found")
-		}
+	switch d.(type) {
+	case *Movie:
+		torrentList = FilterMovieTorrents(*d.(*Movie), torrentList)
+	case *Episode:
+		torrentList = FilterEpisodeTorrents(*d.(*Episode), torrentList)
 	}
-
-	sort.Slice(torrentList[:], func(i, j int) bool {
-		return torrentList[i].Seeders > torrentList[j].Seeders
-	})
-
-	torrentList = FilterMovieTorrents(movie, torrentList)
 
 	return torrentList, errorList.ErrorOrNil()
 }

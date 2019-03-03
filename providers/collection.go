@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/macarrie/flemzerd/db"
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -256,8 +255,8 @@ func removeDuplicateMovies(array []Movie) []Movie {
 	var ret []Movie
 
 	for _, movie := range array {
-		if !occurences[media_helper.GetMovieTitle(movie)] {
-			occurences[media_helper.GetMovieTitle(movie)] = true
+		if !occurences[movie.GetTitle()] {
+			occurences[movie.GetTitle()] = true
 			ret = append(ret, movie)
 		}
 	}

@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/macarrie/flemzerd/downloadable"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/rs/xid"
@@ -129,9 +130,9 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(episode Episode) ([]To
 	params.Add("apikey", torznabIndexer.ApiKey)
 	params.Add("t", "tvsearch")
 	if episode.TvShow.IsAnime {
-		params.Add("q", fmt.Sprintf("%v %v", media_helper.GetShowTitle(episode.TvShow), episode.AbsoluteNumber))
+		params.Add("q", fmt.Sprintf("%v %v", episode.TvShow.GetTitle(), episode.AbsoluteNumber))
 	} else {
-		params.Add("q", media_helper.GetShowTitle(episode.TvShow))
+		params.Add("q", episode.TvShow.GetTitle())
 		params.Add("season", strconv.Itoa(episode.Season))
 		params.Add("episode", strconv.Itoa(episode.Number))
 	}
@@ -182,7 +183,12 @@ func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(episode Episode) ([]To
 	return results, nil
 }
 
-func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
+func (torznabIndexer TorznabIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	if !torznabIndexer.CheckCapabilities(d) {
+		d.GetLog().Info("Torznab indexer does not support torrent search for this item. Skipping")
+		return []Torrent{}, nil
+	}
+
 	baseURL := torznabIndexer.Url
 
 	tr := &http.Transport{
@@ -199,8 +205,24 @@ func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Tor
 
 	params := url.Values{}
 	params.Add("apikey", torznabIndexer.ApiKey)
-	params.Add("t", "movie")
-	params.Add("q", movieName)
+	switch d.(type) {
+	case *Movie:
+		params.Add("t", "movie")
+		params.Add("q", d.GetTitle())
+	case *Episode:
+		episode := *(d.(*Episode))
+		params.Add("t", "tvsearch")
+		if episode.TvShow.IsAnime {
+			params.Add("q", fmt.Sprintf("%v %v", episode.TvShow.GetTitle(), episode.AbsoluteNumber))
+		} else {
+			params.Add("q", episode.TvShow.GetTitle())
+			params.Add("season", strconv.Itoa(episode.Season))
+			params.Add("episode", strconv.Itoa(episode.Number))
+		}
+	default:
+		return []Torrent{}, errors.New("Unknown downloadable type")
+	}
+
 	urlObject.RawQuery = params.Encode()
 
 	request, err := http.NewRequest("GET", urlObject.String(), nil)
@@ -250,4 +272,15 @@ func (torznabIndexer TorznabIndexer) GetTorrentForMovie(movieName string) ([]Tor
 
 func (torznabIndexer TorznabIndexer) GetName() string {
 	return torznabIndexer.Name
+}
+
+func (torznabIndexer TorznabIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	switch d.(type) {
+	case *Movie:
+		return true
+	case *Episode:
+		return true
+	default:
+		return false
+	}
 }

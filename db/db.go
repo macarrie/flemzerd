@@ -11,6 +11,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+
+	downloadable "github.com/macarrie/flemzerd/downloadable"
 )
 
 // Client represents gorm database connection
@@ -190,4 +192,17 @@ func SaveTraktToken(token string) {
 func SaveTelegramChatID(chat_id int64) {
 	Session.TelegramChatID = chat_id
 	Client.Save(&Session)
+}
+
+func SaveDownloadable(d *downloadable.Downloadable) {
+	switch (*d).(type) {
+	case *Movie:
+		movie, ok := (*d).(*Movie)
+		if ok {
+			Client.Save(&movie)
+			return
+		}
+		//case Episode:
+		//Client.Save(&d.(Episode))
+	}
 }

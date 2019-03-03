@@ -43,6 +43,7 @@
         <table class="uk-table uk-table-small uk-table-divider">
             <thead>
                 <th>Movie name</th>
+                <th class="uk-text-nowrap">current download</th>
                 <th class="uk-text-nowrap">Download status</th>
                 <th class="uk-text-center uk-table-shrink uk-text-nowrap">Failed torrents</th>
                 <th></th>
@@ -50,11 +51,16 @@
 
             <tbody>
                 {{ range .downloadingMovies }}
-                <tr *ngFor="let episode of downloadingEpisodes">
+                <tr>
                     <td>
                         <a href="/movies/{{ .ID }}">
-                            {{ getMovieTitle . }}
+                            {{ .GetTitle }}
                         </a>
+                    </td>
+                    <td class="uk-text-muted">
+                        <i>
+                            {{ .DownloadingItem.CurrentTorrent.Name }}
+                        </i>
                     </td>
                     <td class="uk-text-center uk-table-shrink uk-text-nowrap">
                         {{ if .DownloadingItem.Downloading }}
@@ -72,7 +78,7 @@
                         {{ len .DownloadingItem.FailedTorrents }}
                     </td>
                     <td>
-                        <a class="uk-icon uk-icon-link uk-text-danger" uk-icon="icon: close; ratio: 0.75" (click)="stopDownload(episode)"
+                        <a class="uk-icon uk-icon-link uk-text-danger abort-download-button" uk-icon="icon: close; ratio: 0.75" (click)="stopDownload(episode)"
                             data-controller="movie"
                             data-action="click->movie#abortDownload"
                             data-movie-id="{{ .ID }}">

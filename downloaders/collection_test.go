@@ -312,7 +312,7 @@ func TestMoveMovieToLibrary(t *testing.T) {
 		},
 	}
 
-	err := MoveMovieToLibrary(&testMovie)
+	err := MoveItemToLibrary(&testMovie)
 	if err != nil {
 		t.Errorf("Movie could not be moved to library: %s", err.Error())
 	}

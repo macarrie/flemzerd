@@ -23,9 +23,7 @@
             <div class="uk-width-auto">
                 {{ if or (eq .type "movie") (eq .type "episode") }}
                     {{ if and (and (and (and (not .item.DeletedAt) (not .item.DownloadingItem.Pending)) (not .item.DownloadingItem.Downloading)) (not .item.DownloadingItem.Downloaded)) (not (isInFuture .item.Date)) }}
-                    <a *ngIf="movie.DeletedAt == null && !movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && !utils.dateIsInFuture(movie.Date)"
-                       (click)="downloadMovie(movie.ID)"
-                       data-controller="{{ .type }}"
+                    <a data-controller="{{ .type }}"
                        data-action="click->{{ .type }}#download"
                        data-{{ .type }}-id="{{ .item.ID }}">
                         <span class="uk-icon uk-icon-link" uk-icon="icon: download; ratio: 0.75"></span>
@@ -37,16 +35,14 @@
                 {{ if and (not (eq .type "episode")) (not .item.DeletedAt) }}
                     {{ if ne .item.Title .item.OriginalTitle }}
                         {{ if .item.UseDefaultTitle }}
-                        <a *ngIf="movie.UseDefaultTitle && movie.Title != movie.OriginalTitle"
-                           data-controller="{{ .type }}"
+                        <a data-controller="{{ .type }}"
                            data-action="click->{{ .type }}#useOriginalTitle"
                            data-{{ .type }}-id="{{ .item.ID }}">
                             <span class="uk-icon uk-icon-link" uk-icon="icon: move; ratio: 0.75"></span>
                             Use original title
                         </a>
                         {{ else }}
-                        <a *ngIf="!movie.UseDefaultTitle && movie.Title != movie.OriginalTitle"
-                           data-controller="{{ .type }}"
+                        <a data-controller="{{ .type }}"
                            data-action="click->{{ .type }}#useDefaultTitle"
                            data-{{ .type }}-id="{{ .item.ID }}">
                             <span class="uk-icon uk-icon-link" uk-icon="icon: move; ratio: 0.75"></span>
@@ -67,9 +63,7 @@
                 {{ else }}
                     {{ if or (eq .type "movie") (eq .type "episode") }}
                         {{ if .item.DownloadingItem.Downloaded }}
-                        <a *ngIf="movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
-                           (click)="changeDownloadedState(movie, false)"
-                            data-controller="{{ .type }}"
+                        <a data-controller="{{ .type }}"
                             data-action="click->{{ .type }}#markNotDownloaded"
                             data-{{ .type }}-id="{{ .item.ID }}">
                             <span class="uk-icon uk-icon-link" uk-icon="icon: push; ratio: 0.75"></span>
@@ -77,9 +71,7 @@
                         </a>
                         {{ else }}
                             {{ if and (not .item.DownloadingItem.Pending) (not .item.DownloadingItem.Downloading) }}
-                            <a *ngIf="!movie.DownloadingItem.Pending && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Downloaded && movie.DeletedAt == null"
-                               (click)="changeDownloadedState(movie, true)"
-                                data-controller="{{ .type }}"
+                            <a data-controller="{{ .type }}"
                                 data-action="click->{{ .type }}#markDownloaded"
                                 data-{{ .type }}-id="{{ .item.ID }}">
                                 <span class="uk-icon uk-icon-link" uk-icon="icon: check; ratio: 0.75"></span>
@@ -88,8 +80,7 @@
                             {{ end }}
                         {{ end }}
                         {{ if or .item.DownloadingItem.Pending .item.DownloadingItem.Downloading }}
-                        <a *ngIf="movie.DeletedAt == null" (click)="deleteMovie(movie)"
-                           data-controller="{{ .type }}"
+                        <a data-controller="{{ .type }}"
                            data-action="click->{{ .type }}#abortDownload"
                            data-{{ .type }}-id="{{ .item.ID }}">
                             <span class="uk-icon uk-icon-link" uk-icon="icon: close; ratio: 0.75"></span>
@@ -98,8 +89,7 @@
                         {{ end }}
                     {{ end }}
                     {{ if or (eq .type "movie") (eq .type "tvshow") }}
-                    <a *ngIf="movie.DeletedAt == null" (click)="deleteMovie(movie)"
-                       data-controller="{{ .type }}"
+                    <a data-controller="{{ .type }}"
                        data-action="click->{{ .type }}#delete"
                        data-{{ .type }}-id="{{ .item.ID }}">
                         <span class="uk-icon uk-icon-link" uk-icon="icon: close; ratio: 0.75"></span>

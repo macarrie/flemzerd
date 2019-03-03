@@ -1,22 +1,13 @@
 package indexer
 
 import (
+	"github.com/macarrie/flemzerd/downloadable"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 type Indexer interface {
 	GetName() string
 	Status() (Module, error)
-}
-
-type TVIndexer interface {
-	GetName() string
-	Status() (Module, error)
-	GetTorrentForEpisode(episode Episode) ([]Torrent, error)
-}
-
-type MovieIndexer interface {
-	GetName() string
-	Status() (Module, error)
-	GetTorrentForMovie(movieName string) ([]Torrent, error)
+	CheckCapabilities(d downloadable.Downloadable) bool
+	GetTorrents(d downloadable.Downloadable) ([]Torrent, error)
 }

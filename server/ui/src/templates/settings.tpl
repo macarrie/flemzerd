@@ -219,7 +219,7 @@
                                 data-target="trakt.done">
                                 <small><i>configured</i></small>
                             </span>
-                            <button *ngIf="watchlist == 'trakt' && !trakt_auth"
+                            <button
                                 class="uk-button uk-button-default uk-text-danger uk-button-small uk-text-right"
                                 data-target="trakt.start"
                                 data-action="click->trakt#start_auth"
@@ -272,7 +272,7 @@
                                 data-target="telegram.done">
                                 <small><i>configured</i></small>
                             </span>
-                            <button *ngIf="watchlist == 'trakt' && !trakt_auth"
+                            <button
                                 class="uk-button uk-button-default uk-text-danger uk-button-small uk-text-right"
                                 data-target="telegram.start"
                                 data-action="click->telegram#start_auth"

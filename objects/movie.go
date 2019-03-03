@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 type Movie struct {
@@ -20,4 +22,38 @@ type Movie struct {
 	DownloadingItem   DownloadingItem
 	DownloadingItemID int
 	UseDefaultTitle   bool
+}
+
+//////////////////////////////
+// Downloadable implementation
+//////////////////////////////
+
+func (m *Movie) GetId() uint {
+	return m.ID
+}
+
+func (m *Movie) GetTitle() string {
+	if m.CustomTitle != "" {
+		return m.CustomTitle
+	}
+
+	if m.UseDefaultTitle {
+		return m.Title
+	}
+
+	return m.OriginalTitle
+}
+
+func (m *Movie) GetLog() *log.Entry {
+	return log.WithFields(log.Fields{
+		"movie": m.GetTitle(),
+	})
+}
+
+func (m *Movie) GetDownloadingItem() DownloadingItem {
+	return m.DownloadingItem
+}
+
+func (m *Movie) SetDownloadingItem(d DownloadingItem) {
+	m.DownloadingItem = d
 }

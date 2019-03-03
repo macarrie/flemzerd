@@ -52,9 +52,7 @@
             {{ template "notifications_list" .notifications }}
         {{ else }}
             <div class="uk-text-center uk-h2 uk-text-muted">
-                <i>
-                    No notifications
-                </i>
+                No notifications
             </div>
         {{ end }}
     </div>

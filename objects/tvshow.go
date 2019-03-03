@@ -44,3 +44,16 @@ type SeasonDetails struct {
 	Info        TvSeason
 	EpisodeList []Episode
 }
+
+
+func (s TvShow) GetTitle() string {
+	if s.CustomTitle != "" {
+		return s.CustomTitle
+	}
+
+	if s.UseDefaultTitle {
+		return s.Title
+	}
+
+	return s.OriginalTitle
+}

@@ -209,7 +209,7 @@ func ui_movie(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "movie_details", gin.H{
-		"item": movie,
+		"item": &movie,
 		"type": "movie",
 	})
 }

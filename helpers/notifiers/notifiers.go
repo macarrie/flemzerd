@@ -3,7 +3,6 @@ package notifiers_helper
 import (
 	"fmt"
 
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -13,41 +12,41 @@ func GetNotificationText(notif Notification) (notif_title, notif_content string,
 
 	switch notif.Type {
 	case NOTIFICATION_NEW_EPISODE:
-		title = fmt.Sprintf("%v S%03dE%03d: New episode aired", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
-		content = fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", notif.Episode.Date, media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
+		title = fmt.Sprintf("%v S%03dE%03d: New episode aired", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
+		content = fmt.Sprintf("New episode aired on %v\n%v Season %03d Episode %03d: %v", notif.Episode.Date, notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
 
 	case NOTIFICATION_NEW_MOVIE:
-		title = fmt.Sprintf("%s", media_helper.GetMovieTitle(notif.Movie))
+		title = fmt.Sprintf("%s", notif.Movie.GetTitle())
 		content = "Movie found in watchlist, adding to tracked movies"
 
 	case NOTIFICATION_DOWNLOAD_START:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d: Download start ", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d: Download start ", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
 			content = "Torrents found for episode. Starting download"
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v: Download start", media_helper.GetMovieTitle(notif.Movie))
+			title = fmt.Sprintf("%v: Download start", notif.Movie.GetTitle())
 			content = "Torrents found for movie. Starting download"
 		}
 
 	case NOTIFICATION_DOWNLOAD_SUCCESS:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d: Episode downloaded", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
-			content = fmt.Sprintf("New episode downloaded\n%v Season %03d Episode %03d: %v", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
+			title = fmt.Sprintf("%v S%03dE%03d: Episode downloaded", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
+			content = fmt.Sprintf("New episode downloaded\n%v Season %03d Episode %03d: %v", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v: Movie downloaded", media_helper.GetMovieTitle(notif.Movie))
+			title = fmt.Sprintf("%v: Movie downloaded", notif.Movie.GetTitle())
 			content = "New movie downloaded\n"
 		}
 
 	case NOTIFICATION_DOWNLOAD_FAILURE:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d: Episode download failed", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
-			content = fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", media_helper.GetShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
+			title = fmt.Sprintf("%v S%03dE%03d: Episode download failed", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
+			content = fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v: Movie download failed", media_helper.GetMovieTitle(notif.Movie))
-			content = fmt.Sprintf("Failed to download movie: %v", media_helper.GetMovieTitle(notif.Movie))
+			title = fmt.Sprintf("%v: Movie download failed", notif.Movie.GetTitle())
+			content = fmt.Sprintf("Failed to download movie: %v", notif.Movie.GetTitle())
 		}
 
 	case NOTIFICATION_TEXT:

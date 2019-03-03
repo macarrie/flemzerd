@@ -2,6 +2,7 @@ package mock
 
 import (
 	"fmt"
+	"github.com/macarrie/flemzerd/downloadable"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -168,9 +169,9 @@ func getTorrentForMovie(movieName string) ([]Torrent, error) {
 		},
 	}, nil
 }
-func (m MovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
-	return getTorrentForMovie(movieName)
+func (m MovieIndexer) GetTorrent(d downloadable.Downloadable) ([]Torrent, error) {
+	return getTorrentForMovie(d)
 }
-func (m ErrorMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
-	return getTorrentForMovie(movieName)
+func (m ErrorMovieIndexer) GetTorrent(d downloadable.Downloadable) ([]Torrent, error) {
+	return getTorrentForMovie(d)
 }

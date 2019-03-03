@@ -17,6 +17,7 @@ func Setup(debug bool) {
 }
 
 type Fields = log.Fields
+type Entry = log.Entry
 
 func WithFields(fields Fields) *log.Entry {
 	return log.WithFields(fields)

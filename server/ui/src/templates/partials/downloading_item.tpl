@@ -4,43 +4,40 @@
         <span class="uk-h4">Download status</span>
     </div>
     {{ if .Downloaded }}
-    <div class="col-12"
-         *ngIf="downloadingitem.Downloaded">
-        <div class="mb-3">
-            <span class="h6 text-success">
+    <div>
+        <div class="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+            <span class="uk-h4 uk-text-success">
                 <i class="material-icons md-18">check</i> Download successful
             </span>
         </div>
     </div>
     {{ end }}
     {{ if and .Downloading (not .Downloaded) }}
-    <div class="col-12 my-3"
-         *ngIf="downloadingitem.Downloading && !downloadingitem.Downloaded">
-        <div class="mb-3">
-            <span class="h6">
+    <div>
+        <div class="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+            <span class="uk-h4">
                 <i class="material-icons md-18">swap_vert</i> Download in progress
             </span>
         </div>
-        <table class="table table-sm">
-            <tr *ngIf="!downloadingitem.Downloaded">
+        <table class="uk-table uk-table-small uk-table-divider">
+            <tr>
                 <td><b>Downloading</b></td>
                 <td>
-                    <span class="text-danger"
-                          *ngIf="!downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
-                    <span class="text-success"
-                          *ngIf="downloadingitem.Downloading"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at utils.formatDate(downloadingitem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')</span>
+                    {{ if .Downloading }}
+                    <span class="uk-text-success"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at {{ .CurrentTorrent.CreatedAt.Format "15:04 02/01/2006" }}</span>
+                    {{ else }}
+                    <span class="uk-text-danger"><i class="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
+                    {{ end }}
                 </td>
             </tr>
             <tr>
-                <td *ngIf="!downloadingitem.Downloaded"><b>Current download</b></td>
+                <td><b>Current download</b></td>
                 {{ if .CurrentTorrent.Name }}
-                <td class="font-italic text-muted"
-                    *ngIf="downloadingitem.CurrentTorrent.Name">
+                <td class="uk-font-italic uk-text-muted">
                     {{ .CurrentTorrent.Name }}
                 </td>
                 {{ else }}
-                <td class="font-italic text-muted"
-                    *ngIf="!downloadingitem.CurrentTorrent.Name">
+                <td class="uk-font-italic uk-text-muted">
                     Unknown
                 </td>
                 {{ end }}
@@ -48,22 +45,20 @@
             <tr>
                 <td><b>Download directory</b></td>
                 {{ if .CurrentTorrent.DownloadDir }}
-                <td class="text-muted font-italic"
-                    *ngIf="downloadingitem.CurrentTorrent.DownloadDir">
+                <td class="uk-text-muted uk-font-italic">
                     <code>
                         {{ .CurrentTorrent.DownloadDir }}
                     </code>
                 </td>
                 {{ else }}
-                <td class="text-muted font-italic"
-                    *ngIf="!downloadingitem.CurrentTorrent.DownloadDir">
+                <td class="uk-text-muted uk-font-italic">
                     Unknown
                 </td>
                 {{ end }}
             </tr>
-            {{ $failedClass := "text-danger" }}
-            {{ if eq (len .DownloadingItem.FailedTorrents) 0 }}
-                {{ $failedClass = "text-success" }}
+            {{ $failedClass := "uk-text-danger" }}
+            {{ if eq (len .FailedTorrents) 0 }}
+                {{ $failedClass = "uk-text-success" }}
             {{ end }}
             <tr class="{{ $failedClass }}">
                 <td><b>Failed torrents</b></td>
@@ -77,25 +72,22 @@
 
     {{ if and (and (not .Downloading) (not .Downloaded) (not .Pending)) }}
         {{ if .TorrentsNotFound }}
-        <div class="col-12 my-3"
-             *ngIf="!downloadingitem.Downloading && !downloadingitem.Downloaded && !downloadingitem.Pending && downloadingitem.TorrentsNotFound">
-            <div class="mb-3 text-center">
-                <span class="h5 text-muted">
-                    <i class="material-icons text-warning md-18">warning</i>
-                    <span class="font-weight-bold">
+        <div>
+            <div class="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+                <span class="uk-text-muted">
+                    <div class="uk-h4 uk-text-bold">
+                        <i class="material-icons uk-text-warning md-18">warning</i>
                         No torrents found
-                    </span>
-                    <hr />
+                    </div>
                     No torrents have been found during last download. <br />
                     Try again later (in case of recent releases) or after adding new indexers.
                 </span>
             </div>
         </div>
         {{ else }}
-        <div class="col-12 my-3"
-             *ngIf="!downloadingitem.Downloading && !downloadingitem.Downloaded && !downloadingitem.Pending && !downloadingitem.TorrentsNotFound">
-            <div class="mb-3 text-center">
-                <span class="h5 text-muted">
+        <div>
+            <div class="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+                <span class="uk-h4 uk-text-muted">
                     Not downloading
                 </span>
             </div>
@@ -103,10 +95,9 @@
         {{ end }}
     {{ end }}
     {{ if .Pending }}
-    <div class="col-12 my-3"
-         *ngIf="downloadingitem.Pending">
-        <div class="mb-3 text-center">
-            <span class="h5 text-muted">
+    <div>
+        <div class="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+            <span class="uk-h4 uk-text-muted">
                 Looking for torrents
             </span>
         </div>

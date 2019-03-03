@@ -138,7 +138,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 
 	indexersCollection = []Indexer{ind1, ind2, ind3, ind4}
 
-	torrentList, _ := GetTorrentForMovie(Movie{
+	torrentList, _ := GetTorrents(Movie{
 		Title:         "Test movie",
 		OriginalTitle: "Test movie",
 		Date:          movieDate,
@@ -151,7 +151,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 		t.Error("Torrent list is not sorted by seeders")
 	}
 
-	torrentList, err := GetTorrentForMovie(Movie{
+	torrentList, err := GetTorrents(Movie{
 		Date: movieDate,
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 		t.Errorf("Expected to have no results, got %d results instead\n", len(torrentList))
 	}
 
-	torrentList, _ = GetTorrentForMovie(Movie{
+	torrentList, _ = GetTorrents(Movie{
 		Title:         "error",
 		OriginalTitle: "error",
 	})
@@ -171,7 +171,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 
 	//Get torrent when vidocq is not available
 	vidocq.LocalVidocqAvailable = false
-	torrentList, _ = GetTorrentForMovie(Movie{
+	torrentList, _ = GetTorrents(Movie{
 		Title:         "Test movie",
 		OriginalTitle: "Test movie",
 		Date:          movieDate,
@@ -184,7 +184,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 	configuration.Config.System.PreferredMediaQuality = ""
 	configuration.Config.System.ExcludedReleaseTypes = ""
 	vidocq.LocalVidocqAvailable = true
-	torrentList, _ = GetTorrentForMovie(Movie{
+	torrentList, _ = GetTorrents(Movie{
 		Title:         "Test movie",
 		OriginalTitle: "Test movie",
 		Date:          movieDate,
