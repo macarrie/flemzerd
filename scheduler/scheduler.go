@@ -340,7 +340,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
 	}
 
-	toDownload := downloader.FillTorrentList(&d, torrentList)
+	toDownload := downloader.FillTorrentList(d, torrentList)
 	if len(toDownload) == 0 {
 		d.GetLog().Debug("No torrents found")
 

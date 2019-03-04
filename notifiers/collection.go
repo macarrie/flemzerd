@@ -144,39 +144,23 @@ func NotifyDownloadStart(d downloadable.Downloadable) error {
 	return nil
 }
 
-// NotifyDownloadedEpisode sends notification on registered notifiers to alert that the episode has been successfully downloaded
-func NotifyDownloadedEpisode(episode *Episode) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
-		Episode: *episode,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
 // NotifyDownloadedItem sends notification on registered notifiers to alert that the movie has been successfully downloaded
-func NotifyDownloadedItem(d *downloadable.Downloadable) error {
+func NotifyDownloadedItem(d downloadable.Downloadable) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
 
 	notification := Notification{}
-	switch (*d).(type) {
+	switch d.(type) {
 	case *Movie:
 		notification = Notification{
 			Type:  NOTIFICATION_DOWNLOAD_SUCCESS,
-			Movie: *(*d).(*Movie),
+			Movie: *d.(*Movie),
 		}
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
-			Episode: *(*d).(*Episode),
+			Episode: *d.(*Episode),
 		}
 	default:
 		return errors.New("Unknown Downloadable object type")
@@ -189,41 +173,24 @@ func NotifyDownloadedItem(d *downloadable.Downloadable) error {
 	return nil
 }
 
-// NotifyFailedEpisode sends notification on registered notifiers to alert that the episode could not be downloaded.
-// An episode is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
-func NotifyFailedEpisode(episode *Episode) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_FAILURE,
-		Episode: *episode,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
 // NotifyFailedDownload sends notification on registered notifiers to alert that the movie could not be downloaded.
 // A movie is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
-func NotifyFailedDownload(d *downloadable.Downloadable) error {
+func NotifyFailedDownload(d downloadable.Downloadable) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}
 
 	notification := Notification{}
-	switch (*d).(type) {
+	switch d.(type) {
 	case *Movie:
 		notification = Notification{
 			Type:  NOTIFICATION_DOWNLOAD_FAILURE,
-			Movie: *(*d).(*Movie),
+			Movie: *d.(*Movie),
 		}
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_FAILURE,
-			Episode: *(*d).(*Episode),
+			Episode: *d.(*Episode),
 		}
 	default:
 		return errors.New("Unknown Downloadable object type")

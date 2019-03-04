@@ -189,26 +189,27 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := DownloadEpisode(episode, []Torrent{testTorrent}, false)
+	err := Download(&episode, []Torrent{testTorrent}, false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
+	episode.DownloadingItem = DownloadingItem{}
+	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
+	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 
 	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
-	err = DownloadEpisode(episode, []Torrent{testTorrent2, testTorrent}, false)
+	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent status are unknown")
 	}
@@ -232,26 +233,27 @@ func TestDownloadMovie(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := DownloadMovie(testMovie, []Torrent{testTorrent}, false)
+	err := Download(&testMovie, []Torrent{testTorrent}, false)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err = DownloadMovie(testMovie, []Torrent{testTorrent, testTorrent2, testTorrent}, false)
+	testMovie.DownloadingItem = DownloadingItem{}
+	err = Download(&testMovie, []Torrent{testTorrent, testTorrent2, testTorrent}, false)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	err = Download(&testMovie, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 
 	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
-	err = DownloadMovie(testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	err = Download(&testMovie, []Torrent{testTorrent2, testTorrent}, false)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent status are unknown")
 	}
@@ -284,7 +286,7 @@ func TestMoveEpisodeToLibrary(t *testing.T) {
 		},
 	}
 
-	err := MoveEpisodeToLibrary(&testEpisode)
+	err := MoveItemToLibrary(&testEpisode)
 	if err != nil {
 		t.Errorf("Episode could not be moved to library: %s", err.Error())
 	}
@@ -336,13 +338,13 @@ func TestFillEpisodeToDownload(t *testing.T) {
 	}
 
 	episode.DownloadingItem.FailedTorrents = append(episode.DownloadingItem.FailedTorrents, torrent1)
-	torrentList := FillEpisodeToDownloadTorrentList(&episode, []Torrent{torrent1, torrent2})
+	torrentList := FillTorrentList(&episode, []Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
 
 	episode.DownloadingItem.FailedTorrents = []Torrent{}
-	torrentList = FillEpisodeToDownloadTorrentList(&episode, []Torrent{
+	torrentList = FillTorrentList(&episode, []Torrent{
 		torrent1,
 		torrent1,
 		torrent1,
@@ -378,13 +380,13 @@ func TestFillMovieToDownload(t *testing.T) {
 	}
 
 	movie.DownloadingItem.FailedTorrents = append(movie.DownloadingItem.FailedTorrents, torrent1)
-	torrentList := FillMovieToDownloadTorrentList(&movie, []Torrent{torrent1, torrent2})
+	torrentList := FillTorrentList(&movie, []Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
 
 	movie.DownloadingItem.FailedTorrents = []Torrent{}
-	torrentList = FillMovieToDownloadTorrentList(&movie, []Torrent{
+	torrentList = FillTorrentList(&movie, []Torrent{
 		torrent1,
 		torrent1,
 		torrent1,
@@ -435,31 +437,31 @@ func TestAbortDownload(t *testing.T) {
 		},
 	}
 
-	go DownloadEpisode(episode, []Torrent{torrent1, torrent2}, false)
+	go Download(&episode, []Torrent{torrent1, torrent2}, false)
 	time.Sleep(2 * time.Second)
-	AbortEpisodeDownload(&episode)
+	AbortDownload(&episode)
 	if episode.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
-	go DownloadMovie(movie, []Torrent{torrent1, torrent2}, false)
+	go Download(&movie, []Torrent{torrent1, torrent2}, false)
 	time.Sleep(2 * time.Second)
-	AbortMovieDownload(&movie)
+	AbortDownload(&movie)
 	if movie.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
 	// Test same download with recovery mode enabled
-	go DownloadEpisode(episode, []Torrent{torrent1, torrent2}, true)
+	go Download(&episode, []Torrent{torrent1, torrent2}, true)
 	time.Sleep(2 * time.Second)
-	AbortEpisodeDownload(&episode)
+	AbortDownload(&episode)
 	if episode.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
-	go DownloadMovie(movie, []Torrent{torrent1, torrent2}, true)
+	go Download(&movie, []Torrent{torrent1, torrent2}, true)
 	time.Sleep(2 * time.Second)
-	AbortMovieDownload(&movie)
+	AbortDownload(&movie)
 	if movie.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
