@@ -103,9 +103,21 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		t.Error("Expected to have no torrents when getting torrents for episode")
 	}
 
+	// Anime episode
+	episode.Season = 1
+	episode.Number = 1
+	episode.AbsoluteNumber = 1
+	episode.TvShow.IsAnime = true
+	torrentList, _ = GetTorrents(&episode)
+	if len(torrentList) != 6 {
+		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
+		return
+	}
+
 	//Get torrent when vidocq is not available
 	episode.Season = 1
 	episode.Number = 1
+	episode.TvShow.IsAnime = false
 	vidocq.LocalVidocqAvailable = false
 	torrentList, _ = GetTorrents(&episode)
 	if len(torrentList) != 14 {

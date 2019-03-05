@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
+	"github.com/macarrie/flemzerd/downloadable"
 
 	log "github.com/macarrie/flemzerd/logging"
 	mock "github.com/macarrie/flemzerd/mocks"
@@ -466,6 +467,40 @@ func TestAbortDownload(t *testing.T) {
 		t.Error("Expected download to be stopped")
 	}
 	downloadersCollection = []Downloader{mock.Downloader{}}
+}
+
+func TestMarkDownloadAsFailed(t *testing.T) {
+	db.ResetDb()
+	movie := Movie{
+		Title:         "test_movie_mark_download_failed",
+		OriginalTitle: "test_movie_mark_download_failed",
+	}
+
+	movie.DownloadingItem.DownloadFailed = false
+	var movieDownloadable downloadable.Downloadable = &movie
+	db.SaveDownloadable(&movieDownloadable)
+	MarkDownloadAsFailed(movieDownloadable)
+
+	var movieFromDB Movie
+	db.Client.Where(Movie{Title: "test_movie_mark_download_failed"}).First(&movieFromDB)
+	if !movieFromDB.DownloadingItem.DownloadFailed {
+		t.Error("Expected movie download to be marked as failed")
+	}
+
+	episode := Episode{
+		Title: "test_episode_mark_download_failed",
+	}
+
+	episode.DownloadingItem.DownloadFailed = false
+	var episodeDownloadable downloadable.Downloadable = &episode
+	db.SaveDownloadable(&episodeDownloadable)
+	MarkDownloadAsFailed(episodeDownloadable)
+
+	var episodeFromDB Episode
+	db.Client.Where(Episode{Title: "test_episode_mark_download_failed"}).First(&episodeFromDB)
+	if !episodeFromDB.DownloadingItem.DownloadFailed {
+		t.Error("Expected episode download to be marked as failed")
+	}
 }
 
 func TestGetDownloader(t *testing.T) {

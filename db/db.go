@@ -202,7 +202,11 @@ func SaveDownloadable(d *downloadable.Downloadable) {
 			Client.Save(&movie)
 			return
 		}
-		//case Episode:
-		//Client.Save(&d.(Episode))
+	case *Episode:
+		episode, ok := (*d).(*Episode)
+		if ok {
+			Client.Save(&episode)
+			return
+		}
 	}
 }

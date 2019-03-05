@@ -75,22 +75,6 @@ func NotifyRecentEpisode(episode *Episode) error {
 	return nil
 }
 
-// NotifyEpisodeDownloadStart sends a notification to alert that torrents have been found for episode and that download process is starting.
-func NotifyEpisodeDownloadStart(episode *Episode) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_START,
-		Episode: *episode,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
 // NotifyNewMovie sends a notification on all registered notifiers to alert that a new movie has been add in watchlists
 // The movie is then marked as notified and the notification will not be sent again if this method is called twice on the same episode.
 func NotifyNewMovie(m *Movie) error {
