@@ -65,6 +65,8 @@ type Configuration struct {
 		TrackMovies                  bool   `mapstructure:"track_movies"`
 		AutomaticShowDownload        bool   `mapstructure:"automatic_show_download"`
 		AutomaticMovieDownload       bool   `mapstructure:"automatic_movie_download"`
+		ShowDownloadDelay            int    `mapstructure:"show_download_delay"`
+		MovieDownloadDelay           int    `mapstructure:"movie_download_delay"`
 		PreferredMediaQuality        string `mapstructure:"preferred_media_quality"`
 		ExcludedReleaseTypes         string `mapstructure:"excluded_release_types"`
 	}
@@ -97,6 +99,8 @@ func setDefaultValues() {
 	viper.SetDefault("system.track_movies", true)
 	viper.SetDefault("system.automatic_show_download", true)
 	viper.SetDefault("system.automatic_movie_download", false)
+	viper.SetDefault("system.show_download_delay", 1)
+	viper.SetDefault("system.movie_download_delay", 7)
 	viper.SetDefault("system.preferred_media_quality", "720p")
 	viper.SetDefault("system.excluded_release_types", "cam,screener,telesync,telecine")
 }
