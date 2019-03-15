@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -450,7 +451,7 @@ func poll(recoveryDone *bool) {
 		log.Error("No provider alive. Impossible to retrieve media informations, stopping download chain until next polling.")
 		executeDownloadChain = false
 	} else {
-		//Even if not able to download, retrieve media info for UI if enabled
+		// Even if not able to download, retrieve media info for UI if enabled
 		if configuration.Config.System.TrackShows {
 			provider.GetTVShowsInfoFromConfig()
 		}
@@ -502,7 +503,10 @@ func poll(recoveryDone *bool) {
 					log.Warning(err)
 				}
 
-				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload {
+				// TODO: Check recentEpisode date is not nil
+				downloadDelayPassed := time.Now().After(recentEpisode.Date.AddDate(0, 0, configuration.Config.System.ShowDownloadDelay))
+
+				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
 					Download(&recentEpisode, false)
 				}
 			}
@@ -524,7 +528,14 @@ func poll(recoveryDone *bool) {
 				log.Warning(err)
 			}
 
-			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload {
+			// TODO: Check movie date is not nil
+			downloadDelayPassed := time.Now().After(movie.Date.AddDate(0, 0, configuration.Config.System.MovieDownloadDelay))
+			fmt.Printf("MOVIE DOWLOAD DELAY: %v\n", configuration.Config.System.MovieDownloadDelay)
+			fmt.Printf("MOVIE DOWLOAD DELAY MOVIE DATE: %v\n", movie.Date)
+			fmt.Printf("MOVIE DOWLOAD DELAY NOW: %v\n", time.Now())
+			fmt.Printf("MOVIE DOWLOAD DELAY PASSED: %v\n", downloadDelayPassed)
+
+			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload && downloadDelayPassed {
 				Download(&movie, false)
 			}
 		}

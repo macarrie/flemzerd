@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,15 +10,15 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
-	indexer "github.com/macarrie/flemzerd/indexers"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	notifier "github.com/macarrie/flemzerd/notifiers"
-	provider "github.com/macarrie/flemzerd/providers"
-	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/watchlists"
 
 	log "github.com/macarrie/flemzerd/logging"
-	mock "github.com/macarrie/flemzerd/mocks"
+	"github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -461,5 +462,48 @@ func TestRecovery(t *testing.T) {
 			}
 		}
 
+	}
+}
+
+func TestDownloadDelay(t *testing.T) {
+	db.ResetDb()
+	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)
+	downloader.MovieDownloadRoutines = make(map[uint]downloader.ContextStorage)
+
+	notifier.Reset()
+	provider.Reset()
+	indexer.Reset()
+	downloader.Reset()
+	watchlist.Reset()
+	mediacenter.Reset()
+
+	provider.AddProvider(mock.TVProvider{})
+	provider.AddProvider(mock.MovieProvider{})
+	indexer.AddIndexer(mock.TVIndexer{})
+	indexer.AddIndexer(mock.MovieIndexer{})
+	downloader.AddDownloader(mock.Downloader{})
+	notifier.AddNotifier(mock.Notifier{})
+	watchlist.AddWatchlist(mock.Watchlist{})
+	mediacenter.AddMediaCenter(mock.MediaCenter{})
+
+	provider.GetTVShowsInfoFromConfig()
+	provider.GetMoviesInfoFromConfig()
+
+	recoveryDone := false
+	poll(&recoveryDone)
+
+	configuration.Load()
+	for i, _ := range provider.Movies {
+		provider.Movies[i].Date = time.Now()
+		db.Client.Save(&provider.Movies[i])
+	}
+
+	fmt.Printf("%+v\n", configuration.Config)
+
+	for _, movie := range provider.Movies {
+		fmt.Printf("%+v\n", movie.DownloadingItem)
+		if movie.DownloadingItem.Downloading != false || movie.DownloadingItem.Downloaded != false {
+			t.Error("Expected movie not to be downloaded or downloading due to download delay")
+		}
 	}
 }

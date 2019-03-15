@@ -32,7 +32,7 @@ func (p MovieProvider) Status() (Module, error) {
 	}, nil
 }
 func (p ErrorProvider) Status() (Module, error) {
-	var err error = fmt.Errorf("Provider error")
+	err := fmt.Errorf("provider error")
 	return Module{
 		Name: "ErrorProvider",
 		Type: "provider",
@@ -77,7 +77,7 @@ func (p TVProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
 }
 func (p TVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 	return []Episode{
-		Episode{
+		{
 			Number: 1,
 			Season: 1,
 			Title:  "Test episode",
@@ -86,10 +86,10 @@ func (p TVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 }
 func (p TVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
 	if seasonNumber == 1000 {
-		return []Episode{}, errors.New("Unknown season")
+		return []Episode{}, errors.New("unknown season")
 	}
 	return []Episode{
-		Episode{
+		{
 			Number: 1,
 			Season: 1,
 			Title:  "Test episode",
@@ -112,23 +112,23 @@ func (p MovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 }
 
 func (p ErrorProvider) GetShow(tvShow MediaIds) (TvShow, error) {
-	return TvShow{}, fmt.Errorf("Provider error")
+	return TvShow{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
-	return []Episode{}, fmt.Errorf("Provider error")
+	return []Episode{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
-	return []Episode{}, fmt.Errorf("Provider error")
+	return []Episode{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
-	return []Episode{}, fmt.Errorf("Provider error")
+	return []Episode{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
-	return []Episode{}, fmt.Errorf("Provider error")
+	return []Episode{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetMovie(movie MediaIds) (Movie, error) {
-	return Movie{}, fmt.Errorf("Provider error")
+	return Movie{}, fmt.Errorf("provider error")
 }
 func (p ErrorProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
-	return Episode{}, fmt.Errorf("Provider error")
+	return Episode{}, fmt.Errorf("provider error")
 }
