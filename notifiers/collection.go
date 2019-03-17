@@ -114,7 +114,7 @@ func NotifyDownloadStart(d downloadable.Downloadable) error {
 		}
 	case *Episode:
 		notification = Notification{
-			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
+			Type:    NOTIFICATION_DOWNLOAD_START,
 			Episode: *(d.(*Episode)),
 		}
 	}

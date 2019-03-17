@@ -360,7 +360,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 					Episode: *(d.(*Episode)),
 				}
 			default:
-				d.GetLog().Debug("Unknown Donwloadable object type. Stopping download process")
+				d.GetLog().Debug("Unknown Downloadable object type. Stopping download process")
 				return
 			}
 
