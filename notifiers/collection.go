@@ -117,8 +117,6 @@ func NotifyDownloadStart(d downloadable.Downloadable) error {
 			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
 			Episode: *(d.(*Episode)),
 		}
-	default:
-		return errors.New("Unknown Downloadable object type")
 	}
 
 	if err := SendNotification(notification); err != nil {
@@ -146,8 +144,6 @@ func NotifyDownloadedItem(d downloadable.Downloadable) error {
 			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
 			Episode: *d.(*Episode),
 		}
-	default:
-		return errors.New("Unknown Downloadable object type")
 	}
 
 	if err := SendNotification(notification); err != nil {
@@ -176,8 +172,6 @@ func NotifyFailedDownload(d downloadable.Downloadable) error {
 			Type:    NOTIFICATION_DOWNLOAD_FAILURE,
 			Episode: *d.(*Episode),
 		}
-	default:
-		return errors.New("Unknown Downloadable object type")
 	}
 
 	if err := SendNotification(notification); err != nil {

@@ -26,7 +26,7 @@ func (d Downloader) Status() (Module, error) {
 	}, nil
 }
 func (d ErrorDownloader) Status() (Module, error) {
-	var err error = fmt.Errorf("Notifier error")
+	var err error = fmt.Errorf("downloader error")
 	return Module{
 		Name: "ErrorNotifier",
 		Type: "notifier",
@@ -37,7 +37,7 @@ func (d ErrorDownloader) Status() (Module, error) {
 	}, err
 }
 func (d StalledDownloader) Status() (Module, error) {
-	var err error = fmt.Errorf("Notifier error")
+	var err error = fmt.Errorf("downloader error")
 	return Module{
 		Name: "StalledDownloader",
 		Type: "notifier",
@@ -48,7 +48,7 @@ func (d StalledDownloader) Status() (Module, error) {
 	}, err
 }
 func (d DLErrorDownloader) Status() (Module, error) {
-	var err error = fmt.Errorf("Notifier error")
+	var err error = fmt.Errorf("downloader error")
 	return Module{
 		Name: "DLErrorDownloader",
 		Type: "notifier",
@@ -112,7 +112,7 @@ func (d Downloader) RemoveTorrent(t Torrent) error {
 	return nil
 }
 func (d ErrorDownloader) RemoveTorrent(t Torrent) error {
-	return errors.New("Downloader error")
+	return errors.New("downloader error")
 }
 func (d StalledDownloader) RemoveTorrent(t Torrent) error {
 	if testTorrentsCount > 0 {
