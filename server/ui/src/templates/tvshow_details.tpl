@@ -20,7 +20,7 @@
                      data-inlineedit-id="{{ .item.ID }}">
                     <span class="uk-h2 d-inline"
                           data-target="inlineedit.title"
-                          data-action="click->inlineedit#displaycontrols">{{ getShowTitle .item }}</span>
+                          data-action="click->inlineedit#displaycontrols">{{ .item.GetTitle }}</span>
                     <div class="uk-grid uk-grid-small uk-flex uk-flex-middle" uk-grid
                          data-target="inlineedit.controls">
                         <div>
@@ -28,7 +28,7 @@
                                    data-target="inlineedit.field"
                                    type="text" 
                                    placeholder="Enter custom title"
-                                   value="{{ getShowTitle .item }}">
+                                   value="{{ .item.GetTitle }}">
                         </div>
                         <div>
                             <button data-action="click->inlineedit#submit"
@@ -138,18 +138,15 @@
                                         <td class="uk-table-shrink uk-text-nowrap uk-text-center">{{ .Date.Format "Monday 02 Jan 2006" }}</td>
                                         <td class="uk-text-center">
                                             {{ if .DownloadingItem.Downloaded }}
-                                            <a class="btn btn-sm p-0 text-success"
-                                               *ngIf="episode.DownloadingItem.Downloaded">
+                                            <a class="btn btn-sm p-0 text-success">
                                                 <i class="material-icons">check</i>
                                             </a>
                                             {{ end }}
                                             {{ if not (or (or (or (isInFuture .Date) .DownloadingItem.Downloaded) .DownloadingItem.Downloading) .DownloadingItem.Pending) }}
-                                            <div *ngIf="!utils.dateIsInFuture(episode.Date) && !episode.DownloadingItem.Downloaded && !episode.DownloadingItem.Downloading && !episode.DownloadingItem.Pending">
+                                            <div>
                                                 <button class="uk-icon"
                                                         uk-tooltip="delay: 500; title: Download"
                                                         uk-icon="icon: download; ratio: 0.75"
-                                                        *ngIf="!movie.DownloadingItem.Downloaded && !movie.DownloadingItem.Downloading && !movie.DownloadingItem.Pending && movie.DeletedAt == null && !config?.System?.AutomaticMovieDownload && !utils.dateIsInFuture(movie.Date)"
-                                                        (click)="downloadMovie(movie.ID)"
                                                         data-controller="episode"
                                                         data-action="click->episode#download"
                                                         data-episode-id="{{ .ID }}">
@@ -157,14 +154,13 @@
                                                 <div class="btn btn-sm">
                                                     {{ if .DownloadingItem.TorrentsNotFound }}
                                                     <i class="material-icons uk-text-warning md-18"
-                                                       *ngIf="episode.DownloadingItem.TorrentsNotFound"
                                                        title="No torrents found for episode on last download">warning</i>
                                                     {{ end }}
                                                 </div>
                                             </div>
                                             {{ end }}
                                             {{ if or .DownloadingItem.Downloading .DownloadingItem.Pending }}
-                                            <span class="btn btn-sm p-0" *ngIf="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending">
+                                            <span class="btn btn-sm p-0">
                                                 <i class="material-icons uk-text-small">swap_vert</i>
                                             </span>
                                             {{ end }}
@@ -181,7 +177,7 @@
                                                 </button>
                                                 {{ end }}
                                                     {{ if or .DownloadingItem.Downloading .DownloadingItem.Pending }}
-                                                    <span class="btn btn-sm p-0" *ngIf="episode.DownloadingItem.Downloading || episode.DownloadingItem.Pending"
+                                                    <span class="btn btn-sm p-0"
                                                         data-controller="episode"
                                                         data-action="click->episode#abortDownload"
                                                         data-episode-id="{{ .ID }}">

@@ -9,7 +9,6 @@ import (
 	"github.com/macarrie/flemzerd/scheduler"
 
 	"github.com/macarrie/flemzerd/db"
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -74,7 +73,7 @@ func deleteMovie(c *gin.Context) {
 		return
 	}
 
-	downloader.AbortMovieDownload(&movie)
+	downloader.AbortDownload(&movie)
 	req = db.Client.Delete(&movie, id)
 	if err := req.Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{})
@@ -99,12 +98,9 @@ func downloadMovie(c *gin.Context) {
 		return
 	}
 
-	log.WithFields(log.Fields{
-		"id":    id,
-		"movie": media_helper.GetMovieTitle(movie),
-	}).Info("Launching manual movie download")
+	movie.GetLog().Info("Launching manual movie download")
 
-	scheduler.DownloadMovie(movie, false)
+	scheduler.Download(&movie, false)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
@@ -119,7 +115,7 @@ func abortMovieDownload(c *gin.Context) {
 		return
 	}
 
-	downloader.AbortMovieDownload(&movie)
+	downloader.AbortDownload(&movie)
 
 	c.AbortWithStatus(http.StatusNoContent)
 }

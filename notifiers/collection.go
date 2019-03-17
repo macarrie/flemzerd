@@ -6,6 +6,8 @@ package notifier
 import (
 	"fmt"
 
+	"github.com/macarrie/flemzerd/downloadable"
+
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
@@ -73,22 +75,6 @@ func NotifyRecentEpisode(episode *Episode) error {
 	return nil
 }
 
-// NotifyEpisodeDownloadStart sends a notification to alert that torrents have been found for episode and that download process is starting.
-func NotifyEpisodeDownloadStart(episode *Episode) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_START,
-		Episode: *episode,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
 // NotifyNewMovie sends a notification on all registered notifiers to alert that a new movie has been add in watchlists
 // The movie is then marked as notified and the notification will not be sent again if this method is called twice on the same episode.
 func NotifyNewMovie(m *Movie) error {
@@ -114,81 +100,81 @@ func NotifyNewMovie(m *Movie) error {
 }
 
 // NotifyMovieDownloadStart sends a notification to alert that torrents have been found for movie and that download process is starting.
-func NotifyMovieDownloadStart(m *Movie) error {
+func NotifyDownloadStart(d downloadable.Downloadable) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
 		return nil
 	}
 
-	if err := SendNotification(Notification{
-		Type:  NOTIFICATION_DOWNLOAD_START,
-		Movie: *m,
-	}); err != nil {
+	notification := Notification{}
+	switch d.(type) {
+	case *Movie:
+		notification = Notification{
+			Type:  NOTIFICATION_DOWNLOAD_START,
+			Movie: *(d.(*Movie)),
+		}
+	case *Episode:
+		notification = Notification{
+			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
+			Episode: *(d.(*Episode)),
+		}
+	}
+
+	if err := SendNotification(notification); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
 }
 
-// NotifyDownloadedEpisode sends notification on registered notifiers to alert that the episode has been successfully downloaded
-func NotifyDownloadedEpisode(episode *Episode) error {
+// NotifyDownloadedItem sends notification on registered notifiers to alert that the movie has been successfully downloaded
+func NotifyDownloadedItem(d downloadable.Downloadable) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
 		return nil
 	}
 
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
-		Episode: *episode,
-	}); err != nil {
+	notification := Notification{}
+	switch d.(type) {
+	case *Movie:
+		notification = Notification{
+			Type:  NOTIFICATION_DOWNLOAD_SUCCESS,
+			Movie: *d.(*Movie),
+		}
+	case *Episode:
+		notification = Notification{
+			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
+			Episode: *d.(*Episode),
+		}
+	}
+
+	if err := SendNotification(notification); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 
 	return nil
 }
 
-// NotifyDownloadedMovie sends notification on registered notifiers to alert that the movie has been successfully downloaded
-func NotifyDownloadedMovie(m *Movie) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:  NOTIFICATION_DOWNLOAD_SUCCESS,
-		Movie: *m,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
-// NotifyFailedEpisode sends notification on registered notifiers to alert that the episode could not be downloaded.
-// An episode is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
-func NotifyFailedEpisode(episode *Episode) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
-		return nil
-	}
-
-	if err := SendNotification(Notification{
-		Type:    NOTIFICATION_DOWNLOAD_FAILURE,
-		Episode: *episode,
-	}); err != nil {
-		return errors.Wrap(err, "Errors detected when sending notification")
-	}
-
-	return nil
-}
-
-// NotifyFailedMovie sends notification on registered notifiers to alert that the movie could not be downloaded.
+// NotifyFailedDownload sends notification on registered notifiers to alert that the movie could not be downloaded.
 // A movie is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
-func NotifyFailedMovie(m *Movie) error {
+func NotifyFailedDownload(d downloadable.Downloadable) error {
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
 		return nil
 	}
 
-	if err := SendNotification(Notification{
-		Type:  NOTIFICATION_DOWNLOAD_FAILURE,
-		Movie: *m,
-	}); err != nil {
+	notification := Notification{}
+	switch d.(type) {
+	case *Movie:
+		notification = Notification{
+			Type:  NOTIFICATION_DOWNLOAD_FAILURE,
+			Movie: *d.(*Movie),
+		}
+	case *Episode:
+		notification = Notification{
+			Type:    NOTIFICATION_DOWNLOAD_FAILURE,
+			Episode: *d.(*Episode),
+		}
+	}
+
+	if err := SendNotification(notification); err != nil {
 		return errors.Wrap(err, "Errors detected when sending notification")
 	}
 

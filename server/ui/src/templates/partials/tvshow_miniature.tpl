@@ -30,8 +30,6 @@
         <button class="uk-icon"
                 uk-tooltip="delay: 500; title: Remove"
                 uk-icon="icon: close; ratio: 0.75"
-                (click)="deleteShow(tvshow.ID)"
-                *ngIf="tvshow.DeletedAt == null"
                 data-controller="tvshow"
                 data-action="click->tvshow#delete"
                 data-tvshow-id="{{ .ID }}">
@@ -40,8 +38,6 @@
         <button class="uk-icon"
                 uk-tooltip="delay: 500; title: Restore"
                 uk-icon="icon: reply; ratio: 0.75"
-                (click)="restoreShow(tvshow.ID)"
-                *ngIf="tvshow.DeletedAt != null"
                 data-controller="tvshow"
                 data-action="click->tvshow#restore"
                 data-tvshow-id="{{ .ID }}">

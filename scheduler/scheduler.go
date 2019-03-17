@@ -33,7 +33,8 @@ import (
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
+	downloadable "github.com/macarrie/flemzerd/downloadable"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -313,152 +314,83 @@ func Reload(debug bool) {
 	initConfiguration(debug)
 }
 
-func DownloadEpisode(episode Episode, recovery bool) {
-	if recovery {
-		episode.DownloadingItem.Downloading = false
-	}
+func Download(d downloadable.Downloadable, recovery bool) {
+	downloadingItem := d.GetDownloadingItem()
 
-	if episode.DownloadingItem.Downloaded {
-		log.WithFields(log.Fields{
-			"show":   media_helper.GetShowTitle(episode.TvShow),
-			"number": episode.Number,
-			"season": episode.Season,
-			"title":  episode.Title,
-		}).Debug("Episode already downloaded, nothing to do")
+	if downloadingItem.Downloaded {
+		d.GetLog().Debug("Item already downloaded, nothing to do")
 		return
 	}
 
-	if episode.DownloadingItem.Downloading {
-		log.WithFields(log.Fields{
-			"show":   media_helper.GetShowTitle(episode.TvShow),
-			"number": episode.Number,
-			"season": episode.Season,
-			"title":  episode.Title,
-		}).Debug("Episode already being downloaded, nothing to do")
+	if downloadingItem.Downloading {
+		d.GetLog().Debug("Item already being downloaded, nothing to do")
 		return
 	}
 
-	episode.DownloadingItem.Pending = true
-	db.Client.Save(&episode)
+	downloadingItem.Pending = true
+	d.SetDownloadingItem(downloadingItem)
+	db.SaveDownloadable(&d)
 
-	torrentList, err := indexer.GetTorrentForEpisode(episode)
+	torrentList, err := indexer.GetTorrents(d)
 	if err != nil {
 		log.Warning(err)
 		return
 	}
-
-	if recovery && episode.DownloadingItem.CurrentTorrent.ID != 0 {
-		torrentList = append([]Torrent{episode.DownloadingItem.CurrentTorrent}, torrentList...)
+	if recovery && downloadingItem.CurrentTorrent.ID != 0 {
+		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
 	}
 
-	toDownload := downloader.FillEpisodeToDownloadTorrentList(&episode, torrentList)
+	toDownload := downloader.FillTorrentList(d, torrentList)
 	if len(toDownload) == 0 {
-		log.WithFields(log.Fields{
-			"show":    media_helper.GetShowTitle(episode.TvShow),
-			"episode": episode.Title,
-			"nb":      len(torrentList),
-		}).Warning("No torrents found")
+		d.GetLog().Debug("No torrents found")
 
-		// Dont send notification when no torrents have been found on previous torrent download
-		if !episode.DownloadingItem.TorrentsNotFound {
-			if err := notifier.SendNotification(Notification{
-				Type:    NOTIFICATION_NO_TORRENTS,
-				Episode: episode,
-			}); err != nil {
+		if !downloadingItem.TorrentsNotFound {
+			notification := Notification{}
+
+			switch d.(type) {
+			case *Movie:
+				notification = Notification{
+					Type:  NOTIFICATION_NO_TORRENTS,
+					Movie: *(d.(*Movie)),
+				}
+			case *Episode:
+				notification = Notification{
+					Type:    NOTIFICATION_NO_TORRENTS,
+					Episode: *(d.(*Episode)),
+				}
+			default:
+				d.GetLog().Debug("Unknown Donwloadable object type. Stopping download process")
+				return
+			}
+
+			if err := notifier.SendNotification(notification); err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
 				}).Warning("Could not send 'no torrents found' notification")
 			} else {
-				episode.DownloadingItem.TorrentsNotFound = true
+				downloadingItem.TorrentsNotFound = true
 			}
 		}
 
-		episode.DownloadingItem.Downloading = false
-		episode.DownloadingItem.Pending = false
-		db.Client.Save(&episode)
+		downloadingItem.Downloading = false
+		downloadingItem.Pending = false
+		d.SetDownloadingItem(downloadingItem)
+		db.SaveDownloadable(&d)
 
 		return
 	} else {
-		log.WithFields(log.Fields{
-			"show":    episode.TvShow.OriginalTitle,
-			"episode": episode.Title,
-			"nb":      len(torrentList),
+		d.GetLog().WithFields(log.Fields{
+			"nb": len(torrentList),
 		}).Debug("Torrents found")
 
-		episode.DownloadingItem.TorrentsNotFound = false
-		db.Client.Save(&episode)
+		downloadingItem.TorrentsNotFound = false
+		d.SetDownloadingItem(downloadingItem)
+		db.SaveDownloadable(&d)
 	}
 
-	notifier.NotifyEpisodeDownloadStart(&episode)
+	notifier.NotifyDownloadStart(d)
 
-	go downloader.DownloadEpisode(episode, toDownload, recovery)
-}
-
-func DownloadMovie(movie Movie, recovery bool) {
-	if movie.DownloadingItem.Downloaded {
-		log.WithFields(log.Fields{
-			"movie": media_helper.GetMovieTitle(movie),
-		}).Debug("Movie already downloaded, nothing to do")
-		return
-	}
-
-	if movie.DownloadingItem.Downloading {
-		log.WithFields(log.Fields{
-			"movie": media_helper.GetMovieTitle(movie),
-		}).Debug("Movie already being downloaded, nothing to do")
-		return
-	}
-
-	movie.DownloadingItem.Pending = true
-	db.Client.Save(&movie)
-
-	torrentList, err := indexer.GetTorrentForMovie(movie)
-	if err != nil {
-		log.Warning(err)
-		return
-	}
-	if recovery && movie.DownloadingItem.CurrentTorrent.ID != 0 {
-		torrentList = append([]Torrent{movie.DownloadingItem.CurrentTorrent}, torrentList...)
-	}
-
-	toDownload := downloader.FillMovieToDownloadTorrentList(&movie, torrentList)
-	if len(toDownload) == 0 {
-		log.WithFields(log.Fields{
-			"movie": media_helper.GetMovieTitle(movie),
-			"nb":    len(torrentList),
-		}).Debug("Torrents found")
-
-		if !movie.DownloadingItem.TorrentsNotFound {
-			if err := notifier.SendNotification(Notification{
-				Type:  NOTIFICATION_NO_TORRENTS,
-				Movie: movie,
-			}); err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Warning("Could not send 'no torrents found' notification")
-			} else {
-				movie.DownloadingItem.TorrentsNotFound = true
-			}
-		}
-
-		movie.DownloadingItem.Downloading = false
-		movie.DownloadingItem.Pending = false
-		db.Client.Save(&movie)
-
-		return
-	} else {
-		log.WithFields(log.Fields{
-			"movie": movie.OriginalTitle,
-			"nb":    len(torrentList),
-		}).Debug("Torrents found")
-
-		movie.DownloadingItem.TorrentsNotFound = false
-		db.Client.Save(&movie)
-	}
-
-	notifier.NotifyMovieDownloadStart(&movie)
-
-	go downloader.DownloadMovie(movie, toDownload, recovery)
+	go downloader.Download(d, toDownload, recovery)
 }
 
 func RecoverDownloadingItems() {
@@ -483,13 +415,9 @@ func RecoverDownloadingItems() {
 		ep.DownloadingItem.Downloaded = false
 		db.Client.Save(&ep)
 
-		log.WithFields(log.Fields{
-			"episode": ep.Title,
-			"season":  ep.Season,
-			"number":  ep.Number,
-		}).Debug("Launched download processing recovery")
+		ep.GetLog().Debug("Launched download processing recovery")
 		recoveryEpisode := ep
-		go DownloadEpisode(recoveryEpisode, true)
+		go Download(&recoveryEpisode, true)
 
 	}
 
@@ -503,12 +431,10 @@ func RecoverDownloadingItems() {
 		m.DownloadingItem.Downloaded = false
 		db.Client.Save(&m)
 
-		log.WithFields(log.Fields{
-			"title": m.OriginalTitle,
-		}).Debug("Launched download processing recovery")
+		m.GetLog().Debug("Launched download processing recovery")
 
 		recoveryMovie := m
-		go DownloadMovie(recoveryMovie, true)
+		go Download(&recoveryMovie, true)
 	}
 }
 
@@ -565,7 +491,7 @@ func poll(recoveryDone *bool) {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
-					"show":  media_helper.GetShowTitle(show),
+					"show":  show.GetTitle(),
 				}).Warning("No recent episodes found")
 				continue
 			}
@@ -577,7 +503,7 @@ func poll(recoveryDone *bool) {
 				}
 
 				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload {
-					DownloadEpisode(recentEpisode, false)
+					Download(&recentEpisode, false)
 				}
 			}
 		}
@@ -587,7 +513,7 @@ func poll(recoveryDone *bool) {
 		for _, movie := range provider.Movies {
 			if movie.Date.After(time.Now()) {
 				log.WithFields(log.Fields{
-					"movie":        media_helper.GetMovieTitle(movie),
+					"movie":        movie.GetTitle(),
 					"release_date": movie.Date,
 				}).Debug("Movie not yet released, ignoring")
 				continue
@@ -599,7 +525,7 @@ func poll(recoveryDone *bool) {
 			}
 
 			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload {
-				DownloadMovie(movie, false)
+				Download(&movie, false)
 			}
 		}
 	}

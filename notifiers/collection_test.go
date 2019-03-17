@@ -143,12 +143,12 @@ func TestNotifyEpisode(t *testing.T) {
 		t.Error("Expected recent notification to be sent, got none")
 	}
 
-	NotifyDownloadedEpisode(&episode)
+	NotifyDownloadedItem(&episode)
 	if m.GetNotificationCount() != count+2 {
 		t.Error("Expected downloaded notification to be sent, got none")
 	}
 
-	NotifyFailedEpisode(&episode)
+	NotifyDownloadedItem(&episode)
 	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
@@ -161,8 +161,8 @@ func TestNotifyEpisode(t *testing.T) {
 	configuration.Config.Notifications.Enabled = false
 
 	NotifyRecentEpisode(&episode)
-	NotifyDownloadedEpisode(&episode)
-	NotifyFailedEpisode(&episode)
+	NotifyDownloadedItem(&episode)
+	NotifyFailedDownload(&episode)
 	NotifyRecentEpisode(&episode)
 
 	if m.GetNotificationCount() != count+3 {
@@ -178,11 +178,11 @@ func TestNotifyEpisode(t *testing.T) {
 	if err == nil {
 		t.Error("Expected to have error while sending notification for recent episode, got none")
 	}
-	err = NotifyDownloadedEpisode(&episode)
+	err = NotifyDownloadedItem(&episode)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for downloaded episode, got none")
 	}
-	err = NotifyFailedEpisode(&episode)
+	err = NotifyFailedDownload(&episode)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for failed episode, got none")
 	}
@@ -209,12 +209,12 @@ func TestNotifyMovie(t *testing.T) {
 		t.Error("Expected movie notification to be sent, got none")
 	}
 
-	NotifyDownloadedMovie(&movie)
+	NotifyDownloadedItem(&movie)
 	if m.GetNotificationCount() != count+2 {
 		t.Error("Expected downloaded movie notification to be sent, got none")
 	}
 
-	NotifyFailedMovie(&movie)
+	NotifyFailedDownload(&movie)
 	if m.GetNotificationCount() != count+3 {
 		t.Error("Expected failed notification to be sent, got none")
 	}
@@ -227,8 +227,8 @@ func TestNotifyMovie(t *testing.T) {
 	configuration.Config.Notifications.Enabled = false
 
 	NotifyNewMovie(&movie)
-	NotifyDownloadedMovie(&movie)
-	NotifyFailedMovie(&movie)
+	NotifyDownloadedItem(&movie)
+	NotifyFailedDownload(&movie)
 	NotifyNewMovie(&movie)
 
 	if m.GetNotificationCount() != count+3 {
@@ -243,11 +243,11 @@ func TestNotifyMovie(t *testing.T) {
 	if err == nil {
 		t.Error("Expected to have error while sending notification for recent movie, got none")
 	}
-	err = NotifyDownloadedMovie(&movie)
+	err = NotifyDownloadedItem(&movie)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for downloaded movie, got none")
 	}
-	err = NotifyFailedMovie(&movie)
+	err = NotifyFailedDownload(&movie)
 	if err == nil {
 		t.Error("Expected to have error while sending notification for failed movie, got none")
 	}
@@ -286,38 +286,38 @@ func TestNotifyDownloadStart(t *testing.T) {
 	}
 
 	count := n.GetNotificationCount()
-	NotifyEpisodeDownloadStart(&episode)
+	NotifyDownloadStart(&episode)
 	if n.GetNotificationCount() != count+1 {
 		t.Error("Expected notification to be sent when notifying episode download start")
 	}
 
 	count = n.GetNotificationCount()
-	NotifyMovieDownloadStart(&movie)
+	NotifyDownloadStart(&movie)
 	if n.GetNotificationCount() != count+1 {
 		t.Error("Expected notification to be sent when notifying movie download start")
 	}
 
 	configuration.Config.Notifications.NotifyDownloadStart = false
 	count = n.GetNotificationCount()
-	NotifyEpisodeDownloadStart(&episode)
+	NotifyDownloadStart(&episode)
 	if n.GetNotificationCount() != count {
 		t.Error("Expected notification not to be sent when notifying episode download start because of configuration params")
 	}
 
 	count = n.GetNotificationCount()
-	NotifyMovieDownloadStart(&movie)
+	NotifyDownloadStart(&movie)
 	if n.GetNotificationCount() != count {
 		t.Error("Expected notification not to be sent when notifying movie download start because of configuration params")
 	}
 
 	configuration.Config.Notifications.NotifyDownloadStart = true
 	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
-	err := NotifyEpisodeDownloadStart(&episode)
+	err := NotifyDownloadStart(&episode)
 	if err == nil {
 		t.Error("Expected error when notifying episode download start with mock.ErrorNotifier")
 	}
 
-	err = NotifyMovieDownloadStart(&movie)
+	err = NotifyDownloadStart(&movie)
 	if err == nil {
 		t.Error("Expected error when notifying movie download start with mock.ErrorNotifier")
 	}

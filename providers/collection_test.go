@@ -131,6 +131,7 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	testShow := TvShow{
 		Title:         "Test show",
 		OriginalTitle: "Test show",
+		IsAnime:       true,
 	}
 
 	providersCollection = []Provider{}

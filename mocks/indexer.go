@@ -3,6 +3,8 @@ package mock
 import (
 	"fmt"
 
+	"github.com/macarrie/flemzerd/downloadable"
+
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -67,6 +69,27 @@ func (m ErrorMovieIndexer) Status() (Module, error) {
 	}, err
 }
 
+func CheckCapabilitiesForMovieIndexer(d downloadable.Downloadable) bool {
+	switch d.(type) {
+	case *Movie:
+		return true
+	case *Episode:
+		return false
+	default:
+		return false
+	}
+}
+func CheckCapabilitiesForTVIndexer(d downloadable.Downloadable) bool {
+	switch d.(type) {
+	case *Movie:
+		return false
+	case *Episode:
+		return true
+	default:
+		return false
+	}
+}
+
 func getTorrentForEpisode(episode Episode) ([]Torrent, error) {
 	if episode.Number == 0 {
 		return []Torrent{}, nil
@@ -114,11 +137,20 @@ func getTorrentForEpisode(episode Episode) ([]Torrent, error) {
 		},
 	}, nil
 }
-func (m TVIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
-	return getTorrentForEpisode(episode)
+
+func (ind TVIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	if !ind.CheckCapabilities(d) {
+		return []Torrent{}, nil
+	}
+
+	return getTorrentForEpisode(*d.(*Episode))
 }
-func (m ErrorTVIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
-	return getTorrentForEpisode(episode)
+func (ind ErrorTVIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	if !ind.CheckCapabilities(d) {
+		return []Torrent{}, nil
+	}
+
+	return getTorrentForEpisode(*d.(*Episode))
 }
 
 func getTorrentForMovie(movieName string) ([]Torrent, error) {
@@ -168,9 +200,31 @@ func getTorrentForMovie(movieName string) ([]Torrent, error) {
 		},
 	}, nil
 }
-func (m MovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
-	return getTorrentForMovie(movieName)
+
+func (ind MovieIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	if !ind.CheckCapabilities(d) {
+		return []Torrent{}, nil
+	}
+
+	return getTorrentForMovie(d.GetTitle())
 }
-func (m ErrorMovieIndexer) GetTorrentForMovie(movieName string) ([]Torrent, error) {
-	return getTorrentForMovie(movieName)
+func (ind ErrorMovieIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	if !ind.CheckCapabilities(d) {
+		return []Torrent{}, nil
+	}
+
+	return getTorrentForMovie(d.GetTitle())
+}
+
+func (m MovieIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	return CheckCapabilitiesForMovieIndexer(d)
+}
+func (m ErrorMovieIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	return CheckCapabilitiesForMovieIndexer(d)
+}
+func (m TVIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	return CheckCapabilitiesForTVIndexer(d)
+}
+func (m ErrorTVIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	return CheckCapabilitiesForTVIndexer(d)
 }

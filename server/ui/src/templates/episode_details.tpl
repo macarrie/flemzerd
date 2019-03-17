@@ -15,7 +15,7 @@
         <div class="uk-width-expand">
             <div class="uk-grid uk-grid-collapse uk-flex uk-flex-middle" uk-grid>
                 <div>
-                    <span class="uk-h2 d-inline">{{ getShowTitle .item.TvShow }} - {{ .item.Title }}</span>
+                    <span class="uk-h2 d-inline">{{ .item.TvShow.GetTitle }} - {{ .item.Title }}</span>
                 </div>
                 <div>
                     <span class="uk-h3 uk-text-muted uk-margin-small-left media_title_details">(S{{ printf "%02d" .item.Season }}E{{ printf "%02d" .item.Number }})</span>

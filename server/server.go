@@ -11,7 +11,6 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/macarrie/flemzerd/configuration"
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -46,8 +45,6 @@ func initRouter() {
 			"isInFuture": func(date time.Time) bool {
 				return date.After(time.Now())
 			},
-			"getShowTitle":        media_helper.GetShowTitle,
-			"getMovieTitle":       media_helper.GetMovieTitle,
 			"getNotificationType": notifier_helper.GetNotificationType,
 		},
 		DisableCache: true,

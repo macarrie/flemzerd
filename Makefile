@@ -47,7 +47,7 @@ package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/target/release/vidocq
 	cp tmp/vidocq/target/release/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
 
 ## bin: Build flemzerd binary
-bin: 
+bin:
 	echo " > Building flemzerd binary"
 	mkdir -p bin/
 	CC=gcc $(GO) build -v -ldflags="$(LDFLAGS)" -o bin/flemzerd
@@ -127,9 +127,10 @@ watch:
 		do $(run); \
 	done
 
-start-server: stop-server
+#start-server: stop-server
+start-server:
 	#sudo -E -u flemzer ./bin/flemzerd -d & echo $$! > /tmp/flemzerd.pid
-	sudo -E ./bin/flemzerd
+	sudo -E ./bin/flemzerd -d
 
 stop-server:
 	-kill $$(cat /tmp/flemzerd.pid)

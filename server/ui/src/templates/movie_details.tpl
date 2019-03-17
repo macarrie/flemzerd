@@ -20,7 +20,7 @@
                      data-inlineedit-id="{{ .item.ID }}">
                     <span class="uk-h2 d-inline"
                           data-target="inlineedit.title"
-                          data-action="click->inlineedit#displaycontrols">{{ getMovieTitle .item }}</span>
+                          data-action="click->inlineedit#displaycontrols">{{ .item.GetTitle }}</span>
                     <div class="uk-grid uk-grid-small uk-flex uk-flex-middle" uk-grid
                          data-target="inlineedit.controls">
                         <div>
@@ -28,7 +28,7 @@
                                    data-target="inlineedit.field"
                                    type="text" 
                                    placeholder="Enter custom title"
-                                   value="{{ getMovieTitle .item }}">
+                                   value="{{ .item.GetTitle }}">
                         </div>
                         <div>
                             <button data-action="click->inlineedit#submit"

@@ -22,8 +22,7 @@
             {{ end }}
             <a  href="{{ $href }}"
             target="_blank"
-            class="trakt"
-            *ngIf="movie.MediaIds.Trakt != 0">
+            class="trakt">
             <span class="uk-icon uk-icon-link" uk-icon="link"></span>
             Trakt
             </a>
@@ -33,8 +32,7 @@
         {{ if ne .item.MediaIds.Tmdb 0 }}
         <a  href="https://themoviedb.org/tv/{{ .item.MediaIds.Tmdb }}"
             target="_blank"
-            class="tmdb"
-            *ngIf="movie.MediaIds.Tmdb != 0">
+            class="tmdb">
             <span class="uk-icon uk-icon-link" uk-icon="link"></span>
             TMDB
         </a>

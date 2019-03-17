@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 type Episode struct {
@@ -21,4 +23,33 @@ type Episode struct {
 	Notified          bool
 	DownloadingItem   DownloadingItem
 	DownloadingItemID int
+}
+
+//////////////////////////////
+// Downloadable implementation
+//////////////////////////////
+
+func (e *Episode) GetId() uint {
+	return e.ID
+}
+
+func (e *Episode) GetTitle() string {
+	return e.Title
+}
+
+func (e *Episode) GetLog() *log.Entry {
+	return log.WithFields(log.Fields{
+		"show":    e.TvShow.GetTitle(),
+		"season":  e.Season,
+		"number":  e.Number,
+		"episode": e.GetTitle(),
+	})
+}
+
+func (e *Episode) GetDownloadingItem() DownloadingItem {
+	return e.DownloadingItem
+}
+
+func (e *Episode) SetDownloadingItem(d DownloadingItem) {
+	e.DownloadingItem = d
 }

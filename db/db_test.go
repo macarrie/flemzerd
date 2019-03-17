@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	downloadable "github.com/macarrie/flemzerd/downloadable"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -187,4 +188,37 @@ func TestGetDownloadedItems(t *testing.T) {
 func TestSaveTraktAndTelegramInfos(t *testing.T) {
 	SaveTraktToken("test")
 	SaveTelegramChatID(1234)
+}
+
+func TestSaveDownloadable(t *testing.T) {
+	movie := Movie{
+		Title:         "test_movie_save_downloadable",
+		OriginalTitle: "test_movie_save_downloadable",
+	}
+
+	Client.Save(&movie)
+	movie.DownloadingItem.Downloading = true
+	var movieDownloadable downloadable.Downloadable = &movie
+	SaveDownloadable(&movieDownloadable)
+
+	var movieFromDB Movie
+	Client.Where(Movie{Title: "test_movie_save_downloadable"}).First(&movieFromDB)
+	if !movieFromDB.DownloadingItem.Downloading {
+		t.Error("Expected movie downloading item to be saved during SaveDonloadable")
+	}
+
+	episode := Episode{
+		Title: "test_episode_save_downloadable",
+	}
+
+	Client.Save(&episode)
+	episode.DownloadingItem.Downloading = true
+	var episodeDownloadable downloadable.Downloadable = &episode
+	SaveDownloadable(&episodeDownloadable)
+
+	var episodeFromDB Episode
+	Client.Where(Episode{Title: "test_episode_save_downloadable"}).First(&episodeFromDB)
+	if !episodeFromDB.DownloadingItem.Downloading {
+		t.Error("Expected episode downloading item to be saved during SaveDonloadable")
+	}
 }

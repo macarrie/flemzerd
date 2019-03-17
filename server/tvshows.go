@@ -12,7 +12,6 @@ import (
 	"github.com/macarrie/flemzerd/scheduler"
 
 	"github.com/macarrie/flemzerd/db"
-	media_helper "github.com/macarrie/flemzerd/helpers/media"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -204,15 +203,9 @@ func downloadEpisode(c *gin.Context) {
 		return
 	}
 
-	log.WithFields(log.Fields{
-		"id":      id,
-		"show":    media_helper.GetShowTitle(ep.TvShow),
-		"episode": ep.Title,
-		"season":  ep.Season,
-		"number":  ep.Number,
-	}).Info("Launching individual episode download")
+	ep.GetLog().Info("Launching individual episode download")
 
-	scheduler.DownloadEpisode(ep, false)
+	scheduler.Download(&ep, false)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
@@ -237,7 +230,7 @@ func downloadSeason(c *gin.Context) {
 	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":   show.OriginalTitle,
+			"show":   show.GetTitle(),
 			"season": seasonNumber,
 			"error":  err,
 		}).Warning("Encountered error when querying season details from TMDB")
@@ -246,19 +239,13 @@ func downloadSeason(c *gin.Context) {
 	}
 
 	log.WithFields(log.Fields{
-		"show":   media_helper.GetShowTitle(show),
+		"show":   show.GetTitle(),
 		"season": seasonNumber,
 	}).Info("Launching season download")
 	for _, ep := range epList {
-		log.WithFields(log.Fields{
-			"id":      id,
-			"show":    media_helper.GetShowTitle(ep.TvShow),
-			"episode": ep.Title,
-			"season":  ep.Season,
-			"number":  ep.Number,
-		}).Info("Launching individual episode download")
+		ep.GetLog().Info("Launching individual episode download")
 
-		scheduler.DownloadEpisode(ep, false)
+		scheduler.Download(&ep, false)
 	}
 
 	c.JSON(http.StatusOK, epList)
@@ -285,7 +272,7 @@ func abortEpisodeDownload(c *gin.Context) {
 		return
 	}
 
-	downloader.AbortEpisodeDownload(&ep)
+	downloader.AbortDownload(&ep)
 
 	c.AbortWithStatus(http.StatusNoContent)
 }
@@ -339,14 +326,14 @@ func changeSeasonDownloadedState(c *gin.Context) {
 	}
 
 	log.WithFields(log.Fields{
-		"show":       media_helper.GetShowTitle(show),
+		"show":       show.GetTitle(),
 		"season":     seasonNumber,
 		"downloaded": downloadingItemFromRequest.Downloaded,
 	}).Info("Changing season download state")
 	for _, ep := range epList {
 		log.WithFields(log.Fields{
 			"id":         id,
-			"show":       media_helper.GetShowTitle(ep.TvShow),
+			"show":       ep.TvShow.GetTitle(),
 			"episode":    ep.Title,
 			"season":     ep.Season,
 			"number":     ep.Number,

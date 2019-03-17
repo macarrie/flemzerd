@@ -6,7 +6,7 @@
     {{ $readFilterClass = "read" }}
 {{ end }}
 <li class="{{ $readFilterClass }}">
-    <table *ngIf="notification"
+    <table
         class="uk-table-middle notification-table {{ $readClass }}">
         <tr uk-toggle="target: .notification-detailed-content-{{ .ID }}">
             {{ $statusClass := "" }}
@@ -32,76 +32,69 @@
                 {{ $statusClass = "unknown" }}
             {{ end }}
             <td class="uk-width-auto uk-padding-medium-right notif-icon {{ $statusClass }}"><div></div></td>
-            <!--<td class="notification_collapse"-->
-                <!--(click)="toggleContent = !toggleContent">-->
-                <!--<a class="btn btn-sm p-0 text-muted">-->
-                    <!--<i class="material-icons md-18" *ngIf="!toggleContent">expand_more</i>-->
-                    <!--<i class="material-icons md-18" *ngIf="toggleContent">expand_less</i>-->
-                <!--</a>-->
-            <!--</td>-->
             <td class="uk-width-expand">
                 {{ if eq (getNotificationType .) "new_episode" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_EPISODE">
-                    New episode aired: <a href="/episodes/{{ .Episode.ID }}"> {{ getShowTitle .Episode.TvShow }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
+                <span>
+                    New episode aired: <a href="/episodes/{{ .Episode.ID }}"> {{ .Episode.TvShow.GetTitle }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "new_movie" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_MOVIE">
-                    New movie: <a href="/movies/{{ .Movie.ID }}">{{ getMovieTitle .Movie }}</a>
+                <span>
+                    New movie: <a href="/movies/{{ .Movie.ID }}">{{ .Movie.GetTitle }}</a>
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "download_start" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
+                <span>
                     Download started: 
                     {{ if .Movie.ID }}
-                    <a href="/movies/{{ .Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ getMovieTitle .Movie }}</a>
+                    <a href="/movies/{{ .Movie.ID }}">{{ .Movie.GetTitle }}</a>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <a href="/episodes/{{ .Episode.ID }}"> {{ getShowTitle .Episode.TvShow }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
+                    <a href="/episodes/{{ .Episode.ID }}"> {{ .Episode.TvShow.GetTitle }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "download_success" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
+                <span>
                     Download success: 
                     {{ if .Movie.ID }}
-                    <a href="/movies/{{ .Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ getMovieTitle .Movie }}</a>
+                    <a href="/movies/{{ .Movie.ID }}">{{ .Movie.GetTitle }}</a>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <a href="/episodes/{{ .Episode.ID }}"> {{ getShowTitle .Episode.TvShow }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
+                    <a href="/episodes/{{ .Episode.ID }}"> {{ .Episode.TvShow.GetTitle }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "download_failure" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
+                <span>
                     Download failure: 
                     {{ if .Movie.ID }}
-                    <a href="/movies/{{ .Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ getMovieTitle .Movie }}</a>
+                    <a href="/movies/{{ .Movie.ID }}">{{ .Movie.GetTitle }}</a>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <a href="/episodes/{{ .Episode.ID }}"> {{ getShowTitle .Episode.TvShow }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
+                    <a href="/episodes/{{ .Episode.ID }}"> {{ .Episode.TvShow.GetTitle }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "text" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
+                <span>
                     {{ .Title }}
                 </span>
                 {{ end }}
 
                 {{ if eq (getNotificationType .) "no_torrents" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NO_TORRENT">
+                <span>
                     No torrents found: 
                     {{ if .Movie.ID }}
-                    <a href="/movies/{{ .Movie.ID }}" *ngIf="notification.Movie.ID != 0">{{ getMovieTitle .Movie }}</a>
+                    <a href="/movies/{{ .Movie.ID }}">{{ .Movie.GetTitle }}</a>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <a href="/episodes/{{ .Episode.ID }}"> {{ getShowTitle .Episode.TvShow }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
+                    <a href="/episodes/{{ .Episode.ID }}"> {{ .Episode.TvShow.GetTitle }} S{{ printf "%02d" .Episode.Season }}E{{ printf "%02d" .Episode.Number }}: {{ .Episode.Title }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
@@ -117,15 +110,10 @@
                 </small>
             </td>
             {{ if not .Read }}
-            <td *ngIf="!notification.Read"
-                class="notification_action_button uk-text-success"
+            <td class="notification_action_button uk-text-success"
                 data-controller="notifications"
                 data-notifications-id="{{ .ID }}"
-                data-action="click->notifications#markAsRead"
-                (click)="changeReadState(notification, true)">
-                <!--<a class="btn btn-sm p-0">-->
-                    <!--<i class="material-icons md-18">check</i>-->
-                <!--</a>-->
+                data-action="click->notifications#markAsRead">
                 <span uk-icon="icon: check"></span>
             </td>
             {{ end }}
@@ -134,52 +122,52 @@
             <td></td>
             <td colspan="2">
                 {{ if eq (getNotificationType .) "new_episode" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_EPISODE">
+                <span>
                     <blockquote class="uk-text-small uk-padding-left-small">{{ .Episode.Overview }}</blockquote>
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "new_movie" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NEW_MOVIE">
+                <span>
                     <blockquote class="uk-text-small uk-padding-left-small">{{ .Movie.Overview }}</blockquote>
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "download_start" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_START">
+                <span>
                     {{ if .Movie.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Movie.ID != 0">{{ .Movie.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Movie.Overview }}</blockquote>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Episode.ID != 0">{{ .Episode.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Episode.Overview }}</blockquote>
                     {{ end }}
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "download_success" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_SUCCESS">
+                <span>
                     {{ if .Movie.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Movie.ID != 0">{{ .Movie.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Movie.Overview }}</blockquote>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Episode.ID != 0">{{ .Episode.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Episode.Overview }}</blockquote>
                     {{ end }}
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "download_failure" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_DOWNLOAD_FAILURE">
+                <span>
                     {{ if .Movie.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Movie.ID != 0">{{ .Movie.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Movie.Overview }}</blockquote>
                     {{ end }}
                     {{ if .Episode.ID }}
-                    <blockquote class="uk-text-normal uk-padding-left-small" *ngIf="notification.Episode.ID != 0">{{ .Episode.Overview }}</blockquote>
+                    <blockquote class="uk-text-normal uk-padding-left-small">{{ .Episode.Overview }}</blockquote>
                     {{ end }}
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "text" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_TEXT">
+                <span>
                     {{ .Content }}
                 </span>
                 {{ end }}
                 {{ if eq (getNotificationType .) "no_torrents" }}
-                <span *ngIf="notification.Type == constants.NOTIFICATION_NO_TORRENT">
+                <span>
                     No torrents have been found for media. Try adding new indexers or wait for torrents to be available (for recently released movies or episodes)
                 </span>
                 {{ end }}

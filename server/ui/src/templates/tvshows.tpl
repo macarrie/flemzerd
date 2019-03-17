@@ -43,6 +43,7 @@
         <table class="uk-table uk-table-small uk-table-divider">
             <thead>
                 <th>Episode name</th>
+                <th class="uk-text-nowrap">Current download</th>
                 <th class="uk-text-nowrap">Download status</th>
                 <th class="uk-text-center uk-table-shrink uk-text-nowrap">Failed torrents</th>
                 <th></th>
@@ -50,11 +51,16 @@
 
             <tbody>
                 {{ range .downloadingEpisodes }}
-                <tr *ngFor="let episode of downloadingEpisodes">
+                <tr>
                     <td>
                         <a href="/episodes/{{ .ID }}">
-                            {{ getShowTitle .TvShow }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Number }} : {{ .Title }}
+                            {{ .TvShow.GetTitle }} S{{ printf "%02d" .Season }}E{{ printf "%02d" .Number }} : {{ .Title }}
                         </a>
+                    </td>
+                    <td class="uk-text-muted">
+                        <i>
+                            {{ .DownloadingItem.CurrentTorrent.Name }}
+                        </i>
                     </td>
                     <td class="uk-text-center uk-table-shrink uk-text-nowrap">
                         {{ if .DownloadingItem.Downloading }}
@@ -72,7 +78,7 @@
                         {{ len .DownloadingItem.FailedTorrents }}
                     </td>
                     <td>
-                        <a class="uk-icon uk-icon-link uk-text-danger" uk-icon="icon: close; ratio: 0.75" (click)="stopDownload(episode)"
+                        <a class="uk-icon uk-icon-link uk-text-danger abort-download-button" uk-icon="icon: close; ratio: 0.75" (click)="stopDownload(episode)"
                             data-controller="episode"
                             data-action="click->episode#abortDownload"
                             data-episode-id="{{ .ID }}">
@@ -144,7 +150,7 @@
         {{ if or .DeletedAt (eq .Status 3) }}
         {{ $endedClass = "ended-show" }}
         {{ end }}
-        <div class="{{ $endedClass }}" *ngFor="let tvshow of trackedShows">
+        <div class="{{ $endedClass }}">
             {{ template "tvshow_miniature" . }}
         </div>
         {{ end }}
