@@ -3,7 +3,7 @@
     # Check interval (in minutes) (default: 15)
     check_interval = 15
     # Number of different torrents to try to download before declaring download as failed (default = 20)
-    torrent_download_attempts_limit = 5
+    torrent_download_attempts_limit = 20
     # Enable tvshows tracking
     track_shows = true
     # Enable movie tracking
@@ -12,6 +12,10 @@
     automatic_show_download = true
     # Automatically download movies when they are added into flemzerd
     automatic_movie_download = false
+    # Number of days to wait after a new episode airs to download it automatically
+    show_download_delay = 1
+    # Number of days to wait after a new movie airs to download it automatically
+    movie_download_delay = 7
     # Preferred quality (specified quality will be first in list of to download torrents) (possible values = 480p, 576p, 720p, 900p, 1080p, 1440p, 2160p, 5k, 8k, 16k)
     preferred_media_quality = "720p"
     # When the following release types are detected in a torrent name, it will be excluded from download list (possible values = cam, screener, telesync, telecine, dvdrip, hdtv, webdl, blurayrip)

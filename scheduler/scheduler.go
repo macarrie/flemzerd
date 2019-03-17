@@ -4,36 +4,37 @@ import (
 	"strconv"
 	"time"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	"golang.org/x/sys/unix"
 
-	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
-	indexer "github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
-	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
-	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
+	"github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
-	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
-	downloadable "github.com/macarrie/flemzerd/downloadable"
+	"github.com/macarrie/flemzerd/downloadable"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
@@ -450,7 +451,7 @@ func poll(recoveryDone *bool) {
 		log.Error("No provider alive. Impossible to retrieve media informations, stopping download chain until next polling.")
 		executeDownloadChain = false
 	} else {
-		//Even if not able to download, retrieve media info for UI if enabled
+		// Even if not able to download, retrieve media info for UI if enabled
 		if configuration.Config.System.TrackShows {
 			provider.GetTVShowsInfoFromConfig()
 		}
@@ -502,7 +503,8 @@ func poll(recoveryDone *bool) {
 					log.Warning(err)
 				}
 
-				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload {
+				downloadDelayPassed := time.Now().After(recentEpisode.Date.AddDate(0, 0, configuration.Config.System.ShowDownloadDelay))
+				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
 					Download(&recentEpisode, false)
 				}
 			}
@@ -524,7 +526,8 @@ func poll(recoveryDone *bool) {
 				log.Warning(err)
 			}
 
-			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload {
+			downloadDelayPassed := time.Now().After(movie.Date.AddDate(0, 0, configuration.Config.System.MovieDownloadDelay))
+			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload && downloadDelayPassed {
 				Download(&movie, false)
 			}
 		}
