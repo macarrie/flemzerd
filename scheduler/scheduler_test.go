@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -477,8 +476,8 @@ func TestDownloadDelay(t *testing.T) {
 	watchlist.Reset()
 	mediacenter.Reset()
 
-	provider.AddProvider(mock.TVProvider{})
-	provider.AddProvider(mock.MovieProvider{})
+	provider.AddProvider(mock.DownloadDelayTVProvider{})
+	provider.AddProvider(mock.DownloadDelayMovieProvider{})
 	indexer.AddIndexer(mock.TVIndexer{})
 	indexer.AddIndexer(mock.MovieIndexer{})
 	downloader.AddDownloader(mock.Downloader{})
@@ -493,15 +492,17 @@ func TestDownloadDelay(t *testing.T) {
 	poll(&recoveryDone)
 
 	configuration.Load()
-	for i, _ := range provider.Movies {
-		provider.Movies[i].Date = time.Now()
-		db.Client.Save(&provider.Movies[i])
+
+	for _, show := range provider.TVShows {
+		recentEpisodes, _ := provider.FindRecentlyAiredEpisodesForShow(show)
+
+		for _, recentEpisode := range recentEpisodes {
+			if recentEpisode.DownloadingItem.Downloading != false || recentEpisode.DownloadingItem.Downloaded != false {
+				t.Error("Expected episode not to be downloaded or downloading due to download delay")
+			}
+		}
 	}
-
-	fmt.Printf("%+v\n", configuration.Config)
-
 	for _, movie := range provider.Movies {
-		fmt.Printf("%+v\n", movie.DownloadingItem)
 		if movie.DownloadingItem.Downloading != false || movie.DownloadingItem.Downloaded != false {
 			t.Error("Expected movie not to be downloaded or downloading due to download delay")
 		}

@@ -3,12 +3,15 @@ package mock
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 type TVProvider struct{}
 type MovieProvider struct{}
+type DownloadDelayTVProvider struct{}
+type DownloadDelayMovieProvider struct{}
 type ErrorProvider struct{}
 
 func (p TVProvider) Status() (Module, error) {
@@ -24,6 +27,26 @@ func (p TVProvider) Status() (Module, error) {
 func (p MovieProvider) Status() (Module, error) {
 	return Module{
 		Name: "MovieProvider",
+		Type: "provider",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}, nil
+}
+func (p DownloadDelayTVProvider) Status() (Module, error) {
+	return Module{
+		Name: "DownloadDelayTVProvider",
+		Type: "provider",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}, nil
+}
+func (p DownloadDelayMovieProvider) Status() (Module, error) {
+	return Module{
+		Name: "DownloadDelayMovieProvider",
 		Type: "provider",
 		Status: ModuleStatus{
 			Alive:   true,
@@ -49,6 +72,12 @@ func (p TVProvider) GetName() string {
 func (p MovieProvider) GetName() string {
 	return "MovieProvider"
 }
+func (p DownloadDelayTVProvider) GetName() string {
+	return "DownloadDelayTVProvider"
+}
+func (p DownloadDelayMovieProvider) GetName() string {
+	return "DownloadDelayMovieProvider"
+}
 func (p ErrorProvider) GetName() string {
 	return "ErrorProvider"
 }
@@ -57,6 +86,12 @@ func (p TVProvider) GetOrder() int {
 	return 1
 }
 func (p MovieProvider) GetOrder() int {
+	return 1
+}
+func (p DownloadDelayTVProvider) GetOrder() int {
+	return 1
+}
+func (p DownloadDelayMovieProvider) GetOrder() int {
 	return 1
 }
 func (p ErrorProvider) GetOrder() int {
@@ -108,6 +143,57 @@ func (p MovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
 		Title:         "Test Movie",
 		OriginalTitle: "Test Movie",
+	}, nil
+}
+func (p DownloadDelayMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
+	return Movie{
+		Title:         "Test Movie",
+		OriginalTitle: "Test Movie",
+		Date: time.Now(),
+	}, nil
+}
+
+func (p DownloadDelayTVProvider) GetShow(tvShow MediaIds) (TvShow, error) {
+	return TvShow{
+		Title:         "Test show",
+		OriginalTitle: "Test show",
+	}, nil
+}
+func (p DownloadDelayTVProvider) GetEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, nil
+}
+func (p DownloadDelayTVProvider) GetNextEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{}, nil
+}
+func (p DownloadDelayTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
+	return []Episode{
+		{
+			Number: 1,
+			Season: 1,
+			Title:  "Test episode",
+			Date: time.Now(),
+		},
+	}, nil
+}
+func (p DownloadDelayTVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episode, error) {
+	if seasonNumber == 1000 {
+		return []Episode{}, errors.New("unknown season")
+	}
+	return []Episode{
+		{
+			Number: 1,
+			Season: 1,
+			Title:  "Test episode",
+			Date: time.Now(),
+		},
+	}, nil
+}
+func (p DownloadDelayTVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+	return Episode{
+		Number: 1,
+		Season: 1,
+		Title:  "Test episode",
+		Date: time.Now(),
 	}, nil
 }
 
