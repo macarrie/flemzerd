@@ -9,6 +9,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
@@ -292,6 +293,7 @@ func Run(debug bool) {
 	}
 
 	initConfiguration(debug)
+	stats.LoadStats()
 
 	//	 Load configuration objects
 	var recoveryDone bool = false
