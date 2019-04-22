@@ -10,6 +10,7 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/scheduler"
+	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/db"
 
@@ -33,19 +34,11 @@ func getDownloadingEpisodes(c *gin.Context) {
 }
 
 func getRemovedShows(c *gin.Context) {
-	var tvShows []TvShow
-	var retList []TvShow
-
-	if err := db.Client.Unscoped().Order("status").Order("title").Find(&tvShows).Error; err != nil {
-		log.Error("Error while getting removed shows from db: ", err)
+	tvshows, err := db.GetRemovedTvShows()
+	if err != nil {
+		log.Error("Error while getting removed tvshows from db: ", err)
 	}
-
-	for _, show := range tvShows {
-		if show.DeletedAt != nil {
-			retList = append(retList, show)
-		}
-	}
-	c.JSON(http.StatusOK, retList)
+	c.JSON(http.StatusOK, tvshows)
 }
 
 func getDownloadedEpisodes(c *gin.Context) {
@@ -159,6 +152,9 @@ func deleteShow(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
 	}
+
+	stats.Stats.Shows.Tracked -= 1
+	stats.Stats.Shows.Removed += 1
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
@@ -174,6 +170,8 @@ func restoreShow(c *gin.Context) {
 	show.DeletedAt = nil
 	db.Client.Unscoped().Save(&show)
 
+	stats.Stats.Shows.Tracked += 1
+	stats.Stats.Shows.Removed -= 1
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -292,6 +290,12 @@ func changeEpisodeDownloadedState(c *gin.Context) {
 	episode.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
 	db.Client.Save(&episode)
 
+	if episode.DownloadingItem.Downloaded {
+		stats.Stats.Episodes.Downloaded += 1
+	} else {
+		stats.Stats.Episodes.Downloaded -= 1
+	}
+
 	c.JSON(http.StatusOK, episode)
 }
 
@@ -342,6 +346,12 @@ func changeSeasonDownloadedState(c *gin.Context) {
 
 		ep.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
 		db.Client.Save(&ep)
+
+		if ep.DownloadingItem.Downloaded {
+			stats.Stats.Episodes.Downloaded += 1
+		} else {
+			stats.Stats.Episodes.Downloaded -= 1
+		}
 	}
 
 	c.JSON(http.StatusOK, epList)

@@ -97,17 +97,17 @@
             <span class="uk-h3">TV Shows</span>
         </div>
         <ul class="uk-subnav uk-subnav-pill">
-            <li uk-filter-control class="active">
+            <li uk-filter-control class="active uk-visible@s">
                 <a href="">
                     All
                 </a>
             </li>
-            <li uk-filter-control="filter: .ended-show">
+            <li class="uk-visible@s" uk-filter-control="filter: .ended-show">
                 <a href="">
                     Ended
                 </a>
             </li>
-            <li uk-filter-control="filter: .removed-show">
+            <li class="uk-visible@s" uk-filter-control="filter: .removed-show">
                 <a href="">
                     Removed
                 </a>
@@ -144,7 +144,7 @@
     </div>
     <hr />
 
-    <div class="uk-grid uk-grid-small uk-child-width-1-6 item-filter" uk-grid>
+    <div class="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-4@m uk-child-width-1-3@s uk-child-width-1-6@l item-filter" uk-grid>
         {{ range .trackedShows }}
         {{ $endedClass := "" }}
         {{ if or .DeletedAt (eq .Status 3) }}

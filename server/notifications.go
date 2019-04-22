@@ -6,13 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/macarrie/flemzerd/db"
+	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/stats"
 
 	. "github.com/macarrie/flemzerd/objects"
 )
 
 func getNotifications(c *gin.Context) {
-	var notifs []Notification
-	db.Client.Order("created_at DESC").Find(&notifs)
+	notifs, err := db.GetNotifications()
+	if err != nil {
+		log.Error("Error while getting notifications from db: ", err)
+	}
 
 	c.JSON(http.StatusOK, notifs)
 }
@@ -20,12 +24,17 @@ func getNotifications(c *gin.Context) {
 func deleteNotifications(c *gin.Context) {
 	db.Client.Unscoped().Delete(&Notification{})
 
+	stats.Stats.Notifications.Read = 0
+	stats.Stats.Notifications.Unread = 0
+
 	c.JSON(http.StatusOK, gin.H{})
 }
 
 func getReadNotifications(c *gin.Context) {
-	var notifs []Notification
-	db.Client.Where(&Notification{Read: true}).Order("created_at DESC").Find(&notifs)
+	notifs, err := db.GetReadNotifications()
+	if err != nil {
+		log.Error("Error while getting read notifications from db: ", err)
+	}
 
 	c.JSON(http.StatusOK, notifs)
 }
@@ -33,13 +42,17 @@ func getReadNotifications(c *gin.Context) {
 func markAllNotificationsAsRead(c *gin.Context) {
 	db.Client.Model(Notification{}).Updates(Notification{Read: true})
 
+	stats.Stats.Notifications.Read += stats.Stats.Notifications.Unread
+	stats.Stats.Notifications.Unread = 0
+
 	c.JSON(http.StatusOK, gin.H{})
 }
 
 func getUnreadNotifications(c *gin.Context) {
-	var notifs []Notification
-	// Use plain SQL string instead of struct because GORM does not perform where on zero values when querying with structs
-	db.Client.Where("read = false").Find(&notifs)
+	notifs, err := db.GetUnreadNotifications()
+	if err != nil {
+		log.Error("Error while getting notifications from db: ", err)
+	}
 
 	c.JSON(http.StatusOK, notifs)
 }
@@ -58,6 +71,14 @@ func changeNotificationReadState(c *gin.Context) {
 
 	notif.Read = notifInfo.Read
 	db.Client.Save(&notif)
+
+	if notif.Read {
+		stats.Stats.Notifications.Read += 1
+		stats.Stats.Notifications.Unread -= 1
+	} else {
+		stats.Stats.Notifications.Read -= 1
+		stats.Stats.Notifications.Unread += 1
+	}
 
 	c.JSON(http.StatusOK, notif)
 }

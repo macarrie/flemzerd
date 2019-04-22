@@ -97,27 +97,27 @@
             <span class="uk-h3">Movies</span>
         </div>
         <ul class="uk-subnav uk-subnav-pill">
-            <li uk-filter-control>
+            <li class="uk-visible@s uk-active" uk-filter-control>
                 <a href="">
                     All
                 </a>
             </li>
-            <li class="uk-active" uk-filter-control="filter: .tracked-movie">
+            <li class="uk-visible@s" uk-filter-control="filter: .tracked-movie">
                 <a href="">
                     Tracked
                 </a>
             </li>
-            <li uk-filter-control="filter: .future-movie">
+            <li class="uk-visible@s" uk-filter-control="filter: .future-movie">
                 <a href="">
                     Future
                 </a>
             </li>
-            <li uk-filter-control="filter: .downloaded-movie">
+            <li class="uk-visible@s" uk-filter-control="filter: .downloaded-movie">
                 <a href="">
                     Downloaded
                 </a>
             </li>
-            <li uk-filter-control="filter: .removed-movie">
+            <li class="uk-visible@s" uk-filter-control="filter: .removed-movie">
                 <a href="">
                     Removed
                 </a>
@@ -161,7 +161,7 @@
     </div>
     <hr />
 
-    <div class="uk-grid uk-grid-small uk-child-width-1-6 item-filter" uk-grid>
+    <div class="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" uk-grid>
         {{ range .downloadingMovies }}
         <div>
             {{ template "movie_miniature" . }}

@@ -15,6 +15,7 @@ import (
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	notifier "github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/downloadable"
 
@@ -331,6 +332,13 @@ func AbortDownload(d downloadable.Downloadable) {
 	downloadingItem.DownloadFailed = false
 	d.SetDownloadingItem(downloadingItem)
 	db.SaveDownloadable(&d)
+
+	switch d.(type) {
+	case *Movie:
+		stats.Stats.Movies.Downloading -= 1
+	case *Episode:
+		stats.Stats.Episodes.Downloading -= 1
+	}
 }
 
 func MarkDownloadAsFailed(d downloadable.Downloadable) {
