@@ -9,6 +9,7 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
+	"github.com/macarrie/flemzerd/stats"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	indexer "github.com/macarrie/flemzerd/indexers"
@@ -23,41 +24,13 @@ import (
 )
 
 func ui_dashboard(c *gin.Context) {
-	trackedMovies, err := db.GetTrackedMovies()
-	if err != nil {
-		log.Error("Error while getting downloading movies from db: ", err)
-	}
-
-	downloadingMovies, err := db.GetDownloadingMovies()
-	if err != nil {
-		log.Error("Error while getting downloading movies from db: ", err)
-	}
-
-	downloadedMovies, err := db.GetDownloadedMovies()
-	if err != nil {
-		log.Error("Error while getting downloaded movies from db: ", err)
-	}
-
-	trackedShows, err := db.GetTrackedTvShows()
-	if err != nil {
-		log.Error("Error while gettings tracked shows from db: ", err)
-	}
-	downloadingEpisodes, err := db.GetDownloadingEpisodes()
-	if err != nil {
-		log.Error("Error while getting downloading episodes from db: ", err)
-	}
-	downloadedEpisodes, err := db.GetDownloadedEpisodes()
-	if err != nil {
-		log.Error("Error while getting downloaded episodes from db: ", err)
-	}
-
 	c.HTML(http.StatusOK, "index", gin.H{
-		"trackedMoviesNb":       len(trackedMovies),
-		"downloadingMoviesNb":   len(downloadingMovies),
-		"downloadedMoviesNb":    len(downloadedMovies),
-		"trackedShowsNb":        len(trackedShows),
-		"downloadingEpisodesNb": len(downloadingEpisodes),
-		"downloadedEpisodesNb":  len(downloadedEpisodes),
+		"trackedMoviesNb":       stats.Stats.Movies.Tracked,
+		"downloadingMoviesNb":   stats.Stats.Movies.Downloading,
+		"downloadedMoviesNb":    stats.Stats.Movies.Downloaded,
+		"trackedShowsNb":        stats.Stats.Shows.Tracked,
+		"downloadingEpisodesNb": stats.Stats.Episodes.Downloading,
+		"downloadedEpisodesNb":  stats.Stats.Episodes.Downloaded,
 	})
 }
 

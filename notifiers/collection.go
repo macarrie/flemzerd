@@ -12,6 +12,7 @@ import (
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/stats"
 
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
@@ -101,10 +102,6 @@ func NotifyNewMovie(m *Movie) error {
 
 // NotifyMovieDownloadStart sends a notification to alert that torrents have been found for movie and that download process is starting.
 func NotifyDownloadStart(d downloadable.Downloadable) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
-		return nil
-	}
-
 	notification := Notification{}
 	switch d.(type) {
 	case *Movie:
@@ -112,11 +109,17 @@ func NotifyDownloadStart(d downloadable.Downloadable) error {
 			Type:  NOTIFICATION_DOWNLOAD_START,
 			Movie: *(d.(*Movie)),
 		}
+		stats.Stats.Movies.Downloading += 1
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_START,
 			Episode: *(d.(*Episode)),
 		}
+		stats.Stats.Episodes.Downloading += 1
+	}
+
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadStart {
+		return nil
 	}
 
 	if err := SendNotification(notification); err != nil {
@@ -128,10 +131,6 @@ func NotifyDownloadStart(d downloadable.Downloadable) error {
 
 // NotifyDownloadedItem sends notification on registered notifiers to alert that the movie has been successfully downloaded
 func NotifyDownloadedItem(d downloadable.Downloadable) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
-		return nil
-	}
-
 	notification := Notification{}
 	switch d.(type) {
 	case *Movie:
@@ -139,11 +138,19 @@ func NotifyDownloadedItem(d downloadable.Downloadable) error {
 			Type:  NOTIFICATION_DOWNLOAD_SUCCESS,
 			Movie: *d.(*Movie),
 		}
+		stats.Stats.Movies.Downloaded += 1
+		stats.Stats.Movies.Downloading -= 1
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_SUCCESS,
 			Episode: *d.(*Episode),
 		}
+		stats.Stats.Episodes.Downloaded += 1
+		stats.Stats.Episodes.Downloading -= 1
+	}
+
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyDownloadComplete {
+		return nil
 	}
 
 	if err := SendNotification(notification); err != nil {
@@ -156,10 +163,6 @@ func NotifyDownloadedItem(d downloadable.Downloadable) error {
 // NotifyFailedDownload sends notification on registered notifiers to alert that the movie could not be downloaded.
 // A movie is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
 func NotifyFailedDownload(d downloadable.Downloadable) error {
-	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
-		return nil
-	}
-
 	notification := Notification{}
 	switch d.(type) {
 	case *Movie:
@@ -167,11 +170,17 @@ func NotifyFailedDownload(d downloadable.Downloadable) error {
 			Type:  NOTIFICATION_DOWNLOAD_FAILURE,
 			Movie: *d.(*Movie),
 		}
+		stats.Stats.Movies.Downloading -= 1
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_FAILURE,
 			Episode: *d.(*Episode),
 		}
+		stats.Stats.Episodes.Downloading -= 1
+	}
+
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
+		return nil
 	}
 
 	if err := SendNotification(notification); err != nil {
@@ -203,6 +212,7 @@ func SendNotification(notif Notification) error {
 		return sendingErrors
 	}
 
+	stats.Stats.Notifications.Unread += 1
 	return nil
 }
 

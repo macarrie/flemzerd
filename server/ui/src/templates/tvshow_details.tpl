@@ -117,8 +117,12 @@
                                 <thead>
                                     <tr>
                                         <th>Title</th>
-                                        <th>Release date</th>
-                                        <th class="uk-table-shrink uk-text-nowrap uk-text-center">Download status</th>
+                                        <th class="uk-hidden@m">Release</th>
+                                        <th class="uk-visible@m">Release date</th>
+
+                                        <th class="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
+                                        <th class="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
+
                                         <th class="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -135,7 +139,9 @@
                                                 {{ .Title }}
                                             </a>
                                         </td>
-                                        <td class="uk-table-shrink uk-text-nowrap uk-text-center">{{ .Date.Format "Monday 02 Jan 2006" }}</td>
+                                        <td class="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@s">{{ .Date.Format "02/01/2006" }}</td>
+                                        <td class="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m">{{ .Date.Format "Mon 02/01/2006" }}</td>
+                                        <td class="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">{{ .Date.Format "Monday 02 Jan 2006" }}</td>
                                         <td class="uk-text-center">
                                             {{ if .DownloadingItem.Downloaded }}
                                             <a class="btn btn-sm p-0 text-success">

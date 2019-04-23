@@ -7,6 +7,7 @@ import (
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/scheduler"
+	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/db"
 
@@ -18,6 +19,7 @@ func getTrackedMovies(c *gin.Context) {
 	if err != nil {
 		log.Error("Error while getting downloading movies from db: ", err)
 	}
+
 	c.JSON(http.StatusOK, movies)
 }
 
@@ -30,19 +32,11 @@ func getDownloadingMovies(c *gin.Context) {
 }
 
 func getRemovedMovies(c *gin.Context) {
-	var movies []Movie
-	var retList []Movie
-
-	if err := db.Client.Unscoped().Order("created_at DESC").Find(&movies).Error; err != nil {
+	movies, err := db.GetRemovedMovies()
+	if err != nil {
 		log.Error("Error while getting removed movies from db: ", err)
 	}
-
-	for _, m := range movies {
-		if m.DeletedAt != nil {
-			retList = append(retList, m)
-		}
-	}
-	c.JSON(http.StatusOK, retList)
+	c.JSON(http.StatusOK, movies)
 }
 
 func getDownloadedMovies(c *gin.Context) {
@@ -80,6 +74,8 @@ func deleteMovie(c *gin.Context) {
 		return
 	}
 
+	stats.Stats.Movies.Tracked -= 1
+	stats.Stats.Movies.Removed += 1
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
@@ -153,6 +149,12 @@ func changeMovieDownloadedState(c *gin.Context) {
 	movie.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
 	db.Client.Save(&movie)
 
+	if movie.DownloadingItem.Downloaded {
+		stats.Stats.Movies.Downloaded += 1
+	} else {
+		stats.Stats.Movies.Downloaded -= 1
+	}
+
 	c.JSON(http.StatusOK, movie)
 }
 
@@ -203,6 +205,9 @@ func restoreMovie(c *gin.Context) {
 
 	movie.DeletedAt = nil
 	db.Client.Unscoped().Save(&movie)
+
+	stats.Stats.Movies.Tracked += 1
+	stats.Stats.Movies.Removed -= 1
 
 	c.JSON(http.StatusOK, gin.H{})
 }

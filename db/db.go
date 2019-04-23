@@ -7,6 +7,7 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/stats"
 	"golang.org/x/sys/unix"
 
 	"github.com/jinzhu/gorm"
@@ -100,6 +101,7 @@ func GetTrackedMovies() ([]Movie, error) {
 		}
 	}
 
+	stats.Stats.Movies.Tracked = len(retList)
 	return retList, nil
 }
 
@@ -112,6 +114,7 @@ func GetTrackedTvShows() ([]TvShow, error) {
 	// TODO: Handle error
 	Client.Order("status").Order("title").Find(&tvShows)
 
+	stats.Stats.Shows.Tracked = len(tvShows)
 	return tvShows, nil
 }
 
@@ -134,6 +137,8 @@ func GetDownloadingEpisodes() ([]Episode, error) {
 			retList = append(retList, e)
 		}
 	}
+
+	stats.Stats.Episodes.Downloading = len(retList)
 	return retList, nil
 }
 
@@ -150,6 +155,7 @@ func GetDownloadingMovies() ([]Movie, error) {
 		}
 	}
 
+	stats.Stats.Movies.Downloading = len(retList)
 	return retList, nil
 }
 
@@ -164,6 +170,8 @@ func GetDownloadedEpisodes() ([]Episode, error) {
 			retList = append(retList, e)
 		}
 	}
+
+	stats.Stats.Episodes.Downloaded = len(retList)
 	return retList, nil
 }
 
@@ -179,7 +187,68 @@ func GetDownloadedMovies() ([]Movie, error) {
 		}
 	}
 
+	stats.Stats.Movies.Downloaded = len(retList)
 	return retList, nil
+}
+
+// Gets removed movies from database
+func GetRemovedMovies() ([]Movie, error) {
+	var movies []Movie
+	var retList []Movie
+
+	if err := Client.Unscoped().Order("created_at DESC").Find(&movies).Error; err != nil {
+		log.Error("Error while getting removed movies from db: ", err)
+	}
+
+	for _, m := range movies {
+		if m.DeletedAt != nil {
+			retList = append(retList, m)
+		}
+	}
+
+	stats.Stats.Movies.Removed = len(retList)
+	return retList, nil
+}
+
+// Gets removed movies from database
+func GetRemovedTvShows() ([]TvShow, error) {
+	var tvShows []TvShow
+	var retList []TvShow
+
+	if err := Client.Unscoped().Order("status").Order("title").Find(&tvShows).Error; err != nil {
+		log.Error("Error while getting removed shows from db: ", err)
+	}
+
+	for _, show := range tvShows {
+		if show.DeletedAt != nil {
+			retList = append(retList, show)
+		}
+	}
+	stats.Stats.Shows.Removed = len(retList)
+	return retList, nil
+}
+
+func GetNotifications() ([]Notification, error) {
+	var notifs []Notification
+	Client.Order("created_at DESC").Find(&notifs)
+
+	return notifs, nil
+}
+
+func GetReadNotifications() ([]Notification, error) {
+	var notifs []Notification
+	Client.Where(&Notification{Read: true}).Order("created_at DESC").Find(&notifs)
+
+	stats.Stats.Notifications.Read = len(notifs)
+	return notifs, nil
+}
+func GetUnreadNotifications() ([]Notification, error) {
+	var notifs []Notification
+	// Use plain SQL string instead of struct because GORM does not perform where on zero values when querying with structs
+	Client.Where("read = false").Find(&notifs)
+
+	stats.Stats.Notifications.Unread = len(notifs)
+	return notifs, nil
 }
 
 // Saves given token as Trakt token in database

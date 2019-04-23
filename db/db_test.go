@@ -185,6 +185,65 @@ func TestGetDownloadedItems(t *testing.T) {
 	}
 }
 
+func TestGetRemovedItems(t *testing.T) {
+	ResetDb()
+
+	m := Movie{
+		Title:         "removed_movie",
+		OriginalTitle: "removed_movie",
+	}
+	show := TvShow{
+		Title:         "removed_show",
+		OriginalTitle: "removed_show",
+	}
+
+	Client.Create(&m)
+	Client.Delete(&m)
+
+	Client.Create(&show)
+	Client.Delete(&show)
+
+	movieList, _ := GetRemovedMovies()
+	showList, _ := GetRemovedTvShows()
+
+	if len(movieList) != 1 {
+		t.Errorf("Expected 1 item in removed movies list, got %d instead", len(movieList))
+	}
+	if len(showList) != 1 {
+		t.Errorf("Expected 1 item in removed movies list, got %d instead", len(movieList))
+	}
+}
+
+func TestGetNotifications(t *testing.T) {
+	ResetDb()
+
+	n1 := Notification{
+		Title: "notification_1",
+		Read:  false,
+	}
+	n2 := Notification{
+		Title: "notification_2",
+		Read:  true,
+	}
+
+	Client.Create(&n1)
+	Client.Create(&n2)
+
+	notificationsList, _ := GetNotifications()
+	readNotificationsList, _ := GetReadNotifications()
+	unreadNotificationsList, _ := GetUnreadNotifications()
+
+	if len(notificationsList) != 2 {
+		t.Errorf("Expected 2 items in notifications list, got %d instead", len(notificationsList))
+	}
+	if len(readNotificationsList) != 1 {
+		t.Errorf("Expected 1 item in read notifications list, got %d instead", len(readNotificationsList))
+	}
+	if len(unreadNotificationsList) != 1 {
+		t.Errorf("Expected 1 item in unread notifications list, got %d instead", len(unreadNotificationsList))
+	}
+}
+
 func TestSaveTraktAndTelegramInfos(t *testing.T) {
 	SaveTraktToken("test")
 	SaveTelegramChatID(1234)

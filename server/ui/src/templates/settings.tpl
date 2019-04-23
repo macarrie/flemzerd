@@ -1,6 +1,6 @@
 {{ define "content" }}
 <div class="uk-container">
-    <div class="uk-grid uk-grid-small uk-child-width-1-2" uk-grid>
+    <div class="uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
         <div class="uk-width-1-1">
             <h3 class="uk-heading-divider">Global settings</h3>
         </div>

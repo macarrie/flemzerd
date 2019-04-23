@@ -4,7 +4,7 @@
 </div>
 
 <div class="uk-container">
-    <div class="uk-grid uk-child-width-1-2" uk-grid="masonry: true">
+    <div class="uk-grid uk-child-width-1-1 uk-child-width-1-2@s" uk-grid="masonry: true">
         <div>
             <h3>Watchlists</h3>
             <ul class="uk-list uk-list-striped no-stripes">

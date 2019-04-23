@@ -10,10 +10,11 @@ import (
 	gintemplate "github.com/foolin/gin-template"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+
 	"github.com/macarrie/flemzerd/configuration"
 	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
-
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/stats"
 )
 
 var srv *http.Server
@@ -78,6 +79,8 @@ func initRouter() {
 		v1.GET("/config", func(c *gin.Context) {
 			c.JSON(http.StatusOK, configuration.Config)
 		})
+
+		v1.GET("/stats", stats.Handler())
 
 		actionsRoute := v1.Group("/actions")
 		{
