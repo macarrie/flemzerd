@@ -6,11 +6,13 @@
   "dependencies": {
     "stimulus": "^1.1.1",
     "turbolinks": "^5.2.0",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "tar": ">=4.4.2"
   },
   "devDependencies": {
     "node-sass": "^4.10.0",
-    "webpack": "^4.26.1"
+    "webpack": "^4.26.1",
+    "tar": ">=4.4.2"
   },
   "scripts": {
     "build-css": "node-sass --include-path src/static/css src/static/css/style.scss src/static/css/style.css"

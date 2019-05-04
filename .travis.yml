@@ -8,12 +8,11 @@ services:
     - docker
 
 env:
-    - GO111MODULE=on
-    - VIDOCQ_VERSION="v0.1.1"
+    - GO111MODULE=on VIDOCQ_VERSION="v0.1.1"
 
 before_install:
     - mkdir tmp
-    - curl -L https://github.com/macarrie/vidocq/releases/download/$(VIDOCQ_VERSION)/vidocq -o tmp/vidocq
+    - curl -L https://github.com/macarrie/vidocq/releases/download/${VIDOCQ_VERSION}/vidocq -o tmp/vidocq
     - chmod +x tmp/vidocq
     - export PATH=$PATH:$PWD/tmp
 
