@@ -9,14 +9,13 @@ services:
 
 env:
     - GO111MODULE=on
+    - VIDOCQ_VERSION="v0.1.1"
 
 before_install:
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y
-    - export PATH=~/.cargo/bin:$PATH
     - mkdir tmp
-    - git clone https://github.com/macarrie/vidocq tmp/vidocq
-    - pushd tmp/vidocq && cargo build --release && popd
-    - export PATH=$PATH:$PWD/tmp/vidocq/target/release/
+    - curl -L https://github.com/macarrie/vidocq/releases/download/$(VIDOCQ_VERSION)/vidocq -o tmp/vidocq
+    - chmod +x tmp/vidocq
+    - export PATH=$PATH:$PWD/tmp
 
 jobs:
     include:

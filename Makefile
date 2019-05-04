@@ -10,7 +10,7 @@ GOARCH=$(shell $(GO) env GOARCH)
 CARGO=$(shell which cargo)
 
 PACKAGE_NAME=flemzerd_$(VERSION)_$(GOOS)_$(GOARCH)
-VIDOCQ_VERSION=v0.1
+VIDOCQ_VERSION=v0.1.1
 
 LDFLAGS=-X github.com/macarrie/flemzerd/configuration.Version=$(VERSION) -X github.com/macarrie/flemzerd/configuration.TRAKT_CLIENT_SECRET=$(FLZ_TRAKT_CLIENT_SECRET) -X github.com/macarrie/flemzerd/configuration.TELEGRAM_BOT_TOKEN=$(FLZ_TELEGRAM_BOT_TOKEN) -X github.com/macarrie/flemzerd/configuration.TMDB_API_KEY=$(FLZ_TMDB_API_KEY) -X github.com/macarrie/flemzerd/configuration.TVDB_API_KEY=$(FLZ_TVDB_API_KEY)
 
@@ -34,17 +34,16 @@ webui: server/ui/node_modules
 	cp -r server/ui/src/* package/$(PACKAGE_NAME)/ui/
 	echo -e "\tInterface build complete: package/$(PACKAGE_NAME)/ui/"
 
-tmp/vidocq/target/release/vidocq:
+tmp/vidocq:
 	echo " > Building dependencies: vidocq"
 	-rm -rf tmp
 	mkdir -p tmp
-	git clone https://github.com/macarrie/vidocq tmp/vidocq --branch $(VIDOCQ_VERSION)
-	cd tmp/vidocq && $(CARGO) build --release
-	echo -e "\tVidocq build into tmp/vidocq/target/release/vidocq"
+	curl -L https://github.com/macarrie/vidocq/releases/download/$(VIDOCQ_VERSION)/vidocq -o tmp/vidocq
+	echo -e "\tVidocq executable downloaded into tmp/vidocq"
 
-package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq/target/release/vidocq
+package/$(PACKAGE_NAME)/dependencies/vidocq: tmp/vidocq
 	mkdir -p package/$(PACKAGE_NAME)/dependencies
-	cp tmp/vidocq/target/release/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
+	cp tmp/vidocq package/$(PACKAGE_NAME)/dependencies/vidocq
 
 ## bin: Build flemzerd binary
 bin:
