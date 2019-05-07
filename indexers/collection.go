@@ -13,7 +13,7 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 )
 
 var indexersCollection []Indexer
@@ -108,8 +108,12 @@ func FilterMovieTorrents(movie Movie, torrentList []Torrent) []Torrent {
 }
 
 func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
-	log.Debug("Checking torrent list for bad episodes")
+	log.WithFields(log.Fields{
+		"strict_check": configuration.Config.System.StrictTorrentCheck,
+	}).Debug("Checking torrent list for bad episodes")
+
 	var returnList []Torrent
+	var otherTorrents []Torrent
 
 	for _, torrent := range list {
 		if episode.TvShow.IsAnime {
@@ -119,7 +123,7 @@ func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
 					returnList = append(returnList, torrent)
 				}
 			} else {
-				returnList = append(returnList, torrent)
+				otherTorrents = append(otherTorrents, torrent)
 			}
 		} else {
 			episodeInfo, err := vidocq.GetInfo(torrent.Name)
@@ -128,7 +132,7 @@ func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
 					"torrent": torrent.Name,
 				}).Warning("Error while getting media info for torrent: ", err)
 
-				returnList = append(returnList, torrent)
+				otherTorrents = append(otherTorrents, torrent)
 				continue
 			}
 
@@ -138,12 +142,19 @@ func FilterTorrentEpisodeNumber(list []Torrent, episode Episode) []Torrent {
 		}
 	}
 
-	return returnList
+	if configuration.Config.System.StrictTorrentCheck {
+		return returnList
+	}
+
+	return append(returnList, otherTorrents...)
 }
 
 func FilterTorrentYear(list []Torrent, year int) []Torrent {
-	log.Debug("Checking torrent list for bad movie torrents (wrong year)")
+	log.WithFields(log.Fields{
+		"strict_check": configuration.Config.System.StrictTorrentCheck,
+	}).Debug("Checking torrent list for bad movie torrents (wrong year)")
 	var returnList []Torrent
+	var otherTorrents []Torrent
 
 	for _, torrent := range list {
 		movieInfo, err := vidocq.GetInfo(torrent.Name)
@@ -152,7 +163,7 @@ func FilterTorrentYear(list []Torrent, year int) []Torrent {
 				"torrent": torrent.Name,
 			}).Warning("Error while getting media info for torrent: ", err)
 
-			returnList = append(returnList, torrent)
+			otherTorrents = append(otherTorrents, torrent)
 			continue
 		}
 
@@ -161,7 +172,11 @@ func FilterTorrentYear(list []Torrent, year int) []Torrent {
 		}
 	}
 
-	return returnList
+	if configuration.Config.System.StrictTorrentCheck {
+		return returnList
+	}
+
+	return append(returnList, otherTorrents...)
 }
 
 func FilterTorrentReleaseType(list []Torrent) []Torrent {
@@ -170,6 +185,7 @@ func FilterTorrentReleaseType(list []Torrent) []Torrent {
 	}).Debug("Excluding release types from torrent list")
 
 	var releaseFilteredList []Torrent
+	var otherTorrents []Torrent
 	var releaseTypeFilters []string
 
 	releaseTypeFilters = strings.Split(configuration.Config.System.ExcludedReleaseTypes, ",")
@@ -181,14 +197,14 @@ func FilterTorrentReleaseType(list []Torrent) []Torrent {
 		mediaInfo, err := vidocq.GetInfo(torrent.Name)
 		if err != nil {
 			log.Warning("An error occured during vidocq request: ", err.Error())
-			releaseFilteredList = append(releaseFilteredList, torrent)
+			otherTorrents = append(otherTorrents, torrent)
 
 			continue
 		}
 
 		releaseTypeExcluded := false
-		for _, releaseType := range releaseTypeFilters {
-			if releaseType != "" && releaseType == mediaInfo.ReleaseType {
+		for _, excludedReleaseType := range releaseTypeFilters {
+			if excludedReleaseType != "" && excludedReleaseType == mediaInfo.ReleaseType {
 				releaseTypeExcluded = true
 			}
 		}
@@ -198,12 +214,17 @@ func FilterTorrentReleaseType(list []Torrent) []Torrent {
 		}
 	}
 
-	return releaseFilteredList
+	if configuration.Config.System.StrictTorrentCheck {
+		return releaseFilteredList
+	}
+
+	return append(releaseFilteredList, otherTorrents...)
 }
 
 func FilterTorrentQuality(list []Torrent) []Torrent {
 	log.WithFields(log.Fields{
 		"quality_filter": configuration.Config.System.PreferredMediaQuality,
+		"strict_check":   configuration.Config.System.StrictTorrentCheck,
 	}).Debug("Sorting list according to quality preferences")
 
 	var qualityFilteredList []Torrent
@@ -238,9 +259,11 @@ func FilterTorrentQuality(list []Torrent) []Torrent {
 		}
 	}
 
-	retList := append(qualityFilteredList, otherTorrents...)
+	if configuration.Config.System.StrictTorrentCheck {
+		return qualityFilteredList
+	}
 
-	return retList
+	return append(qualityFilteredList, otherTorrents...)
 }
 
 // GetIndexer returns the registered indexer with name "name". An non-nil error is returned if no registered indexer are found with the required name

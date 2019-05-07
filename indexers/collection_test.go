@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
-	mock "github.com/macarrie/flemzerd/mocks"
+	"github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
 )
@@ -144,6 +144,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 	ind4 := mock.MovieIndexer{}
 	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
 	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
+	configuration.Config.System.StrictTorrentCheck = false
 	vidocq.LocalVidocqAvailable = true
 
 	movieDate := time.Date(2018, time.January, 10, 13, 0, 0, 0, time.UTC)
