@@ -8,6 +8,7 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
@@ -28,12 +29,51 @@ var TELEGRAM_BOT_TOKEN string
 var TMDB_API_KEY string
 var TVDB_API_KEY string
 
+type StatusCode int
+
+const (
+	OK StatusCode = iota
+	WARNING
+	CRITICAL
+	UNKNOWN
+)
+
+func (s StatusCode) String() string {
+	display := []string{
+		"OK",
+		"WARNING",
+		"CRITICAL",
+		"UNKNOWN",
+	}
+
+	if s > CRITICAL || s < OK {
+		return display[UNKNOWN]
+	}
+
+	return display[s]
+}
+
 type ConfigurationError struct {
+	Status  StatusCode
+	Key     string
+	Value   string
+	Message string
+}
+
+func (e ConfigurationError) Error() string {
+	if e.Key == "" {
+		return fmt.Sprintf("[%s] %s", e.Status, e.Message)
+	}
+
+	return fmt.Sprintf("[%s] %s (%s: %s)", e.Status, e.Message, e.Key, e.Value)
+}
+
+type ConfigurationFileError struct {
 	File string
 	Err  error
 }
 
-func (e ConfigurationError) Error() string {
+func (e ConfigurationFileError) Error() string {
 	return fmt.Sprintf("%s (%s)", e.Err.Error(), e.File)
 }
 
@@ -113,23 +153,80 @@ func UseFile(filePath string) {
 	customConfigFilePath = filePath
 }
 
-func Check() {
+func Check() error {
+	var errorList *multierror.Error
+	var configError ConfigurationError
+
 	if len(Config.Watchlists) == 0 {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "No watchlist configured",
+		}
 		log.WithFields(log.Fields{
-			"error": "No watchlists defined",
+			"error": configError,
 		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
+	}
+	_, traktWatchlist := Config.Watchlists["trakt"]
+	if traktWatchlist {
+		if TRAKT_CLIENT_SECRET == "" {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "No client secret defined for trakt watchlist. Set FLZ_TRAKT_CLIENT_SECRET env var",
+			}
+			log.WithFields(log.Fields{
+				"error": configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+		}
 	}
 
 	if len(Config.Providers) == 0 {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "No provider configured",
+		}
 		log.WithFields(log.Fields{
-			"error": "No providers defined",
+			"error": configError,
 		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
+	}
+	_, tmdbProvider := Config.Providers["tmdb"]
+	if tmdbProvider {
+		if TMDB_API_KEY == "" {
+			configError = ConfigurationError{
+				Status:  CRITICAL,
+				Message: "No API key defined for TMDB provider. Set FLZ_TMDB_API_KEY env var",
+			}
+			log.WithFields(log.Fields{
+				"error": configError,
+			}).Error("Configuration error")
+			errorList = multierror.Append(errorList, configError)
+		}
+	}
+	_, tvdbProvider := Config.Providers["tvdb"]
+	if tvdbProvider {
+		if TVDB_API_KEY == "" {
+			configError = ConfigurationError{
+				Status:  CRITICAL,
+				Message: "No API key defined for TVDB provider. Set FLZ_TVDB_API_KEY env var",
+			}
+			log.WithFields(log.Fields{
+				"error": configError,
+			}).Error("Configuration error")
+			errorList = multierror.Append(errorList, configError)
+		}
 	}
 
 	if len(Config.Notifiers) == 0 && Config.Notifications.Enabled {
+		configError = ConfigurationError{
+			Status:  WARNING,
+			Message: "Notifications are enabled but no notifiers are defined. No notifications will be sent.",
+		}
 		log.WithFields(log.Fields{
-			"error": "Notifications are enabled but no notifiers are defined. No notifications will be sent.",
+			"error": configError,
 		}).Warning("Configuration warning")
+		errorList = multierror.Append(errorList, configError)
 	}
 
 	_, pushbullet := Config.Notifiers["pushbullet"]
@@ -137,50 +234,121 @@ func Check() {
 		_, pushbulletaccesstoken := Config.Notifiers["pushbullet"]["accesstoken"]
 
 		if !pushbulletaccesstoken {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "No access token defined for pushbullet notifier",
+				Key:     "notifiers.pushbullet.accesstoken",
+				Value:   "",
+			}
 			log.WithFields(log.Fields{
-				"error": "Missing key for pushbullet notifier (accessToken required)",
-			}).Error("Configuration error")
+				"error": configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+		}
+	}
+
+	_, telegram := Config.Notifiers["telegram"]
+	if telegram {
+		if TELEGRAM_BOT_TOKEN == "" {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "No bot token defined for telegram notifier",
+			}
+			log.WithFields(log.Fields{
+				"error": configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
 		}
 	}
 
 	if !filepath.IsAbs(Config.Library.ShowPath) {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "Library show path must be an absolute path",
+			Key:     "library.show_path",
+			Value:   Config.Library.ShowPath,
+		}
 		log.WithFields(log.Fields{
-			"error": "Library show path must be an absolute path",
+			"error": configError,
 		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
 	}
 
 	err := unix.Access(Config.Library.ShowPath, unix.W_OK)
 	if err != nil {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "Cannot write into library show path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder",
+			Key:     "library.show_path",
+			Value:   Config.Library.ShowPath,
+		}
 		log.WithFields(log.Fields{
-			"error": err,
-			"path":  Config.Library.ShowPath,
-		}).Error("Cannot write into library show path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder")
+			"access_error": err,
+			"error":        configError,
+		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
 	}
+
 	err = unix.Access(Config.Library.MoviePath, unix.W_OK)
 	if err != nil {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "Cannot write into library movie path. Downloaded show episodes will not be able to be moved in library folder and will stay in temporary folder",
+			Key:     "library.movie_path",
+			Value:   Config.Library.MoviePath,
+		}
 		log.WithFields(log.Fields{
-			"error": err,
-			"path":  Config.Library.MoviePath,
-		}).Error("Cannot write into library movie path. Downloaded movies will not be able to be moved in library folder and will stay in temporary folder")
+			"access_error": err,
+			"error":        configError,
+		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
 	}
+
 	err = unix.Access(Config.Library.CustomTmpPath, unix.W_OK)
 	if err != nil {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "Cannot write into tmp path. Media will not be able to be downloaded.",
+			Key:     "library.custom_tmp_path",
+			Value:   Config.Library.CustomTmpPath,
+		}
 		log.WithFields(log.Fields{
-			"path":  Config.Library.CustomTmpPath,
-			"error": err,
-		}).Error("Cannot write into tmp path. Media will not be able to be downloaded.")
+			"access_error": err,
+			"error":        configError,
+		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
 	}
 
 	_, kodi := Config.MediaCenters["kodi"]
 	if kodi {
 		_, kodiAddress := Config.MediaCenters["kodi"]["address"]
 		if !kodiAddress {
-			log.Warning("Kodi mediacenter address not defined. Using 'localhost'")
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Kodi mediacenter address not defined. Using 'localhost'",
+				Key:     "mediacenters.kodi.address",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
 			Config.MediaCenters["kodi"]["address"] = "localhost"
 		}
 		_, kodiPort := Config.MediaCenters["kodi"]["port"]
 		if !kodiPort {
-			log.Warning("Kodi mediacenter port not defined. Using '9090'")
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Kodi mediacenter port not defined. Using '9090'",
+				Key:     "mediacenters.kodi.port",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
 			Config.MediaCenters["kodi"]["port"] = "9090"
 		}
 	}
@@ -193,10 +361,18 @@ func Check() {
 		switch filter {
 		case "480p", "576p", "720p", "900p", "1080p", "1440p", "2160p", "5k", "8k", "16k":
 		default:
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Invalid media quality preference parameter. No filter will be done on quality",
+				Key:     "system.preferred_media_quality",
+				Value:   Config.System.PreferredMediaQuality,
+			}
 			log.WithFields(log.Fields{
-				"preferred_media_quality": Config.System.PreferredMediaQuality,
+				"error":                   configError,
 				"invalid_quality_setting": filter,
-			}).Error("Invalid media quality preference parameter. No filter will be done on quality")
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+
 			Config.System.PreferredMediaQuality = ""
 		}
 	}
@@ -209,13 +385,23 @@ func Check() {
 		switch releaseType {
 		case "cam", "telesync", "telecine", "screener", "dvdrip", "hdtv", "webdl", "blurayrip":
 		default:
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Invalid release type preference parameter. No filter will be done on release types",
+				Key:     "system.excluded_release_types",
+				Value:   Config.System.ExcludedReleaseTypes,
+			}
 			log.WithFields(log.Fields{
-				"excluded_release_types":       Config.System.ExcludedReleaseTypes,
+				"error":                        configError,
 				"invalid_release_type_setting": releaseType,
-			}).Error("Invalid release type preference parameter. No filter will be done on release types")
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+
 			Config.System.ExcludedReleaseTypes = ""
 		}
 	}
+
+	return errorList.ErrorOrNil()
 }
 
 func Load() error {
@@ -250,7 +436,7 @@ func Load() error {
 
 	readErr := viper.ReadInConfig()
 	if readErr != nil {
-		return ConfigurationError{
+		return ConfigurationFileError{
 			File: viper.ConfigFileUsed(),
 			Err:  errors.Wrap(readErr, "cannot read configuration file"),
 		}
@@ -261,7 +447,7 @@ func Load() error {
 	var conf Configuration
 	unmarshalError := viper.Unmarshal(&conf)
 	if unmarshalError != nil {
-		return ConfigurationError{
+		return ConfigurationFileError{
 			File: viper.ConfigFileUsed(),
 			Err:  errors.Wrap(unmarshalError, "cannot parse configuration file"),
 		}

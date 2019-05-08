@@ -189,7 +189,7 @@ div.toc_parent {
             box-shadow: 0 0 2px $secondary;
 
             &.alerted {
-                background-color: $danger;
+                background-color: $secondary;
                 color: $light;
                 font-weight: bold !important;
                 box-shadow: none;
@@ -199,6 +199,17 @@ div.toc_parent {
         &.active {
             background: darken($light, 10%);
             border-radius: 4px;
+        }
+
+        &.configuration_errors_notification {
+            span.uk-badge {
+                position: relative;
+                left: -6px;
+
+                &.alerted {
+                    background-color: $danger !important;
+                }
+            }
         }
     }
 }
@@ -312,4 +323,9 @@ table.notification-table {
             color: $danger;
         }
     }
+}
+
+.configuration-error-status {
+    min-width: 75px;
+    text-align: center;
 }

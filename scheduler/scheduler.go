@@ -353,8 +353,16 @@ func Download(d downloadable.Downloadable, recovery bool) {
 	torrentList, err := indexer.GetTorrents(d)
 	if err != nil {
 		log.Warning(err)
+		notifier.NotifyTorrentsNotFound(d)
+
+		downloadingItem.Downloading = false
+		downloadingItem.Pending = false
+		d.SetDownloadingItem(downloadingItem)
+		db.SaveDownloadable(&d)
+
 		return
 	}
+
 	if recovery && downloadingItem.CurrentTorrent.ID != 0 {
 		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
 	}
@@ -364,31 +372,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 		d.GetLog().Debug("No torrents found")
 
 		if !downloadingItem.TorrentsNotFound {
-			notification := Notification{}
-
-			switch d.(type) {
-			case *Movie:
-				notification = Notification{
-					Type:  NOTIFICATION_NO_TORRENTS,
-					Movie: *(d.(*Movie)),
-				}
-			case *Episode:
-				notification = Notification{
-					Type:    NOTIFICATION_NO_TORRENTS,
-					Episode: *(d.(*Episode)),
-				}
-			default:
-				d.GetLog().Debug("Unknown Downloadable object type. Stopping download process")
-				return
-			}
-
-			if err := notifier.SendNotification(notification); err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Warning("Could not send 'no torrents found' notification")
-			} else {
-				downloadingItem.TorrentsNotFound = true
-			}
+			notifier.NotifyTorrentsNotFound(d)
 		}
 
 		downloadingItem.Downloading = false

@@ -190,6 +190,45 @@ func NotifyFailedDownload(d downloadable.Downloadable) error {
 	return nil
 }
 
+// NotifyTorrentNotFound sends notification on registered notifiers to alert that torrents could not be found (either no torrents found or no available indexers)
+func NotifyTorrentsNotFound(d downloadable.Downloadable) error {
+	notification := Notification{}
+	downloadingItem := d.GetDownloadingItem()
+
+	switch d.(type) {
+	case *Movie:
+		notification = Notification{
+			Type:  NOTIFICATION_NO_TORRENTS,
+			Movie: *(d.(*Movie)),
+		}
+	case *Episode:
+		notification = Notification{
+			Type:    NOTIFICATION_NO_TORRENTS,
+			Episode: *(d.(*Episode)),
+		}
+	default:
+		d.GetLog().Debug("Unknown Downloadable object type wen sending torrent not found notification")
+		return nil
+	}
+
+	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {
+		return nil
+	}
+
+	if err := SendNotification(notification); err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Warning("Could not send 'no torrents found' notification")
+	} else {
+		downloadingItem.TorrentsNotFound = true
+	}
+
+	d.SetDownloadingItem(downloadingItem)
+	db.SaveDownloadable(&d)
+
+	return nil
+}
+
 // SendNotification sends the notification with title and content using all registered notifiers.
 // If at least one notifier returns an error when sending the notification, the method exists with a non nil error
 func SendNotification(notif Notification) error {

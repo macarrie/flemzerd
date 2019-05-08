@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	multierror "github.com/hashicorp/go-multierror"
 
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
@@ -252,8 +253,17 @@ func ui_status(c *gin.Context) {
 }
 
 func ui_settings(c *gin.Context) {
+	errorList := []error{}
+
+	if err := configuration.Check(); err != nil {
+		if multierr, ok := err.(*multierror.Error); ok {
+			errorList = multierr.Errors
+		}
+	}
+
 	c.HTML(http.StatusOK, "settings", gin.H{
 		"config": configuration.Config,
+		"check":  errorList,
 	})
 }
 

@@ -1,4 +1,33 @@
 {{ define "content" }}
+{{ if gt (len .check) 0 }}
+<div class="uk-container">
+    <div class="uk-alert uk-alert-danger" uk-alert>
+        <div class="uk-flex uk-flex-middle">
+            <h3 class="uk-margin-remove">Configuration errors</h3>
+            <a class="uk-alert-close" uk-close></a>
+        </div>
+        <hr />
+        <ul>
+            {{ range $error := .check }}
+                {{ $statusButtonClass := "" }}
+                {{ if eq $error.Status 1 }}
+                    {{ $statusButtonClass = "uk-label-warning" }}
+                {{ else if eq $error.Status 2 }}
+                    {{ $statusButtonClass = "uk-label-danger" }}
+                {{ end }}
+                <li class="uk-flex uk-flex-middle">
+                    <span class="configuration-error-status uk-label uk-margin-small-right {{ $statusButtonClass }}">{{ $error.Status }}</span>
+                    {{ $error.Message }}
+                    {{ if ne $error.Key "" }}
+                        <code>{{ $error.Key }}: {{ $error.Value }}</code>
+                    {{ end }}
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+</div>
+{{ end }}
+
 <div class="uk-container">
     <div class="uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
         <div class="uk-width-1-1">

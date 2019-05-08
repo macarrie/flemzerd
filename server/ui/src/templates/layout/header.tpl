@@ -8,8 +8,19 @@
                 <li><a href="/dashboard">   <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: home"></span>Dashboard</a></li>
                 <li><a href="/tvshows">     <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: laptop"></span>TVShows</a></li>
                 <li><a href="/movies">      <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: video-camera"></span>Movies</a></li>
-                <li><a href="/status">      <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: heart"></span>Status</a></li>
-                <li><a href="/settings">    <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: settings"></span>Settings</a></li>
+                <li><a href="/status">    <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: heart"></span>Status</a></li>
+                <li class="notifications_counter configuration_errors_notification"
+                    data-controller="configuration-errors"
+                    data-configuration-errors-refresh-interval="120">
+                    <a href="/settings">
+                        <span class="uk-icon uk-margin-small-right" uk-icon="ratio: 0.8; icon: settings"></span>
+                        Settings
+                        <span class="uk-badge uk-border-pill uk-text-small"
+                            data-target="configuration-errors.counter">
+                            0
+                        </span>
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="uk-navbar-right">

@@ -10,6 +10,7 @@ import (
 	gintemplate "github.com/foolin/gin-template"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	multierror "github.com/hashicorp/go-multierror"
 
 	"github.com/macarrie/flemzerd/configuration"
 	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
@@ -76,9 +77,24 @@ func initRouter() {
 
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/config", func(c *gin.Context) {
-			c.JSON(http.StatusOK, configuration.Config)
-		})
+		configRoute := v1.Group("/config")
+		{
+			configRoute.GET("/", func(c *gin.Context) {
+				c.JSON(http.StatusOK, configuration.Config)
+			})
+			configRoute.GET("/check", func(c *gin.Context) {
+				if err := configuration.Check(); err != nil {
+					if multierr, ok := err.(*multierror.Error); ok {
+						c.JSON(http.StatusOK, multierr.Errors)
+						return
+					}
+					c.JSON(http.StatusOK, gin.H{})
+					return
+				}
+				c.JSON(http.StatusOK, gin.H{})
+				return
+			})
+		}
 
 		v1.GET("/stats", stats.Handler())
 

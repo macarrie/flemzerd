@@ -50,6 +50,7 @@ func Reset() {
 func GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
 	var torrentList []Torrent
 	var errorList *multierror.Error
+	var totalError bool = true
 
 	for _, indexer := range indexersCollection {
 		indexerSearch, err := indexer.GetTorrents(d)
@@ -60,6 +61,8 @@ func GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
 			}).Warning("Couldn't get torrents from indexer")
 			errorList = multierror.Append(errorList, err)
 			continue
+		} else {
+			totalError = false
 		}
 
 		if len(indexerSearch) != 0 {
@@ -86,7 +89,11 @@ func GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
 		torrentList = FilterEpisodeTorrents(*d.(*Episode), torrentList)
 	}
 
-	return torrentList, errorList.ErrorOrNil()
+	if totalError {
+		return torrentList, errorList.ErrorOrNil()
+	}
+
+	return torrentList, nil
 }
 
 func FilterEpisodeTorrents(episode Episode, torrentList []Torrent) []Torrent {

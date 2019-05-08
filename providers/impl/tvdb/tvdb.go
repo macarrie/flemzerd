@@ -67,7 +67,7 @@ func New(apiKey string, order string) (tvdbProvider *TVDBProvider, err error) {
 func (tvdbProvider *TVDBProvider) Status() (Module, error) {
 	log.Debug("Checking TVDB provider status")
 
-	if configuration.TELEGRAM_BOT_TOKEN == "" {
+	if configuration.TVDB_API_KEY == "" {
 		module.Status.Alive = false
 		module.Status.Message = "TVDB API key not found"
 		return module, errors.New(module.Status.Message)
