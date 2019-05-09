@@ -215,16 +215,16 @@ func NotifyTorrentsNotFound(d downloadable.Downloadable) error {
 		return nil
 	}
 
+	downloadingItem.TorrentsNotFound = true
+	d.SetDownloadingItem(downloadingItem)
+	db.SaveDownloadable(&d)
+
 	if err := SendNotification(notification); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Warning("Could not send 'no torrents found' notification")
-	} else {
-		downloadingItem.TorrentsNotFound = true
+		return errors.Wrap(err, "Errors detected when sending notification")
 	}
-
-	d.SetDownloadingItem(downloadingItem)
-	db.SaveDownloadable(&d)
 
 	return nil
 }
