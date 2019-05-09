@@ -226,7 +226,7 @@ func TestDownloadMedia(t *testing.T) {
 	Download(&movie, false)
 
 	db.Client.Find(&movie, movie.ID)
-	if !movie.DownloadingItem.Pending || movie.DownloadingItem.Downloading {
+	if !movie.DownloadingItem.TorrentsNotFound || movie.DownloadingItem.Downloading || movie.DownloadingItem.Pending {
 		t.Error("Expected download to fail because no torrent can be requested")
 	}
 
@@ -466,6 +466,7 @@ func TestRecovery(t *testing.T) {
 
 func TestDownloadDelay(t *testing.T) {
 	db.ResetDb()
+
 	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)
 	downloader.MovieDownloadRoutines = make(map[uint]downloader.ContextStorage)
 

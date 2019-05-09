@@ -8,7 +8,7 @@ import (
 
 	log "github.com/macarrie/flemzerd/logging"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
@@ -171,12 +171,12 @@ func Check() error {
 	if traktWatchlist {
 		if TRAKT_CLIENT_SECRET == "" {
 			configError = ConfigurationError{
-				Status:  WARNING,
+				Status:  CRITICAL,
 				Message: "No client secret defined for trakt watchlist. Set FLZ_TRAKT_CLIENT_SECRET env var",
 			}
 			log.WithFields(log.Fields{
 				"error": configError,
-			}).Warning("Configuration warning")
+			}).Error("Configuration error")
 			errorList = multierror.Append(errorList, configError)
 		}
 	}
