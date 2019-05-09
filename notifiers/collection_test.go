@@ -323,6 +323,77 @@ func TestNotifyDownloadStart(t *testing.T) {
 	}
 }
 
+func TestNotifiyTorrentsNotFound(t *testing.T) {
+	db.ResetDb()
+	notifiersCollection = []Notifier{}
+	n := mock.Notifier{}
+	AddNotifier(n)
+
+	show := TvShow{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Title:         "Test TVShow",
+		OriginalTitle: "Test TVShow",
+	}
+
+	episode := Episode{
+		Model: gorm.Model{
+			ID: 30,
+		},
+		TvShow: show,
+		Season: 3,
+		Number: 4,
+		Title:  "Test Episode S03E04",
+		Date:   time.Now(),
+	}
+
+	movie := Movie{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+	}
+
+	count := n.GetNotificationCount()
+	NotifyTorrentsNotFound(&episode)
+	if n.GetNotificationCount() != count+1 {
+		t.Error("Expected notification to be sent when notifying torrents not found")
+	}
+
+	count = n.GetNotificationCount()
+	NotifyTorrentsNotFound(&movie)
+	if n.GetNotificationCount() != count+1 {
+		t.Error("Expected notification to be sent when notifying torrents not found")
+	}
+
+	configuration.Config.Notifications.NotifyFailure = false
+	count = n.GetNotificationCount()
+	NotifyTorrentsNotFound(&episode)
+	if n.GetNotificationCount() != count {
+		t.Error("Expected notification not to be sent when notifying notify torrents not found because of configuration params")
+	}
+
+	count = n.GetNotificationCount()
+	NotifyTorrentsNotFound(&movie)
+	if n.GetNotificationCount() != count {
+		t.Error("Expected notification not to be sent when notifying torrents not found because of configuration params")
+	}
+
+	configuration.Config.Notifications.NotifyFailure = true
+	notifiersCollection = []Notifier{mock.ErrorNotifier{}}
+	err := NotifyTorrentsNotFound(&episode)
+	if err == nil {
+		t.Error("Expected error when notifying torrents not found with mock.ErrorNotifier")
+	}
+
+	err = NotifyTorrentsNotFound(&movie)
+	if err == nil {
+		t.Error("Expected error when notifying torrents not found with mock.ErrorNotifier")
+	}
+}
+
 func TestGetNotifier(t *testing.T) {
 	notifiersCollection = []Notifier{mock.Notifier{}}
 

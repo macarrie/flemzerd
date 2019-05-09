@@ -37,8 +37,14 @@ func getTelegramChatID(c *gin.Context) {
 	}
 
 	t := n.(*telegram.TelegramNotifier)
+	var chatID int64
+	if t != nil {
+		chatID = t.ChatID
+	} else {
+		chatID = 0
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"chat_id": t.ChatID,
+		"chat_id": chatID,
 	})
 }
 

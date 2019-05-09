@@ -13,7 +13,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
-	downloadable "github.com/macarrie/flemzerd/downloadable"
+	"github.com/macarrie/flemzerd/downloadable"
 )
 
 // Client represents gorm database connection
@@ -41,6 +41,7 @@ func ResetDb() {
 	Client.DropTable(&MediaIds{})
 	Client.DropTable(&Torrent{})
 	Client.DropTable(&DownloadingItem{})
+	Client.DropTable(&Notification{})
 	InitDb()
 }
 
