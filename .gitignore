@@ -6,6 +6,7 @@ tmp/
 flemzerd
 server/ui/node_modules
 install/vidocq
+cover/
 
 ### Intellij IDEA
 .idea/
