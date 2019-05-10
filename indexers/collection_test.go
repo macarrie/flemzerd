@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
-	mock "github.com/macarrie/flemzerd/mocks"
+	"github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
 )
@@ -67,6 +67,7 @@ func TestGetTorrentForEpisode(t *testing.T) {
 
 	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
 	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
+	configuration.Config.System.StrictTorrentCheck = false
 	episode := Episode{
 		Season: 1,
 		Number: 1,
@@ -125,16 +126,42 @@ func TestGetTorrentForEpisode(t *testing.T) {
 		return
 	}
 
+	// Get torrent when vidocq is available and strict checking enabled
+	episode.Season = 1
+	episode.Number = 1
+	episode.TvShow.IsAnime = false
+	vidocq.LocalVidocqAvailable = true
+	configuration.Config.System.StrictTorrentCheck = true
+	torrentList, _ = GetTorrents(&episode)
+	if len(torrentList) != 6 {
+		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
+		return
+	}
+
+	// Get torrent when vidocq is not available and strict checking enabled
+	episode.Season = 1
+	episode.Number = 1
+	episode.TvShow.IsAnime = false
+	vidocq.LocalVidocqAvailable = false
+	configuration.Config.System.StrictTorrentCheck = true
+	torrentList, _ = GetTorrents(&episode)
+	if len(torrentList) != 0 {
+		t.Errorf("Expected 0 torrents, got %d instead\n", len(torrentList))
+		return
+	}
+
 	//Get torrents with filters disabled
 	configuration.Config.System.PreferredMediaQuality = ""
 	configuration.Config.System.ExcludedReleaseTypes = ""
 	vidocq.LocalVidocqAvailable = true
+	configuration.Config.System.StrictTorrentCheck = false
 	torrentList, _ = GetTorrents(&episode)
 
 	if len(torrentList) != 8 {
 		t.Errorf("Expected 6 torrents, got %d instead\n", len(torrentList))
 		return
 	}
+
 }
 
 func TestGetTorrentForMovie(t *testing.T) {
@@ -144,6 +171,7 @@ func TestGetTorrentForMovie(t *testing.T) {
 	ind4 := mock.MovieIndexer{}
 	configuration.Config.System.PreferredMediaQuality = "720p,1080p"
 	configuration.Config.System.ExcludedReleaseTypes = "cam,screener,telesync,telecine"
+	configuration.Config.System.StrictTorrentCheck = false
 	vidocq.LocalVidocqAvailable = true
 
 	movieDate := time.Date(2018, time.January, 10, 13, 0, 0, 0, time.UTC)
@@ -192,10 +220,35 @@ func TestGetTorrentForMovie(t *testing.T) {
 		t.Errorf("Expected 14 torrents when vidocq is not available, got %d instead\n", len(torrentList))
 	}
 
+	// Get torrent when vidocq is available and strict checking enabled
+	vidocq.LocalVidocqAvailable = true
+	configuration.Config.System.StrictTorrentCheck = true
+	torrentList, _ = GetTorrents(&Movie{
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+		Date:          movieDate,
+	})
+	if len(torrentList) != 6 {
+		t.Errorf("Expected 6 torrents when vidocq is available and strict checking enabled, got %d instead\n", len(torrentList))
+	}
+
+	// Get torrent when vidocq is not available and strict checking enabled
+	vidocq.LocalVidocqAvailable = false
+	configuration.Config.System.StrictTorrentCheck = true
+	torrentList, _ = GetTorrents(&Movie{
+		Title:         "Test movie",
+		OriginalTitle: "Test movie",
+		Date:          movieDate,
+	})
+	if len(torrentList) != 0 {
+		t.Errorf("Expected 0 torrents when vidocq is not available, got %d instead\n", len(torrentList))
+	}
+
 	//Get torrents with no filters
 	configuration.Config.System.PreferredMediaQuality = ""
 	configuration.Config.System.ExcludedReleaseTypes = ""
 	vidocq.LocalVidocqAvailable = true
+	configuration.Config.System.StrictTorrentCheck = false
 	torrentList, _ = GetTorrents(&Movie{
 		Title:         "Test movie",
 		OriginalTitle: "Test movie",

@@ -109,6 +109,7 @@ type Configuration struct {
 		MovieDownloadDelay           int    `mapstructure:"movie_download_delay"`
 		PreferredMediaQuality        string `mapstructure:"preferred_media_quality"`
 		ExcludedReleaseTypes         string `mapstructure:"excluded_release_types"`
+		StrictTorrentCheck           bool   `mapstructure:"strict_torrent_check"`
 	}
 	Library struct {
 		ShowPath      string `mapstructure:"show_path"`
@@ -143,6 +144,7 @@ func setDefaultValues() {
 	viper.SetDefault("system.movie_download_delay", 7)
 	viper.SetDefault("system.preferred_media_quality", "720p")
 	viper.SetDefault("system.excluded_release_types", "cam,screener,telesync,telecine")
+	viper.SetDefault("system.strict_torrent_check", true)
 }
 
 func UseFile(filePath string) {
