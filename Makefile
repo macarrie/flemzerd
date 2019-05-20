@@ -19,7 +19,7 @@ MAKEFLAGS += --silent
 all: help
 server/ui/node_modules:
 	@echo " > Installing npm modules"
-	@cd server/ui && npm install
+	@cd server/ui && npm --unsafe-perm install
 	@cd server/ui && npm install --save-dev webpack
 	echo -e "\tNPM modules installed"
 
