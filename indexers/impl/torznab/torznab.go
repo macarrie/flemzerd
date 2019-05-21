@@ -111,78 +111,6 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 	return returnStruct, nil
 }
 
-func (torznabIndexer TorznabIndexer) GetTorrentForEpisode(episode Episode) ([]Torrent, error) {
-	baseURL := torznabIndexer.Url
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	httpClient := &http.Client{
-		Transport: tr,
-		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
-	}
-
-	urlObject, _ := url.ParseRequestURI(baseURL)
-
-	var request *http.Request
-
-	params := url.Values{}
-	params.Add("apikey", torznabIndexer.ApiKey)
-	params.Add("t", "tvsearch")
-	if episode.TvShow.IsAnime {
-		params.Add("q", fmt.Sprintf("%v %v", episode.TvShow.GetTitle(), episode.AbsoluteNumber))
-	} else {
-		params.Add("q", episode.TvShow.GetTitle())
-		params.Add("season", strconv.Itoa(episode.Season))
-		params.Add("episode", strconv.Itoa(episode.Number))
-	}
-	urlObject.RawQuery = params.Encode()
-
-	request, err := http.NewRequest("GET", urlObject.String(), nil)
-	if err != nil {
-		return []Torrent{}, errors.Wrap(err, "error while constructing HTTP request to torznab indexer")
-	}
-	request.Close = true
-
-	response, err := httpClient.Do(request)
-	if err != nil {
-		return []Torrent{}, errors.Wrap(err, "error while performing HTTP request to torznab indexer")
-	}
-	defer response.Body.Close()
-
-	body, readError := ioutil.ReadAll(response.Body)
-	if readError != nil {
-		return []Torrent{}, errors.Wrap(readError, "error while reading HTTP result from torznab indexer request")
-	}
-
-	if len(body) == 0 {
-		return []Torrent{}, errors.New("Empty result")
-	}
-
-	var searchResults TorrentSearchResults
-	parseErr := xml.Unmarshal(body, &searchResults)
-	if parseErr != nil {
-		return []Torrent{}, errors.Wrap(parseErr, "cannot parse search results xml")
-	}
-
-	// Get seeders count for each torrent
-	var results []Torrent
-	for _, torrent := range searchResults.Torrents {
-		resultTorrent := convertTorrent(torrent)
-
-		for _, attr := range torrent.Attr {
-			if attr.Name == "seeders" {
-				seedersNb, _ := strconv.Atoi(attr.Value)
-				resultTorrent.Seeders = seedersNb
-			}
-		}
-
-		results = append(results, resultTorrent)
-	}
-
-	return results, nil
-}
-
 func (torznabIndexer TorznabIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
 	if !torznabIndexer.CheckCapabilities(d) {
 		d.GetLog().Info("Torznab indexer does not support torrent search for this item. Skipping")
@@ -212,7 +140,7 @@ func (torznabIndexer TorznabIndexer) GetTorrents(d downloadable.Downloadable) ([
 	case *Episode:
 		episode := *(d.(*Episode))
 		params.Add("t", "tvsearch")
-		if episode.TvShow.IsAnime {
+		if episode.TvShow.IsAnime && episode.AbsoluteNumber != 0 {
 			params.Add("q", fmt.Sprintf("%v %v", episode.TvShow.GetTitle(), episode.AbsoluteNumber))
 		} else {
 			params.Add("q", episode.TvShow.GetTitle())

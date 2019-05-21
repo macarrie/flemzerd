@@ -1,4 +1,4 @@
-import { Controller } from "stimulus"
+import {Controller} from "stimulus"
 
 export default class extends Controller {
     static get targets() {
@@ -67,4 +67,30 @@ export default class extends Controller {
         });
     }
 
+    treatAsRegularShow() {
+        this.changeAnimeState(false);
+    }
+
+    treatAsAnime() {
+        this.changeAnimeState(true);
+    }
+
+    changeAnimeState(state) {
+        fetch('/api/v1/tvshows/details/' + this.showId + '/change_anime_state', {
+            method: "PUT",
+            body: JSON.stringify({
+                IsAnime: state,
+            })
+        }).then(response => {
+            Turbolinks.visit(window.location, {action: "replace"});
+        }).catch(response => {
+            UIkit.notification({
+                message: 'Could not change anime status for show (error during request)',
+                status: 'danger',
+                pos: 'top-right',
+                timeout: 5000
+            });
+            console.log("Request error: ", response);
+        });
+    }
 }

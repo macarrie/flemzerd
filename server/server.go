@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	gintemplate "github.com/foolin/gin-template"
+	"github.com/foolin/gin-template"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/macarrie/flemzerd/configuration"
 	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
@@ -113,6 +113,7 @@ func initRouter() {
 			tvshowsRoute.PUT("/details/:id", updateShow)
 			tvshowsRoute.PUT("/details/:id/custom_title", changeTvshowCustomTitle)
 			tvshowsRoute.PUT("/details/:id/use_default_title", useTvshowDefaultTitle)
+			tvshowsRoute.PUT("/details/:id/change_anime_state", changeTvshowAnimeState)
 			tvshowsRoute.GET("/details/:id/seasons/:season_nb", getSeasonDetails)
 			tvshowsRoute.POST("/details/:id/seasons/:season_nb/download", downloadSeason)
 			tvshowsRoute.PUT("/details/:id/seasons/:season_nb/download_state", changeSeasonDownloadedState)
