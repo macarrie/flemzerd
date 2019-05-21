@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
-	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
 
@@ -109,6 +109,24 @@ func useTvshowDefaultTitle(c *gin.Context) {
 	c.BindJSON(&showFromRequest)
 
 	tvshow.UseDefaultTitle = showFromRequest.UseDefaultTitle
+	db.Client.Save(&tvshow)
+
+	c.JSON(http.StatusOK, tvshow)
+}
+
+func changeTvshowAnimeState(c *gin.Context) {
+	id := c.Param("id")
+	var tvshow TvShow
+	req := db.Client.Find(&tvshow, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	var showFromRequest TvShow
+	c.BindJSON(&showFromRequest)
+
+	tvshow.IsAnime = showFromRequest.IsAnime
 	db.Client.Save(&tvshow)
 
 	c.JSON(http.StatusOK, tvshow)

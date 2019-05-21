@@ -52,6 +52,24 @@
                     {{ end }}
                 {{ end }}
 
+                {{ if and (eq .type "tvshow") (not .item.DeletedAt) }}
+                    {{ if .item.IsAnime }}
+                    <a data-controller="{{ .type }}"
+                       data-action="click->{{ .type }}#treatAsRegularShow"
+                       data-{{ .type }}-id="{{ .item.ID }}">
+                        <span class="uk-icon uk-icon-link" uk-icon="icon: world; ratio: 0.75"></span>
+                        Treat as regular show
+                    </a>
+                    {{ else }}
+                    <a data-controller="{{ .type }}"
+                       data-action="click->{{ .type }}#treatAsAnime"
+                       data-{{ .type }}-id="{{ .item.ID }}">
+                        <span class="uk-icon uk-icon-link" uk-icon="icon: world; ratio: 0.75"></span>
+                        Treat as anime
+                    </a>
+                    {{ end }}
+                {{ end }}
+
                 {{ if .item.DeletedAt }}
                 <a (click)="restoreMovie(movie)"
                    data-controller="{{ .type }}"
