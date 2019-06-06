@@ -4,31 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	downloader "github.com/macarrie/flemzerd/downloaders"
-	indexer "github.com/macarrie/flemzerd/indexers"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	notifier "github.com/macarrie/flemzerd/notifiers"
-	provider "github.com/macarrie/flemzerd/providers"
-	watchlist "github.com/macarrie/flemzerd/watchlists"
-
-	. "github.com/macarrie/flemzerd/objects"
+	"github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/watchlists"
 )
-
-func getModulesStatus(c *gin.Context) {
-	var status []Module
-
-	providers, _ := provider.Status()
-	notifiers, _ := notifier.Status()
-	indexers, _ := indexer.Status()
-	downloaders, _ := downloader.Status()
-
-	status = append(status, providers...)
-	status = append(status, notifiers...)
-	status = append(status, indexers...)
-	status = append(status, downloaders...)
-
-	c.JSON(http.StatusOK, status)
-}
 
 func getProvidersStatus(c *gin.Context) {
 	mods, _ := provider.Status()
