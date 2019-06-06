@@ -6,18 +6,18 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	"github.com/macarrie/flemzerd/stats"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
-	indexer "github.com/macarrie/flemzerd/indexers"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	notifier "github.com/macarrie/flemzerd/notifiers"
-	provider "github.com/macarrie/flemzerd/providers"
-	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/watchlists"
 
 	log "github.com/macarrie/flemzerd/logging"
 
@@ -87,7 +87,7 @@ func ui_tvshow(c *gin.Context) {
 			epList, err := provider.GetSeasonEpisodeList(show, show.Seasons[i].SeasonNumber)
 			if err != nil {
 				log.WithFields(log.Fields{
-					"show":   show.OriginalTitle,
+					"show":   show.GetTitle(),
 					"season": show.Seasons[i].SeasonNumber,
 					"error":  err,
 				}).Warning("Encountered error when querying season details")

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/macarrie/flemzerd/configuration"
-	kodi_helper "github.com/macarrie/flemzerd/helpers/kodi"
+	"github.com/macarrie/flemzerd/helpers/kodi"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
@@ -122,10 +122,10 @@ func (k *KodiNotifier) Send(notif Notification) error {
 
 	case NOTIFICATION_NO_TORRENTS:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.OriginalTitle, notif.Episode.Season, notif.Episode.Number)
+			title = fmt.Sprintf("%v S%03dE%03d", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v", notif.Movie.OriginalTitle)
+			title = fmt.Sprintf("%v", notif.Movie.GetTitle())
 		}
 		content = "No torrents found"
 

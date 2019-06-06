@@ -151,7 +151,7 @@ func getSeasonDetails(c *gin.Context) {
 	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":   show.OriginalTitle,
+			"show":   show.GetTitle(),
 			"season": seasonNumber,
 			"error":  err,
 		}).Warning("Encountered error when querying season details from TMDB")
@@ -339,7 +339,7 @@ func changeSeasonDownloadedState(c *gin.Context) {
 	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"show":   show.OriginalTitle,
+			"show":   show.GetTitle(),
 			"season": seasonNumber,
 			"error":  err,
 		}).Warning("Encountered error when querying season details from TMDB")

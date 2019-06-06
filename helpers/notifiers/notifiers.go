@@ -55,12 +55,12 @@ func GetNotificationText(notif Notification) (notif_title, notif_content string,
 
 	case NOTIFICATION_NO_TORRENTS:
 		if notif.Episode.ID != 0 {
-			title = fmt.Sprintf("%v S%03dE%03d: No torrents found", notif.Episode.TvShow.OriginalTitle, notif.Episode.Season, notif.Episode.Number)
-			content = fmt.Sprintf("No torrents found. Try adding indexers or wait for torrents to be available in case of a recent release\n%v Season %03d Episode %03d: %v", notif.Episode.TvShow.OriginalTitle, notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
+			title = fmt.Sprintf("%v S%03dE%03d: No torrents found", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number)
+			content = fmt.Sprintf("No torrents found. Try adding indexers or wait for torrents to be available in case of a recent release\n%v Season %03d Episode %03d: %v", notif.Episode.TvShow.GetTitle(), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
 		}
 		if notif.Movie.ID != 0 {
-			title = fmt.Sprintf("%v: Movie download failed", notif.Movie.OriginalTitle)
-			content = fmt.Sprintf("Failed to download movie: %v", notif.Movie.OriginalTitle)
+			title = fmt.Sprintf("%v: Movie download failed", notif.Movie.GetTitle())
+			content = fmt.Sprintf("Failed to download movie: %v", notif.Movie.GetTitle())
 		}
 
 	default:
