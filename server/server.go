@@ -145,8 +145,6 @@ func initRouter() {
 
 		modules := v1.Group("/modules")
 		{
-			modules.GET("/status", getModulesStatus)
-
 			providers := modules.Group("/providers")
 			{
 				providers.GET("/status", getProvidersStatus)

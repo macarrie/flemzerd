@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/macarrie/flemzerd/downloadable"
 
@@ -26,17 +27,35 @@ func AddIndexer(indexer Indexer) {
 }
 
 func Status() ([]Module, error) {
-	var modList []Module
+	var modChan = make(chan Module, len(indexersCollection))
 	var errorList *multierror.Error
 
+	var wg sync.WaitGroup
+	var errorListMutex sync.Mutex
+
 	for _, indexer := range indexersCollection {
-		mod, indexerAliveError := indexer.Status()
-		if indexerAliveError != nil {
-			log.WithFields(log.Fields{
-				"error": indexerAliveError,
-			}).Warning("Indexer is not alive")
-			errorList = multierror.Append(errorList, indexerAliveError)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			mod, indexerAliveError := indexer.Status()
+			modChan <- mod
+			if indexerAliveError != nil {
+				log.WithFields(log.Fields{
+					"error": indexerAliveError,
+				}).Warning("Indexer is not alive")
+
+				errorListMutex.Lock()
+				errorList = multierror.Append(errorList, indexerAliveError)
+				errorListMutex.Unlock()
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(modChan)
+	var modList []Module
+	for mod := range modChan {
 		modList = append(modList, mod)
 	}
 
