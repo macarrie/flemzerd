@@ -33,9 +33,9 @@ func Status() ([]Module, error) {
 	var wg sync.WaitGroup
 	var errorListMutex sync.Mutex
 
-	for _, indexer := range indexersCollection {
+	for i, _ := range indexersCollection {
 		wg.Add(1)
-		go func() {
+		go func(indexer Indexer) {
 			defer wg.Done()
 
 			mod, indexerAliveError := indexer.Status()
@@ -49,7 +49,7 @@ func Status() ([]Module, error) {
 				errorList = multierror.Append(errorList, indexerAliveError)
 				errorListMutex.Unlock()
 			}
-		}()
+		}(indexersCollection[i])
 	}
 
 	wg.Wait()
