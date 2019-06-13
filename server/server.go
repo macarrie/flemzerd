@@ -3,17 +3,14 @@ package server
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
 	"time"
 
-	"github.com/foolin/gin-template"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/macarrie/flemzerd/configuration"
-	notifier_helper "github.com/macarrie/flemzerd/helpers/notifiers"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/stats"
 )
@@ -28,34 +25,10 @@ func init() {
 
 func initRouter() {
 	router = gin.Default()
-
-	router.HTMLRender = gintemplate.New(gintemplate.TemplateConfig{
-		Root:      "/var/lib/flemzerd/server/ui/templates",
-		Extension: ".tpl",
-		Master:    "layout/base",
-		Partials: []string{
-			"partials/movie_miniature",
-			"partials/tvshow_miniature",
-			"partials/module_status",
-			"partials/downloading_item",
-			"partials/notifications_list",
-			"partials/notification",
-			"partials/media_details_action_bar",
-			"partials/media_ids",
-		},
-		Funcs: template.FuncMap{
-			"isInFuture": func(date time.Time) bool {
-				return date.After(time.Now())
-			},
-			"getNotificationType": notifier_helper.GetNotificationType,
-		},
-		DisableCache: true,
-	})
-
 	router.Use(static.Serve("/static", static.LocalFile("/var/lib/flemzerd/server/ui/static", true)))
 
 	router.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusNotFound, "404", gin.H{})
+		c.File("/var/lib/flemzerd/server/ui/index.html")
 	})
 
 	routes := router.Group("/")
@@ -63,16 +36,6 @@ func initRouter() {
 		routes.GET("/", func(c *gin.Context) {
 			c.Redirect(http.StatusMovedPermanently, "/dashboard")
 		})
-
-		routes.GET("/dashboard", ui_dashboard)
-		routes.GET("/tvshows", ui_tvshows)
-		routes.GET("/tvshows/:id", ui_tvshow)
-		routes.GET("/episodes/:id", ui_episode)
-		routes.GET("/movies", ui_movies)
-		routes.GET("/movies/:id", ui_movie)
-		routes.GET("/status", ui_status)
-		routes.GET("/settings", ui_settings)
-		routes.GET("/notifications", ui_notifications)
 	}
 
 	v1 := router.Group("/api/v1")

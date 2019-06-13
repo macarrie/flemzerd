@@ -20,7 +20,6 @@ all: help
 server/ui/node_modules:
 	@echo " > Installing npm modules"
 	@cd server/ui && npm --unsafe-perm install
-	@cd server/ui && npm install --save-dev webpack
 	echo -e "\tNPM modules installed"
 
 ## webui: Build web interface and copy it into package folder
@@ -29,9 +28,9 @@ webui: server/ui/node_modules
 	echo -e "\tNode version: $$(node -v)"
 	echo -e "\tNPM version: $$(npm -v)"
 	mkdir -p package/$(PACKAGE_NAME)/ui/
-	cd server/ui && ./node_modules/node-sass/bin/node-sass --output-style compressed src/static/css/style.scss src/static/css/style.css
-	cd server/ui && ./node_modules/webpack/bin/webpack.js
-	cp -r server/ui/src/* package/$(PACKAGE_NAME)/ui/
+	#cd server/ui && ./node_modules/node-sass/bin/node-sass --output-style compressed src/static/css/style.scss src/static/css/style.css
+	cd server/ui && npm run build
+	cp -r server/ui/build/* package/$(PACKAGE_NAME)/ui/
 	echo -e "\tInterface build complete: package/$(PACKAGE_NAME)/ui/"
 
 tmp/vidocq:
