@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css?family=Alex+Brush');
+@import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,700,700i');
+@import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
+
+@import "vars.scss";
+@import "media.details.scss";
+@import "media.miniatures.scss";
+
+@import "uikit/src/scss/variables-theme.scss";
+@import "uikit/src/scss/mixins-theme.scss";
+
+$global-font-family: $content-font;
+
+@import "uikit/src/scss/uikit-theme.scss";
+
+// Overload
+///////////////////////////////
+///////////////////////////////
+
+h1, h2, h3, h4, h5, h6,
+.uk-h1, .uk-h2, .uk-h3, .uk-h4, .uk-h5, .uk-h6,
+.uk-heading-hero {
+    font-family: $font-header;
+    font-weight: 300;
+    margin-top: 30px;
+}
+
+button,
+.btn,
+.uk-label,
+.sans-serif {
+    font-family: $font-header !important;
+    font-weight: 400 !important;
+}
+
+.background-gradient {
+    background-image: linear-gradient(315deg, $primary -25%, $secondary 125%);
+}
+
+.title-gradient a {
+    color: transparent !important;
+    background-color: $primary;
+    background-image: linear-gradient(315deg, $primary -25%, $secondary 125%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+    background-color: $light;
+    color: $dark;
+}
+
+body {
+    font-family: $content-font;
+    font-weight: 400;
+    font-size: 16px;
+    overflow-x: hidden;
+    margin-bottom: 100px;
+}
+
+.material-icons.md-18 {
+    font-size: 18px;
+    position: relative;
+    top: 1px;
+}
+.material-icons.md-24 { font-size: 24px;  }
+.material-icons.md-36 { font-size: 36px;  }
+.material-icons.md-48 { font-size: 48px;  }
+
+a {
+    color: lighten($info, 10%);
+
+    &:hover  {
+        cursor: pointer;
+        color: $info;
+    }
+    i.material-icons {
+        font-size: 16px;
+        margin-right: 3px;
+        position: relative;
+        top: 3px;
+    }
+}
+
+hr {
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.doc_content {
+    font-size: 18px;
+
+    p, ul, pre {
+        margin-left: 15px;
+        max-width: 800px;
+    }
+
+    ul li {
+        margin-bottom: 10px;
+    }
+}
+
+blockquote {
+    border-left: 4px solid darken($light, 5%);
+    font-style: italic;
+    color: darken($light, 40%);
+}
+
+pre {
+    border-left: 4px solid $info;
+    background: #fff;
+    padding: 10px;
+}
+
+code {
+    font-size: 12px;
+}
+
+.img-thumbnail {
+    border-width: 2px;
+}
+
+div.toc_parent {
+    position: sticky;
+    top: 50px;
+    width: 100%;
+
+    .toc {
+        position: absolute;
+        right: 0;
+        max-width: 250px;
+        background: $light;
+        font-size: 16px;
+        padding-left: 20px;
+
+        ul, li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-left: 5px;
+            margin-top: 10px;
+        }
+    }
+}
+
+.abort-download-button {
+    width: 14px;
+}
+
+// Navbar
+///////////////////////////////
+///////////////////////////////
+
+.uk-navbar-container {
+    background: $light;
+    border-top: 3px solid $primary;
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    border-image-slice: 1;
+    font-family: $font-header;
+
+    a {
+        margin: 5px;
+    }
+
+    .uk-logo {
+        font-size: 50px !important;
+        line-height: 30px !important;
+        font-family: "Alex Brush";
+        margin-right: 30px;
+        padding-left: 15px;
+        padding-right: 15px;
+        color: transparent !important;
+        background-color: $primary;
+        background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+        background-clip: text;
+        -webkit-background-clip: text;
+    }
+
+    .notifications_counter {
+        span.uk-badge {
+            position: relative;
+            left: -12px;
+            top: -10px;
+            font-size: 10px;
+
+            background-color: $light;
+            color: $dark;
+            box-shadow: 0 0 2px $secondary;
+
+            &.alerted {
+                background-color: $secondary;
+                color: $light;
+                font-weight: bold !important;
+                box-shadow: none;
+            }
+        }
+
+        &.active {
+            background: darken($light, 10%);
+            border-radius: 4px;
+        }
+
+        &.configuration_errors_notification {
+            span.uk-badge {
+                position: relative;
+                left: -6px;
+
+                &.alerted {
+                    background-color: $danger !important;
+                }
+            }
+        }
+    }
+}
+
+.footer {
+    //position: absolute;
+    //bottom: 0;
+    width: 100%;
+
+    border-top: none;
+    border-bottom: 3px solid $primary;
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    border-image-slice: 1;
+}
+
+.footer, .topbar {
+    background: $light;
+}
+
+
+// Documentation index page
+///////////////////////////////
+///////////////////////////////
+
+.jumbotron-fluid {
+    background-color: transparent;
+    background-image: linear-gradient(315deg, rgba(191, 58, 48, .6) -25%, rgba($secondary, .6) 125%);
+}
+
+// Notifications
+///////////////////////////////
+///////////////////////////////
+
+.notif-icon {
+    width: 20px;
+    padding-right: 10px;
+
+    div {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    &.ok div {
+        background: $success;
+    }
+
+    &.warning div {
+        background: $warning;
+    }
+
+    &.critical div {
+        background: $danger;
+    }
+
+    &.unknown div {
+        background: darken($light, 25%);
+    }
+
+    &.info div {
+        background: $info;
+    }
+}
+
+
+table.notification-table {
+    blockquote {
+        font-size: 1em;
+        padding-left: 5px;
+        margin-bottom: 0px;
+    }
+
+    &.notification_read {
+        opacity: 0.4;
+        color: lighten($dark, 40%);
+        font-style: italic;
+
+        &:hover {
+            opacity: 1;
+            color: $dark;
+            font-style: normal;
+        }
+    }
+    
+    .notification_action_button {
+        display: block;
+        width: 25px
+    }
+}
+
+// Inline edit component
+///////////////////////////////
+///////////////////////////////
+
+.inlineedit {
+    input[type=text] {
+        background: transparent;
+        border: none;
+    }
+
+    button {
+        padding: 0 10px;
+
+        &.submit {
+            border: 2px solid $success;
+            color: $success;
+        }
+
+        &.cancel {
+            border: 2px solid $danger;
+            color: $danger;
+        }
+    }
+}
+
+.configuration-error-status {
+    min-width: 75px;
+    text-align: center;
+}

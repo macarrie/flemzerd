@@ -5,8 +5,10 @@ vendor/
 tmp/
 flemzerd
 server/ui/node_modules
+server/ui/build
 install/vidocq
 cover/
+package/
 
 ### Intellij IDEA
 .idea/
