@@ -159,7 +159,7 @@ div.toc_parent {
     border-image-slice: 1;
     font-family: $font-header;
 
-    a {
+    a, button {
         margin: 5px;
     }
 
@@ -178,6 +178,9 @@ div.toc_parent {
     }
 
     .notifications_counter {
+        background: none;
+        border: none;
+
         span.uk-badge {
             position: relative;
             left: -12px;

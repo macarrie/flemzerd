@@ -1,10 +1,19 @@
 import React from "react";
+import { Route } from "react-router-dom";
 
 import API from "../utils/api";
-import Helpers from "../utils/helpers";
+//import Helpers from "../utils/helpers";
 
 import MovieMiniature from "./movie_miniature";
 
+class MovieDetails extends React.Component {
+    render() {
+        const match = this.props.match;
+        return (
+            <div>Movie details {match.params.id}</div>
+        );
+    }
+}
 
 class Movies extends React.Component {
     state = {
@@ -14,38 +23,44 @@ class Movies extends React.Component {
         downloading: [],
     };
 
-    getMovies() {
-        console.log("Get Movies");
-        API.Movies.tracked().then(response => {
-            this.setState({tracked: response.data});
-        }).catch(error => {
-            console.log("GetMovies error: ", error);
-        });
+    constructor(props) {
+        super(props);
 
-        API.Movies.downloading().then(response => {
-            this.setState({downloading: response.data});
-        }).catch(error => {
-            console.log("GetMovies error: ", error);
-        });
-
-        API.Movies.downloaded().then(response => {
-            this.setState({downloaded: response.data});
-        }).catch(error => {
-            console.log("GetMovies error: ", error);
-        });
-
-        API.Movies.removed().then(response => {
-            this.setState({removed: response.data});
-        }).catch(error => {
-            console.log("GetMovies error: ", error);
-        });
+        this.renderMovieList = this.renderMovieList.bind(this);
     }
 
     componentDidMount() {
         this.getMovies();
     }
 
-    render() {
+    getMovies() {
+        console.log("Get Movies");
+        API.Movies.tracked().then(response => {
+            this.setState({tracked: response.data});
+        }).catch(error => {
+            console.log("Get tracked movies error: ", error);
+        });
+
+        API.Movies.downloading().then(response => {
+            this.setState({downloading: response.data});
+        }).catch(error => {
+            console.log("Get downloading movies error: ", error);
+        });
+
+        API.Movies.downloaded().then(response => {
+            this.setState({downloaded: response.data});
+        }).catch(error => {
+            console.log("Get downloaded movies error: ", error);
+        });
+
+        API.Movies.removed().then(response => {
+            this.setState({removed: response.data});
+        }).catch(error => {
+            console.log("Get removed movies error: ", error);
+        });
+    }
+
+    renderMovieList() {
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
                 <div className="uk-grid" data-uk-grid>
@@ -54,32 +69,32 @@ class Movies extends React.Component {
                     </div>
                     <ul className="uk-subnav uk-subnav-pill">
                         <li className="uk-visible@s uk-active" data-uk-filter-control="">
-                            <a href="">
+                            <button className="uk-button uk-button-text">
                                 All
-                            </a>
+                            </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .tracked-movie">
-                            <a href="">
+                            <button className="uk-button uk-button-text">
                                 Tracked
-                            </a>
+                            </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .future-movie">
-                            <a href="">
+                            <button className="uk-button uk-button-text">
                                 Future
-                            </a>
+                            </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .downloaded-movie">
-                            <a href="">
+                            <button className="uk-button uk-button-text">
                                 Downloaded
-                            </a>
+                            </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .removed-movie">
-                            <a href="">
+                            <button className="uk-button uk-button-text">
                                 Removed
-                            </a>
+                            </button>
                         </li>
                         <li>
-                            <a>
+                            <button className="uk-button uk-button-text">
                                 <div className="uk-flex uk-flex-middle">
                                     <div className="uk-float-left">
                                         <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
@@ -94,10 +109,10 @@ class Movies extends React.Component {
                                         <i>Checking</i>
                                     </div>
                                 </div>
-                            </a>
+                            </button>
                         </li>
                         <li>
-                            <a>
+                            <button className="uk-button uk-button-text">
                                 <div>
                                     <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
                                     Refresh
@@ -106,7 +121,7 @@ class Movies extends React.Component {
                                     <div data-uk-spinner="ratio: 0.5"></div>
                                     <i>Refreshing</i>
                                 </div>
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -140,6 +155,19 @@ class Movies extends React.Component {
                 </div>
             </div>
         )
+    }
+
+    render() {
+        const match = this.props.match;
+
+        return (
+            <>
+                <Route path={`${match.path}/:id`} component={MovieDetails} />
+                <Route exact
+                       path={match.path}
+                       render={this.renderMovieList} />
+            </>
+        );
     }
 }
 

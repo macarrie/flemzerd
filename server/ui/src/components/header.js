@@ -33,7 +33,7 @@ function Header() {
                     <ul className="uk-navbar-nav">
                         <li data-controller="notifications-watcher"
                             data-notifications-watcher-refresh-interval="15">
-                            <a type="button"
+                            <button type="button"
                                 className="notifications_counter"
                                 href="/notifications">
                                 <span data-uk-icon="bell"></span>
@@ -41,14 +41,14 @@ function Header() {
                                     data-target="notifications-watcher.counter">
                                     0
                                 </span>
-                            </a>
+                            </button>
                             <div className="uk-width-large" data-uk-drop>
                                 <div className="uk-box-shadow-medium"
                                     data-target="notifications-watcher.popup">Loading notifications</div>
                             </div>
                         </li>
                         <li>
-                            <a className="uk-icon-link uk-hidden@m" data-uk-icon="menu" data-uk-toggle="target: #offcanvas-nav-primary"></a>
+                            <button className="uk-icon-link uk-hidden@m" data-uk-icon="menu" data-uk-toggle="target: #offcanvas-nav-primary"></button>
                         </li>
                     </ul>
                 </div>
