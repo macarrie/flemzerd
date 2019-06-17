@@ -35,4 +35,36 @@ export default class API {
             });
         },
     };
+    static Modules = {
+        Watchlists: {
+            status: function() {
+                return axios.get('/modules/watchlists/status');
+            }
+        },
+        Providers: {
+            status: function() {
+                return axios.get('/modules/providers/status');
+            }
+        },
+        Notifiers: {
+            status: function() {
+                return axios.get('/modules/notifiers/status');
+            }
+        },
+        Indexers: {
+            status: function() {
+                return axios.get('/modules/indexers/status');
+            }
+        },
+        Downloaders: {
+            status: function() {
+                return axios.get('/modules/downloaders/status');
+            }
+        },
+        Mediacenters: {
+            status: function() {
+                return axios.get('/modules/mediacenters/status');
+            }
+        }
+    }
 }
