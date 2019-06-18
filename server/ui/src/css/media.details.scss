@@ -67,6 +67,8 @@
         border: none;
         font-size: 12px;
         font-family: $font-header;
+        vertical-align: unset;
+        color: $light !important;
 
         i {
             margin-right: 5px;

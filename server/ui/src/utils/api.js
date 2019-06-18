@@ -29,11 +29,49 @@ export default class API {
         download: function(id) {
             return axios.post('/movies/details/' + id + '/download');
         },
+        abortDownload: function(id) {
+            return axios.delete('/movies/details/' + id + '/download');
+        },
         changeDownloadedState: function(id, downloaded_state) {
             return axios.put('/movies/details/' + id + '/download_state', {
                 Downloaded: downloaded_state,
             });
         },
+        changeCustomTitle: function(id, customTitle) {
+            return axios.put('/movies/details/' + id + '/custom_title', {
+                CustomTitle: customTitle,
+            });
+        },
+        useDefaultTitle: function(id, useDefaultTitleBool) {
+            return axios.put('/movies/details/' + id + '/use_default_title', {
+                UseDefaultTitle: useDefaultTitleBool,
+            });
+        }
+    };
+
+    static Fanart = {
+        FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
+        FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",
+        fanart_params: {
+            "params": {
+                "api_key": this.FANART_TV_KEY
+            }
+        },
+
+        getTvShowFanart: function(show) {
+            return axios.get(this.FANART_BASE_URL + "tv/" + show.MediaIds.Tvdb, {
+                params: {
+                    "api_key": this.FANART_TV_KEY
+                }
+            });
+        },
+        getMovieFanart: function(movie) {
+            return axios.get(this.FANART_BASE_URL + "movies/" + movie.MediaIds.Tmdb, {
+                params: {
+                    "api_key": this.FANART_TV_KEY
+                }
+            });
+        }
     };
     static Modules = {
         Watchlists: {

@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import API from "../utils/api";
-import Helpers from "../utils/helpers";
+import API from "../../utils/api";
+import Helpers from "../../utils/helpers";
 
 class MovieMiniature extends React.Component {
     constructor(props) {

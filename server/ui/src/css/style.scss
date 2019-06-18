@@ -312,20 +312,6 @@ table.notification-table {
         background: transparent;
         border: none;
     }
-
-    button {
-        padding: 0 10px;
-
-        &.submit {
-            border: 2px solid $success;
-            color: $success;
-        }
-
-        &.cancel {
-            border: 2px solid $danger;
-            color: $danger;
-        }
-    }
 }
 
 .configuration-error-status {

@@ -1,19 +1,11 @@
 import React from "react";
 import { Route } from "react-router-dom";
 
-import API from "../utils/api";
+import API from "../../utils/api";
 //import Helpers from "../utils/helpers";
 
 import MovieMiniature from "./movie_miniature";
-
-class MovieDetails extends React.Component {
-    render() {
-        const match = this.props.match;
-        return (
-            <div>Movie details {match.params.id}</div>
-        );
-    }
-}
+import MovieDetails from "./movie_details";
 
 class Movies extends React.Component {
     state = {
@@ -34,7 +26,6 @@ class Movies extends React.Component {
     }
 
     getMovies() {
-        console.log("Get Movies");
         API.Movies.tracked().then(response => {
             this.setState({tracked: response.data});
         }).catch(error => {
