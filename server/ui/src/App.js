@@ -7,7 +7,7 @@ import "./css/style.scss";
 import Header from './components/header';
 import Dashboard from './components/dashboard';
 import Movies from './components/movies/index';
-import TvShows from './components/tvshows';
+import TvShows from './components/tvshows/index';
 import Status from './components/status';
 import Settings from './components/settings';
 

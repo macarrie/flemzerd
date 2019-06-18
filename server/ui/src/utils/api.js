@@ -49,6 +49,15 @@ export default class API {
         }
     };
 
+    static Shows = {
+        tracked: function() {
+            return axios.get('/tvshows/tracked');
+        },
+        removed: function() {
+            return axios.get('/tvshows/removed');
+        }
+    };
+
     static Fanart = {
         FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
         FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",

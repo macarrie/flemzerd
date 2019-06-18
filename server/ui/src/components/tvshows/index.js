@@ -3,59 +3,46 @@ import { Route } from "react-router-dom";
 
 import API from "../../utils/api";
 
-import MovieMiniature from "./movie_miniature";
-import MovieDetails from "./movie_details";
+import MediaMiniature from "../media_miniature";
+import MovieDetails from "./tvshow_details";
 
-class Movies extends React.Component {
+class TvShows extends React.Component {
     state = {
         tracked: [],
         removed: [],
-        downloaded: [],
-        downloading: [],
     };
 
     constructor(props) {
         super(props);
 
-        this.renderMovieList = this.renderMovieList.bind(this);
+        this.renderShowList = this.renderShowList.bind(this);
     }
 
     componentDidMount() {
-        this.getMovies();
+        this.getShows();
     }
 
-    getMovies() {
-        API.Movies.tracked().then(response => {
+    getShows() {
+        API.Shows.tracked().then(response => {
+            console.log("Tracked tvshows: ", response.data);
             this.setState({tracked: response.data});
         }).catch(error => {
-            console.log("Get tracked movies error: ", error);
+            console.log("Get tracked shows error: ", error);
         });
 
-        API.Movies.downloading().then(response => {
-            this.setState({downloading: response.data});
-        }).catch(error => {
-            console.log("Get downloading movies error: ", error);
-        });
-
-        API.Movies.downloaded().then(response => {
-            this.setState({downloaded: response.data});
-        }).catch(error => {
-            console.log("Get downloaded movies error: ", error);
-        });
-
-        API.Movies.removed().then(response => {
+        API.Shows.removed().then(response => {
             this.setState({removed: response.data});
         }).catch(error => {
-            console.log("Get removed movies error: ", error);
+            console.log("Get removed shows error: ", error);
         });
     }
 
-    renderMovieList() {
+    renderShowList() {
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
                 <div className="uk-grid" data-uk-grid>
                     <div className="uk-width-expand">
-                        <span className="uk-h3">Movies</span>
+                        <span className="uk-h3">TvShows</span>
                     </div>
                     <ul className="uk-subnav uk-subnav-pill">
                         <li className="uk-visible@s uk-active" data-uk-filter-control="">
@@ -63,22 +50,12 @@ class Movies extends React.Component {
                                 All
                             </button>
                         </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .tracked-movie">
+                        <li className="uk-visible@s" data-uk-filter-control="filter: .tracked-show">
                             <button className="uk-button uk-button-text">
                                 Tracked
                             </button>
                         </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .future-movie">
-                            <button className="uk-button uk-button-text">
-                                Future
-                            </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .downloaded-movie">
-                            <button className="uk-button uk-button-text">
-                                Downloaded
-                            </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .removed-movie">
+                        <li className="uk-visible@s" data-uk-filter-control="filter: .removed-show">
                             <button className="uk-button uk-button-text">
                                 Removed
                             </button>
@@ -118,27 +95,15 @@ class Movies extends React.Component {
                 <hr />
 
                 <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
-                    {this.state.downloading ? (
-                        this.state.downloading.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
                     {this.state.tracked ? (
-                        this.state.tracked.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
-                    {this.state.downloaded ? (
-                        this.state.downloaded.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
+                        this.state.tracked.map(show => (
+                            <MediaMiniature key={show.ID} item={show} type="tvshow" />
                         ))
                     ) : ""
                     }
                     {this.state.removed ? (
-                        this.state.removed.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
+                        this.state.removed.map(show => (
+                            <MediaMiniature key={show.ID} item={show} type="tvshow" />
                         ))
                     ) : ""
                     }
@@ -155,10 +120,10 @@ class Movies extends React.Component {
                 <Route path={`${match.path}/:id`} component={MovieDetails} />
                 <Route exact
                        path={match.path}
-                       render={this.renderMovieList} />
+                       render={this.renderShowList} />
             </>
         );
     }
 }
 
-export default Movies;
+export default TvShows;

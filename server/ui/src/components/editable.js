@@ -20,18 +20,17 @@ class Editable extends React.Component {
     }
 
     handleFocus() {
-        //if (this.state.isEditing) {
-            //console.log("Is Editing: exiting focus");
-            //if (typeof this.props.onFocusOut === "function") {
-                //this.props.onFocusOut(this.state.value);
-            //}
-            //this.setState({isEditing: false});
-        //} else {
-            //if (typeof this.props.onFocus === "function") {
-                //this.props.onFocus(this.state.value);
-            //}
-            //this.setState({isEditing: true});
-        //}
+        if (this.state.isEditing) {
+            if (typeof this.props.onFocusOut === "function") {
+                this.props.onFocusOut(this.state.value);
+            }
+            this.setState({isEditing: false});
+        } else {
+            if (typeof this.props.onFocus === "function") {
+                this.props.onFocus(this.state.value);
+            }
+            this.setState({isEditing: true});
+        }
     }
 
     handleChange(event) {
@@ -53,18 +52,10 @@ class Editable extends React.Component {
         }
 
         return (
-            <>
             <label
                 onClick={this.handleFocus}>
                 {this.state.value}
             </label>
-                <input type="text"
-                    value={this.state.value}
-                    onBlur={this.handleFocus}
-                    onChange={this.handleChange}
-                    className={this.props.editingClassName}
-                    autoFocus />
-            </>
         )
     }
 }
