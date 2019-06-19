@@ -45,6 +45,7 @@ func initRouter() {
 			configRoute.GET("/", func(c *gin.Context) {
 				c.JSON(http.StatusOK, configuration.Config)
 			})
+
 			configRoute.GET("/check", func(c *gin.Context) {
 				if err := configuration.Check(); err != nil {
 					if multierr, ok := err.(*multierror.Error); ok {

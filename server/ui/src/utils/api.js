@@ -3,6 +3,12 @@ import axios from "axios";
 axios.defaults.baseURL = "/api/v1/";
 
 export default class API {
+    static Config = {
+        get: function() {
+            return axios.get('/config');
+        }
+    };
+
     static Movies = {
         tracked: function() {
             return axios.get('/movies/tracked');
