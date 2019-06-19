@@ -55,6 +55,37 @@ export default class API {
         },
         removed: function() {
             return axios.get('/tvshows/removed');
+        },
+
+        get: function(id) {
+            return axios.get('/tvshows/details/' + id);
+        },
+        delete: function(id) {
+            return axios.delete('/tvshows/details/' + id);
+        },
+        restore: function(id) {
+            return axios.post('/tvshows/restore/' + id);
+        },
+        download: function(id) {
+            return axios.post('/tvshows/details/' + id + '/download');
+        },
+        abortDownload: function(id) {
+            return axios.delete('/tvshows/details/' + id + '/download');
+        },
+        changeDownloadedState: function(id, downloaded_state) {
+            return axios.put('/tvshows/details/' + id + '/download_state', {
+                Downloaded: downloaded_state,
+            });
+        },
+        changeCustomTitle: function(id, customTitle) {
+            return axios.put('/tvshows/details/' + id + '/custom_title', {
+                CustomTitle: customTitle,
+            });
+        },
+        useDefaultTitle: function(id, useDefaultTitleBool) {
+            return axios.put('/tvshows/details/' + id + '/use_default_title', {
+                UseDefaultTitle: useDefaultTitleBool,
+            });
         }
     };
 

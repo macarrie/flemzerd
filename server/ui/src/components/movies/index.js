@@ -3,8 +3,9 @@ import { Route } from "react-router-dom";
 
 import API from "../../utils/api";
 
-import MovieMiniature from "./movie_miniature";
+import MediaMiniature from "../media_miniature";
 import MovieDetails from "./movie_details";
+import DownloadingItemTable from "../downloading_items_table";
 
 class Movies extends React.Component {
     state = {
@@ -17,6 +18,7 @@ class Movies extends React.Component {
     constructor(props) {
         super(props);
 
+        this.renderDownloadingList = this.renderDownloadingList.bind(this);
         this.renderMovieList = this.renderMovieList.bind(this);
     }
 
@@ -50,38 +52,44 @@ class Movies extends React.Component {
         });
     }
 
+    renderDownloadingList() {
+        if (this.state.downloading) {
+            return (
+                <>
+                <div className="uk-width-1-1">
+                    <span className="uk-h3">Downloading movies</span>
+                    <hr />
+                </div>
+                <DownloadingItemTable list={this.state.downloading}/>
+                </>
+            );
+        }
+    }
+
     renderMovieList() {
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
+                {this.renderDownloadingList()}
+
                 <div className="uk-grid" data-uk-grid>
                     <div className="uk-width-expand">
                         <span className="uk-h3">Movies</span>
                     </div>
                     <ul className="uk-subnav uk-subnav-pill">
                         <li className="uk-visible@s uk-active" data-uk-filter-control="">
-                            <button className="uk-button uk-button-text">
-                                All
-                            </button>
+                            <button className="uk-button uk-button-text"> All </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .tracked-movie">
-                            <button className="uk-button uk-button-text">
-                                Tracked
-                            </button>
+                            <button className="uk-button uk-button-text"> Tracked </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .future-movie">
-                            <button className="uk-button uk-button-text">
-                                Future
-                            </button>
+                            <button className="uk-button uk-button-text"> Future </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .downloaded-movie">
-                            <button className="uk-button uk-button-text">
-                                Downloaded
-                            </button>
+                            <button className="uk-button uk-button-text"> Downloaded </button>
                         </li>
                         <li className="uk-visible@s" data-uk-filter-control="filter: .removed-movie">
-                            <button className="uk-button uk-button-text">
-                                Removed
-                            </button>
+                            <button className="uk-button uk-button-text"> Removed </button>
                         </li>
                         <li>
                             <button className="uk-button uk-button-text">
@@ -100,49 +108,57 @@ class Movies extends React.Component {
                                     </div>
                                 </div>
                             </button>
-                        </li>
-                        <li>
-                            <button className="uk-button uk-button-text">
-                                <div>
-                                    <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
-                                    Refresh
-                                </div>
-                                <div>
-                                    <div data-uk-spinner="ratio: 0.5"></div>
-                                    <i>Refreshing</i>
-                                </div>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-                <hr />
+            </li>
+            <li>
+                <button className="uk-button uk-button-text">
+                    <div>
+                        <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
+                        Refresh
+                    </div>
+                    <div>
+                        <div data-uk-spinner="ratio: 0.5"></div>
+            <i>Refreshing</i>
+        </div>
+            </button>
+        </li>
+            </ul>
+        </div>
+        <hr />
 
-                <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
-                    {this.state.downloading ? (
-                        this.state.downloading.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
-                    {this.state.tracked ? (
-                        this.state.tracked.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
-                    {this.state.downloaded ? (
-                        this.state.downloaded.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
-                    {this.state.removed ? (
-                        this.state.removed.map(movie => (
-                            <MovieMiniature key={movie.ID} item={movie} />
-                        ))
-                    ) : ""
-                    }
-                </div>
+        <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
+            {this.state.downloading ? (
+                this.state.downloading.map(movie => (
+                    <MediaMiniature key={movie.ID}
+                        item={movie}
+                        type="movie" />
+                ))
+            ) : ""
+            }
+            {this.state.tracked ? (
+                this.state.tracked.map(movie => (
+                    <MediaMiniature key={movie.ID}
+                        item={movie}
+                        type="movie" />
+                ))
+            ) : ""
+            }
+            {this.state.downloaded ? (
+                this.state.downloaded.map(movie => (
+                    <MediaMiniature key={movie.ID}
+                        item={movie}
+                        type="movie" />
+                ))
+            ) : ""
+            }
+            {this.state.removed ? (
+                this.state.removed.map(movie => (
+                    <MediaMiniature key={movie.ID}
+                        item={movie}
+                        type="movie" />
+                ))
+            ) : ""
+            }
+        </div>
             </div>
         )
     }
@@ -152,10 +168,10 @@ class Movies extends React.Component {
 
         return (
             <>
-                <Route path={`${match.path}/:id`} component={MovieDetails} />
-                <Route exact
-                       path={match.path}
-                       render={this.renderMovieList} />
+            <Route path={`${match.path}/:id`} component={MovieDetails} />
+            <Route exact
+                path={match.path}
+                render={this.renderMovieList} />
             </>
         );
     }

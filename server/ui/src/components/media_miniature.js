@@ -9,8 +9,14 @@ class MediaMiniature extends React.Component {
         super(props);
         this.state = props.item;
 
+        this.deleteItem = this.deleteItem.bind(this);
         this.deleteMovie = this.deleteMovie.bind(this);
+        this.deleteShow = this.deleteShow.bind(this);
+
+        this.restoreItem = this.restoreItem.bind(this);
         this.restoreMovie = this.restoreMovie.bind(this);
+        this.restoreShow = this.restoreShow.bind(this);
+
         this.downloadMovie = this.downloadMovie.bind(this);
 
         this.changeDownloadedState = this.changeDownloadedState.bind(this);
@@ -18,12 +24,12 @@ class MediaMiniature extends React.Component {
         this.markNotDownloaded = this.markNotDownloaded.bind(this);
     }
 
+
     getOverlayClassNames() {
         if (this.props.type === "movie") {
             return this.getMovieOverlayClassNames();
         } else if (this.props.type === "tvshow") {
-            // TODO
-            return;
+            return this.getShowOverlayClassNames();
         }
 
         return;
@@ -51,40 +57,50 @@ class MediaMiniature extends React.Component {
         return overlay;
     }
 
-    getDownloadStatusLabel() {
-        if (this.props.type !== "movie") {
-            return "";
+    getShowOverlayClassNames() {
+        let overlay = "";
+
+        if (this.state.DeletedAt) {
+            overlay = "overlay-red";
         }
 
+        return overlay;
+    }
+
+
+    getDownloadStatusLabel() {
         let label = "";
 
-        if (!this.state.DeletedAt && Helpers.dateIsInFuture(this.state.Date)) {
-            label = "Future release";
-        }
+        if (this.props.type === "movie") {
+            if (!this.state.DeletedAt && Helpers.dateIsInFuture(this.state.Date)) {
+                label = "Future release";
+            }
 
-        if (!this.state.DeletedAt && (this.state.DownloadingItem.Downloading || this.state.DownloadingItem.Pending)) {
-            if (this.state.DownloadingItem.Downloading) {
-                label = "Downloading";
+            if (!this.state.DeletedAt && (this.state.DownloadingItem.Downloading || this.state.DownloadingItem.Pending)) {
+                if (this.state.DownloadingItem.Downloading) {
+                    label = "Downloading";
 
-                if (this.state.DownloadingItem.Pending) {
-                    label = "Pending";
+                    if (this.state.DownloadingItem.Pending) {
+                        label = "Pending";
+                    }
                 }
+            }
+            if (this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
+                label = "Downloaded";
             }
         }
 
         if (this.state.DeletedAt) {
             label = "Removed";
         }
-        if (this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
-            label = "Downloaded";
-        }
 
         return (
             <span className="uk-position-center">
-                {label}
+                    {label}
             </span>
         );
     }
+
 
     getFilterClassName() {
         if (this.props.type === "movie") {
@@ -125,6 +141,7 @@ class MediaMiniature extends React.Component {
         return className;
     }
 
+
     getDownloadControlButtons() {
         if (this.props.type !== "movie") {
             return;
@@ -134,20 +151,22 @@ class MediaMiniature extends React.Component {
         if (this.state.DownloadingItem.Downloaded && (!this.state.DeletedAt)) {
             buttonList.push(
                 <button className="uk-icon"
+                    key="markNotDownloaded"
                     onClick={this.markNotDownloaded}
                     data-uk-tooltip="delay: 500; title: Unmark as downloaded"
                     data-uk-icon="icon: push; ratio: 0.75">
-                </button>
+            </button>
             )
         }
 
         if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
             buttonList.push(
                 <button className="uk-icon"
+                    key="markDownloaded"
                     onClick={this.markDownloaded}
                     data-uk-tooltip="delay: 500; title: Mark as downloaded"
                     data-uk-icon="icon: check; ratio: 0.75">
-                </button>
+            </button>
             );
         }
 
@@ -155,15 +174,17 @@ class MediaMiniature extends React.Component {
         if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Pending && !this.state.DeletedAt && !Helpers.dateIsInFuture(this.state.Date)) {
             buttonList.push(
                 <button className="uk-icon"
+                    key="downloadMovie"
                     onClick={this.downloadMovie}
                     data-uk-tooltip="delay: 500; title: Download"
                     data-uk-icon="icon: download; ratio: 0.75">
-                </button>
+            </button>
             )
         }
 
         return buttonList;
     }
+
 
     refreshMovie() {
         API.Movies.get(this.state.ID).then(response => {
@@ -180,6 +201,7 @@ class MediaMiniature extends React.Component {
             console.log("Refresh show error: ", error);
         });
     }
+
 
     deleteItem() {
         if (this.props.type === "movie") {
@@ -205,6 +227,15 @@ class MediaMiniature extends React.Component {
         });
     }
 
+
+    restoreItem() {
+        if (this.props.type === "movie") {
+            this.restoreMovie();
+        } else if (this.props.type === "tvshow") {
+            return this.restoreShow();
+        }
+    }
+
     restoreMovie() {
         API.Movies.restore(this.state.ID).then(response => {
             this.refreshMovie();
@@ -213,6 +244,15 @@ class MediaMiniature extends React.Component {
         });
     }
 
+    restoreShow() {
+        API.Shows.restore(this.state.ID).then(response => {
+            this.refreshShow();
+        }).catch(error => {
+            console.log("Restore show error: ", error);
+        });
+    }
+
+
     downloadMovie() {
         API.Movies.download(this.state.ID).then(response => {
             this.refreshMovie();
@@ -220,6 +260,7 @@ class MediaMiniature extends React.Component {
             console.log("Download movie error: ", error);
         });
     }
+
 
     markDownloaded() {
         this.changeDownloadedState(true);
@@ -245,32 +286,32 @@ class MediaMiniature extends React.Component {
                         <Link to={`/${this.props.type}s/${this.state.ID}`}>
                             <img src={ this.state.Poster } alt={ this.state.Title } className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`} data-uk-img />
                             <div className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
-                                {this.getDownloadStatusLabel()}
+                                    {this.getDownloadStatusLabel()}
                             </div>
                         </Link>
                     </div>
 
                     <div className="uk-icon uk-position-top-right">
-                        {this.getDownloadControlButtons()}
+                            {this.getDownloadControlButtons()}
 
-                        { (!this.state.DeletedAt) ? (
-                            <button className="uk-icon"
-                                onClick={this.deleteItem}
-                                data-uk-tooltip="delay: 500; title: Remove"
-                                data-uk-icon="icon: close; ratio: 0.75">
+                            { (!this.state.DeletedAt) ? (
+                                <button className="uk-icon"
+                                    onClick={this.deleteItem}
+                                    data-uk-tooltip="delay: 500; title: Remove"
+                                    data-uk-icon="icon: close; ratio: 0.75">
                             </button>
-                        ) : ""}
+                            ) : ""}
 
-                        { (this.state.DeletedAt) ? (
-                            <button className="uk-icon"
-                                onClick={this.restoreItem}
-                                data-uk-tooltip="delay: 500; title: Restore"
-                                data-uk-icon="icon: reply; ratio: 0.75">
-                            </button>
-                        ) : ""}
+                                { (this.state.DeletedAt) ? (
+                                    <button className="uk-icon"
+                                        onClick={this.restoreItem}
+                                        data-uk-tooltip="delay: 500; title: Restore"
+                                        data-uk-icon="icon: reply; ratio: 0.75">
+                                </button>
+                                ) : ""}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
         );
     }
 }

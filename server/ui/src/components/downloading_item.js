@@ -1,5 +1,7 @@
 import React from "react";
 
+import Helpers from "../utils/helpers";
+
 class DownloadingItem extends React.Component {
     constructor(props) {
         super(props);
@@ -43,11 +45,7 @@ class DownloadingItem extends React.Component {
                             <tr>
                                 <td><b>Downloading</b></td>
                                 <td>
-                                    {item.Downloading ? (
-                                        <span className="uk-text-success"><i className="material-icons md-18 float-left mr-1">check_circle_outline</i>Started at  .CurrentTorrent.CreatedAt.Format "15:04 02/01/2006" </span>
-                                    ) : (
-                                        <span className="uk-text-danger"><i className="material-icons md-18 float-left mr-1">check_circle_outline</i></span>
-                                    )}
+                                    <span className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </span>
                                 </td>
                             </tr>
                             <tr>

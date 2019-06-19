@@ -21,4 +21,17 @@ export default class Helpers {
         var d = new Date(dateString);
         return d.getTime() > Date.now();
     };
+
+    static getMovieTitle = (movie) => {
+        if (movie.CustomTitle !== "") {
+            return movie.CustomTitle;
+        }
+
+        if (movie.UseDefaultTitle) {
+            return movie.Title;
+        }
+
+        return movie.OriginalTitle;
+    };
+
 };

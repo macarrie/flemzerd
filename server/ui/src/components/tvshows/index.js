@@ -24,7 +24,6 @@ class TvShows extends React.Component {
 
     getShows() {
         API.Shows.tracked().then(response => {
-            console.log("Tracked tvshows: ", response.data);
             this.setState({tracked: response.data});
         }).catch(error => {
             console.log("Get tracked shows error: ", error);
@@ -42,7 +41,7 @@ class TvShows extends React.Component {
             <div className="uk-container" data-uk-filter="target: .item-filter">
                 <div className="uk-grid" data-uk-grid>
                     <div className="uk-width-expand">
-                        <span className="uk-h3">TvShows</span>
+                        <span className="uk-h3">TV Shows</span>
                     </div>
                     <ul className="uk-subnav uk-subnav-pill">
                         <li className="uk-visible@s uk-active" data-uk-filter-control="">

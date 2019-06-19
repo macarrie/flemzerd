@@ -41,7 +41,7 @@ class MovieDetails extends React.Component {
     getMovie() {
         API.Movies.get(this.props.match.params.id).then(response => {
             let movie_result = response.data;
-            movie_result.DisplayTitle = this.getTitle(movie_result)
+            movie_result.DisplayTitle = Helpers.getMovieTitle(movie_result)
             this.setState({movie: movie_result});
             this.getFanart();
         }).catch(error => {
@@ -58,18 +58,6 @@ class MovieDetails extends React.Component {
         }).catch(error => {
             console.log("Get movie fanart error: ", error);
         });
-    }
-
-    getTitle(movie) {
-        if (movie.CustomTitle !== "") {
-            return movie.CustomTitle;
-        }
-
-        if (movie.UseDefaultTitle) {
-            return movie.Title;
-        }
-
-        return movie.OriginalTitle;
     }
 
     exitTitleEdit(value) {
