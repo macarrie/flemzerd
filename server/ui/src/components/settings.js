@@ -26,7 +26,30 @@ class Settings extends React.Component {
         });
     }
 
-    renderModuleList(title, collection) {
+    renderModuleSettings(module, type) {
+        console.log("Render module settings: ", module);
+
+        if (type === "indexer") {
+            return (
+                <>
+                    {module.Config.name}
+                    <span className="float-right text-muted">
+                        <small>
+                            <code>{module.Config.url}</code>
+                        </small>
+                    </span>
+                </>
+            );
+        }
+
+        return (
+            <>
+            {module.Name} ({type})
+            </>
+        );
+    }
+
+    renderModuleList(title, collection, type) {
         //TODO: Handle trakt auth
         //TODO: Handle telegram auth
         let moduleList = [];
@@ -38,13 +61,14 @@ class Settings extends React.Component {
             });
         });
 
+        // TODO: Transform module settings to component
         return (
             <div>
                 <h4>{title}</h4>
                 <ul className="uk-list uk-list-striped no-stripes">
                     {moduleList.map(module => 
                         <li key={module.Name}>
-                            {module.Name}
+                            {this.renderModuleSettings(module, type)}
                         </li>
                     )}
                 </ul>
@@ -105,14 +129,14 @@ class Settings extends React.Component {
                                 <div className="uk-width-expand">
                                     Interface port
                                 </div>
-            <div>
-                <code>
-                    {this.state.config.Interface.Port}
-                </code>
+                                <div>
+                                    <code>
+                                        {this.state.config.Interface.Port}
+                                    </code>
+                                </div>
+                            </li>
+                        </ul>
             </div>
-        </li>
-    </ul>
-</div>
 
             <div>
                 <ul className="uk-list uk-list-striped no-stripes">
@@ -120,157 +144,157 @@ class Settings extends React.Component {
                         <div className="uk-width-expand">
                             TV Shows tracking enabled
                         </div>
-            {this.state.config.System.TrackShows ? (
-                <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-            ) : (
-                <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-            )}
-        </li>
-        <li className="uk-flex uk-flex-middle">
-            <div className="uk-width-expand">
-                Movie tracking enabled
-            </div>
-            {this.state.config.System.TrackMovies ? (
-                <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-            ) : (
-                <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-            )}
-        </li>
-            <li className="uk-flex uk-flex-middle">
-                <div className="uk-width-expand">
-            Automatic show download
-            </div>
-            {this.state.config.System.AutomaticShowDownload ? (
-                <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-                ) : (
-                <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-                )}
-            </li>
-            <li className="uk-flex uk-flex-middle">
-                <div className="uk-width-expand">
-                    Automatic movie download
-                </div>
-            {this.state.config.System.AutomaticMovieDownload ? (
-                <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-            ) : (
-                <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-            )}
-        </li>
-        <li className="uk-flex uk-flex-middle">
-            <div className="uk-width-expand">
-                Preferred media quality
-            </div>
-            {this.state.config.System.PreferredMediaQuality ? (
-                <div>
-                <code>
-                    {this.state.config.System.PreferredMediaQuality}
-                </code>
-                </div>
-            ) : (
-                <div>
-                None
-                </div>
-            )}
-        </li>
-            </ul>
+                        {this.state.config.System.TrackShows ? (
+                            <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                        ) : (
+                            <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                        )}
+                    </li>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            Movie tracking enabled
+                        </div>
+                        {this.state.config.System.TrackMovies ? (
+                            <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                        ) : (
+                            <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                        )}
+                    </li>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            Automatic show download
+                        </div>
+                        {this.state.config.System.AutomaticShowDownload ? (
+                            <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                        ) : (
+                            <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                        )}
+                    </li>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            Automatic movie download
+                        </div>
+                        {this.state.config.System.AutomaticMovieDownload ? (
+                            <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                        ) : (
+                            <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                        )}
+                    </li>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            Preferred media quality
+                        </div>
+                        {this.state.config.System.PreferredMediaQuality ? (
+                            <div>
+                                <code>
+                                    {this.state.config.System.PreferredMediaQuality}
+                                </code>
+                            </div>
+                        ) : (
+                            <div>
+                                None
+                            </div>
+                        )}
+                    </li>
+                </ul>
             </div>
 
             <div>
                 <ul className="uk-list uk-list-striped no-stripes">
-            <li className="uk-flex uk-flex-middle">
-            <div className="uk-width-expand">
-                TV Shows library path
-            </div>
-            <div className="uk-text-small">
-                <code>
-                    {this.state.config.Library.ShowPath}
-                </code>
-            </div>
-        </li>
-        <li className="uk-flex uk-flex-middle">
-            <div className="uk-width-expand">
-            Movies library path
-        </div>
-        <div>
-            <code className="uk-text-small">
-                <span className="uk-text-small">
-                    {this.state.config.Library.MoviePath}
-            </span>
-        </code>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            TV Shows library path
+                        </div>
+                        <div className="uk-text-small">
+                            <code>
+                                {this.state.config.Library.ShowPath}
+                            </code>
+                        </div>
+                    </li>
+                    <li className="uk-flex uk-flex-middle">
+                        <div className="uk-width-expand">
+                            Movies library path
+                        </div>
+                        <div>
+                            <code className="uk-text-small">
+                                <span className="uk-text-small">
+                                    {this.state.config.Library.MoviePath}
+                                </span>
+                            </code>
+                        </div>
+            </li>
+        </ul>
     </div>
-</li>
-                        </ul>
-                    </div>
 
-                    <div className="uk-width-1-1">
-                        <h3 className="uk-heading-divider">Notifications</h3>
-                    </div>
-                    <div>
-                        <ul className="uk-list uk-list-striped no-stripes">
-                            <li className="uk-flex uk-flex-middle">
-                                <div className="uk-width-expand">
-                                    Notifications enabled 
-                                </div>
-                                {this.state.config.Notifications.Enabled ? (
-                                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-                                ) : (
-                                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-                                )}
-                            </li>
-                            <li className="uk-flex uk-flex-middle">
-                                <div className="uk-width-expand">
-                                    Notify on new episode 
-                                </div>
-                                {this.state.config.Notifications.NotifyNewEpisode ? (
-                                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-                                ) : (
-                                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-                                )}
-                            </li>
-                            <li className="uk-flex uk-flex-middle">
-                                <div className="uk-width-expand">
-                                    Notify on download complete 
-                                </div>
-                                {this.state.config.Notifications.NotifyDownloadComplete ? (
-                                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-                                ) : (
-                                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-                                )}
-                            </li>
-                            <li className="uk-flex uk-flex-middle">
-                                <div className="uk-width-expand">
-                                    Notify on download failure 
-                                </div>
-                                {this.state.config.Notifications.NotifyFailure ? (
-                                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
-                                ) : (
-                                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
-                                )}
-                            </li>
-                        </ul>
-                    </div>
+    <div className="uk-width-1-1">
+        <h3 className="uk-heading-divider">Notifications</h3>
+    </div>
+    <div>
+        <ul className="uk-list uk-list-striped no-stripes">
+            <li className="uk-flex uk-flex-middle">
+                <div className="uk-width-expand">
+                    Notifications enabled 
+                </div>
+                {this.state.config.Notifications.Enabled ? (
+                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                ) : (
+                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                )}
+            </li>
+            <li className="uk-flex uk-flex-middle">
+                <div className="uk-width-expand">
+                    Notify on new episode 
+                </div>
+                {this.state.config.Notifications.NotifyNewEpisode ? (
+                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                ) : (
+                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                )}
+            </li>
+            <li className="uk-flex uk-flex-middle">
+                <div className="uk-width-expand">
+                    Notify on download complete 
+                </div>
+                {this.state.config.Notifications.NotifyDownloadComplete ? (
+                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                ) : (
+                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                )}
+            </li>
+            <li className="uk-flex uk-flex-middle">
+                <div className="uk-width-expand">
+                    Notify on download failure 
+                </div>
+                {this.state.config.Notifications.NotifyFailure ? (
+                    <div className="uk-text-success"><i className="material-icons float-right md-18">check_circle_outline</i></div>
+                ) : (
+                    <div className="uk-text-danger"><i className="material-icons float-right md-18">clear</i></div>
+                )}
+            </li>
+        </ul>
+    </div>
 
-                    <div className="uk-width-1-1">
-                        <h3 className="uk-heading-divider">Modules</h3>
-                    </div>
-                    {this.renderModuleList("Watchlists", this.state.config.Watchlists)}
-                    {this.renderModuleList("Providers", this.state.config.Providers)}
-                    {this.renderModuleList("Notifiers", this.state.config.Notifiers)}
-                    {this.renderModuleList("Indexers", this.state.config.Indexers)}
-                    {this.renderModuleList("Downloaders", this.state.config.Downloaders)}
-                    {this.renderModuleList("Media centers", this.state.config.MediaCenters)}
+    <div className="uk-width-1-1">
+        <h3 className="uk-heading-divider">Modules</h3>
+    </div>
+    {this.renderModuleList("Watchlists", this.state.config.Watchlists, "watchlist")}
+    {this.renderModuleList("Providers", this.state.config.Providers, "provider")}
+    {this.renderModuleList("Notifiers", this.state.config.Notifiers, 'notifier')}
+    {this.renderModuleList(<>Indexers <span className="text-muted">(torznab)</span></>, this.state.config.Indexers.torznab, "indexer")}
+                    {this.renderModuleList("Downloaders", this.state.config.Downloaders, "downloader")}
+                    {this.renderModuleList("Media centers", this.state.config.MediaCenters, "mediacenter")}
 
                     <div className="uk-width-1-1">
                         <h4 className="uk-heading-divider">About flemzerd</h4>
                         <ul className="uk-list uk-list-striped no-stripes">
                             <li>Version: <code>{this.state.config.Version}</code></li>
                             <li className="uk-text-center uk-padding-small">flemzerd is an Open Source software. For feature ideas, notifying bugs or contributing, do not hesitate to head to the <a target="blank" href="https://github.com/macarrie/flemzerd">GitHub repo</a></li>
-                        </ul>
-                    </div>
-            </div>
+            </ul>
         </div>
-        );
-        }
-        }
+    </div>
+</div>
+);
+}
+}
 
-        export default Settings;
+export default Settings;
