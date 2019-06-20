@@ -22,16 +22,16 @@ export default class Helpers {
         return d.getTime() > Date.now();
     };
 
-    static getMovieTitle = (movie) => {
-        if (movie.CustomTitle !== "") {
-            return movie.CustomTitle;
+    static getMediaTitle = (media) => {
+        if (media.CustomTitle !== "") {
+            return media.CustomTitle;
         }
 
-        if (movie.UseDefaultTitle) {
-            return movie.Title;
+        if (media.UseDefaultTitle) {
+            return media.Title;
         }
 
-        return movie.OriginalTitle;
+        return media.OriginalTitle;
     };
 
 };

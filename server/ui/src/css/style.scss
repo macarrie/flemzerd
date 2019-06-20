@@ -177,6 +177,11 @@ div.toc_parent {
         -webkit-background-clip: text;
     }
 
+    .uk-navbar > li > a.uk-active {
+        background: darken($light, 10%);
+        border-radius: 4px;
+    }
+
     .notifications_counter {
         background: none;
         border: none;

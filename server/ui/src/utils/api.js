@@ -92,6 +92,11 @@ export default class API {
             return axios.put('/tvshows/details/' + id + '/use_default_title', {
                 UseDefaultTitle: useDefaultTitleBool,
             });
+        },
+        changeAnimeState: function(id, isAnime) {
+            return axios.put('/tvshows/details/' + id + '/change_anime_state', {
+                IsAnime: isAnime,
+            });
         }
     };
 
@@ -119,6 +124,7 @@ export default class API {
             });
         }
     };
+
     static Modules = {
         Watchlists: {
             status: function() {

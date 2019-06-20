@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import API from "../../utils/api";
 
 import MediaMiniature from "../media_miniature";
-import MovieDetails from "./tvshow_details";
+import TvShowDetails from "./tvshow_details";
 
 class TvShows extends React.Component {
     state = {
@@ -116,7 +116,7 @@ class TvShows extends React.Component {
 
         return (
             <>
-                <Route path={`${match.path}/:id`} component={MovieDetails} />
+                <Route path={`${match.path}/:id`} component={TvShowDetails} />
                 <Route exact
                        path={match.path}
                        render={this.renderShowList} />

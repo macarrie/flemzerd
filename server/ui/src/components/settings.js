@@ -44,7 +44,7 @@ class Settings extends React.Component {
 
         return (
             <>
-            {module.Name} ({type})
+            {module.Name}
             </>
         );
     }
@@ -53,6 +53,17 @@ class Settings extends React.Component {
         //TODO: Handle trakt auth
         //TODO: Handle telegram auth
         let moduleList = [];
+
+        if (!collection) {
+            return (
+            <div>
+                <h4>{title}</h4>
+                <ul className="uk-list uk-list-striped no-stripes">
+                    <li className="uk-text-muted uk-text-center"><i>No {type}s defined in configuration</i></li>
+                </ul>
+            </div>
+            );
+        }
 
         Object.keys(collection).forEach(key => {
             moduleList.push({

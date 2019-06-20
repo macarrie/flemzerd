@@ -117,6 +117,37 @@ class MediaActionBar extends React.Component {
         return buttonsList;
     }
 
+    getAnimeControlButtons() {
+        let item = this.props.item;
+        let buttonsList = [];
+
+        if (item.DeletedAt || this.props.type !== "tvshow") {
+            return;
+        }
+
+            if (item.IsAnime) {
+                buttonsList.push(
+                    <button className="uk-button uk-button-link"
+                        key="treatAsAnime"
+                        onClick={this.props.treatAsRegularShow}>
+                        <span className="uk-icon uk-icon-link" data-uk-icon="icon: world; ratio: 0.75"></span>
+                        Treat as regular show
+                    </button>
+                );
+            } else {
+                buttonsList.push(
+                    <button className="uk-button uk-button-link"
+                        key="treatAsAnime"
+                        onClick={this.props.treatAsAnime}>
+                        <span className="uk-icon uk-icon-link" data-uk-icon="icon: world; ratio: 0.75"></span>
+                        Treat as anime
+                    </button>
+                );
+            }
+
+        return buttonsList;
+    }
+
     render() {
         let item = this.props.item;
 
@@ -134,6 +165,7 @@ class MediaActionBar extends React.Component {
                         <div className="uk-width-auto">
                             {this.getDownloadButton()}
                             {this.getTitleControlButtons()}
+                            {this.getAnimeControlButtons()}
 
                             {item.DeletedAt && (
                                 <button className="uk-button uk-button-link"
