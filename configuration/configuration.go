@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/vidocq"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
@@ -401,6 +402,17 @@ func Check() error {
 
 			Config.System.ExcludedReleaseTypes = ""
 		}
+	}
+
+	if !vidocq.LocalVidocqAvailable {
+		configError = ConfigurationError{
+			Status:  CRITICAL,
+			Message: "Vidocq has not been found on the server. Torrent search will encounter issues, especially if strict torrent checking is enabled",
+		}
+		log.WithFields(log.Fields{
+			"error": configError,
+		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
 	}
 
 	return errorList.ErrorOrNil()
