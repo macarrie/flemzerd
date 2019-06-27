@@ -1,6 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-
+import {BrowserRouter as Router, Route} from "react-router-dom";
 //TODO: Load scss instead of css
 import "./css/style.scss";
 
@@ -9,7 +8,7 @@ import Dashboard from './components/dashboard';
 import Movies from './components/movies/index';
 import TvShows from './components/tvshows/index';
 import Status from './components/status';
-import Settings from './components/settings';
+import Settings from './components/settings/index';
 
 
 function AppRouter() {
