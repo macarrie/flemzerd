@@ -15,13 +15,30 @@ import (
 var LocalVidocqAvailable bool
 
 func init() {
+	CheckVidocq()
+}
+
+func CheckVidocq() {
 	_, err := exec.LookPath("vidocq")
 	if err != nil {
-		log.Debug("Local vidocq executable not found. Quality filters and torrent control will not be done")
+		log.Error("Local vidocq executable not found. Quality filters and torrent control will not be done")
 		LocalVidocqAvailable = false
-	} else {
-		LocalVidocqAvailable = true
+		return
 	}
+
+	cmd := exec.Command("vidocq", "--help")
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+
+	if err := cmd.Run(); err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Vidocq found but could not be executed correctly")
+		LocalVidocqAvailable = false
+		return
+	}
+
+	LocalVidocqAvailable = true
 }
 
 func GetInfo(name string) (MediaInfo, error) {

@@ -404,10 +404,11 @@ func Check() error {
 		}
 	}
 
+	vidocq.CheckVidocq()
 	if !vidocq.LocalVidocqAvailable {
 		configError = ConfigurationError{
 			Status:  CRITICAL,
-			Message: "Vidocq has not been found on the server. Torrent search will encounter issues, especially if strict torrent checking is enabled",
+			Message: "Vidocq has not been found on the server or could not be correctly executed. Torrent search will encounter issues, especially if strict torrent checking is enabled",
 		}
 		log.WithFields(log.Fields{
 			"error": configError,

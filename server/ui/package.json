@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "node-sass": "^4.10.0",
-    "webpack": "^4.26.1",
-    "tar": ">=4.4.2"
+    "tar": ">=4.4.2",
+    "webpack": "^4.35.0"
   },
   "scripts": {
     "build-css": "node-sass --include-path src/static/css src/static/css/style.scss src/static/css/style.css"
