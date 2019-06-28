@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/providers"
+	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
 
@@ -159,7 +159,10 @@ func getSeasonDetails(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, epList)
+	c.JSON(http.StatusOK, SeasonDetails{
+		Info:        show.Seasons[seasonNb],
+		EpisodeList: epList,
+	})
 }
 
 func deleteShow(c *gin.Context) {

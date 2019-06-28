@@ -41,7 +41,7 @@ class MovieDetails extends React.Component {
     getMovie() {
         API.Movies.get(this.props.match.params.id).then(response => {
             let movie_result = response.data;
-            movie_result.DisplayTitle = Helpers.getMovieTitle(movie_result)
+            movie_result.DisplayTitle = Helpers.getMediaTitle(movie_result)
             this.setState({movie: movie_result});
             this.getFanart();
         }).catch(error => {

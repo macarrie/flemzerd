@@ -97,6 +97,9 @@ export default class API {
             return axios.put('/tvshows/details/' + id + '/change_anime_state', {
                 IsAnime: isAnime,
             });
+        },
+        getSeason: function(id, seasonNb) {
+            return axios.get('/tvshows/details/' + id + '/seasons/' + seasonNb);
         }
     };
 
