@@ -132,6 +132,20 @@ export default class API {
         Watchlists: {
             status: function() {
                 return axios.get('/modules/watchlists/status');
+            },
+            Trakt: {
+                get_token: function () {
+                    return axios.get('/modules/watchlists/trakt/token');
+                },
+                get_device_code: function () {
+                    return axios.get('/modules/watchlists/trakt/devicecode');
+                },
+                auth: function () {
+                    return axios.get('/modules/watchlists/trakt/auth');
+                },
+                get_auth_errors: function () {
+                    return axios.get('/modules/watchlists/trakt/auth_errors');
+                }
             }
         },
         Providers: {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import Helpers from "../utils/helpers";
 
@@ -47,6 +47,7 @@ class DownloadingItemTable extends React.Component {
                     {item.DownloadingItem.FailedTorrents.length}
                 </td>
                 <td>
+                    TODO
                     <a className="uk-icon uk-icon-link uk-text-danger abort-download-button" data-uk-icon="icon: close; ratio: 0.75"
                         data-controller="movie"
                         data-action="click->movie#abortDownload"

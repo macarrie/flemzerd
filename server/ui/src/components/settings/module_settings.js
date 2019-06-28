@@ -25,7 +25,10 @@ class ModuleSettings extends React.Component {
     render() {
         if (this.state.type === "watchlist" && this.state.module.Name === "trakt") {
             return (
-                <TraktAuth/>
+                <>
+                    {this.state.module.Name}
+                    <TraktAuth/>
+                </>
             );
         }
 
