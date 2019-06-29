@@ -23,6 +23,11 @@ export default class Helpers {
     };
 
     static getMediaTitle = (media) => {
+        if (media.hasOwnProperty("Season") && media.hasOwnProperty("Number")) {
+            console.log("media: ", media.TvShow);
+            return `${this.getMediaTitle(media.TvShow)} S${Helpers.formatNumber(media.Season)}E${Helpers.formatNumber(media.Number)} - ${media.Title}`;
+        }
+
         if (media.CustomTitle !== "") {
             return media.CustomTitle;
         }

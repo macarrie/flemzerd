@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
@@ -7,140 +6,7 @@ import Helpers from "../../utils/helpers";
 import MediaIds from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
-
-class EpisodeTableLine extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            item: null,
-        };
-
-        this.state.item = this.props.item;
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({ item: nextProps.item });
-    }
-
-    render() {
-        return (
-            <tr className={Helpers.dateIsInFuture(this.state.item.Date) ? "episode-list-future" : ""}>
-                <td>
-                    <span className="uk-text-small uk-border-rounded episode-label">{Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}</span>
-                    <Link to={`/episodes/${this.state.item.ID}`}>
-                        {this.state.item.Title}
-                    </Link>
-                </td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@s">{Helpers.formatDate(this.state.item.Date, 'DD MMM YYYY')}</td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m">{Helpers.formatDate(this.state.item.Date, 'ddd DD MMM YYYY')}</td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">{Helpers.formatDate(this.state.item.Date, 'dddd DD MMM YYYY')}</td>
-                <td className="uk-text-center">
-
-                </td>
-                <td className="uk-text-center">
-
-                </td>
-            </tr>
-        );
-    }
-}
-
-class EpisodeTable extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            list: null,
-        };
-
-        this.state.list = this.props.list;
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({ list: nextProps.list });
-    }
-
-    render() {
-        return (
-            <div>
-                <table className="uk-table uk-table-divider uk-table-small">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th className="uk-hidden@m">Release</th>
-                            <th className="uk-visible@m">Release date</th>
-
-                            <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
-                            <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
-
-                            <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {(this.state.list || []).map(episode => (
-                            <EpisodeTableLine
-                                key={episode.ID}
-                                item={episode} />
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    }
-}
-
-class SeasonList extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            seasons: null,
-        }
-
-        this.state.seasons = this.props.seasons;
-    }
-
-    componentWillReceiveProps(nextProps) {
-        console.log("state update seasons: ", nextProps);
-        this.setState({ seasons: nextProps.seasons });
-    }
-
-    render() {
-        console.log("Seasons: ", this.state.seasons);
-        return (
-            <div>
-                {(this.state.seasons || []).filter((elt, index) => {
-                    return index !== 0;
-                }).map(season => (
-                    <React.Fragment key={season.Info.SeasonNumber}>
-                        <div>
-                            <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" data-uk-grid>
-                                <div className="uk-width-expand">
-                                    <span className="uk-h3">Season {season.Info.SeasonNumber} </span><span className="uk-text-muted uk-h6">( {season.EpisodeList.length} episodes )</span>
-                                </div>
-                                <div className="uk-width-auto">
-                                    <ul className="uk-iconnav">
-                                        <li data-uk-tooltip="delay: 500; title: Mark whole season as not downloaded"
-                                            className="uk-icon"
-                                            data-uk-icon="icon: push; ratio: 0.75"></li>
-                                        <li data-uk-tooltip="delay: 500; title: Mark whole season as downloaded"
-                                            className="uk-icon"
-                                            data-uk-icon="icon: check; ratio: 0.75"></li>
-                                        <li data-uk-tooltip="delay: 500; title: Download the whole season"
-                                            className="uk-icon"
-                                            data-uk-icon="icon: download; ratio: 0.75"></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <EpisodeTable list={season.EpisodeList} />
-                    </React.Fragment>
-                ))}
-            </div>
-        )
-    }
-}
+import SeasonList from "./season_list";
 
 class TvShowDetails extends React.Component {
     constructor(props) {
@@ -151,6 +17,9 @@ class TvShowDetails extends React.Component {
             seasons: [],
             fanartURL: "",
         };
+
+        this.getSeason = this.getSeason.bind(this);
+        this.getSeasonList = this.getSeasonList.bind(this);
 
         this.exitTitleEdit = this.exitTitleEdit.bind(this);
 
@@ -185,20 +54,20 @@ class TvShowDetails extends React.Component {
         });
     }
 
+    getSeason(n) {
+        API.Shows.getSeason(this.props.match.params.id, n).then(response => {
+            let seasonlist = this.state.seasons;
+            seasonlist[n] = response.data;
+
+            this.setState({seasons: seasonlist});
+        }).catch(error => {
+            console.log("Get show details error: ", error);
+        });
+    }
+
     getSeasonList() {
         for (var season in this.state.show.Seasons) {
-            let n = this.state.show.Seasons[season].SeasonNumber;
-
-            API.Shows.getSeason(this.props.match.params.id, n).then(response => {
-                console.log("Season details (update state): ", response.data);
-
-                let seasonlist = this.state.seasons;
-                seasonlist[n] = response.data;
-                console.log("Season list after modification: ", seasonlist);
-                this.setState({seasons: seasonlist});
-            }).catch(error => {
-                console.log("Get show details error: ", error);
-            });
+            this.getSeason(this.state.show.Seasons[season].SeasonNumber);
         }
     }
 
@@ -331,18 +200,21 @@ class TvShowDetails extends React.Component {
                 </div>
             </div>
 
-            <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
-                <div className="uk-background-default uk-border-rounded">
-                    <div className="uk-grid uk-child-width-1-1 uk-padding-small" data-uk-grid>
-                        <div>
-                            <SeasonList seasons={this.state.seasons}/>
+            {!this.state.show.DeletedAt && (
+                <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+                    <div className="uk-background-default uk-border-rounded">
+                        <div className="uk-grid uk-child-width-1-1 uk-padding-small" data-uk-grid>
+                            <div>
+                                <SeasonList refreshSeason={this.getSeason}
+                                seasons={this.state.seasons}/>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             </>
-        );
+    );
     }
 }
 

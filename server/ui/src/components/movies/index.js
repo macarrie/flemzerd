@@ -9,10 +9,10 @@ import DownloadingItemTable from "../downloading_items_table";
 
 class Movies extends React.Component {
     state = {
-        tracked: [],
-        removed: [],
-        downloaded: [],
-        downloading: [],
+        tracked: null,
+        removed: null,
+        downloaded: null,
+        downloading: null,
     };
 
     constructor(props) {
@@ -20,6 +20,7 @@ class Movies extends React.Component {
 
         this.renderDownloadingList = this.renderDownloadingList.bind(this);
         this.renderMovieList = this.renderMovieList.bind(this);
+        this.abortMovieDownload = this.abortMovieDownload.bind(this);
     }
 
     componentDidMount() {
@@ -52,6 +53,14 @@ class Movies extends React.Component {
         });
     }
 
+    abortMovieDownload(id) {
+        API.Movies.abortDownload(id).then(response => {
+            this.getMovies();
+        }).catch(error => {
+            console.log("Abort movie download error: ", error);
+        });
+    }
+
     renderDownloadingList() {
         if (this.state.downloading) {
             return (
@@ -60,7 +69,10 @@ class Movies extends React.Component {
                     <span className="uk-h3">Downloading movies</span>
                     <hr />
                 </div>
-                <DownloadingItemTable list={this.state.downloading}/>
+                <DownloadingItemTable 
+                    list={this.state.downloading}
+                    type="movie"
+                    abortDownload={this.abortMovieDownload}/>
                 </>
             );
         }

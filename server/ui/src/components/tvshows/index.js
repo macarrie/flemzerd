@@ -5,21 +5,26 @@ import API from "../../utils/api";
 
 import MediaMiniature from "../media_miniature";
 import TvShowDetails from "./tvshow_details";
+import DownloadingItemTable from "../downloading_items_table";
 
 class TvShows extends React.Component {
     state = {
-        tracked: [],
-        removed: [],
+        tracked: null,
+        removed: null,
+        downloading_episodes: null,
     };
 
     constructor(props) {
         super(props);
 
         this.renderShowList = this.renderShowList.bind(this);
+        this.getDownloadingEpisodes = this.getDownloadingEpisodes.bind(this);
+        this.abortEpisodeDownload = this.abortEpisodeDownload.bind(this);
     }
 
     componentDidMount() {
         this.getShows();
+        this.getDownloadingEpisodes();
     }
 
     getShows() {
@@ -36,9 +41,46 @@ class TvShows extends React.Component {
         });
     }
 
+    getDownloadingEpisodes() {
+        API.Episodes.downloading().then(response => {
+            console.log("DLing episodes: ", response.data);
+            this.setState({downloading_episodes: response.data});
+        }).catch(error => {
+            console.log("Get downloading episodes error: ", error);
+        });
+
+    }
+
+    abortEpisodeDownload(id) {
+        API.Episodes.abortDownload(id).then(response => {
+            this.getDownloadingEpisodes();
+        }).catch(error => {
+            console.log("Abort episode download error: ", error);
+        });
+    }
+
+    renderDownloadingList() {
+        if (this.state.downloading_episodes) {
+            return (
+                <>
+                <div className="uk-width-1-1">
+                    <span className="uk-h3">Downloading episodes</span>
+                    <hr />
+                </div>
+                <DownloadingItemTable 
+                    list={this.state.downloading_episodes}
+                    type="episode"
+                    abortDownload={this.abortEpisodeDownload}/>
+                </>
+            );
+        }
+    }
+
     renderShowList() {
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
+                {this.renderDownloadingList()}
+
                 <div className="uk-grid" data-uk-grid>
                     <div className="uk-width-expand">
                         <span className="uk-h3">TV Shows</span>

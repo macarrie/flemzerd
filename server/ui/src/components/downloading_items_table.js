@@ -5,28 +5,35 @@ import Helpers from "../utils/helpers";
 
 class DownloadingItemTable extends React.Component {
     constructor(props) {
-        // TODO: Handle type
         super(props);
 
         this.state = {
             list: [],
         };
 
-        console.log("Downloading item table list: ", this.props.list);
         this.state.list = this.props.list;
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("Downloading item table list update: ", this.props.list);
         this.setState({ list: nextProps.list });
+    }
+
+    getMediaLink(item) {
+        console.log("Get link: ", item);
+        if (this.props.type === "movie") {
+            return `/movies/${item}`;
+        }
+        if (this.props.type === "episode") {
+            return `/episodes/${item}`;
+        }
     }
 
     renderTable() {
         return this.state.list.map(item => (
             <tr key={item.ID}>
                 <td>
-                    <Link to={`/movies/${item.ID}`}>
-                        {Helpers.getMovieTitle(item)}
+                    <Link to={this.getMediaLink(item.ID)}>
+                        {Helpers.getMediaTitle(item)}
                     </Link>
                 </td>
                 <td className="uk-text-muted">
@@ -47,12 +54,10 @@ class DownloadingItemTable extends React.Component {
                     {item.DownloadingItem.FailedTorrents.length}
                 </td>
                 <td>
-                    TODO
-                    <a className="uk-icon uk-icon-link uk-text-danger abort-download-button" data-uk-icon="icon: close; ratio: 0.75"
-                        data-controller="movie"
-                        data-action="click->movie#abortDownload"
-                        data-movie-id="{{ .ID }}">
-                    </a>
+                    <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
+                        data-uk-icon="icon: close; ratio: 0.75"
+                        onClick={() => this.props.abortDownload(item.ID)}>
+                    </button>
                 </td>
             </tr>
         ));
@@ -60,12 +65,12 @@ class DownloadingItemTable extends React.Component {
 
     render() {
         return (
-            <div className="uk-width-1-1">
+            <div className="uk-width-1-1 uk-overflow-auto">
                 <table className="uk-table uk-table-small uk-table-divider">
                     <thead>
                         <tr>
-                            <th>Movie name</th>
-                            <th className="uk-text-nowrap">current download</th>
+                            <th>Name</th>
+                            <th className="uk-text-nowrap">Current download</th>
                             <th className="uk-text-nowrap">Download status</th>
                             <th className="uk-text-center uk-table-shrink uk-text-nowrap">Failed torrents</th>
                             <th></th>

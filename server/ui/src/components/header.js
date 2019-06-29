@@ -11,7 +11,7 @@ function Header() {
                         <span className="navbar-brand" href="#">flemzer</span>
                     </a>
                     <ul className="uk-navbar-nav uk-visible@m">
-                        <li><NavLink activeClassName="uk-active" to="/dashboard">   <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: home"></span>           Dashboard   </NavLink></li>
+                        <li><NavLink activeClassName="uk-active" to="/">            <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: home"></span>           Dashboard   </NavLink></li>
                         <li><NavLink activeClassName="uk-active" to="/tvshows">     <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: laptop"></span>         TVShows     </NavLink></li>
                         <li><NavLink activeClassName="uk-active" to="/movies">      <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: video-camera"></span>   Movies      </NavLink></li>
                         <li><NavLink activeClassName="uk-active" to="/status">      <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: heart"></span>          Status      </NavLink></li>

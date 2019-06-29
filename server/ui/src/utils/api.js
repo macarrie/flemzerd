@@ -9,6 +9,12 @@ export default class API {
         }
     };
 
+    static Stats = {
+        get: function() {
+            return axios.get('/stats');
+        }
+    };
+
     static Movies = {
         tracked: function() {
             return axios.get('/movies/tracked');
@@ -53,6 +59,26 @@ export default class API {
                 UseDefaultTitle: useDefaultTitleBool,
             });
         }
+    };
+
+    static Episodes = {
+        downloading: function(id) {
+            return axios.get('/tvshows/downloading');
+        },
+        get: function(id) {
+            return axios.get('/tvshows/episodes/' + id);
+        },
+        download: function(id) {
+            return axios.post('/tvshows/episodes/' + id + '/download');
+        },
+        abortDownload: function(id) {
+            return axios.delete('/tvshows/episodes/' + id + '/download');
+        },
+        changeDownloadedState: function(id, downloaded_state) {
+            return axios.put('/tvshows/episodes/' + id + '/download_state', {
+                Downloaded: downloaded_state,
+            });
+        },
     };
 
     static Shows = {
