@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	tmdb "github.com/ryanbradynd05/go-tmdb"
+	"github.com/ryanbradynd05/go-tmdb"
 
 	"github.com/pkg/errors"
 )
@@ -98,19 +99,19 @@ func (tmdbProvider *TMDBProvider) GetShow(tvShow MediaIds) (TvShow, error) {
 }
 
 // Get specific episode from tvshow
-func (tmdbProvider *TMDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Episode, error) {
+func (tmdbProvider *TMDBProvider) GetEpisode(tvShowMediaIds MediaIds, seasonNb int, episodeNb int) (Episode, error) {
 	log.WithFields(log.Fields{
-		"name":     tvShow.Title,
+		"name":     tvShowMediaIds.Title,
 		"provider": module.Name,
 		"season":   seasonNb,
 		"episode":  episodeNb,
 	}).Debug("Getting episode")
 
 	var id int
-	if tvShow.Tmdb != 0 {
-		id = tvShow.Tmdb
+	if tvShowMediaIds.Tmdb != 0 {
+		id = tvShowMediaIds.Tmdb
 	} else {
-		results, err := tmdbProvider.Client.SearchTv(tvShow.Title, nil)
+		results, err := tmdbProvider.Client.SearchTv(tvShowMediaIds.Title, nil)
 		if err != nil {
 			return Episode{}, errors.Wrap(err, "cannot find show in TMDB")
 		}
@@ -125,7 +126,12 @@ func (tmdbProvider *TMDBProvider) GetEpisode(tvShow MediaIds, seasonNb int, epis
 		return Episode{}, errors.Wrap(err, "cannot get episode from TMDB")
 	}
 
-	return convertEpisode(*episode), nil
+	showFromDb := TvShow{}
+	db.Client.Where("media_ids_id = ?", tvShowMediaIds.Model.ID).Find(&showFromDb)
+	convertedEpisode := convertEpisode(*episode)
+	getEpisodeAbsoluteNumber(showFromDb, &convertedEpisode)
+
+	return convertedEpisode, nil
 }
 
 // Get list of episodes of a show aired less than RECENTLY_AIRED_EPISODES_INTERVAL days ago
@@ -235,7 +241,9 @@ func (tmdbProvider *TMDBProvider) GetSeasonEpisodeList(show TvShow, seasonNumber
 
 	var retList []Episode
 	for _, ep := range results.Episodes {
-		retList = append(retList, convertEpisode(ep))
+		convertedEpisode := convertEpisode(ep)
+		getEpisodeAbsoluteNumber(show, &convertedEpisode)
+		retList = append(retList, convertedEpisode)
 	}
 
 	return retList, nil
@@ -350,5 +358,20 @@ func convertMovie(movie tmdb.Movie) Movie {
 		Overview:        movie.Overview,
 		Date:            releaseDate,
 		UseDefaultTitle: true,
+	}
+}
+
+func getEpisodeAbsoluteNumber(tvshow TvShow, e *Episode) {
+	previousSeasonsEpisodeCount := 0
+	for _, season := range tvshow.Seasons {
+		if season.SeasonNumber < e.Season && season.SeasonNumber != 0 {
+			previousSeasonsEpisodeCount += season.EpisodeCount
+		}
+	}
+	if e.Number > previousSeasonsEpisodeCount {
+		e.AbsoluteNumber = e.Number
+		e.Number = e.Number - previousSeasonsEpisodeCount
+	} else {
+		e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
 	}
 }
