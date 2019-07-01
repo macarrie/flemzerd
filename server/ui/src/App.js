@@ -6,10 +6,10 @@ import "./css/style.scss";
 import Header from './components/header';
 import Dashboard from './components/dashboard';
 import TvShows from './components/tvshows/index';
-import EpisodeDetails from './components/tvshows/episode_details';
 import Movies from './components/movies/index';
 import Status from './components/status';
 import Settings from './components/settings/index';
+import Notifications from './components/notifications/index';
 
 
 function AppRouter() {
@@ -18,12 +18,13 @@ function AppRouter() {
             <div>
                 <Header />
 
-                <Route path="/" exact           component={Dashboard} />
+                <Route path="/dashboard" exact  component={Dashboard} />
                 <Route path="/tvshows"          component={TvShows} />
-                <Route path="/episodes/:id"     component={EpisodeDetails} />
                 <Route path="/movies"           component={Movies} />
                 <Route path="/status"           component={Status} />
                 <Route path="/settings"         component={Settings} />
+
+                <Route path="/notifications"         component={Notifications} />
             </div>
         </Router>
     );

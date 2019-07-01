@@ -21,10 +21,10 @@ class DownloadingItemTable extends React.Component {
     getMediaLink(item) {
         console.log("Get link: ", item);
         if (this.props.type === "movie") {
-            return `/movies/${item}`;
+            return `/movies/${item.ID}`;
         }
         if (this.props.type === "episode") {
-            return `/episodes/${item}`;
+            return `tvshows/${item.TvShow.ID}/episodes/${item.ID}`;
         }
     }
 
@@ -32,7 +32,7 @@ class DownloadingItemTable extends React.Component {
         return this.state.list.map(item => (
             <tr key={item.ID}>
                 <td>
-                    <Link to={this.getMediaLink(item.ID)}>
+                    <Link to={this.getMediaLink(item)}>
                         {Helpers.getMediaTitle(item)}
                     </Link>
                 </td>

@@ -129,6 +129,29 @@ export default class API {
         }
     };
 
+    static Notifications = {
+        all: function() {
+            return axios.get('/notifications/all');
+        },
+        read: function() {
+            return axios.get('/notifications/read');
+        },
+        unread: function() {
+            return axios.get('/notifications/unread');
+        },
+        markAllRead: function() {
+            return axios.post('/notifications/read');
+        },
+        markRead: function(id) {
+            return axios.post('/notifications/read/' +id, {
+                Read: true,
+            });
+        },
+        deleteAll: function() {
+            return axios.delete('/notifications/all');
+        },
+    };
+
     static Fanart = {
         FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
         FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",

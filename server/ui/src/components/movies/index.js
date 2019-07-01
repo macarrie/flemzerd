@@ -120,57 +120,57 @@ class Movies extends React.Component {
                                     </div>
                                 </div>
                             </button>
-            </li>
-            <li>
-                <button className="uk-button uk-button-text">
-                    <div>
-                        <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
-                        Refresh
-                    </div>
-                    <div>
-                        <div data-uk-spinner="ratio: 0.5"></div>
-            <i>Refreshing</i>
-        </div>
-            </button>
-        </li>
-            </ul>
-        </div>
-        <hr />
+                        </li>
+                        <li>
+                            <button className="uk-button uk-button-text">
+                                <div>
+                                    <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
+                                    Refresh
+                                </div>
+                                <div>
+                                    <div data-uk-spinner="ratio: 0.5"></div>
+                                    <i>Refreshing</i>
+                                </div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <hr />
 
-        <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
-            {this.state.downloading ? (
-                this.state.downloading.map(movie => (
-                    <MediaMiniature key={movie.ID}
-                        item={movie}
-                        type="movie" />
-                ))
-            ) : ""
-            }
-            {this.state.tracked ? (
-                this.state.tracked.map(movie => (
-                    <MediaMiniature key={movie.ID}
-                        item={movie}
-                        type="movie" />
-                ))
-            ) : ""
-            }
-            {this.state.downloaded ? (
-                this.state.downloaded.map(movie => (
-                    <MediaMiniature key={movie.ID}
-                        item={movie}
-                        type="movie" />
-                ))
-            ) : ""
-            }
-            {this.state.removed ? (
-                this.state.removed.map(movie => (
-                    <MediaMiniature key={movie.ID}
-                        item={movie}
-                        type="movie" />
-                ))
-            ) : ""
-            }
-        </div>
+                <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
+                    {this.state.downloading ? (
+                        this.state.downloading.map(movie => (
+                            <MediaMiniature key={movie.ID}
+                                item={movie}
+                                type="movie" />
+                        ))
+                    ) : ""
+                    }
+                    {this.state.tracked ? (
+                        this.state.tracked.map(movie => (
+                            <MediaMiniature key={movie.ID}
+                                item={movie}
+                                type="movie" />
+                        ))
+                    ) : ""
+                    }
+                    {this.state.downloaded ? (
+                        this.state.downloaded.map(movie => (
+                            <MediaMiniature key={movie.ID}
+                                item={movie}
+                                type="movie" />
+                        ))
+                    ) : ""
+                    }
+                    {this.state.removed ? (
+                        this.state.removed.map(movie => (
+                            <MediaMiniature key={movie.ID}
+                                item={movie}
+                                type="movie" />
+                        ))
+                    ) : ""
+                    }
+                </div>
             </div>
         )
     }

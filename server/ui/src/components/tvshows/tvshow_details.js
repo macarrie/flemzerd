@@ -1,4 +1,5 @@
 import React from "react";
+import { Route } from "react-router-dom";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
@@ -7,6 +8,7 @@ import MediaIds from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
 import SeasonList from "./season_list";
+import EpisodeDetails from './episode_details';
 
 class TvShowDetails extends React.Component {
     constructor(props) {
@@ -33,6 +35,8 @@ class TvShowDetails extends React.Component {
 
         this.restoreShow = this.restoreShow.bind(this);
         this.deleteShow = this.deleteShow.bind(this);
+
+        this.renderMediaDetails = this.renderMediaDetails.bind(this);
     }
 
     componentDidMount() {
@@ -138,7 +142,7 @@ class TvShowDetails extends React.Component {
         });
     }
 
-    render() {
+    renderMediaDetails() {
         if (this.state.show == null) {
             return <div>Loading</div>;
         }
@@ -215,6 +219,19 @@ class TvShowDetails extends React.Component {
 
             </>
     );
+    }
+
+    render() {
+        const match = this.props.match;
+
+        return (
+            <>
+                <Route path={`${match.path}/episodes/:id`} component={EpisodeDetails} />
+                <Route exact
+                       path={match.path}
+                       render={this.renderMediaDetails} />
+            </>
+        );
     }
 }
 

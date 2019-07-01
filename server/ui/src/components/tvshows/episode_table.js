@@ -194,7 +194,7 @@ class EpisodeTableLine extends React.Component {
             <tr className={Helpers.dateIsInFuture(this.state.item.Date) ? "episode-list-future" : ""}>
                 <td>
                     <span className="uk-text-small uk-border-rounded episode-label">{Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}</span>
-                    <Link to={`/episodes/${this.state.item.ID}`}>
+                    <Link to={`/tvshows/${this.state.item.TvShow.ID}/episodes/${this.state.item.ID}`}>
                         {this.state.item.Title}
                     </Link>
                 </td>
