@@ -22,6 +22,8 @@ class EpisodeDetails extends React.Component {
 
         this.downloadEpisode = this.downloadEpisode.bind(this);
         this.abortDownload = this.abortDownload.bind(this);
+
+        this.getEpisodeNumber = this.getEpisodeNumber.bind(this);
     }
 
     componentDidMount() {
@@ -82,6 +84,22 @@ class EpisodeDetails extends React.Component {
         });
     }
 
+    getEpisodeNumber() {
+        if (this.state.episode.TvShow.IsAnime) {
+            return (
+                <>
+                    {Helpers.formatAbsoluteNumber(this.state.episode.AbsoluteNumber)}
+                </>
+            );
+        }
+
+        return (
+            <>
+                S{Helpers.formatNumber(this.state.episode.Season)}E{Helpers.formatNumber(this.state.episode.Number)}
+            </>
+        );
+    }
+
     render() {
         if (this.state.episode == null) {
             return <div>Loading</div>;
@@ -111,7 +129,8 @@ class EpisodeDetails extends React.Component {
                                 </span>
                             </div>
                             <div>
-                                <span className="uk-h3 uk-text-muted uk-margin-small-left media_title_details">(S{Helpers.formatNumber(this.state.episode.Season)}E{Helpers.formatNumber(this.state.episode.Number)})</span>
+                                <span
+                                    className="uk-h3 uk-text-muted uk-margin-small-left media_title_details">({this.getEpisodeNumber()})</span>
                             </div>
                         </div>
                         <div className="uk-grid uk-grid-medium" data-uk-grid>

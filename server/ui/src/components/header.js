@@ -1,12 +1,14 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import {NavLink} from "react-router-dom";
 
 import API from '../utils/api';
 
 class Header extends React.Component {
     notifications_refresh_interval;
+    config_check_refresh_interval;
     state = {
         unread_notifications_counter: 0,
+        config_errors_count: 0,
     };
 
     constructor(props) {
@@ -17,21 +19,30 @@ class Header extends React.Component {
 
     componentDidMount() {
         this.countNotifications();
+        this.countConfigurationErrors();
 
-        this.notifications_refresh_interval = setInterval(this.countNotifications().bind(this), 30000);
+        this.notifications_refresh_interval = setInterval(this.countNotifications.bind(this), 10000);
+        this.config_check_refresh_interval = setInterval(this.countConfigurationErrors.bind(this), 30000);
     }
 
     componentWillUnmount() {
         clearInterval(this.notifications_refresh_interval);
+        clearInterval(this.config_check_refresh_interval);
     }
 
     countNotifications() {
-        console.log("Get notifications");
         API.Notifications.unread().then(response => {
-            console.log("Notifications: ", response.data);
-            this.setState({unread_notifications: response.data.length});
+            this.setState({unread_notifications_counter: response.data.length});
         }).catch(error => {
             console.log("Get notifications error: ", error);
+        });
+    }
+
+    countConfigurationErrors() {
+        API.Config.check().then(response => {
+            this.setState({config_errors_count: response.data.length});
+        }).catch(error => {
+            console.log("Check configuration error: ", error);
         });
     }
 
@@ -52,8 +63,9 @@ class Header extends React.Component {
                                 <NavLink activeClassName="active" to="/settings">
                                     <span className="uk-icon uk-margin-small-right" data-uk-icon="ratio: 0.8; icon: settings"></span>
                                     Settings
-                                    <span className="uk-badge uk-border-pill uk-text-small">
-                                        {this.state.unread_notifications_counter}
+                                    <span
+                                        className={`uk-badge uk-border-pill uk-text-small ${this.state.config_errors_count > 0 ? "alerted" : ""}`}>
+                                        {this.state.config_errors_count}
                                     </span>
                                 </NavLink>
                             </li>
@@ -66,9 +78,9 @@ class Header extends React.Component {
                                     className="notifications_counter"
                                     to="/notifications">
                                     <span data-uk-icon="bell"></span>
-                                    <span className="uk-badge uk-border-pill uk-text-small"
-                                        data-target="notifications-watcher.counter">
-                                        0
+                                    <span
+                                        className={`uk-badge uk-border-pill uk-text-small ${this.state.unread_notifications_counter > 0 ? "alerted" : ""}`}>
+                                        {this.state.unread_notifications_counter}
                                     </span>
                                 </NavLink>
                             </li>

@@ -17,6 +17,17 @@ export default class Helpers {
         return nb;
     };
 
+    static formatAbsoluteNumber = (nb) => {
+        if (nb < 10) {
+            return '00' + nb;
+        }
+        if (nb < 100) {
+            return '0' + nb;
+        }
+
+        return nb;
+    };
+
     static dateIsInFuture = (dateString) => {
         var d = new Date(dateString);
         return d.getTime() > Date.now();

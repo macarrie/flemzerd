@@ -1,7 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
-import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
 
@@ -70,6 +69,8 @@ class Notification extends React.Component {
                 break;
             case Const.INFO:
                 classes += "info";
+                break;
+            default:
                 break;
         }
 

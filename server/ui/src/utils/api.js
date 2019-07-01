@@ -6,6 +6,9 @@ export default class API {
     static Config = {
         get: function() {
             return axios.get('/config');
+        },
+        check: function () {
+            return axios.get('/config/check');
         }
     };
 

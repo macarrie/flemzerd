@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
@@ -16,30 +16,30 @@ class EpisodeTable extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ list: nextProps.list });
+        this.setState({list: nextProps.list});
     }
 
     render() {
         return (
-            <table className="uk-table uk-table-divider uk-table-small"> 
+            <table className="uk-table uk-table-divider uk-table-small">
                 <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th className="uk-hidden@m">Release</th>
-                        <th className="uk-visible@m">Release date</th>
+                <tr>
+                    <th>Title</th>
+                    <th className="uk-hidden@m">Release</th>
+                    <th className="uk-visible@m">Release date</th>
 
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
 
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
-                    </tr>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {(this.state.list || []).map(episode => (
-                        <EpisodeTableLine
-                            key={episode.ID}
-                            item={episode} />
-                    ))}
+                {(this.state.list || []).map(episode => (
+                    <EpisodeTableLine
+                        key={episode.ID}
+                        item={episode}/>
+                ))}
                 </tbody>
             </table>
         );
@@ -66,10 +66,11 @@ class EpisodeTableLine extends React.Component {
 
         this.getDownloadButtons = this.getDownloadButtons.bind(this);
         this.getDownloadControlButtons = this.getDownloadControlButtons.bind(this);
+        this.getEpisodeNumber = this.getEpisodeNumber.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ item: nextProps.item });
+        this.setState({item: nextProps.item});
     }
 
     refreshEpisode() {
@@ -116,7 +117,7 @@ class EpisodeTableLine extends React.Component {
         if (this.state.item.DownloadingItem.Downloaded) {
             return (
                 <span className="uk-text-success"
-                    data-uk-icon="icon: check; ratio: 0.75">
+                      data-uk-icon="icon: check; ratio: 0.75">
                 </span>
             );
         }
@@ -125,15 +126,15 @@ class EpisodeTableLine extends React.Component {
             return (
                 <div>
                     <button className="uk-icon"
-                        key="downloadEpisode"
-                        onClick={this.downloadEpisode}
-                        data-uk-tooltip="delay: 500; title: Download"
-                        data-uk-icon="icon: download; ratio: 0.75">
+                            key="downloadEpisode"
+                            onClick={this.downloadEpisode}
+                            data-uk-tooltip="delay: 500; title: Download"
+                            data-uk-icon="icon: download; ratio: 0.75">
                     </button>
                     {this.state.item.DownloadingItem.TorrentsNotFound && (
                         <div className="btn btn-sm">
                             <i className="material-icons uk-text-warning md-18"
-                                title="No torrents found for episode on last download">warning</i>
+                               title="No torrents found for episode on last download">warning</i>
                         </div>
                     )}
                 </div>
@@ -159,29 +160,30 @@ class EpisodeTableLine extends React.Component {
         if (this.state.item.DownloadingItem.Downloaded) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="markNotDownloaded"
-                    onClick={this.markNotDownloaded}
-                    data-uk-tooltip="delay: 500; title: Unmark as downloaded"
-                    data-uk-icon="icon: push; ratio: 0.75">
+                        key="markNotDownloaded"
+                        onClick={this.markNotDownloaded}
+                        data-uk-tooltip="delay: 500; title: Unmark as downloaded"
+                        data-uk-icon="icon: push; ratio: 0.75">
                 </button>
             );
         }
         if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
             buttonList.push(
                 <span className="btn btn-sm p-0"
-                    key="abortDownload"
-                    onClick={this.abortDownload}>
-                    <span className="uk-icon uk-icon-link uk-text-danger" data-uk-icon="icon: close; ratio: 0.75"></span>
+                      key="abortDownload"
+                      onClick={this.abortDownload}>
+                    <span className="uk-icon uk-icon-link uk-text-danger"
+                          data-uk-icon="icon: close; ratio: 0.75"></span>
                 </span>
             );
         }
         if (!this.state.item.DownloadingItem.Downloaded && !this.state.item.DownloadingItem.Pending && !this.state.item.DownloadingItem.Downloading) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="markDownloaded"
-                    onClick={this.markDownloaded}
-                    data-uk-tooltip="delay: 500; title: Mark as downloaded"
-                    data-uk-icon="icon: check; ratio: 0.75">
+                        key="markDownloaded"
+                        onClick={this.markDownloaded}
+                        data-uk-tooltip="delay: 500; title: Mark as downloaded"
+                        data-uk-icon="icon: check; ratio: 0.75">
                 </button>
             );
         }
@@ -189,11 +191,27 @@ class EpisodeTableLine extends React.Component {
         return buttonList;
     }
 
+    getEpisodeNumber() {
+        if (this.state.item.TvShow.IsAnime) {
+            return (
+                <>
+                    {Helpers.formatAbsoluteNumber(this.state.item.AbsoluteNumber)}
+                </>
+            );
+        }
+
+        return (
+            <>
+                {Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}
+            </>
+        );
+    }
+
     render() {
         return (
             <tr className={Helpers.dateIsInFuture(this.state.item.Date) ? "episode-list-future" : ""}>
                 <td>
-                    <span className="uk-text-small uk-border-rounded episode-label">{Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}</span>
+                    <span className="uk-text-small uk-border-rounded episode-label">{this.getEpisodeNumber()}</span>
                     <Link to={`/tvshows/${this.state.item.TvShow.ID}/episodes/${this.state.item.ID}`}>
                         {this.state.item.Title}
                     </Link>
