@@ -9,9 +9,9 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
-	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/watchlists"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
 
@@ -57,7 +57,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 		showReq := TvShow{}
 		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 		if req.RecordNotFound() {
-			//Look in deleted records too
+			// Look in deleted records too
 			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 			if unscopedReq.RecordNotFound() {
 				db.Client.Create(&show)
@@ -82,7 +82,7 @@ func FindMovie(query MediaIds) (Movie, error) {
 		movieReq := Movie{}
 		req := db.Client.Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
 		if req.RecordNotFound() {
-			//Look in deleted records too
+			// Look in deleted records too
 			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
 			if unscopedReq.RecordNotFound() {
 				db.Client.Create(&movie)
@@ -121,22 +121,9 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 				e.TvShow = show
 				db.Client.Create(&e)
 			} else {
+				// Episodes did not have absolute number computed. Absolute Number is updated when querying episode
+				reqEpisode.AbsoluteNumber = e.AbsoluteNumber
 				e = reqEpisode
-			}
-
-			if e.TvShow.IsAnime {
-				previousSeasonsEpisodeCount := 0
-				for _, season := range show.Seasons {
-					if season.SeasonNumber < e.Season {
-						previousSeasonsEpisodeCount += season.EpisodeCount
-					}
-				}
-				if e.Number > previousSeasonsEpisodeCount {
-					e.AbsoluteNumber = e.Number
-					e.Number = e.Number - previousSeasonsEpisodeCount
-				} else {
-					e.AbsoluteNumber = e.Number + previousSeasonsEpisodeCount
-				}
 			}
 			db.Client.Save(&e)
 
