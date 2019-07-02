@@ -31,7 +31,7 @@ class Status extends React.Component {
         API.Modules.Watchlists.status().then(response => {
             this.setState({watchlists: response.data});
         }).catch(error => {
-            console.log("Get wwatchlists status error: ", error);
+            console.log("Get watchlists status error: ", error);
         });
     }
 

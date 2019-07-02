@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 import API from "../utils/api";
 
+import Loading from "./loading";
+
 class Dashboard extends React.Component {
     constructor(props) {
         super(props);
@@ -14,13 +16,12 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        this.getConfig();
-        this.getStats();
+        //this.getConfig();
+        //this.getStats();
     }
 
     getConfig() {
         API.Config.get().then(response => {
-            console.log("Config: ", response.data);
             this.setState({config: response.data});
         }).catch(error => {
             console.log("Get config error: ", error);
@@ -29,7 +30,6 @@ class Dashboard extends React.Component {
 
     getStats() {
         API.Stats.get().then(response => {
-            console.log("stats: ", response.data);
             this.setState({stats: response.data.stats});
         }).catch(error => {
             console.log("Get stats error: ", error);
@@ -38,7 +38,7 @@ class Dashboard extends React.Component {
 
     render() {
         if (this.state.config == null || this.state.stats == null) {
-            return <div>Loading</div>;
+            return <Loading />;
         }
 
         return (

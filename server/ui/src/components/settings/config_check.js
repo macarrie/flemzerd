@@ -11,7 +11,6 @@ class ConfigCheck extends React.Component {
         };
 
         this.state.item = this.props.item;
-        console.log("Config check: ", this.state.item);
     }
 
     componentWillReceiveProps(nextProps) {

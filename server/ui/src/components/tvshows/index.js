@@ -6,6 +6,7 @@ import API from "../../utils/api";
 import MediaMiniature from "../media_miniature";
 import TvShowDetails from "./tvshow_details";
 import DownloadingItemTable from "../downloading_items_table";
+import LoadingButton from "../loading_button";
 
 class TvShows extends React.Component {
     state = {
@@ -16,6 +17,9 @@ class TvShows extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.poll = this.poll.bind(this);
+        this.refreshWatchlists = this.refreshWatchlists.bind(this);
 
         this.renderShowList = this.renderShowList.bind(this);
         this.getDownloadingEpisodes = this.getDownloadingEpisodes.bind(this);
@@ -41,9 +45,16 @@ class TvShows extends React.Component {
         });
     }
 
+    poll() {
+        return API.Actions.poll();
+    }
+
+    refreshWatchlists() {
+        return API.Modules.Watchlists.refresh();
+    }
+
     getDownloadingEpisodes() {
         API.Episodes.downloading().then(response => {
-            console.log("DLing episodes: ", response.data);
             this.setState({downloading_episodes: response.data});
         }).catch(error => {
             console.log("Get downloading episodes error: ", error);
@@ -102,34 +113,18 @@ class TvShows extends React.Component {
                             </button>
                         </li>
                         <li>
-                            <button className="uk-button uk-button-text">
-                                <div className="uk-flex uk-flex-middle">
-                                    <div className="uk-float-left">
-                                        <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
-                                    </div>
-                                    <div className="uk-text-nowrap">
-                                        Check now
-                                    </div>
-                                </div>
-                                <div>
-                                    <div data-uk-spinner="ratio: 0.5"></div>
-                                    <div>
-                                        <i>Checking</i>
-                                    </div>
-                                </div>
-                            </button>
+                            <LoadingButton 
+                                text="Check now"
+                                loading_text="Checking"
+                                action={this.poll}
+                            />
                         </li>
                         <li>
-                            <button className="uk-button uk-button-text">
-                                <div>
-                                    <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
-                                    Refresh
-                                </div>
-                                <div>
-                                    <div data-uk-spinner="ratio: 0.5"></div>
-                                    <i>Refreshing</i>
-                                </div>
-                            </button>
+                            <LoadingButton 
+                                text="Refresh"
+                                loading_text="Refreshing"
+                                action={this.refreshWatchlists}
+                            />
                         </li>
                     </ul>
                 </div>

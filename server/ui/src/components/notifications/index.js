@@ -23,7 +23,6 @@ class Notifications extends React.Component {
     }
 
     getNotifications() {
-        console.log("Get notifications");
         API.Notifications.all().then(response => {
             console.log("Notifications: ", response.data);
             this.setState({list: response.data});
@@ -33,7 +32,6 @@ class Notifications extends React.Component {
     }
 
     markRead(id) {
-        console.log("Mark notification read ID: ", id);
         API.Notifications.markRead(id).then(response => {
             this.getNotifications();
         }).catch(error => {
@@ -42,7 +40,6 @@ class Notifications extends React.Component {
     }
 
     markAllRead() {
-        console.log("Mark all notifications read");
         API.Notifications.markAllRead().then(response => {
             this.getNotifications();
         }).catch(error => {
@@ -51,7 +48,6 @@ class Notifications extends React.Component {
     }
 
     deleteAll(id) {
-        console.log("Delete all notifications");
         API.Notifications.deleteAll().then(response => {
             this.getNotifications();
         }).catch(error => {

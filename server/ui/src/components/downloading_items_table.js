@@ -19,7 +19,6 @@ class DownloadingItemTable extends React.Component {
     }
 
     getMediaLink(item) {
-        console.log("Get link: ", item);
         if (this.props.type === "movie") {
             return `/movies/${item.ID}`;
         }

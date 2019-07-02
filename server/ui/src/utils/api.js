@@ -3,6 +3,12 @@ import axios from "axios";
 axios.defaults.baseURL = "/api/v1/";
 
 export default class API {
+    static Actions = {
+        poll: function () {
+            return axios.post('/actions/poll');
+        }
+    };
+
     static Config = {
         get: function() {
             return axios.get('/config');
@@ -184,6 +190,9 @@ export default class API {
         Watchlists: {
             status: function() {
                 return axios.get('/modules/watchlists/status');
+            },
+            refresh: function() {
+                return axios.post('/modules/watchlists/refresh');
             },
             Trakt: {
                 get_token: function () {
