@@ -1,24 +1,33 @@
 import React from "react";
 
 import API from "../utils/api";
+import Const from "../const";
+import Loading from "./loading";
 
 import ModuleStatus from "./module_status";
 
 class Status extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            watchlists: [],
-            providers: [],
-            notifiers: [],
-            indexers: [],
-            downloaders: [],
-            mediacenters: [],
-        };
-    }
+    status_refresh_interval;
+    state = {
+        watchlists: null,
+        providers: null,
+        notifiers: null,
+        indexers: null,
+        downloaders: null,
+        mediacenters: null,
+    };
 
     componentDidMount() {
+        this.load();
+
+        this.status_refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.status_refresh_interval);
+    }
+
+    load() {
         this.getWatchlists();
         this.getProviders();
         this.getNotifiers();
@@ -76,6 +85,12 @@ class Status extends React.Component {
     }
 
     render() {
+        if (this.state.watchlists == null && this.state.providers == null && this.state.notifiers == null && this.state.indexers == null && this.state.downloaders == null && this.state.mediacenters == null) {
+            return (
+                <Loading/>
+            );
+        }
+
         return (
             <div className="uk-container">
                 <div className="uk-grid uk-child-width-1-1 uk-child-width-1-2@s" data-uk-grid="masonry: true">

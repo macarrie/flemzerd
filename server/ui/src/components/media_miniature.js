@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import API from "../utils/api";
 import Helpers from "../utils/helpers";
@@ -151,22 +151,22 @@ class MediaMiniature extends React.Component {
         if (this.state.DownloadingItem.Downloaded && (!this.state.DeletedAt)) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="markNotDownloaded"
-                    onClick={this.markNotDownloaded}
-                    data-uk-tooltip="delay: 500; title: Unmark as downloaded"
-                    data-uk-icon="icon: push; ratio: 0.75">
-            </button>
+                        key="markNotDownloaded"
+                        onClick={this.markNotDownloaded}
+                        data-uk-tooltip="delay: 500; title: Unmark as downloaded"
+                        data-uk-icon="icon: push; ratio: 0.75">
+                </button>
             )
         }
 
         if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="markDownloaded"
-                    onClick={this.markDownloaded}
-                    data-uk-tooltip="delay: 500; title: Mark as downloaded"
-                    data-uk-icon="icon: check; ratio: 0.75">
-            </button>
+                        key="markDownloaded"
+                        onClick={this.markDownloaded}
+                        data-uk-tooltip="delay: 500; title: Mark as downloaded"
+                        data-uk-icon="icon: check; ratio: 0.75">
+                </button>
             );
         }
 
@@ -174,11 +174,11 @@ class MediaMiniature extends React.Component {
         if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Pending && !this.state.DeletedAt && !Helpers.dateIsInFuture(this.state.Date)) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="downloadMovie"
-                    onClick={this.downloadMovie}
-                    data-uk-tooltip="delay: 500; title: Download"
-                    data-uk-icon="icon: download; ratio: 0.75">
-            </button>
+                        key="downloadMovie"
+                        onClick={this.downloadMovie}
+                        data-uk-tooltip="delay: 500; title: Download"
+                        data-uk-icon="icon: download; ratio: 0.75">
+                </button>
             )
         }
 
@@ -284,34 +284,37 @@ class MediaMiniature extends React.Component {
                 <div className="uk-inline media-miniature">
                     <div>
                         <Link to={`/${this.props.type}s/${this.state.ID}`}>
-                            <img src={ this.state.Poster } alt={ this.state.Title } className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`} data-uk-img />
-                            <div className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
-                                    {this.getDownloadStatusLabel()}
+                            <img data-src={this.state.Poster} alt={this.state.Title}
+                                 className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`}
+                                 data-uk-img/>
+                            <div
+                                className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
+                                {this.getDownloadStatusLabel()}
                             </div>
                         </Link>
                     </div>
 
                     <div className="uk-icon uk-position-top-right">
-                            {this.getDownloadControlButtons()}
+                        {this.getDownloadControlButtons()}
 
-                            { (!this.state.DeletedAt) ? (
-                                <button className="uk-icon"
+                        {(!this.state.DeletedAt) ? (
+                            <button className="uk-icon"
                                     onClick={this.deleteItem}
                                     data-uk-tooltip="delay: 500; title: Remove"
                                     data-uk-icon="icon: close; ratio: 0.75">
                             </button>
-                            ) : ""}
+                        ) : ""}
 
-                                { (this.state.DeletedAt) ? (
-                                    <button className="uk-icon"
-                                        onClick={this.restoreItem}
-                                        data-uk-tooltip="delay: 500; title: Restore"
-                                        data-uk-icon="icon: reply; ratio: 0.75">
-                                </button>
-                                ) : ""}
-                            </div>
-                        </div>
+                        {(this.state.DeletedAt) ? (
+                            <button className="uk-icon"
+                                    onClick={this.restoreItem}
+                                    data-uk-tooltip="delay: 500; title: Restore"
+                                    data-uk-icon="icon: reply; ratio: 0.75">
+                            </button>
+                        ) : ""}
                     </div>
+                </div>
+            </div>
         );
     }
 }

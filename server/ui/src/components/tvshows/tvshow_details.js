@@ -3,6 +3,8 @@ import {Route} from "react-router-dom";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
+import Const from "../../const";
+import Loading from "../loading";
 
 import MediaIds from "../media_ids";
 import Editable from "../editable";
@@ -11,14 +13,15 @@ import SeasonList from "./season_list";
 import EpisodeDetails from './episode_details';
 
 class TvShowDetails extends React.Component {
+    tvshow_refresh_interval;
+    state = {
+        movie: null,
+        seasons: [],
+        fanartURL: "",
+    };
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            movie: null,
-            seasons: [],
-            fanartURL: "",
-        };
 
         this.getSeason = this.getSeason.bind(this);
         this.getSeasonList = this.getSeasonList.bind(this);
@@ -41,6 +44,12 @@ class TvShowDetails extends React.Component {
 
     componentDidMount() {
         this.getShow();
+
+        this.tvshow_refresh_interval = setInterval(this.getShow.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.tvshow_refresh_interval);
     }
 
     getShow() {
@@ -144,7 +153,9 @@ class TvShowDetails extends React.Component {
 
     renderMediaDetails() {
         if (this.state.show == null) {
-            return <div>Loading</div>;
+            return (
+                <Loading/>
+            );
         }
 
         return (

@@ -12,4 +12,7 @@ export default class Const {
     static CRITICAL = 2;
     static UNKNOWN = 3;
     static INFO = 4;
+
+    static NOTIFICATIONS_REFRESH = 10000;
+    static DATA_REFRESH = 30000;
 }

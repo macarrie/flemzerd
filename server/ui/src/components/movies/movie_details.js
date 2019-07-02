@@ -2,6 +2,8 @@ import React from "react";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
+import Const from "../../const";
+import Loading from "../loading";
 
 import MediaIds from "../media_ids";
 import Editable from "../editable";
@@ -9,13 +11,14 @@ import MediaActionBar from "../media_action_bar";
 import DownloadingItem from "../downloading_item";
 
 class MovieDetails extends React.Component {
+    movie_refresh_interval;
+    state = {
+        movie: null,
+        fanartURL: "",
+    };
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            movie: null,
-            fanartURL: "",
-        };
 
         this.exitTitleEdit = this.exitTitleEdit.bind(this);
 
@@ -36,6 +39,12 @@ class MovieDetails extends React.Component {
 
     componentDidMount() {
         this.getMovie();
+
+        this.movie_refresh_interval = setInterval(this.getMovie.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.movie_refresh_interval);
     }
 
     getMovie() {
@@ -134,7 +143,9 @@ class MovieDetails extends React.Component {
 
     render() {
         if (this.state.movie == null) {
-            return <div>Loading</div>;
+            return (
+                <Loading/>
+            );
         }
 
         return (

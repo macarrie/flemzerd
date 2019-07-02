@@ -1,11 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Alex+Brush');
 @import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,700,700i');
 @import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
-
 @import "vars.scss";
 @import "media.details.scss";
 @import "media.miniatures.scss";
-
 @import "uikit/src/scss/variables-theme.scss";
 @import "uikit/src/scss/mixins-theme.scss";
 
@@ -65,17 +63,27 @@ body {
     position: relative;
     top: 1px;
 }
-.material-icons.md-24 { font-size: 24px;  }
-.material-icons.md-36 { font-size: 36px;  }
-.material-icons.md-48 { font-size: 48px;  }
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}
 
 a {
     color: lighten($info, 10%);
 
-    &:hover  {
+    &:hover {
         cursor: pointer;
         color: $info;
     }
+
     i.material-icons {
         font-size: 16px;
         margin-right: 3px;
@@ -146,6 +154,10 @@ div.toc_parent {
 
 .abort-download-button {
     width: 14px;
+}
+
+img[data-src][src*='data:image'] {
+    background: rgba(0, 0, 0, 0.1);
 }
 
 // Navbar
@@ -220,6 +232,13 @@ div.toc_parent {
                 }
             }
         }
+    }
+
+    .server-unavailable {
+        background-color: lighten($danger, 5%);
+        color: $light;
+        border-radius: $border-rounded-border-radius;
+        padding: 10px 20px;
     }
 }
 
@@ -302,7 +321,7 @@ table.notification-table {
             font-style: normal;
         }
     }
-    
+
     .notification_action_button {
         display: block;
         width: 25px

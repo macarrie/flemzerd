@@ -1,22 +1,37 @@
 import React from "react";
 
 import API from "../../utils/api";
+import Const from "../../const";
+import Loading from "../loading";
+
 import ModuleSettings from "./module_settings";
 import ConfigCheck from "./config_check";
 
 class Settings extends React.Component {
+    settings_refresh_interval;
+    state = {
+        config: null,
+        config_checks: null,
+    };
+
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            config: null,
-            config_checks: null,
-        };
 
         this.renderModuleList = this.renderModuleList.bind(this);
     }
 
     componentDidMount() {
+        this.load();
+
+        this.settings_refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.settings_refresh_interval);
+    }
+
+    load() {
         this.getConfig();
         this.checkConfig();
     }
@@ -77,8 +92,10 @@ class Settings extends React.Component {
     }
 
     render() {
-        if (this.state.config == null) {
-            return <div>Loading</div>;
+        if (this.state.config == null || this.state.config_checks == null) {
+            return (
+                <Loading/>
+            );
         }
 
         return (

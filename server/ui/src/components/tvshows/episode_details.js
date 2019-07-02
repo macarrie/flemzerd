@@ -2,19 +2,22 @@ import React from "react";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
+import Const from "../../const";
+import Loading from "../loading";
 
 import MediaIds from "../media_ids";
 import MediaActionBar from "../media_action_bar";
 import DownloadingItem from "../downloading_item";
 
 class EpisodeDetails extends React.Component {
+    episode_refresh_interval;
+    state = {
+        episode: null,
+        fanartURL: "",
+    };
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            episode: null,
-            fanartURL: "",
-        };
 
         this.markNotDownloaded = this.markNotDownloaded.bind(this);
         this.markDownloaded = this.markDownloaded.bind(this);
@@ -28,6 +31,12 @@ class EpisodeDetails extends React.Component {
 
     componentDidMount() {
         this.getEpisode();
+
+        this.episode_refresh_interval = setInterval(this.getEpisode.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.episode_refresh_interval);
     }
 
     getEpisode() {
@@ -102,7 +111,9 @@ class EpisodeDetails extends React.Component {
 
     render() {
         if (this.state.episode == null) {
-            return <div>Loading</div>;
+            return (
+                <Loading/>
+            );
         }
 
         return (

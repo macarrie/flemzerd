@@ -1,7 +1,9 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import {Route} from "react-router-dom";
 
 import API from "../../utils/api";
+import Const from "../../const";
+import Loading from "../loading";
 
 import MediaMiniature from "../media_miniature";
 import MovieDetails from "./movie_details";
@@ -9,11 +11,13 @@ import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
 
 class Movies extends React.Component {
+    movies_refresh_interval;
     state = {
         tracked: null,
         removed: null,
         downloaded: null,
         downloading: null,
+        load_error: null,
     };
 
     constructor(props) {
@@ -29,6 +33,12 @@ class Movies extends React.Component {
 
     componentDidMount() {
         this.getMovies();
+
+        this.movies_refresh_interval = setInterval(this.getMovies.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.movies_refresh_interval);
     }
 
     getMovies() {
@@ -91,6 +101,11 @@ class Movies extends React.Component {
     }
 
     renderMovieList() {
+        if (this.state.downloaded == null && this.state.downloading == null && this.state.removed == null && this.state.tracked == null) {
+            return (
+                <Loading/>
+            )
+        }
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
                 {this.renderDownloadingList()}

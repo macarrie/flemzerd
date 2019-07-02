@@ -1,7 +1,9 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import {Route} from "react-router-dom";
 
 import API from "../../utils/api";
+import Const from "../../const";
+import Loading from "../loading";
 
 import MediaMiniature from "../media_miniature";
 import TvShowDetails from "./tvshow_details";
@@ -9,6 +11,7 @@ import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
 
 class TvShows extends React.Component {
+    tvshow_refresh_interval;
     state = {
         tracked: null,
         removed: null,
@@ -27,6 +30,16 @@ class TvShows extends React.Component {
     }
 
     componentDidMount() {
+        this.load();
+
+        this.tvshow_refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.tvshow_refresh_interval);
+    }
+
+    load() {
         this.getShows();
         this.getDownloadingEpisodes();
     }
@@ -88,6 +101,12 @@ class TvShows extends React.Component {
     }
 
     renderShowList() {
+        if (this.state.downloading_episodes == null && this.state.removed == null && this.state.tracked == null) {
+            return (
+                <Loading/>
+            );
+        }
+
         return (
             <div className="uk-container" data-uk-filter="target: .item-filter">
                 {this.renderDownloadingList()}
