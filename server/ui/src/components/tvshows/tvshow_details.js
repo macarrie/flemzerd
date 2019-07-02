@@ -16,7 +16,7 @@ class TvShowDetails extends React.Component {
     tvshow_refresh_interval;
     state = {
         movie: null,
-        seasons: [],
+        seasons: null,
         fanartURL: "",
     };
 
@@ -58,7 +58,7 @@ class TvShowDetails extends React.Component {
             show_result.DisplayTitle = Helpers.getMediaTitle(show_result)
             this.setState({
                 show: show_result,
-                seasons: new Array(show_result.NumberOfSeasons),
+                seasons: this.state.seasons == null ? new Array(show_result.NumberOfSeasons) : this.state.seasons,
             });
             this.getFanart();
             this.getSeasonList();
@@ -74,7 +74,7 @@ class TvShowDetails extends React.Component {
 
             this.setState({seasons: seasonlist});
         }).catch(error => {
-            console.log("Get show details error: ", error);
+            console.log("Get season details error: ", error);
         });
     }
 

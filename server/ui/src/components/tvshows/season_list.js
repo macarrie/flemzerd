@@ -19,6 +19,8 @@ class SeasonList extends React.Component {
         this.markSeasonNotDownloaded = this.markSeasonNotDownloaded.bind(this);
         this.changeSeasonDownloadedState = this.changeSeasonDownloadedState.bind(this);
         this.downloadSeason = this.downloadSeason.bind(this);
+
+        this.renderSeason = this.renderSeason.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -60,45 +62,85 @@ class SeasonList extends React.Component {
         });
     }
 
+    make_uuid() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            // eslint-disable-next-line
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+
+    renderSeason(season) {
+        if (season == null) {
+            return (
+                <div 
+                    key={this.make_uuid()}
+                    className="uk-text-muted uk-flex uk-flex-middle">
+                <span className="uk-margin-right" data-uk-spinner="ratio: 0.5"></span>
+                <i>
+                        Loading season details
+                </i>
+            </div>
+            );
+        }
+
+        if (season.EpisodeList == null) {
+            season.EpisodeList = [];
+        }
+
+        if (season.Info.SeasonNumber === 0) {
+            return;
+        }
+
+        return (
+            <div key={season.Info.SeasonNumber}>
+                <div>
+                    <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" data-uk-grid>
+                        <div className="uk-width-expand uk-accordion-title">
+                            <span className="uk-h3">Season {season.Info.SeasonNumber} </span><span className="uk-text-muted uk-h6">( {season.EpisodeList.length} episodes )</span>
+                        </div>
+                        <div className="uk-width-auto">
+                            <ul className="uk-iconnav">
+                                <li data-uk-tooltip="delay: 500; title: Mark whole season as not downloaded"
+                                    onClick={() => this.markSeasonNotDownloaded(season.Info.SeasonNumber)}
+                                    className="uk-icon"
+                                    data-uk-icon="icon: push; ratio: 0.75"></li>
+                                <li data-uk-tooltip="delay: 500; title: Mark whole season as downloaded"
+                                    onClick={() => this.markSeasonDownloaded(season.Info.SeasonNumber)}
+                                    className="uk-icon"
+                                    data-uk-icon="icon: check; ratio: 0.75"></li>
+                                <li data-uk-tooltip="delay: 500; title: Download the whole season"
+                                    onClick={() => this.downloadSeason(season.Info.SeasonNumber)}
+                                    className="uk-icon"
+                                    data-uk-icon="icon: download; ratio: 0.75"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div className="uk-accordion-content">
+                    <EpisodeTable list={season.EpisodeList} />
+                </div>
+            </div>
+        );
+    }
+
+    renderSeasons() {
+        let seasonRenders = [];
+
+        for (var i = 0; i < this.state.seasons.length; i++) {
+            seasonRenders.push(this.renderSeason(this.state.seasons[i]));
+        }
+
+        return seasonRenders;
+    }
+
     render() {
         return (
             <div data-uk-accordion
                 data-toggle="> div > .uk-grid > .uk-accordion-title"
                 data-multiple="true"
                 data-collapsible="true">
-                {(this.state.seasons || []).filter((elt, index) => {
-                    return index !== 0;
-                }).map(season => (
-                    <div key={season.Info.SeasonNumber}>
-                        <div>
-                            <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" data-uk-grid>
-                                <div className="uk-width-expand uk-accordion-title">
-                                        <span className="uk-h3">Season {season.Info.SeasonNumber} </span><span className="uk-text-muted uk-h6">( {season.EpisodeList.length} episodes )</span>
-                                </div>
-                                <div className="uk-width-auto">
-                                    <ul className="uk-iconnav">
-                                        <li data-uk-tooltip="delay: 500; title: Mark whole season as not downloaded"
-                                            onClick={() => this.markSeasonNotDownloaded(season.Info.SeasonNumber)}
-                                            className="uk-icon"
-                                            data-uk-icon="icon: push; ratio: 0.75"></li>
-                                        <li data-uk-tooltip="delay: 500; title: Mark whole season as downloaded"
-                                            onClick={() => this.markSeasonDownloaded(season.Info.SeasonNumber)}
-                                            className="uk-icon"
-                                            data-uk-icon="icon: check; ratio: 0.75"></li>
-                                        <li data-uk-tooltip="delay: 500; title: Download the whole season"
-                                            onClick={() => this.downloadSeason(season.Info.SeasonNumber)}
-                                            className="uk-icon"
-                                            data-uk-icon="icon: download; ratio: 0.75"></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="uk-accordion-content">
-                            <EpisodeTable list={season.EpisodeList} />
-                        </div>
-                    </div>
-                ))}
-            </div>
+                {this.renderSeasons()}
+        </div>
         )
     }
 }

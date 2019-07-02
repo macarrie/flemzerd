@@ -85,7 +85,7 @@ class Status extends React.Component {
     }
 
     render() {
-        if (this.state.watchlists == null && this.state.providers == null && this.state.notifiers == null && this.state.indexers == null && this.state.downloaders == null && this.state.mediacenters == null) {
+        if (this.state.watchlists == null || this.state.providers == null || this.state.notifiers == null || this.state.indexers == null || this.state.downloaders == null || this.state.mediacenters == null) {
             return (
                 <Loading/>
             );
@@ -97,44 +97,60 @@ class Status extends React.Component {
                     <div>
                         <h3>Watchlists</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.watchlists && (
-                                this.state.watchlists.map(w => (
-                                    <ModuleStatus key={w.Name}
-                                                  module={w} />
+                            {this.state.watchlists != null ? (
+                                this.state.watchlists.map(i => (
+                                    <ModuleStatus key={i.Name}
+                                        module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>
                     <div>
                         <h3>Providers</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.providers && (
-                                this.state.providers.map(p => (
-                                    <ModuleStatus key={p.Name}
-                                                  module={p} />
+                            {this.state.providers != null ? (
+                                this.state.providers.map(i => (
+                                    <ModuleStatus key={i.Name}
+                                                  module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>
                     <div>
                         <h3>Notifiers</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.notifiers && (
-                                this.state.notifiers.map(n => (
-                                    <ModuleStatus key={n.Name}
-                                                  module={n} />
+                            {this.state.notifiers != null ? (
+                                this.state.notifiers.map(i => (
+                                    <ModuleStatus key={i.Name}
+                                                  module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>
                     <div>
                         <h3>Indexers</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.indexers && (
+                            {this.state.indexers != null ? (
                                 this.state.indexers.map(i => (
                                     <ModuleStatus key={i.Name}
                                                   module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>
@@ -142,22 +158,30 @@ class Status extends React.Component {
                     <div>
                         <h3>Downloaders</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.downloaders && (
-                                this.state.downloaders.map(d => (
-                                    <ModuleStatus key={d.Name}
-                                                  module={d} />
+                            {this.state.downloaders != null ? (
+                                this.state.downloaders.map(i => (
+                                    <ModuleStatus key={i.Name}
+                                                  module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>
                     <div>
                         <h3>Media centers</h3>
                         <ul className="uk-list uk-list-striped no-stripes">
-                            {this.state.mediacenters && (
-                                this.state.mediacenters.map(m => (
-                                    <ModuleStatus key={m.Name}
-                                                  module={m} />
+                            {this.state.mediacenters != null ? (
+                                this.state.mediacenters.map(i => (
+                                    <ModuleStatus key={i.Name}
+                                                  module={i} />
                                 ))
+                            ) : (
+                                <li className="uk-text-center">
+                                    <span data-uk-spinner="ratio: 0.8"></span>
+                                </li>
                             )}
                         </ul>
                     </div>

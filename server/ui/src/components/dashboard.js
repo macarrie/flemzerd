@@ -28,7 +28,6 @@ class Dashboard extends React.Component {
     }
 
     load() {
-        console.log("refresh");
         this.getConfig();
         this.getStats();
     }

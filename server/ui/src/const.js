@@ -14,5 +14,5 @@ export default class Const {
     static INFO = 4;
 
     static NOTIFICATIONS_REFRESH = 10000;
-    static DATA_REFRESH = 30000;
+    static DATA_REFRESH = 10000;
 }

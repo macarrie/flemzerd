@@ -33,7 +33,6 @@ class Notifications extends React.Component {
 
     getNotifications() {
         API.Notifications.all().then(response => {
-            console.log("Notifications: ", response.data);
             this.setState({list: response.data});
         }).catch(error => {
             console.log("Get notifications error: ", error);
