@@ -230,46 +230,6 @@ func downloadEpisode(c *gin.Context) {
 	return
 }
 
-func downloadSeason(c *gin.Context) {
-	id := c.Param("id")
-	seasonNumber := c.Param("season_nb")
-	var show TvShow
-	req := db.Client.First(&show, id)
-	if req.RecordNotFound() {
-		c.JSON(http.StatusNotFound, gin.H{})
-		return
-	}
-
-	seasonNb, err := strconv.Atoi(seasonNumber)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
-		return
-	}
-
-	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"show":   show.GetTitle(),
-			"season": seasonNumber,
-			"error":  err,
-		}).Warning("Encountered error when querying season details from TMDB")
-		c.JSON(http.StatusInternalServerError, gin.H{})
-		return
-	}
-
-	log.WithFields(log.Fields{
-		"show":   show.GetTitle(),
-		"season": seasonNumber,
-	}).Info("Launching season download")
-	for _, ep := range epList {
-		ep.GetLog().Info("Launching individual episode download")
-
-		scheduler.Download(&ep, false)
-	}
-
-	c.JSON(http.StatusOK, epList)
-}
-
 func deleteEpisode(c *gin.Context) {
 	id := c.Param("id")
 	var ep Episode
@@ -318,62 +278,4 @@ func changeEpisodeDownloadedState(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, episode)
-}
-
-func changeSeasonDownloadedState(c *gin.Context) {
-	id := c.Param("id")
-	seasonNumber := c.Param("season_nb")
-	var show TvShow
-	req := db.Client.First(&show, id)
-	if req.RecordNotFound() {
-		c.JSON(http.StatusNotFound, gin.H{})
-		return
-	}
-
-	var downloadingItemFromRequest DownloadingItem
-	c.BindJSON(&downloadingItemFromRequest)
-
-	seasonNb, err := strconv.Atoi(seasonNumber)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad season number"})
-		return
-	}
-
-	epList, err := provider.GetSeasonEpisodeList(show, seasonNb)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"show":   show.GetTitle(),
-			"season": seasonNumber,
-			"error":  err,
-		}).Warning("Encountered error when querying season details from TMDB")
-		c.JSON(http.StatusInternalServerError, gin.H{})
-		return
-	}
-
-	log.WithFields(log.Fields{
-		"show":       show.GetTitle(),
-		"season":     seasonNumber,
-		"downloaded": downloadingItemFromRequest.Downloaded,
-	}).Info("Changing season download state")
-	for _, ep := range epList {
-		log.WithFields(log.Fields{
-			"id":         id,
-			"show":       ep.TvShow.GetTitle(),
-			"episode":    ep.Title,
-			"season":     ep.Season,
-			"number":     ep.Number,
-			"downloaded": downloadingItemFromRequest.Downloaded,
-		}).Info("Changing episode downloaded state")
-
-		ep.DownloadingItem.Downloaded = downloadingItemFromRequest.Downloaded
-		db.Client.Save(&ep)
-
-		if ep.DownloadingItem.Downloaded {
-			stats.Stats.Episodes.Downloaded += 1
-		} else {
-			stats.Stats.Episodes.Downloaded -= 1
-		}
-	}
-
-	c.JSON(http.StatusOK, epList)
 }
