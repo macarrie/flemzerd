@@ -1,22 +1,36 @@
 {
-  "name": "flemzer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "webpack.config.js",
+  "name": "react_flemzerd",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "stimulus": "^1.1.1",
-    "turbolinks": "^5.2.0",
-    "webpack-cli": "^3.1.2",
-    "tar": ">=4.4.2"
-  },
-  "devDependencies": {
-    "node-sass": "^4.10.0",
-    "tar": ">=4.4.2",
-    "webpack": "^4.35.0"
+    "axios": "^0.19.0",
+    "moment": "^2.24.0",
+    "node-sass": "^4.12.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "3.0.1"
   },
   "scripts": {
-    "build-css": "node-sass --include-path src/static/css src/static/css/style.scss src/static/css/style.css"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "author": "",
-  "license": "ISC"
+  "proxy": "http://localhost:8400",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

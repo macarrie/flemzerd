@@ -10,28 +10,28 @@ import (
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 
-	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
-	indexer "github.com/macarrie/flemzerd/indexers"
+	"github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
-	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
 	"github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
-	watchlist "github.com/macarrie/flemzerd/watchlists"
+	"github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
 	"github.com/macarrie/flemzerd/downloadable"
@@ -189,7 +189,8 @@ func initNotifiers() {
 				log.WithFields(log.Fields{
 					"notifier": "kodi",
 					"error":    err,
-				}).Warning("Cannot connect to mediacenter for kodi notifications")
+				}).Error("Cannot connect to mediacenter for kodi notifications")
+				break
 			}
 			notifier.AddNotifier(kodiNotifier)
 
@@ -203,7 +204,8 @@ func initNotifiers() {
 				log.WithFields(log.Fields{
 					"notifier": "telegram",
 					"error":    err,
-				}).Warning("Cannot connect to telegram for notifications")
+				}).Error("Cannot connect to telegram for notifications")
+				break
 			}
 			notifier.AddNotifier(telegramNotifier)
 
@@ -214,7 +216,7 @@ func initNotifiers() {
 		default:
 			log.WithFields(log.Fields{
 				"notifierType": name,
-			}).Warning("Unknown notifier type")
+			}).Error("Unknown notifier type")
 		}
 	}
 }

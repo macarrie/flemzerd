@@ -6,13 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/macarrie/flemzerd/logging"
-	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 )
 
 func performTelegramAuth(c *gin.Context) {
 	n, err := notifier.GetNotifier("telegram")
-	if err != nil {
+	if err != nil || n == nil {
+		log.Error("TELEGRAM NOTIFIER NOT FOUND")
 		c.JSON(http.StatusNotFound, err)
 		return
 	}
@@ -31,7 +32,7 @@ func performTelegramAuth(c *gin.Context) {
 
 func getTelegramChatID(c *gin.Context) {
 	n, err := notifier.GetNotifier("telegram")
-	if err != nil {
+	if err != nil || n == nil {
 		c.JSON(http.StatusNotFound, err)
 		return
 	}
@@ -50,7 +51,7 @@ func getTelegramChatID(c *gin.Context) {
 
 func getTelegramAuthCode(c *gin.Context) {
 	n, err := notifier.GetNotifier("telegram")
-	if err != nil {
+	if err != nil || n == nil {
 		c.JSON(http.StatusNotFound, err)
 		return
 	}
