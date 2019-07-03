@@ -1,9 +1,11 @@
 import React from "react";
-import {BrowserRouter as Router, Route, Redirect} from "react-router-dom";
+import {BrowserRouter as Router, Redirect, Route} from "react-router-dom";
 
 import "./css/style.scss";
 
 import Header from './components/header';
+import Footer from './components/footer';
+
 import Dashboard from './components/dashboard';
 import TvShows from './components/tvshows/index';
 import Movies from './components/movies/index';
@@ -32,6 +34,8 @@ function AppRouter() {
                 <Route path="/settings"         component={Settings} />
 
                 <Route path="/notifications"         component={Notifications} />
+
+                <Footer/>
             </div>
         </Router>
     );
