@@ -217,7 +217,18 @@ export default class API {
         Notifiers: {
             status: function() {
                 return axios.get('/modules/notifiers/status');
-            }
+            },
+            Telegram: {
+                auth: function () {
+                    return axios.get('/modules/notifiers/telegram/auth');
+                },
+                get_auth_code: function () {
+                    return axios.get('/modules/notifiers/telegram/auth_code');
+                },
+                get_chat_id: function () {
+                    return axios.get('/modules/notifiers/telegram/chatid');
+                },
+            },
         },
         Indexers: {
             status: function() {

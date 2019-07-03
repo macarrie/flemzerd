@@ -1,6 +1,7 @@
 import React from "react";
 
 import TraktAuth from "./trakt_auth";
+import TelegramAuth from "./telegram_auth";
 
 class ModuleSettings extends React.Component {
     constructor(props) {
@@ -28,6 +29,15 @@ class ModuleSettings extends React.Component {
                 <>
                     {this.state.module.Name}
                     <TraktAuth/>
+                </>
+            );
+        }
+
+        if (this.state.type === "notifier" && this.state.module.Name === "telegram") {
+            return (
+                <>
+                    {this.state.module.Name}
+                    <TelegramAuth/>
                 </>
             );
         }
