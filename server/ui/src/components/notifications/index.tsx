@@ -6,14 +6,24 @@ import Loading from "../loading";
 
 import Notification from "./notification";
 
-class Notifications extends React.Component {
-    notifications_refresh_interval;
-    state = {
+type NotificationObj = {
+    Title: string,
+};
+
+type State = {
+    list: NotificationObj[] | null,
+};
+
+class Notifications extends React.Component<any, State> {
+    notifications_refresh_interval: number;
+    state: State = {
         list: null,
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
+
+        this.notifications_refresh_interval = 0;
 
         this.getNotifications = this.getNotifications.bind(this);
         this.markRead = this.markRead.bind(this);
@@ -24,7 +34,7 @@ class Notifications extends React.Component {
     componentDidMount() {
         this.getNotifications();
 
-        this.notifications_refresh_interval = setInterval(this.getNotifications.bind(this), Const.NOTIFICATIONS_REFRESH);
+        this.notifications_refresh_interval = window.setInterval(this.getNotifications.bind(this), Const.NOTIFICATIONS_REFRESH);
     }
 
     componentWillUnmount() {
@@ -39,7 +49,7 @@ class Notifications extends React.Component {
         });
     }
 
-    markRead(id) {
+    markRead(id: number) {
         API.Notifications.markRead(id).then(response => {
             this.getNotifications();
         }).catch(error => {
@@ -55,7 +65,7 @@ class Notifications extends React.Component {
         });
     }
 
-    deleteAll(id) {
+    deleteAll(id: number) {
         API.Notifications.deleteAll().then(response => {
             this.getNotifications();
         }).catch(error => {

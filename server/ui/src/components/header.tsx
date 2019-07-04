@@ -4,18 +4,27 @@ import {NavLink} from "react-router-dom";
 import API from '../utils/api';
 import Const from "../const";
 
-class Header extends React.Component {
-    notifications_refresh_interval;
-    config_check_refresh_interval;
+type State = {
+    unread_notifications_counter: number,
+    config_errors_count: number,
+    load_error: boolean,
+};
 
-    state = {
+class Header extends React.Component<any, State> {
+    notifications_refresh_interval: number;
+    config_check_refresh_interval: number;
+
+    state: State = {
         unread_notifications_counter: 0,
         config_errors_count: 0,
-        load_error: null,
+        load_error: false,
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
+
+        this.notifications_refresh_interval = 0;
+        this.config_check_refresh_interval = 0;
 
         this.countNotifications = this.countNotifications.bind(this);
     }
@@ -24,8 +33,8 @@ class Header extends React.Component {
         this.countNotifications();
         this.countConfigurationErrors();
 
-        this.notifications_refresh_interval = setInterval(this.countNotifications.bind(this), Const.NOTIFICATIONS_REFRESH);
-        this.config_check_refresh_interval = setInterval(this.countConfigurationErrors.bind(this), Const.DATA_REFRESH);
+        this.notifications_refresh_interval = window.setInterval(this.countNotifications.bind(this), Const.NOTIFICATIONS_REFRESH);
+        this.config_check_refresh_interval = window.setInterval(this.countConfigurationErrors.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {
@@ -36,24 +45,24 @@ class Header extends React.Component {
     countNotifications() {
         API.Notifications.unread().then(response => {
             this.setState({
-                load_error: null,
+                load_error: false,
                 unread_notifications_counter: response.data.length
             });
         }).catch(error => {
             console.log("Get notifications error: ", error);
-            this.setState({load_error: error});
+            this.setState({load_error: true});
         });
     }
 
     countConfigurationErrors() {
         API.Config.check().then(response => {
             this.setState({
-                load_error: null,
+                load_error: false,
                 config_errors_count: response.data.length
             });
         }).catch(error => {
             console.log("Check configuration error: ", error);
-            this.setState({load_error: error});
+            this.setState({load_error: true});
         });
     }
 
@@ -63,7 +72,7 @@ class Header extends React.Component {
                 <div className="uk-container uk-navbar uk-flex uk-flex-middle">
                     <div className="uk-navbar-left">
                         <a className="uk-navbar-item uk-logo" href="/dashboard">
-                            <span className="navbar-brand" href="#">flemzer</span>
+                            <span className="navbar-brand">flemzer</span>
                         </a>
                         <ul className="uk-navbar-nav uk-visible@m">
                             <li><NavLink activeClassName="active" to="/dashboard"> <span
@@ -93,7 +102,7 @@ class Header extends React.Component {
                     </div>
                     <div className="uk-navbar-right">
                         <ul className="uk-navbar-nav">
-                            {this.state.load_error != null && (
+                            {this.state.load_error !== false && (
                                 <li className="uk-padding-small">
                                     <i className="server-unavailable">
                                         Server unavailable

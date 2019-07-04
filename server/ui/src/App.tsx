@@ -11,7 +11,7 @@ import TvShows from './components/tvshows/index';
 import Movies from './components/movies/index';
 import Status from './components/status';
 import Settings from './components/settings/index';
-import Notifications from './components/notifications/index';
+import Notifications from './components/notifications';
 
 
 function Root() {

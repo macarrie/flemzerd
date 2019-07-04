@@ -38,52 +38,52 @@ export default class API {
             return axios.get('/movies/removed');
         },
 
-        get: function(id) {
+        get: function (id: number) {
             return axios.get('/movies/details/' + id);
         },
-        delete: function(id) {
+        delete: function (id: number) {
             return axios.delete('/movies/details/' + id);
         },
-        restore: function(id) {
+        restore: function (id: number) {
             return axios.post('/movies/restore/' + id);
         },
-        download: function(id) {
+        download: function (id: number) {
             return axios.post('/movies/details/' + id + '/download');
         },
-        abortDownload: function(id) {
+        abortDownload: function (id: number) {
             return axios.delete('/movies/details/' + id + '/download');
         },
-        changeDownloadedState: function(id, downloaded_state) {
+        changeDownloadedState: function (id: number, downloaded_state: boolean) {
             return axios.put('/movies/details/' + id + '/download_state', {
                 Downloaded: downloaded_state,
             });
         },
-        changeCustomTitle: function(id, customTitle) {
+        changeCustomTitle: function (id: number, customTitle: string) {
             return axios.put('/movies/details/' + id + '/custom_title', {
                 CustomTitle: customTitle,
             });
         },
-        useDefaultTitle: function(id, useDefaultTitleBool) {
+        useDefaultTitle: function (id: number, useDefaultTitle: boolean) {
             return axios.put('/movies/details/' + id + '/use_default_title', {
-                UseDefaultTitle: useDefaultTitleBool,
+                UseDefaultTitle: useDefaultTitle,
             });
         }
     };
 
     static Episodes = {
-        downloading: function(id) {
+        downloading: function (id: number) {
             return axios.get('/tvshows/downloading');
         },
-        get: function(id) {
+        get: function (id: number) {
             return axios.get('/tvshows/episodes/' + id);
         },
-        download: function(id) {
+        download: function (id: number) {
             return axios.post('/tvshows/episodes/' + id + '/download');
         },
-        abortDownload: function(id) {
+        abortDownload: function (id: number) {
             return axios.delete('/tvshows/episodes/' + id + '/download');
         },
-        changeDownloadedState: function(id, downloaded_state) {
+        changeDownloadedState: function (id: number, downloaded_state: boolean) {
             return axios.put('/tvshows/episodes/' + id + '/download_state', {
                 Downloaded: downloaded_state,
             });
@@ -98,42 +98,37 @@ export default class API {
             return axios.get('/tvshows/removed');
         },
 
-        get: function(id) {
+        get: function (id: number) {
             return axios.get('/tvshows/details/' + id);
         },
-        delete: function(id) {
+        delete: function (id: number) {
             return axios.delete('/tvshows/details/' + id);
         },
-        restore: function(id) {
+        restore: function (id: number) {
             return axios.post('/tvshows/restore/' + id);
         },
-        download: function(id) {
+        download: function (id: number) {
             return axios.post('/tvshows/details/' + id + '/download');
         },
-        abortDownload: function(id) {
+        abortDownload: function (id: number) {
             return axios.delete('/tvshows/details/' + id + '/download');
         },
-        changeDownloadedState: function(id, downloaded_state) {
-            return axios.put('/tvshows/details/' + id + '/download_state', {
-                Downloaded: downloaded_state,
-            });
-        },
-        changeCustomTitle: function(id, customTitle) {
+        changeCustomTitle: function (id: number, customTitle: string) {
             return axios.put('/tvshows/details/' + id + '/custom_title', {
                 CustomTitle: customTitle,
             });
         },
-        useDefaultTitle: function(id, useDefaultTitleBool) {
+        useDefaultTitle: function (id: number, useDefaultTitle: boolean) {
             return axios.put('/tvshows/details/' + id + '/use_default_title', {
-                UseDefaultTitle: useDefaultTitleBool,
+                UseDefaultTitle: useDefaultTitle,
             });
         },
-        changeAnimeState: function(id, isAnime) {
+        changeAnimeState: function (id: number, isAnime: boolean) {
             return axios.put('/tvshows/details/' + id + '/change_anime_state', {
                 IsAnime: isAnime,
             });
         },
-        getSeason: function(id, seasonNb) {
+        getSeason: function (id: number, seasonNb: number) {
             return axios.get('/tvshows/details/' + id + '/seasons/' + seasonNb);
         }
     };
@@ -151,7 +146,7 @@ export default class API {
         markAllRead: function() {
             return axios.post('/notifications/read');
         },
-        markRead: function(id) {
+        markRead: function (id: number) {
             return axios.post('/notifications/read/' +id, {
                 Read: true,
             });
@@ -164,20 +159,17 @@ export default class API {
     static Fanart = {
         FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
         FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",
-        fanart_params: {
-            "params": {
-                "api_key": this.FANART_TV_KEY
-            }
-        },
 
-        getTvShowFanart: function(show) {
+        // TODO; Fix type
+        getTvShowFanart: function (show: any) {
             return axios.get(this.FANART_BASE_URL + "tv/" + show.MediaIds.Tvdb, {
                 params: {
                     "api_key": this.FANART_TV_KEY
                 }
             });
         },
-        getMovieFanart: function(movie) {
+        // TODO; Fix type
+        getMovieFanart: function (movie: any) {
             return axios.get(this.FANART_BASE_URL + "movies/" + movie.MediaIds.Tmdb, {
                 params: {
                     "api_key": this.FANART_TV_KEY

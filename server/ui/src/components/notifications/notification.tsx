@@ -4,13 +4,26 @@ import {Link} from "react-router-dom";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
 
-class Notification extends React.Component {
-    constructor(props) {
-        super(props);
+type NotificationType = {
+    Title: string,
+    Type: number,
+}
 
-        this.state = {
-            notification: null,
-        };
+type Props = {
+    item: NotificationType,
+};
+
+type State = {
+    notification: NotificationType | null,
+};
+
+class Notification extends React.Component<Props, State> {
+    state: State = {
+        notification: null,
+    };
+
+    constructor(props: Props) {
+        super(props);
 
         this.state.notification = this.props.item;
 
@@ -18,12 +31,16 @@ class Notification extends React.Component {
         this.getMediaOverview = this.getMediaOverview.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         this.setState({ notification: nextProps.item });
     }
 
     getStatusClass() {
         let status = 0;
+
+        if (this.state.notification == null) {
+            return 0;
+        }
 
         switch (this.state.notification.Type) {
             case Const.NOTIFICATION_NEW_EPISODE:
@@ -52,7 +69,7 @@ class Notification extends React.Component {
                 break;
         }
 
-        let classes :string = "notif-icon ";
+        let classes = "notif-icon ";
 
         switch (status) {
             case Const.OK:
