@@ -3,23 +3,20 @@ import {Link} from "react-router-dom";
 
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
+import Notification from "../../types/notification";
 
-type NotificationType = {
-    Title: string,
-    Type: number,
-}
-
-type Props = {
-    item: NotificationType,
+interface Props {
+    item :Notification;
+    markRead(id :number) :void;
 };
 
 type State = {
-    notification: NotificationType | null,
+    notification: Notification,
 };
 
-class Notification extends React.Component<Props, State> {
+class NotificationComponent extends React.Component<Props, State> {
     state: State = {
-        notification: null,
+        notification: {} as Notification,
     };
 
     constructor(props: Props) {
@@ -35,11 +32,11 @@ class Notification extends React.Component<Props, State> {
         this.setState({ notification: nextProps.item });
     }
 
-    getStatusClass() {
-        let status = 0;
+    getStatusClass() :string {
+        let status :number = 0;
 
         if (this.state.notification == null) {
-            return 0;
+            return "";
         }
 
         switch (this.state.notification.Type) {
@@ -69,7 +66,7 @@ class Notification extends React.Component<Props, State> {
                 break;
         }
 
-        let classes = "notif-icon ";
+        let classes :string = "notif-icon ";
 
         switch (status) {
             case Const.OK:
@@ -95,6 +92,10 @@ class Notification extends React.Component<Props, State> {
     }
 
     getMediaLink() {
+        if (this.state.notification == null) {
+            return;
+        }
+
         if (this.state.notification.Movie.ID) {
             return (
                 <Link to={`/movies/${this.state.notification.Movie.ID}`}>{Helpers.getMediaTitle(this.state.notification.Movie)}</Link>
@@ -108,6 +109,10 @@ class Notification extends React.Component<Props, State> {
     }
 
     getMediaOverview() {
+        if (this.state.notification == null) {
+            return;
+        }
+
         if (this.state.notification.Movie.ID) {
             return (
                 <blockquote className="uk-text-normal uk-padding-left-small">{this.state.notification.Movie.Overview}</blockquote>
@@ -121,6 +126,10 @@ class Notification extends React.Component<Props, State> {
     }
 
     getNotificationTitle() {
+        if (this.state.notification == null) {
+            return;
+        }
+
         if (this.state.notification.Type === Const.NOTIFICATION_NEW_EPISODE) {
             return (
                 <span>
@@ -179,6 +188,10 @@ class Notification extends React.Component<Props, State> {
     }
 
     getNotificationContent() {
+        if (this.state.notification == null) {
+            return;
+        }
+
         if (this.state.notification.Type === Const.NOTIFICATION_TEXT) {
             return (
                 <span>
@@ -203,6 +216,17 @@ class Notification extends React.Component<Props, State> {
     }
 
     render() {
+        if (this.props.markRead == null) {
+            console.log("markRead props is null");
+            return;
+        }
+
+        if (this.state.notification == null) {
+            return (
+                <li>Loading</li>
+            );
+        }
+
         return (
             <li className={this.state.notification.Read ? "read" : ""}>
                 <table
@@ -227,7 +251,7 @@ class Notification extends React.Component<Props, State> {
                         </tr>
                         <tr className={`notification-detailed-content-${this.state.notification.ID}`} hidden>
                             <td></td>
-                            <td colSpan="2">
+                            <td colSpan={2}>
                                 {this.getNotificationContent()}
                             </td>
                             <td></td>
@@ -239,4 +263,4 @@ class Notification extends React.Component<Props, State> {
     }
 }
 
-export default Notification;
+export default NotificationComponent;

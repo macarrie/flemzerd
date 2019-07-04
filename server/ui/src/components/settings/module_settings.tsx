@@ -1,16 +1,27 @@
 import React from "react";
 
+import ModuleSettings from "../../types/module_settings";
 import TraktAuth from "./trakt_auth";
 import TelegramAuth from "./telegram_auth";
 
-class ModuleSettings extends React.Component {
-    constructor(props) {
-        super(props);
+type Props = {
+    module :ModuleSettings,
+    type :string,
+};
 
-        this.state = {
-            module: null,
-            type: null,
-        };
+type State = {
+    module :ModuleSettings,
+    type :string,
+};
+
+class ModuleSettingsComponent extends React.Component<Props, State> {
+    state :State = {
+        module: {} as ModuleSettings,
+        type: "",
+    };
+
+    constructor(props :Props) {
+        super(props);
 
         this.state.module = this.props.module;
         this.state.type = this.props.type;
@@ -63,4 +74,4 @@ class ModuleSettings extends React.Component {
     }
 }
 
-export default ModuleSettings;
+export default ModuleSettingsComponent;

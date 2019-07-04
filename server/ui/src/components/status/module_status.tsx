@@ -1,6 +1,12 @@
 import React from "react";
 
-class ModuleStatus extends React.Component {
+import Module from "../../types/module";
+
+type Props = {
+    module :Module,
+};
+
+class ModuleStatus extends React.Component<Props, any> {
     render() {
         const module = this.props.module;
         return (

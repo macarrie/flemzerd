@@ -8,7 +8,7 @@ class Footer extends React.Component {
             <nav className="uk-navbar-container uk-navbar-transparent uk-position-bottom footer">
                 <div className="uk-container uk-navbar uk-flex uk-flex-middle">
                     <div className="uk-navbar-left">
-                        <Link className="uk-navbar-item uk-logo" href="/dashboard">
+                        <Link className="uk-navbar-item uk-logo" to="/dashboard">
                             <span className="navbar-brand" href="#">flemzer</span>
                         </Link>
                     </div>

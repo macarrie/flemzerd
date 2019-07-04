@@ -2,21 +2,30 @@ import React from "react";
 
 import API from "../../utils/api";
 import Const from "../../const";
-import Loading from "../loading";
+import ModuleSettings from "../../types/module_settings";
+import Config from "../../types/config";
 
-import ModuleSettings from "./module_settings";
+import Loading from "../loading";
+import ModuleSettingsComponent from "./module_settings";
 import ConfigCheck from "./config_check";
 
+// TODO: fix any
+type State = {
+    config :Config | null,
+    config_checks: any,
+};
+
 class Settings extends React.Component {
-    settings_refresh_interval;
-    state = {
+    settings_refresh_interval :number;
+    state :State = {
         config: null,
         config_checks: null,
     };
 
-
     constructor(props) {
         super(props);
+
+        this.settings_refresh_interval = 0;
 
         this.renderModuleList = this.renderModuleList.bind(this);
     }
@@ -24,7 +33,7 @@ class Settings extends React.Component {
     componentDidMount() {
         this.load();
 
-        this.settings_refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+        this.settings_refresh_interval = window.setInterval(this.load.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {
@@ -53,8 +62,7 @@ class Settings extends React.Component {
     }
 
     renderModuleList(title, collection, type) {
-        //TODO: Handle telegram auth
-        let moduleList = [];
+        let moduleList :Array<ModuleSettings> = [];
 
         if (!collection) {
             return (
@@ -71,7 +79,7 @@ class Settings extends React.Component {
             moduleList.push({
                 Name: key,
                 Config: collection[key]
-            });
+            } as ModuleSettings);
         });
 
         // TODO: Transform module settings to component
@@ -81,7 +89,7 @@ class Settings extends React.Component {
                 <ul className="uk-list uk-list-striped no-stripes">
                     {moduleList.map(module =>
                         <li key={module.Name}>
-                            <ModuleSettings
+                            <ModuleSettingsComponent
                                 type={type}
                                 module={module}/>
                         </li>
