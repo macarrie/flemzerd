@@ -1,14 +1,23 @@
 import React from "react";
 
 import Const from "../../const";
+import ConfigCheck from "../../types/config_check";
 
-class ConfigCheck extends React.Component {
-    constructor(props) {
+type Props = {
+    item: ConfigCheck,
+};
+
+type State = {
+    item: ConfigCheck,
+};
+
+class ConfigCheckComponent extends React.Component<Props, State> {
+    state: State = {
+        item: {} as ConfigCheck,
+    };
+
+    constructor(props: Props) {
         super(props);
-
-        this.state = {
-            item: null,
-        };
 
         this.state.item = this.props.item;
     }
@@ -55,4 +64,4 @@ class ConfigCheck extends React.Component {
     }
 }
 
-export default ConfigCheck;
+export default ConfigCheckComponent;

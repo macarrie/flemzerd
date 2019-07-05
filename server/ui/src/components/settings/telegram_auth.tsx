@@ -2,17 +2,25 @@ import React from "react";
 
 import API from "../../utils/api";
 
-class TelegramAuth extends React.Component {
-    constructor(props) {
-        super(props);
+type State = {
+    chat_id: number,
+    auth_code: number;
+    loading: boolean,
+    authenticated: boolean,
+    config_error: boolean,
+};
 
-        this.state = {
-            chat_id: null,
-            auth_code: null,
-            loading: true,
-            authenticated: false,
-            config_error: false,
-        };
+class TelegramAuth extends React.Component<any, State> {
+    state: State = {
+        chat_id: 0,
+        auth_code: 0,
+        loading: true,
+        authenticated: false,
+        config_error: false,
+    };
+
+    constructor(props: any) {
+        super(props);
 
         this.getChatID = this.getChatID.bind(this);
         this.telegramAuthStatusButton = this.telegramAuthStatusButton.bind(this);

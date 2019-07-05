@@ -1,9 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import Helpers from "../utils/helpers";
 
 class MediaActionBar extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            item: null
+        };
+    }
+
     getBackLink() {
         if (this.props.type === "movie") {
             return "/movies";
@@ -21,7 +29,7 @@ class MediaActionBar extends React.Component {
     }
 
     getDownloadButton() {
-        let item = this.props.item;
+        let item = this.state.item;
         let buttonsList = [];
 
         if (this.props.type === "movie" || this.props.type === "episode") {
@@ -41,7 +49,7 @@ class MediaActionBar extends React.Component {
     }
 
     getTitleControlButtons() {
-        let item = this.props.item;
+        let item = this.state.item;
         let buttonsList = [];
 
         if ((this.props.type !== "episode") && !item.DeletedAt) {
@@ -72,7 +80,7 @@ class MediaActionBar extends React.Component {
     }
 
     getDownloadControlButtons() {
-        let item = this.props.item;
+        let item = this.state.item;
         let buttonsList = [];
 
         if (item.DeletedAt) {
@@ -118,7 +126,7 @@ class MediaActionBar extends React.Component {
     }
 
     getAnimeControlButtons() {
-        let item = this.props.item;
+        let item = this.state.item;
         let buttonsList = [];
 
         if (item.DeletedAt || this.props.type !== "tvshow") {
@@ -149,7 +157,13 @@ class MediaActionBar extends React.Component {
     }
 
     render() {
-        let item = this.props.item;
+        let item = this.state.item;
+
+        if (item == null) {
+            return (
+                <div>Loading</div>
+            )
+        }
 
         //TODO: add "treat as anime" button
         return (

@@ -5,9 +5,9 @@ import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import Loading from "../loading";
 
-import MediaIds from "../media_ids";
+import MediaIdsComponent from "../media_ids";
 import MediaActionBar from "../media_action_bar";
-import DownloadingItem from "../downloading_item";
+import DownloadingItemComponent from "../downloading_item";
 
 class EpisodeDetails extends React.Component {
     episode_refresh_interval;
@@ -146,7 +146,7 @@ class EpisodeDetails extends React.Component {
                         </div>
                         <div className="uk-grid uk-grid-medium" data-uk-grid>
                             <div> See on </div>
-                            <div><MediaIds ids={this.state.episode.MediaIds} type="episode" /></div>
+                            <div><MediaIdsComponent ids={this.state.episode.MediaIds} type="episode"/></div>
                         </div>
 
                         <div className="container">
@@ -162,7 +162,7 @@ class EpisodeDetails extends React.Component {
             </div>
 
             <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
-                <DownloadingItem item={this.state.episode.DownloadingItem} />
+                <DownloadingItemComponent item={this.state.episode.DownloadingItem}/>
             </div>
             </>
         );

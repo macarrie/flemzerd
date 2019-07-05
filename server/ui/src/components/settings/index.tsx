@@ -7,7 +7,7 @@ import Config from "../../types/config";
 
 import Loading from "../loading";
 import ModuleSettingsComponent from "./module_settings";
-import ConfigCheck from "./config_check";
+import ConfigCheckComponent from "./config_check";
 
 // TODO: fix any
 type State = {
@@ -118,7 +118,7 @@ class Settings extends React.Component {
                             <hr/>
                             <ul>
                                 {this.state.config_checks.map((check, index) => (
-                                    <ConfigCheck item={check} key={index}/>
+                                    <ConfigCheckComponent item={check} key={index}/>
                                 ))}
                             </ul>
                         </div>

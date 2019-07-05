@@ -6,7 +6,7 @@ import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import Loading from "../loading";
 
-import MediaIds from "../media_ids";
+import MediaIdsComponent from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
 import SeasonList from "./season_list";
@@ -196,7 +196,7 @@ class TvShowDetails extends React.Component {
                             </div>
                             <div className="uk-grid uk-grid-medium" data-uk-grid>
                                 <div> See on</div>
-                                <div><MediaIds ids={this.state.show.MediaIds} type="movie"/></div>
+                                <div><MediaIdsComponent ids={this.state.show.MediaIds} type="movie"/></div>
                             </div>
 
                             <div className="container">

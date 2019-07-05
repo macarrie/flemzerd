@@ -3,22 +3,30 @@ import React from "react";
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
-import Loading from "../loading";
+import Movie from "../../types/movie";
 
-import MediaIds from "../media_ids";
+import Loading from "../loading";
+import MediaIdsComponent from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
-import DownloadingItem from "../downloading_item";
+import DownloadingItemComponent from "../downloading_item";
 
-class MovieDetails extends React.Component {
-    movie_refresh_interval;
-    state = {
-        movie: null,
+type State = {
+    movie: Movie,
+    fanartURL: string,
+};
+
+class MovieDetails extends React.Component<any, State> {
+    movie_refresh_interval: number;
+    state: State = {
+        movie: {} as Movie,
         fanartURL: "",
     };
 
     constructor(props) {
         super(props);
+
+        this.movie_refresh_interval = 0;
 
         this.exitTitleEdit = this.exitTitleEdit.bind(this);
 
@@ -40,7 +48,7 @@ class MovieDetails extends React.Component {
     componentDidMount() {
         this.getMovie();
 
-        this.movie_refresh_interval = setInterval(this.getMovie.bind(this), Const.DATA_REFRESH);
+        this.movie_refresh_interval = window.setInterval(this.getMovie.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {
@@ -49,8 +57,8 @@ class MovieDetails extends React.Component {
 
     getMovie() {
         API.Movies.get(this.props.match.params.id).then(response => {
-            let movie_result = response.data;
-            movie_result.DisplayTitle = Helpers.getMediaTitle(movie_result)
+            let movie_result: Movie = response.data;
+            movie_result.DisplayTitle = Helpers.getMediaTitle(movie_result);
             this.setState({movie: movie_result});
             this.getFanart();
         }).catch(error => {
@@ -142,7 +150,7 @@ class MovieDetails extends React.Component {
     }
 
     render() {
-        if (this.state.movie == null) {
+        if (this.state.movie.ID === 0) {
             return (
                 <Loading/>
             );
@@ -174,7 +182,6 @@ class MovieDetails extends React.Component {
                                 <span className="uk-h2">
                                     <Editable
                                         value={this.state.movie.DisplayTitle}
-                                        onFocus={this.enterTitleEdit}
                                         onFocusOut={this.exitTitleEdit}
                                         editingClassName="uk-border-rounded uk-h2 uk-margin-remove-top uk-text-light"
                                     />
@@ -186,7 +193,7 @@ class MovieDetails extends React.Component {
                         </div>
                         <div className="uk-grid uk-grid-medium" data-uk-grid>
                             <div> See on </div>
-                            <div><MediaIds ids={this.state.movie.MediaIds} type="movie" /></div>
+                            <div><MediaIdsComponent ids={this.state.movie.MediaIds} type="movie"/></div>
                         </div>
 
                         <div className="container">
@@ -202,7 +209,7 @@ class MovieDetails extends React.Component {
             </div>
 
             <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
-                <DownloadingItem item={this.state.movie.DownloadingItem} />
+                <DownloadingItemComponent item={this.state.movie.DownloadingItem}/>
             </div>
             </>
         );

@@ -1,12 +1,25 @@
 import React from "react";
 
 import Helpers from "../utils/helpers";
+import DownloadingItem from "../types/downloading_item";
 
-class DownloadingItem extends React.Component {
+type Props = {
+    item: DownloadingItem,
+};
+
+type State = {
+    item: DownloadingItem,
+};
+
+class DownloadingItemComponent extends React.Component<Props, State> {
+    state: State = {
+        item: {} as DownloadingItem,
+    };
+
     constructor(props) {
         super(props);
 
-        this.state = this.props.item;
+        this.state.item = this.props.item;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -14,7 +27,7 @@ class DownloadingItem extends React.Component {
     }
 
     printDownloadedInfo() {
-        let item = this.state;
+        let item = this.state.item;
 
         if (item.Downloaded) {
             return (
@@ -30,7 +43,7 @@ class DownloadingItem extends React.Component {
     }
 
     printDownloadingInfo() {
-        let item = this.state;
+        let item = this.state.item;
 
         if (item.Downloading && !item.Downloaded) {
             return (
@@ -42,44 +55,45 @@ class DownloadingItem extends React.Component {
                     </div>
                     <table className="uk-table uk-table-small uk-table-divider">
                         <tbody>
-                            <tr>
-                                <td><b>Downloading</b></td>
-                                <td>
-                                    <span className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </span>
+                        <tr>
+                            <td><b>Downloading</b></td>
+                            <td>
+                                <span
+                                    className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><b>Current download</b></td>
+                            {item.CurrentTorrent.Name ? (
+                                <td className="uk-font-italic uk-text-muted">
+                                    {item.CurrentTorrent.Name}
                                 </td>
-                            </tr>
-                            <tr>
-                                <td><b>Current download</b></td>
-                                {item.CurrentTorrent.Name ? (
-                                    <td className="uk-font-italic uk-text-muted">
-                                        {item.CurrentTorrent.Name}
-                                    </td>
-                                ) : (
-                                    <td className="uk-font-italic uk-text-muted">
-                                        Unknown
-                                    </td>
-                                )}
-                            </tr>
-                            <tr>
-                                <td><b>Download directory</b></td>
-                                {item.CurrentTorrent.DownloadDir ? (
-                                    <td className="uk-text-muted uk-font-italic">
-                                        <code>
-                                            {item.CurrentTorrent.DownloadDir}
-                                        </code>
-                                    </td>
-                                ) : (
-                                    <td className="uk-text-muted uk-font-italic">
-                                        Unknown
-                                    </td>
-                                )}
-                            </tr>
-                            <tr className={item.FailedTorrents.length > 0 ? "uk-text-danger" : "uk-text-success"}>
-                                <td><b>Failed torrents</b></td>
-                                <td>
-                                    <b>{item.FailedTorrents.length}</b>
+                            ) : (
+                                <td className="uk-font-italic uk-text-muted">
+                                    Unknown
                                 </td>
-                            </tr>
+                            )}
+                        </tr>
+                        <tr>
+                            <td><b>Download directory</b></td>
+                            {item.CurrentTorrent.DownloadDir ? (
+                                <td className="uk-text-muted uk-font-italic">
+                                    <code>
+                                        {item.CurrentTorrent.DownloadDir}
+                                    </code>
+                                </td>
+                            ) : (
+                                <td className="uk-text-muted uk-font-italic">
+                                    Unknown
+                                </td>
+                            )}
+                        </tr>
+                        <tr className={item.FailedTorrents.length > 0 ? "uk-text-danger" : "uk-text-success"}>
+                            <td><b>Failed torrents</b></td>
+                            <td>
+                                <b>{item.FailedTorrents.length}</b>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -88,7 +102,7 @@ class DownloadingItem extends React.Component {
     }
 
     printNotDownloadingInfo() {
-        let item = this.state;
+        let item = this.state.item;
 
         if (!item.Downloading && !item.Downloaded && !item.Pending) {
             if (item.TorrentsNotFound) {
@@ -100,7 +114,7 @@ class DownloadingItem extends React.Component {
                                     <i className="material-icons uk-text-warning md-18">warning</i>
                                     No torrents found
                                 </div>
-                                No torrents have been found during last download. <br />
+                                No torrents have been found during last download. <br/>
                                 Try again later (in case of recent releases) or after adding new indexers.
                             </span>
                         </div>
@@ -121,7 +135,7 @@ class DownloadingItem extends React.Component {
     }
 
     printDownloadPending() {
-        if (this.state.Pending) {
+        if (this.state.item.Pending) {
             return (
                 <div>
                     <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
@@ -135,6 +149,12 @@ class DownloadingItem extends React.Component {
     }
 
     render() {
+        if (this.state.item.ID === 0) {
+            return (
+                <div>Loading</div>
+            );
+        }
+
         return (
             <div className="uk-background-default uk-border-rounded uk-padding-small">
                 <div className="col-12 my-3">
@@ -145,8 +165,8 @@ class DownloadingItem extends React.Component {
                 {this.printNotDownloadingInfo()}
                 {this.printDownloadPending()}
             </div>
-            );
+        );
     }
 }
 
-export default DownloadingItem;
+export default DownloadingItemComponent;
