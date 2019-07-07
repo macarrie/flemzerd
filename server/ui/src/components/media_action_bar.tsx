@@ -3,13 +3,36 @@ import {Link} from "react-router-dom";
 
 import Helpers from "../utils/helpers";
 
-class MediaActionBar extends React.Component {
-    constructor(props) {
-        super(props);
+import Movie from "../types/movie";
+import TvShow from "../types/tvshow";
+import Episode from "../types/episode";
 
-        this.state = {
-            item: null
-        };
+type Props = {
+    item :Movie | TvShow | Episode,
+    type :string,
+    downloadItem?(),
+    useOriginalTitle?(),
+    useDefaultTitle?(),
+    treatAsRegularShow?(),
+    treatAsAnime?(),
+    markNotDownloaded?(),
+    markDownloaded?(),
+    abortDownload?(),
+    restoreItem?(),
+    deleteItem?(),
+};
+
+type State = {
+    item :Movie | TvShow | Episode | null,
+};
+
+class MediaActionBar extends React.Component<Props, State> {
+    state :State = {
+        item: null,
+    };
+
+    componentWillReceiveProps(nextProps :Props) {
+        this.setState({ item: nextProps.item });
     }
 
     getBackLink() {
@@ -22,15 +45,28 @@ class MediaActionBar extends React.Component {
         }
 
         if (this.props.type === "episode") {
-            return "/tvshows/" + this.props.item.TvShow.ID;
+            let item = this.state.item as Episode;
+            return "/tvshows/" + item.TvShow.ID;
         }
 
         return "";
     }
 
     getDownloadButton() {
-        let item = this.state.item;
-        let buttonsList = [];
+        if (this.state.item == null) {
+            return null;
+        }
+
+        let item :any;
+        if (this.props.type === "movie") {
+            item = this.state.item as Movie;
+        } else if (this.props.type === "tvshow") {
+            item = this.state.item as TvShow;
+        } else if (this.props.type === "episode") {
+            item = this.state.item as Episode;
+        }
+
+        let buttonsList :any = [];
 
         if (this.props.type === "movie" || this.props.type === "episode") {
             if (!item.DeletedAt && !item.DownloadingItem.Pending && !item.DownloadingItem.Downloading && !item.DownloadingItem.Downloaded && !Helpers.dateIsInFuture(item.Date)) {
@@ -49,8 +85,20 @@ class MediaActionBar extends React.Component {
     }
 
     getTitleControlButtons() {
-        let item = this.state.item;
-        let buttonsList = [];
+        if (this.state.item == null) {
+            return null;
+        }
+
+        let item :any;
+        if (this.props.type === "movie") {
+            item = this.state.item as Movie;
+        } else if (this.props.type === "tvshow") {
+            item = this.state.item as TvShow;
+        } else if (this.props.type === "episode") {
+            item = this.state.item as Episode;
+        }
+
+        let buttonsList :any = [];
 
         if ((this.props.type !== "episode") && !item.DeletedAt) {
             if (item.Title !== item.OriginalTitle) {
@@ -80,12 +128,24 @@ class MediaActionBar extends React.Component {
     }
 
     getDownloadControlButtons() {
-        let item = this.state.item;
-        let buttonsList = [];
+        if (this.state.item == null) {
+            return null;
+        }
+
+        let item :any;
+        if (this.props.type === "movie") {
+            item = this.state.item as Movie;
+        } else if (this.props.type === "tvshow") {
+            item = this.state.item as TvShow;
+        } else if (this.props.type === "episode") {
+            item = this.state.item as Episode;
+        }
 
         if (item.DeletedAt) {
-            return;
+            return null;
         }
+
+        let buttonsList :any = [];
 
         if (this.props.type === "movie" || this.props.type === "episode") {
             if (item.DownloadingItem.Downloaded) {
@@ -126,11 +186,27 @@ class MediaActionBar extends React.Component {
     }
 
     getAnimeControlButtons() {
-        let item = this.state.item;
-        let buttonsList = [];
+        if (this.state.item == null) {
+            return null;
+        }
+
+        let item :any;
+        if (this.props.type === "movie") {
+            item = this.state.item as Movie;
+        } else if (this.props.type === "tvshow") {
+            item = this.state.item as TvShow;
+        } else if (this.props.type === "episode") {
+            item = this.state.item as Episode;
+        }
+
+        if (item.DeletedAt) {
+            return null;
+        }
+
+        let buttonsList :any = [];
 
         if (item.DeletedAt || this.props.type !== "tvshow") {
-            return;
+            return null;
         }
 
             if (item.IsAnime) {
@@ -156,18 +232,44 @@ class MediaActionBar extends React.Component {
         return buttonsList;
     }
 
-    render() {
-        let item = this.state.item;
+    getTopbarClass() {
+        if (this.state.item == null) {
+            return "";
+        }
 
-        if (item == null) {
+        let item :any;
+        if (this.props.type === "movie") {
+            item = this.state.item as Movie;
+        } else if (this.props.type === "tvshow") {
+            item = this.state.item as TvShow;
+        } else if (this.props.type === "episode") {
+            item = this.state.item as Episode;
+        }
+
+        if (item.DeletedAt) {
+            return "removed-element";
+        }
+
+        if (this.props.type === "movie" || this.props.type === "episode") {
+            if (item.DownloadingItem.Downloaded) {
+                return "downloaded-element";
+            }
+        }
+
+        return "";
+    }
+
+    render() {
+        if (this.state.item == null) {
             return (
                 <div>Loading</div>
             )
         }
 
-        //TODO: add "treat as anime" button
+        let item = this.state.item;
+
         return (
-            <div className={`uk-light action-bar ${ item.DeletedAt ? "removed-element" : "" }`}>
+            <div className={`uk-light action-bar ${this.getTopbarClass()}`}>
                 <div className="uk-container">
                     <div className="uk-grid uk-grid-collapse" data-uk-grid>
                         <div className="uk-width-expand">

@@ -3,21 +3,29 @@ import React from "react";
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
-import Loading from "../loading";
+import Episode from "../../types/episode";
 
+import Loading from "../loading";
 import MediaIdsComponent from "../media_ids";
 import MediaActionBar from "../media_action_bar";
 import DownloadingItemComponent from "../downloading_item";
 
-class EpisodeDetails extends React.Component {
-    episode_refresh_interval;
-    state = {
+type State = {
+    episode :Episode | null,
+    fanartURL :string,
+};
+
+class EpisodeDetails extends React.Component<any, State> {
+    episode_refresh_interval :number;
+    state :State = {
         episode: null,
         fanartURL: "",
     };
 
     constructor(props) {
         super(props);
+
+        this.episode_refresh_interval = 0;
 
         this.markNotDownloaded = this.markNotDownloaded.bind(this);
         this.markDownloaded = this.markDownloaded.bind(this);
@@ -32,7 +40,7 @@ class EpisodeDetails extends React.Component {
     componentDidMount() {
         this.getEpisode();
 
-        this.episode_refresh_interval = setInterval(this.getEpisode.bind(this), Const.DATA_REFRESH);
+        this.episode_refresh_interval = window.setInterval(this.getEpisode.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {
@@ -51,6 +59,10 @@ class EpisodeDetails extends React.Component {
     }
 
     getFanart() {
+        if (this.state.episode == null) {
+            return;
+        }
+
         API.Fanart.getTvShowFanart(this.state.episode.TvShow).then(response => {
             let fanartObj = response.data;
             if (fanartObj["showbackground"] && fanartObj["showbackground"].length > 0) {
@@ -62,6 +74,10 @@ class EpisodeDetails extends React.Component {
     }
 
     downloadEpisode() {
+        if (this.state.episode == null) {
+            return;
+        }
+
         API.Episodes.download(this.state.episode.ID).then(response => {
             this.getEpisode();
         }).catch(error => {
@@ -78,6 +94,10 @@ class EpisodeDetails extends React.Component {
     }
 
     changeDownloadedState(downloaded_state) {
+        if (this.state.episode == null) {
+            return;
+        }
+
         API.Episodes.changeDownloadedState(this.state.episode.ID, downloaded_state).then(response => {
             this.getEpisode();
         }).catch(error => {
@@ -86,6 +106,10 @@ class EpisodeDetails extends React.Component {
     }
 
     abortDownload() {
+        if (this.state.episode == null) {
+            return;
+        }
+
         API.Episodes.abortDownload(this.state.episode.ID).then(response => {
             this.getEpisode();
         }).catch(error => {
@@ -94,6 +118,10 @@ class EpisodeDetails extends React.Component {
     }
 
     getEpisodeNumber() {
+        if (this.state.episode == null) {
+            return;
+        }
+
         if (this.state.episode.TvShow.IsAnime) {
             return (
                 <>

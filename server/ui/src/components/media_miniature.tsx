@@ -3,8 +3,17 @@ import {Link} from "react-router-dom";
 
 import API from "../utils/api";
 import Helpers from "../utils/helpers";
+import Movie from "../types/movie";
+import TvShow from "../types/tvshow";
 
-class MediaMiniature extends React.Component {
+type Props = {
+    item :Movie | TvShow,
+    type :string,
+};
+
+type State = Movie | TvShow;
+
+class MediaMiniature extends React.Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = props.item;
@@ -36,21 +45,22 @@ class MediaMiniature extends React.Component {
     }
 
     getMovieOverlayClassNames() {
+        let item = this.state as Movie;
         let overlay = "";
 
-        if (Helpers.dateIsInFuture(this.state.Date)) {
+        if (Helpers.dateIsInFuture(item.Date)) {
             overlay = "overlay-yellow";
         }
 
-        if (this.state.DeletedAt) {
+        if (item.DeletedAt) {
             overlay = "overlay-red";
         }
 
-        if (this.state.DownloadingItem.Downloaded) {
+        if (item.DownloadingItem.Downloaded) {
             overlay = "overlay-green";
         }
 
-        if (this.state.DownloadingItem.Pending || this.state.DownloadingItem.Downloading) {
+        if (item.DownloadingItem.Pending || item.DownloadingItem.Downloading) {
             overlay = "overlay-blue";
         }
 
@@ -58,34 +68,35 @@ class MediaMiniature extends React.Component {
     }
 
     getShowOverlayClassNames() {
+        let item = this.state as TvShow;
         let overlay = "";
 
-        if (this.state.DeletedAt) {
+        if (item.DeletedAt) {
             overlay = "overlay-red";
         }
 
         return overlay;
     }
 
-
     getDownloadStatusLabel() {
         let label = "";
 
         if (this.props.type === "movie") {
-            if (!this.state.DeletedAt && Helpers.dateIsInFuture(this.state.Date)) {
+            let item = this.state as Movie;
+            if (!item.DeletedAt && Helpers.dateIsInFuture(item.Date)) {
                 label = "Future release";
             }
 
-            if (!this.state.DeletedAt && (this.state.DownloadingItem.Downloading || this.state.DownloadingItem.Pending)) {
-                if (this.state.DownloadingItem.Downloading) {
+            if (!item.DeletedAt && (item.DownloadingItem.Downloading || item.DownloadingItem.Pending)) {
+                if (item.DownloadingItem.Downloading) {
                     label = "Downloading";
 
-                    if (this.state.DownloadingItem.Pending) {
+                    if (item.DownloadingItem.Pending) {
                         label = "Pending";
                     }
                 }
             }
-            if (this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
+            if (item.DownloadingItem.Downloaded && !item.DeletedAt) {
                 label = "Downloaded";
             }
         }
@@ -123,18 +134,19 @@ class MediaMiniature extends React.Component {
     }
 
     getMovieFilterClassName() {
+        let item = this.state as Movie;
         let className = "tracked-movie";
 
-        if (this.state.DownloadingItem.Downloading || this.state.DownloadingItem.Pending) {
+        if (item.DownloadingItem.Downloading || item.DownloadingItem.Pending) {
             className = "";
         }
-        if (Helpers.dateIsInFuture(this.state.Date)) {
+        if (Helpers.dateIsInFuture(item.Date)) {
             className = "future-movie";
         }
-        if (this.state.DownloadingItem.Downloaded) {
+        if (item.DownloadingItem.Downloaded) {
             className = "downloaded-movie";
         }
-        if (this.state.DeletedAt) {
+        if (item.DeletedAt) {
             className = "removed-movie";
         }
 
@@ -147,8 +159,10 @@ class MediaMiniature extends React.Component {
             return;
         }
 
-        let buttonList = [];
-        if (this.state.DownloadingItem.Downloaded && (!this.state.DeletedAt)) {
+        let item = this.state as Movie;
+        let buttonList :any = [];
+
+        if (item.DownloadingItem.Downloaded && (!item.DeletedAt)) {
             buttonList.push(
                 <button className="uk-icon"
                         key="markNotDownloaded"
@@ -159,7 +173,7 @@ class MediaMiniature extends React.Component {
             )
         }
 
-        if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Downloaded && !this.state.DeletedAt) {
+        if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Downloaded && !item.DeletedAt) {
             buttonList.push(
                 <button className="uk-icon"
                         key="markDownloaded"
@@ -171,7 +185,7 @@ class MediaMiniature extends React.Component {
         }
 
         //TODO: Handle configuration
-        if (!this.state.DownloadingItem.Downloaded && !this.state.DownloadingItem.Downloading && !this.state.DownloadingItem.Pending && !this.state.DeletedAt && !Helpers.dateIsInFuture(this.state.Date)) {
+        if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Pending && !item.DeletedAt && !Helpers.dateIsInFuture(item.Date)) {
             buttonList.push(
                 <button className="uk-icon"
                         key="downloadMovie"

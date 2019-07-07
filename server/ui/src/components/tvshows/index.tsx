@@ -3,16 +3,24 @@ import {Route} from "react-router-dom";
 
 import API from "../../utils/api";
 import Const from "../../const";
-import Loading from "../loading";
+import TvShow from "../../types/tvshow";
+import Episode from "../../types/episode";
 
+import Loading from "../loading";
 import MediaMiniature from "../media_miniature";
 import TvShowDetails from "./tvshow_details";
 import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
 
-class TvShows extends React.Component {
-    tvshow_refresh_interval;
-    state = {
+type State = {
+    tracked :TvShow[] | null,
+    removed :TvShow[] | null,
+    downloading_episodes :Episode[] | null,
+};
+
+class TvShows extends React.Component<any, State> {
+    tvshow_refresh_interval :number;
+    state :State = {
         tracked: null,
         removed: null,
         downloading_episodes: null,
@@ -20,6 +28,8 @@ class TvShows extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.tvshow_refresh_interval = 0;
 
         this.poll = this.poll.bind(this);
         this.refreshWatchlists = this.refreshWatchlists.bind(this);
@@ -32,7 +42,7 @@ class TvShows extends React.Component {
     componentDidMount() {
         this.load();
 
-        this.tvshow_refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+        this.tvshow_refresh_interval = window.setInterval(this.load.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {

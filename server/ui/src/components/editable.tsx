@@ -1,13 +1,25 @@
 import React from "react";
 
-class Editable extends React.Component {
-    constructor(props) {
-        super(props);
+type Props = {
+    onFocus?(value :string),
+    onFocusOut?(value :string),
+    editingClassName :string,
+    value :string,
+};
 
-        this.state = {
-            isEditing: false,
-            value: "",
-        }
+type State = {
+    isEditing :boolean,
+    value :string,
+};
+
+class Editable extends React.Component<Props, State> {
+    state :State = {
+        isEditing: false,
+        value: "",
+    };
+
+    constructor(props :Props) {
+        super(props);
 
         this.state.value = this.props.value;
 
@@ -19,7 +31,7 @@ class Editable extends React.Component {
         this.setState({ value: nextProps.value });
     }
 
-    handleFocus() {
+    handleFocus(event :React.MouseEvent | React.FocusEvent) {
         if (this.state.isEditing) {
             if (typeof this.props.onFocusOut === "function") {
                 this.props.onFocusOut(this.state.value);

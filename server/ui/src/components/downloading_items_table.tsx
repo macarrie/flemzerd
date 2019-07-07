@@ -2,33 +2,55 @@ import React from "react";
 import {Link} from "react-router-dom";
 
 import Helpers from "../utils/helpers";
+import Movie from "../types/movie";
+import Episode from "../types/episode";
 
-class DownloadingItemTable extends React.Component {
-    constructor(props) {
+type Props = {
+    list :Movie[] | Episode[],
+    type :string,
+    abortDownload(id :number),
+};
+
+type State = {
+    list :Movie[] | Episode[],
+};
+
+class DownloadingItemTable extends React.Component<Props, State> {
+    state :State = {
+        list: [],
+    };
+
+    constructor(props :Props) {
         super(props);
-
-        this.state = {
-            list: [],
-        };
 
         this.state.list = this.props.list;
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps :Props) {
         this.setState({ list: nextProps.list });
     }
 
-    getMediaLink(item) {
+    getMediaLink(item :Movie | Episode) :string {
         if (this.props.type === "movie") {
-            return `/movies/${item.ID}`;
-        }
-        if (this.props.type === "episode") {
-            return `tvshows/${item.TvShow.ID}/episodes/${item.ID}`;
+            let typed :Movie = item as Movie;
+            return `/movies/${typed.ID}`;
+        } else if (this.props.type === "episode") {
+            let typed :Episode = item as Episode;
+            return `tvshows/${typed.TvShow.ID}/episodes/${typed.ID}`;
+        } else {
+            return "";
         }
     }
 
     renderTable() {
-        return this.state.list.map(item => (
+        let list :any;
+        if (this.props.type === "movie") {
+            list = this.state.list as Movie[];
+        } else if (this.props.type === "episode") {
+            list = this.state.list as Episode[];
+        }
+
+        return list.map(item => (
             <tr key={item.ID}>
                 <td>
                     <Link to={this.getMediaLink(item)}>

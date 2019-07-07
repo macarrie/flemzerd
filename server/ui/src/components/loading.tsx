@@ -1,6 +1,6 @@
 import React from "react";
 
-class Loading extends React.Component {
+class Loading extends React.Component<any, any> {
     render() {
         return (
             <div className="uk-container uk-height-1-1">

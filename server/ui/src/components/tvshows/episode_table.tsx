@@ -3,24 +3,33 @@ import {Link} from "react-router-dom";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
+import Episode from "../../types/episode";
 
-class EpisodeTable extends React.Component {
+type Props = {
+    list :Episode[] | null,
+};
+
+type State = {
+    list :Episode[] | null,
+};
+
+class EpisodeTable extends React.Component<Props, State> {
+    state :State = {
+        list: null,
+    };
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            list: null,
-        };
 
         this.state.list = this.props.list;
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps :Props) {
         this.setState({list: nextProps.list});
     }
 
     render() {
-        if (this.state.list.length === 0) {
+        if (this.state.list == null || this.state.list.length === 0) {
             return (
                 <div className="uk-text-muted uk-text-center">
                     <i>
@@ -56,13 +65,21 @@ class EpisodeTable extends React.Component {
     }
 }
 
-class EpisodeTableLine extends React.Component {
-    constructor(props) {
-        super(props);
+type TableLineProps = {
+    item :Episode,
+};
 
-        this.state = {
-            item: null,
-        };
+type TableLineState = {
+    item :Episode,
+};
+
+class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
+    state :TableLineState = {
+        item: {} as Episode,
+    };
+
+    constructor(props :TableLineProps) {
+        super(props);
 
         this.state.item = this.props.item;
 
@@ -79,7 +96,7 @@ class EpisodeTableLine extends React.Component {
         this.getEpisodeNumber = this.getEpisodeNumber.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps :TableLineProps) {
         this.setState({item: nextProps.item});
     }
 
@@ -165,7 +182,7 @@ class EpisodeTableLine extends React.Component {
             return;
         }
 
-        let buttonList = [];
+        let buttonList :any[] = [];
 
         if (this.state.item.DownloadingItem.Downloaded) {
             buttonList.push(

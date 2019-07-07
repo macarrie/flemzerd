@@ -62,7 +62,7 @@ class Notifications extends React.Component<any, State> {
         });
     }
 
-    deleteAll(id: number) {
+    deleteAll(event :React.MouseEvent) {
         API.Notifications.deleteAll().then(response => {
             this.getNotifications();
         }).catch(error => {
@@ -97,10 +97,8 @@ class Notifications extends React.Component<any, State> {
                             </li>
                             <li>
                                 <button 
-                                    className="uk-button uk-button-small uk-button-text">
-                                    {/*
-                                        onClick={this.markAllRead}>
-                                      */}
+                                    className="uk-button uk-button-small uk-button-text"
+                                    onClick={this.markAllRead}>
                                     <span className="uk-icon"
                                         data-uk-tooltip="delay: 500; title: Mark all notifications as read"
                                         data-uk-icon="icon: check; ratio: 0.75"></span>
@@ -109,10 +107,8 @@ class Notifications extends React.Component<any, State> {
                             </li>
                             <li>
                                 <button 
-                                    className="uk-button uk-button-small uk-button-text">
-                                    {/*
-                                        onClick={this.deleteAll}>
-                                    */}
+                                    className="uk-button uk-button-small uk-button-text"
+                                    onClick={this.deleteAll}>
                                     <span className="uk-icon"
                                         data-uk-tooltip="delay: 500; title: Delete all notifications"
                                         data-uk-icon="icon: trash; ratio: 0.75"></span>
@@ -126,12 +122,17 @@ class Notifications extends React.Component<any, State> {
 
                 <div className="uk-grid uk-child-width-1-1">
                     <ul className="uk-list uk-list-striped no-stripes item-filter">
-                        {this.state.list.map(notification => (
+                    {this.state.list.length === 0 ? 
+                        (
+                            <div className="uk-text-center uk-h3 uk-text-muted">No notifications</div>
+                        ) : 
+                        this.state.list.map(notification => (
                             <NotificationComponent
-                                key={notification.ID}
-                                markRead={this.markRead}
-                                item={notification} />
-                        ))}
+                            key={notification.ID}
+                            markRead={this.markRead}
+                            item={notification} />
+                        ))
+                    }
                     </ul>
                 </div>
 

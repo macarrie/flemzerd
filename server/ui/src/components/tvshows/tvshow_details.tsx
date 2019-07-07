@@ -4,24 +4,34 @@ import {Route} from "react-router-dom";
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
-import Loading from "../loading";
+import TvShow from "../../types/tvshow";
+import {SeasonDetails} from "../../types/tvshow";
 
+import Loading from "../loading";
 import MediaIdsComponent from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
 import SeasonList from "./season_list";
 import EpisodeDetails from './episode_details';
 
-class TvShowDetails extends React.Component {
-    tvshow_refresh_interval;
-    state = {
-        movie: null,
+type State = {
+    show :TvShow | null,
+    seasons :SeasonDetails[] | null,
+    fanartURL :string,
+};
+
+class TvShowDetails extends React.Component<any, State> {
+    tvshow_refresh_interval :number;
+    state :State = {
+        show: null,
         seasons: null,
         fanartURL: "",
     };
 
     constructor(props) {
         super(props);
+
+        this.tvshow_refresh_interval = 0;
 
         this.getSeason = this.getSeason.bind(this);
         this.getSeasonList = this.getSeasonList.bind(this);
@@ -45,7 +55,7 @@ class TvShowDetails extends React.Component {
     componentDidMount() {
         this.getShow();
 
-        this.tvshow_refresh_interval = setInterval(this.getShow.bind(this), Const.DATA_REFRESH);
+        this.tvshow_refresh_interval = window.setInterval(this.getShow.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {
@@ -54,7 +64,7 @@ class TvShowDetails extends React.Component {
 
     getShow() {
         API.Shows.get(this.props.match.params.id).then(response => {
-            let show_result = response.data;
+            let show_result :TvShow = response.data;
             show_result.DisplayTitle = Helpers.getMediaTitle(show_result)
             this.setState({
                 show: show_result,
@@ -69,16 +79,32 @@ class TvShowDetails extends React.Component {
 
     getSeason(n) {
         API.Shows.getSeason(this.props.match.params.id, n).then(response => {
-            let seasonlist = this.state.seasons;
+            if (this.state.seasons == null) {
+                return;
+            }
+
+            let seasonlist :SeasonDetails[] = this.state.seasons;
             seasonlist[n] = response.data;
 
             this.setState({seasons: seasonlist});
         }).catch(error => {
             console.log("Get season details error: ", error);
+            if (this.state.seasons == null) {
+                return;
+            }
+
+            let seasonlist :SeasonDetails[] = this.state.seasons;
+            seasonlist[n] = {LoadError: true} as SeasonDetails;
+
+            this.setState({seasons: seasonlist});
         });
     }
 
     getSeasonList() {
+        if (this.state.show == null) {
+            return;
+        }
+
         for (var season in this.state.show.Seasons) {
             this.getSeason(this.state.show.Seasons[season].SeasonNumber);
         }
@@ -95,7 +121,11 @@ class TvShowDetails extends React.Component {
         });
     }
 
-    exitTitleEdit(value) {
+    exitTitleEdit(value :string) {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Shows.changeCustomTitle(this.state.show.ID, value).then(response => {
             this.getShow();
         }).catch(error => {
@@ -111,7 +141,11 @@ class TvShowDetails extends React.Component {
         this.changeDefaultTitle(true);
     }
 
-    changeDefaultTitle(state) {
+    changeDefaultTitle(state :boolean) {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Shows.useDefaultTitle(this.state.show.ID, state).then(response => {
             this.getShow();
         }).catch(error => {
@@ -127,7 +161,11 @@ class TvShowDetails extends React.Component {
         this.changeAnimeState(false);
     }
 
-    changeAnimeState(state) {
+    changeAnimeState(state :boolean) {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Shows.changeAnimeState(this.state.show.ID, state).then(response => {
             this.getShow();
         }).catch(error => {
@@ -136,6 +174,10 @@ class TvShowDetails extends React.Component {
     }
 
     restoreShow() {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Shows.restore(this.state.show.ID).then(response => {
             this.getShow();
         }).catch(error => {
@@ -144,6 +186,10 @@ class TvShowDetails extends React.Component {
     }
 
     deleteShow() {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Shows.delete(this.state.show.ID).then(response => {
             this.getShow();
         }).catch(error => {
@@ -183,7 +229,6 @@ class TvShowDetails extends React.Component {
                                 <span className="uk-h2">
                                     <Editable
                                         value={this.state.show.DisplayTitle}
-                                        onFocus={this.enterTitleEdit}
                                         onFocusOut={this.exitTitleEdit}
                                         editingClassName="uk-border-rounded uk-h2 uk-margin-remove-top uk-text-light"
                                     />

@@ -16,14 +16,14 @@ class DownloadingItemComponent extends React.Component<Props, State> {
         item: {} as DownloadingItem,
     };
 
-    constructor(props) {
+    constructor(props :Props) {
         super(props);
 
         this.state.item = this.props.item;
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState(nextProps.item);
+    componentWillReceiveProps(nextProps :Props) {
+        this.setState({item: nextProps.item});
     }
 
     printDownloadedInfo() {
@@ -149,9 +149,21 @@ class DownloadingItemComponent extends React.Component<Props, State> {
     }
 
     render() {
-        if (this.state.item.ID === 0) {
+        if (typeof this.state.item === "undefined") {
+            console.log("Downloading item: ", this.state.item);
             return (
-                <div>Loading</div>
+            <div className="uk-background-default uk-border-rounded uk-padding-small">
+                <div className="uk-flex uk-flex-middle uk-flex-center uk-margin-large-top">
+                    <span className="uk-margin-right" data-uk-spinner="ratio: 1"></span>
+                    <div>
+                            <span className="uk-h4 uk-text-muted">
+                                <i>
+                                    Loading
+                                </i>
+                            </span>
+                    </div>
+                </div>
+            </div>
             );
         }
 

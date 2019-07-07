@@ -71,7 +71,7 @@ export default class API {
     };
 
     static Episodes = {
-        downloading: function (id: number) {
+        downloading: function () {
             return axios.get('/tvshows/downloading');
         },
         get: function (id: number) {

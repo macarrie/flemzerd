@@ -1,10 +1,10 @@
 import MediaIds from "./media_ids";
 import DownloadingItem from "./downloading_item";
 
-// TODO: Fix any
 type Movie = {
     ID: number,
     CreatedAt: Date,
+    DeletedAt: Date,
     MediaIds: MediaIds,
     Title: string,
     OriginalTitle: string,

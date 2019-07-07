@@ -3,24 +3,34 @@ import {Link} from "react-router-dom";
 
 import API from "../utils/api";
 import Const from "../const";
+import Config from "../types/config";
+import Stats from "../types/stats";
+
 import Loading from "./loading";
 
-class Dashboard extends React.Component {
-    refresh_interval;
+type State = {
+    config :Config | null,
+    stats :Stats | null,
+};
 
-    constructor(props) {
+class Dashboard extends React.Component<any, State> {
+    refresh_interval :number;
+
+    state :State = {
+        config: null,
+        stats: null,
+    };
+
+    constructor(props :any) {
         super(props);
 
-        this.state = {
-            config: null,
-            stats: null,
-        };
+        this.refresh_interval = 0;
     }
 
     componentDidMount() {
         this.load();
 
-        this.refresh_interval = setInterval(this.load.bind(this), Const.DATA_REFRESH);
+        this.refresh_interval = window.setInterval(this.load.bind(this), Const.DATA_REFRESH);
     }
 
     componentWillUnmount() {

@@ -25,7 +25,7 @@ class MediaIdsComponent extends React.Component<Props, State> {
         this.setState({ids: nextProps.ids});
     }
 
-    getTraktUrl(type: string) {
+    getTraktUrl(type: string) :string {
         switch (type) {
             case "movie":
                 return `https://trakt.tv/search/trakt/${this.state.ids.Trakt}?id_type=movie`;
@@ -42,7 +42,7 @@ class MediaIdsComponent extends React.Component<Props, State> {
         let ids = this.state.ids;
         let type = this.props.type;
 
-        if (typeof ids !== "undefined" && ids.ID === 0) {
+        if (typeof ids === "undefined" || ids.ID === 0) {
             return (
                 <div>Loading</div>
             );

@@ -2,16 +2,26 @@ import React from "react";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
+import {SeasonDetails} from "../../types/tvshow";
 
 import EpisodeTable from "./episode_table";
 
-class SeasonList extends React.Component {
+type Props = {
+    refreshSeason(n :number),
+    seasons :SeasonDetails[] | null,
+};
+
+type State = {
+    seasons :SeasonDetails[] | null,
+};
+
+class SeasonList extends React.Component<Props, State> {
+    state :State = {
+        seasons: null,
+    };
+
     constructor(props) {
         super(props);
-
-        this.state = {
-            seasons: null,
-        }
 
         this.state.seasons = this.props.seasons;
 
@@ -23,20 +33,24 @@ class SeasonList extends React.Component {
         this.renderSeason = this.renderSeason.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps :Props) {
         this.setState({ seasons: nextProps.seasons });
     }
 
-    markSeasonDownloaded(season_number) {
+    markSeasonDownloaded(season_number :number) {
         this.changeSeasonDownloadedState(season_number, true);
     }
 
-    markSeasonNotDownloaded(season_number) {
+    markSeasonNotDownloaded(season_number :number) {
         this.changeSeasonDownloadedState(season_number, false);
     }
 
-    changeSeasonDownloadedState(season_number, downloaded_state) {
-        let requests = [];
+    changeSeasonDownloadedState(season_number :number, downloaded_state :boolean) {
+        if (this.state.seasons == null || this.state.seasons[season_number] == null) {
+            return;
+        }
+
+        let requests :any = [];
         for (var index in this.state.seasons[season_number].EpisodeList) {
             let episode = this.state.seasons[season_number].EpisodeList[index];
             requests.push(API.Episodes.changeDownloadedState(episode.ID, downloaded_state));
@@ -47,8 +61,12 @@ class SeasonList extends React.Component {
         });
     }
 
-    downloadSeason(season_number) {
-        let requests = [];
+    downloadSeason(season_number :number) {
+        if (this.state.seasons == null || this.state.seasons[season_number] == null) {
+            return;
+        }
+
+        let requests :any = [];
         for (var index in this.state.seasons[season_number].EpisodeList) {
             let episode = this.state.seasons[season_number].EpisodeList[index];
             if (episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || episode.DownloadingItem.Downloaded || Helpers.dateIsInFuture(episode.Date)) {
@@ -63,13 +81,30 @@ class SeasonList extends React.Component {
     }
 
     make_uuid() {
-        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-            // eslint-disable-next-line
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
+        let length = 8;
+        let timestamp = +new Date();
+
+        var _getRandomInt = function( min, max ) {
+            return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+        }
+
+        let generate = function() {
+            var ts = timestamp.toString();
+            var parts = ts.split( "" ).reverse();
+            var id = "";
+
+            for( var i = 0; i < length; ++i ) {
+                var index = _getRandomInt( 0, parts.length - 1 );
+                id += parts[index];	 
+            }
+
+            return id;
+        }
+
+        return generate();
     }
 
-    renderSeason(season) {
+    renderSeason(season :SeasonDetails) {
         if (season == null) {
             return (
                 <div 
@@ -80,6 +115,19 @@ class SeasonList extends React.Component {
                         Loading season details
                 </i>
             </div>
+            );
+        }
+
+        if (season.LoadError) {
+            return (
+                <div 
+                    key={this.make_uuid()}
+                    className="uk-text-muted uk-flex uk-flex-middle">
+                    <span className="uk-margin-right" data-uk-icon="close"></span>
+                    <i>
+                            Could not load season
+                    </i>
+                </div>
             );
         }
 
@@ -124,9 +172,17 @@ class SeasonList extends React.Component {
     }
 
     renderSeasons() {
-        let seasonRenders = [];
+        if (this.state.seasons == null) {
+            return;
+        }
+
+        let seasonRenders :any = [];
 
         for (var i = 0; i < this.state.seasons.length; i++) {
+            if (i === 0 && this.state.seasons[i] == null) {
+                continue;
+            }
+
             seasonRenders.push(this.renderSeason(this.state.seasons[i]));
         }
 

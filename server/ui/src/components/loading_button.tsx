@@ -1,12 +1,22 @@
 import React from "react";
 
-class LoadingButton extends React.Component {
-    constructor(props) {
-        super(props);
+type Props = {
+    action(),
+    text :string,
+    loading_text :string,
+};
 
-        this.state = {
-            loading: false,
-        };
+type State = {
+    loading :boolean,
+};
+
+class LoadingButton extends React.Component<Props, State> {
+    state :State = {
+        loading: false,
+    };
+
+    constructor(props :Props) {
+        super(props);
 
         this.performAction = this.performAction.bind(this);
     }
