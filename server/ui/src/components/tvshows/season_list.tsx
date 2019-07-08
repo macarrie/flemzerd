@@ -179,10 +179,6 @@ class SeasonList extends React.Component<Props, State> {
         let seasonRenders :any = [];
 
         for (var i = 0; i < this.state.seasons.length; i++) {
-            if (i === 0 && this.state.seasons[i] == null) {
-                continue;
-            }
-
             seasonRenders.push(this.renderSeason(this.state.seasons[i]));
         }
 

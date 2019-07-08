@@ -4,8 +4,7 @@ import {Route} from "react-router-dom";
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
-import TvShow from "../../types/tvshow";
-import {SeasonDetails} from "../../types/tvshow";
+import TvShow, {SeasonDetails} from "../../types/tvshow";
 
 import Loading from "../loading";
 import MediaIdsComponent from "../media_ids";
@@ -84,7 +83,7 @@ class TvShowDetails extends React.Component<any, State> {
             }
 
             let seasonlist :SeasonDetails[] = this.state.seasons;
-            seasonlist[n] = response.data;
+            seasonlist[n - 1] = response.data;
 
             this.setState({seasons: seasonlist});
         }).catch(error => {
@@ -94,7 +93,7 @@ class TvShowDetails extends React.Component<any, State> {
             }
 
             let seasonlist :SeasonDetails[] = this.state.seasons;
-            seasonlist[n] = {LoadError: true} as SeasonDetails;
+            seasonlist[n - 1] = {LoadError: true} as SeasonDetails;
 
             this.setState({seasons: seasonlist});
         });
@@ -105,7 +104,7 @@ class TvShowDetails extends React.Component<any, State> {
             return;
         }
 
-        for (var season in this.state.show.Seasons) {
+        for (let season in this.state.show.Seasons) {
             this.getSeason(this.state.show.Seasons[season].SeasonNumber);
         }
     }

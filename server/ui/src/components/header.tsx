@@ -92,10 +92,12 @@ class Header extends React.Component<any, State> {
                                     <span className="uk-icon uk-margin-small-right"
                                           data-uk-icon="ratio: 0.8; icon: settings"></span>
                                     Settings
-                                    <span
-                                        className={`uk-badge uk-border-pill uk-text-small ${this.state.config_errors_count > 0 ? "alerted" : ""}`}>
-                                        {this.state.config_errors_count}
-                                    </span>
+                                    {this.state.config_errors_count > 0 && (
+                                        <span
+                                            className={`uk-badge uk-border-pill uk-text-small ${this.state.config_errors_count > 0 ? "alerted" : ""}`}>
+                                            {this.state.config_errors_count}
+                                        </span>
+                                    )}
                                 </NavLink>
                             </li>
                         </ul>
