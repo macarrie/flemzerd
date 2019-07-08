@@ -8,7 +8,7 @@ import Episode from "../types/episode";
 type Props = {
     list :Movie[] | Episode[],
     type :string,
-    abortDownload(id :number),
+    abortDownload(id: number): void,
 };
 
 type State = {
@@ -50,7 +50,7 @@ class DownloadingItemTable extends React.Component<Props, State> {
             list = this.state.list as Episode[];
         }
 
-        return list.map(item => (
+        return list.map((item: Movie | Episode) => (
             <tr key={item.ID}>
                 <td>
                     <Link to={this.getMediaLink(item)}>

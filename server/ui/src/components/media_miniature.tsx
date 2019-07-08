@@ -14,7 +14,7 @@ type Props = {
 type State = Movie | TvShow;
 
 class MediaMiniature extends React.Component<Props, State> {
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = props.item;
 
@@ -284,7 +284,7 @@ class MediaMiniature extends React.Component<Props, State> {
         this.changeDownloadedState(false);
     }
 
-    changeDownloadedState(downloaded_state) {
+    changeDownloadedState(downloaded_state: boolean) {
         API.Movies.changeDownloadedState(this.state.ID, downloaded_state).then(response => {
             this.refreshMovie();
         }).catch(error => {

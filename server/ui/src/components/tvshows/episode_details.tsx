@@ -22,7 +22,7 @@ class EpisodeDetails extends React.Component<any, State> {
         fanartURL: "",
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.episode_refresh_interval = 0;
@@ -93,7 +93,7 @@ class EpisodeDetails extends React.Component<any, State> {
         this.changeDownloadedState(true);
     }
 
-    changeDownloadedState(downloaded_state) {
+    changeDownloadedState(downloaded_state: boolean) {
         if (this.state.episode == null) {
             return;
         }

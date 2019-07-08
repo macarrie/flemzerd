@@ -1,8 +1,8 @@
 import React from "react";
 
 type Props = {
-    onFocus?(value :string),
-    onFocusOut?(value :string),
+    onFocus?(value: string): void,
+    onFocusOut?(value: string): void,
     editingClassName :string,
     value :string,
 };
@@ -27,7 +27,7 @@ class Editable extends React.Component<Props, State> {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         this.setState({ value: nextProps.value });
     }
 
@@ -45,7 +45,7 @@ class Editable extends React.Component<Props, State> {
         }
     }
 
-    handleChange(event) {
+    handleChange(event: any) {
         this.setState({
             value: event.target.value,
         });

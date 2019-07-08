@@ -23,7 +23,7 @@ class MovieDetails extends React.Component<any, State> {
         fanartURL: "",
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.movie_refresh_interval = 0;
@@ -77,7 +77,7 @@ class MovieDetails extends React.Component<any, State> {
         });
     }
 
-    exitTitleEdit(value) {
+    exitTitleEdit(value: string) {
         API.Movies.changeCustomTitle(this.state.movie.ID, value).then(response => {
             this.getMovie();
         }).catch(error => {
@@ -101,7 +101,7 @@ class MovieDetails extends React.Component<any, State> {
         this.changeDefaultTitle(true);
     }
 
-    changeDefaultTitle(state) {
+    changeDefaultTitle(state: boolean) {
         API.Movies.useDefaultTitle(this.state.movie.ID, state).then(response => {
             this.getMovie();
         }).catch(error => {
@@ -117,7 +117,7 @@ class MovieDetails extends React.Component<any, State> {
         this.changeDownloadedState(true);
     }
 
-    changeDownloadedState(downloaded_state) {
+    changeDownloadedState(downloaded_state: boolean) {
         API.Movies.changeDownloadedState(this.state.movie.ID, downloaded_state).then(response => {
             this.getMovie();
         }).catch(error => {

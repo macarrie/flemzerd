@@ -7,7 +7,7 @@ import {SeasonDetails} from "../../types/tvshow";
 import EpisodeTable from "./episode_table";
 
 type Props = {
-    refreshSeason(n :number),
+    refreshSeason(n: number): void,
     seasons :SeasonDetails[] | null,
 };
 
@@ -20,7 +20,7 @@ class SeasonList extends React.Component<Props, State> {
         seasons: null,
     };
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
 
         this.state.seasons = this.props.seasons;
@@ -84,7 +84,7 @@ class SeasonList extends React.Component<Props, State> {
         let length = 8;
         let timestamp = +new Date();
 
-        var _getRandomInt = function( min, max ) {
+        var _getRandomInt = function (min: number, max: number) {
             return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
         }
 

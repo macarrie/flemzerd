@@ -26,7 +26,7 @@ class TvShows extends React.Component<any, State> {
         downloading_episodes: null,
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.tvshow_refresh_interval = 0;
@@ -85,7 +85,7 @@ class TvShows extends React.Component<any, State> {
 
     }
 
-    abortEpisodeDownload(id) {
+    abortEpisodeDownload(id: number) {
         API.Episodes.abortDownload(id).then(response => {
             this.getDownloadingEpisodes();
         }).catch(error => {
@@ -108,6 +108,8 @@ class TvShows extends React.Component<any, State> {
                 </>
             );
         }
+
+        return "";
     }
 
     renderShowList() {

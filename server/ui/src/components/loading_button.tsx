@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = {
-    action(),
+    action(): Promise<any>,
     text :string,
     loading_text :string,
 };

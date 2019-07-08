@@ -6,25 +6,25 @@ import Helpers from "../../utils/helpers";
 import Episode from "../../types/episode";
 
 type Props = {
-    list :Episode[] | null,
+    list: Episode[] | null,
 };
 
 type State = {
-    list :Episode[] | null,
+    list: Episode[] | null,
 };
 
 class EpisodeTable extends React.Component<Props, State> {
-    state :State = {
+    state: State = {
         list: null,
     };
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
 
         this.state.list = this.props.list;
     }
 
-    componentWillReceiveProps(nextProps :Props) {
+    componentWillReceiveProps(nextProps: Props) {
         this.setState({list: nextProps.list});
     }
 
@@ -33,7 +33,7 @@ class EpisodeTable extends React.Component<Props, State> {
             return (
                 <div className="uk-text-muted uk-text-center">
                     <i>
-                            No episodes for this season
+                        No episodes for this season
                     </i>
                 </div>
             );
@@ -42,43 +42,43 @@ class EpisodeTable extends React.Component<Props, State> {
         return (
             <table className="uk-table uk-table-divider uk-table-small">
                 <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th className="uk-hidden@m">Release</th>
-                        <th className="uk-visible@m">Release date</th>
+                <tr>
+                    <th>Title</th>
+                    <th className="uk-hidden@m">Release</th>
+                    <th className="uk-visible@m">Release date</th>
 
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
 
-                        <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
-                    </tr>
+                    <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                        {this.state.list.map(episode => (
-                            <EpisodeTableLine
-                                key={episode.ID}
-                                item={episode}/>
-                        ))}
-                        </tbody>
-                    </table>
+                {this.state.list.map(episode => (
+                    <EpisodeTableLine
+                        key={episode.ID}
+                        item={episode}/>
+                ))}
+                </tbody>
+            </table>
         );
     }
 }
 
 type TableLineProps = {
-    item :Episode,
+    item: Episode,
 };
 
 type TableLineState = {
-    item :Episode,
+    item: Episode,
 };
 
 class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
-    state :TableLineState = {
+    state: TableLineState = {
         item: {} as Episode,
     };
 
-    constructor(props :TableLineProps) {
+    constructor(props: TableLineProps) {
         super(props);
 
         this.state.item = this.props.item;
@@ -96,7 +96,7 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
         this.getEpisodeNumber = this.getEpisodeNumber.bind(this);
     }
 
-    componentWillReceiveProps(nextProps :TableLineProps) {
+    componentWillReceiveProps(nextProps: TableLineProps) {
         this.setState({item: nextProps.item});
     }
 
@@ -124,7 +124,7 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
         this.changeDownloadedState(true);
     }
 
-    changeDownloadedState(downloaded_state) {
+    changeDownloadedState(downloaded_state: boolean) {
         API.Episodes.changeDownloadedState(this.state.item.ID, downloaded_state).then(response => {
             this.refreshEpisode();
         }).catch(error => {
@@ -144,29 +144,29 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
         if (this.state.item.DownloadingItem.Downloaded) {
             return (
                 <span className="uk-text-success"
-                data-uk-icon="icon: check; ratio: 0.75">
+                      data-uk-icon="icon: check; ratio: 0.75">
                 </span>
             );
         }
 
-                    if (!(Helpers.dateIsInFuture(this.state.item.Date) || this.state.item.DownloadingItem.Downloaded || this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending)) {
-                        return (
-                            <div>
-                                <button className="uk-icon"
+        if (!(Helpers.dateIsInFuture(this.state.item.Date) || this.state.item.DownloadingItem.Downloaded || this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending)) {
+            return (
+                <div>
+                    <button className="uk-icon"
                             key="downloadEpisode"
                             onClick={this.downloadEpisode}
                             data-uk-tooltip="delay: 500; title: Download"
                             data-uk-icon="icon: download; ratio: 0.75">
-                            </button>
-                                {this.state.item.DownloadingItem.TorrentsNotFound && (
-                                    <div className="btn btn-sm">
-                                        <i className="material-icons uk-text-warning md-18"
-                                            title="No torrents found for episode on last download">warning</i>
-                                    </div>
-                                )}
-                                </div>
-                                    );
-                    }
+                    </button>
+                    {this.state.item.DownloadingItem.TorrentsNotFound && (
+                        <div className="btn btn-sm">
+                            <i className="material-icons uk-text-warning md-18"
+                               title="No torrents found for episode on last download">warning</i>
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
         if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
             return (
@@ -175,86 +175,88 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
                 </span>
             );
         }
-                    }
+
+        return "";
+    }
 
     getDownloadControlButtons() {
         if (Helpers.dateIsInFuture(this.state.item.Date)) {
             return;
         }
 
-        let buttonList :any[] = [];
+        let buttonList: any[] = [];
 
         if (this.state.item.DownloadingItem.Downloaded) {
             buttonList.push(
                 <button className="uk-icon"
-                    key="markNotDownloaded"
-                    onClick={this.markNotDownloaded}
-                    data-uk-tooltip="delay: 500; title: Unmark as downloaded"
-                    data-uk-icon="icon: push; ratio: 0.75">
-            </button>
-                );
-                }
-                if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
-                    buttonList.push(
-                        <span className="btn btn-sm p-0"
-                            key="abortDownload"
-                        onClick={this.abortDownload}>
+                        key="markNotDownloaded"
+                        onClick={this.markNotDownloaded}
+                        data-uk-tooltip="delay: 500; title: Unmark as downloaded"
+                        data-uk-icon="icon: push; ratio: 0.75">
+                </button>
+            );
+        }
+        if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
+            buttonList.push(
+                <span className="btn btn-sm p-0"
+                      key="abortDownload"
+                      onClick={this.abortDownload}>
                         <span className="uk-icon uk-icon-link uk-text-danger"
-                            data-uk-icon="icon: close; ratio: 0.75"></span>
+                              data-uk-icon="icon: close; ratio: 0.75"></span>
                     </span>
-                    );
-                }
+            );
+        }
         if (!this.state.item.DownloadingItem.Downloaded && !this.state.item.DownloadingItem.Pending && !this.state.item.DownloadingItem.Downloading) {
             buttonList.push(
                 <button className="uk-icon"
-                key="markDownloaded"
-                onClick={this.markDownloaded}
-                data-uk-tooltip="delay: 500; title: Mark as downloaded"
-                data-uk-icon="icon: check; ratio: 0.75">
-            </button>
+                        key="markDownloaded"
+                        onClick={this.markDownloaded}
+                        data-uk-tooltip="delay: 500; title: Mark as downloaded"
+                        data-uk-icon="icon: check; ratio: 0.75">
+                </button>
             );
         }
 
-                return buttonList;
+        return buttonList;
     }
 
     getEpisodeNumber() {
         if (this.state.item.TvShow.IsAnime) {
             return (
                 <>
-                {Helpers.formatAbsoluteNumber(this.state.item.AbsoluteNumber)}
+                    {Helpers.formatAbsoluteNumber(this.state.item.AbsoluteNumber)}
                 </>
             );
         }
 
         return (
             <>
-            {Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}
+                {Helpers.formatNumber(this.state.item.Season)}x{Helpers.formatNumber(this.state.item.Number)}
             </>
-    );
+        );
     }
 
     render() {
         return (
             <tr className={Helpers.dateIsInFuture(this.state.item.Date) ? "episode-list-future" : ""}>
-            <td>
-                <span className="uk-text-small uk-border-rounded episode-label">{this.getEpisodeNumber()}</span>
-                <Link to={`/tvshows/${this.state.item.TvShow.ID}/episodes/${this.state.item.ID}`}>
+                <td>
+                    <span className="uk-text-small uk-border-rounded episode-label">{this.getEpisodeNumber()}</span>
+                    <Link to={`/tvshows/${this.state.item.TvShow.ID}/episodes/${this.state.item.ID}`}>
                         {this.state.item.Title}
-                </Link>
-            </td>
-            <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@s">{Helpers.formatDate(this.state.item.Date, 'DD MMM YYYY')}</td>
-            <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m">{Helpers.formatDate(this.state.item.Date, 'ddd DD MMM YYYY')}</td>
-            <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">{Helpers.formatDate(this.state.item.Date, 'dddd DD MMM YYYY')}</td>
-            <td className="uk-text-center">
+                    </Link>
+                </td>
+                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@s">{Helpers.formatDate(this.state.item.Date, 'DD MMM YYYY')}</td>
+                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m">{Helpers.formatDate(this.state.item.Date, 'ddd DD MMM YYYY')}</td>
+                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">{Helpers.formatDate(this.state.item.Date, 'dddd DD MMM YYYY')}</td>
+                <td className="uk-text-center">
                     {this.getDownloadButtons()}
-            </td>
-            <td className="uk-text-center">
+                </td>
+                <td className="uk-text-center">
                     {this.getDownloadControlButtons()}
-            </td>
-        </tr>
-            );
-            }
+                </td>
+            </tr>
+        );
+    }
 }
 
 export default EpisodeTable;

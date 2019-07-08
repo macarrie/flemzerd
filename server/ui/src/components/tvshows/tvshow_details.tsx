@@ -27,7 +27,7 @@ class TvShowDetails extends React.Component<any, State> {
         fanartURL: "",
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.tvshow_refresh_interval = 0;
@@ -76,7 +76,7 @@ class TvShowDetails extends React.Component<any, State> {
         });
     }
 
-    getSeason(n) {
+    getSeason(n: number) {
         API.Shows.getSeason(this.props.match.params.id, n).then(response => {
             if (this.state.seasons == null) {
                 return;

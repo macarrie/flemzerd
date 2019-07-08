@@ -40,6 +40,8 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                 </div>
             );
         }
+
+        return "";
     }
 
     printDownloadingInfo() {
@@ -99,6 +101,8 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                 </div>
             );
         }
+
+        return "";
     }
 
     printNotDownloadingInfo() {
@@ -132,6 +136,8 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                 );
             }
         }
+
+        return "";
     }
 
     printDownloadPending() {
@@ -146,6 +152,8 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                 </div>
             );
         }
+
+        return "";
     }
 
     render() {

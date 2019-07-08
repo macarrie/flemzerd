@@ -27,7 +27,7 @@ class Movies extends React.Component<any, State> {
         downloading: null,
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.movies_refresh_interval = 0;
@@ -107,6 +107,8 @@ class Movies extends React.Component<any, State> {
                 </>
             );
         }
+
+        return "";
     }
 
     renderMovieList() {

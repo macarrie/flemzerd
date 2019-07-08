@@ -27,7 +27,7 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         this.state.type = this.props.type;
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         this.setState({
             module: nextProps.module,
             type: nextProps.type,

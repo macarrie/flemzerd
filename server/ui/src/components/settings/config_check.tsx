@@ -22,7 +22,7 @@ class ConfigCheckComponent extends React.Component<Props, State> {
         this.state.item = this.props.item;
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         this.setState({item: nextProps.item});
     }
 

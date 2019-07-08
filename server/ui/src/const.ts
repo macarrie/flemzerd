@@ -16,8 +16,8 @@ export default class Const {
     static NOTIFICATIONS_REFRESH = 10000;
     static DATA_REFRESH = 10000;
 
-	static TVSHOW_RETURNING = 1;
-	static TVSHOW_PLANNED   = 2;
-	static TVSHOW_ENDED     = 3;
-	static TVSHOW_UNKNOWN   = 4;
+    static TVSHOW_RETURNING = 1;
+    static TVSHOW_PLANNED = 2;
+    static TVSHOW_ENDED = 3;
+    static TVSHOW_UNKNOWN = 4;
 }

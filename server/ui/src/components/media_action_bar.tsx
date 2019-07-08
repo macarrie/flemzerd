@@ -10,16 +10,16 @@ import Episode from "../types/episode";
 type Props = {
     item :Movie | TvShow | Episode,
     type :string,
-    downloadItem?(),
-    useOriginalTitle?(),
-    useDefaultTitle?(),
-    treatAsRegularShow?(),
-    treatAsAnime?(),
-    markNotDownloaded?(),
-    markDownloaded?(),
-    abortDownload?(),
-    restoreItem?(),
-    deleteItem?(),
+    downloadItem?(): void,
+    useOriginalTitle?(): void,
+    useDefaultTitle?(): void,
+    treatAsRegularShow?(): void,
+    treatAsAnime?(): void,
+    markNotDownloaded?(): void,
+    markDownloaded?(): void,
+    abortDownload?(): void,
+    restoreItem?(): void,
+    deleteItem?(): void,
 };
 
 type State = {

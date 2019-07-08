@@ -4,15 +4,15 @@ import API from "../../utils/api";
 import Const from "../../const";
 import ModuleSettings from "../../types/module_settings";
 import Config from "../../types/config";
+import ConfigCheck from "../../types/config_check";
 
 import Loading from "../loading";
 import ModuleSettingsComponent from "./module_settings";
 import ConfigCheckComponent from "./config_check";
 
-// TODO: fix any
 type State = {
     config :Config | null,
-    config_checks: any,
+    config_checks: ConfigCheck[] | null,
 };
 
 class Settings extends React.Component {
@@ -22,7 +22,7 @@ class Settings extends React.Component {
         config_checks: null,
     };
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.settings_refresh_interval = 0;
@@ -55,13 +55,18 @@ class Settings extends React.Component {
 
     checkConfig() {
         API.Config.check().then(response => {
+            if (Object.keys(response.data).length === 0) {
+                this.setState({config_checks: []});
+                return;
+            }
+
             this.setState({config_checks: response.data});
         }).catch(error => {
             console.log("Check config error: ", error);
         });
     }
 
-    renderModuleList(title, collection, type) {
+    renderModuleList(title: string | JSX.Element, collection: Array<ModuleSettings>, type: string) {
         let moduleList :Array<ModuleSettings> = [];
 
         if (!collection) {
@@ -75,7 +80,7 @@ class Settings extends React.Component {
             );
         }
 
-        Object.keys(collection).forEach(key => {
+        Object.keys(collection).forEach((key: any) => {
             moduleList.push({
                 Name: key,
                 Config: collection[key]
@@ -108,7 +113,7 @@ class Settings extends React.Component {
 
         return (
             <>
-                {this.state.config_checks && (
+                {this.state.config_checks.length > 0 && (
                     <div className="uk-container">
                         <div className="uk-alert uk-alert-danger" data-uk-alert>
                             <div className="uk-flex uk-flex-middle">

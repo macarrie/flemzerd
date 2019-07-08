@@ -106,6 +106,8 @@ class NotificationComponent extends React.Component<Props, State> {
                 <Link to={`/tvshows/${this.state.notification.Episode.TvShow.ID}/episodes/${this.state.notification.Episode.ID}`}>{Helpers.getMediaTitle(this.state.notification.Episode)}</Link>
             );
         }
+
+        return "";
     }
 
     getMediaOverview() {
@@ -123,6 +125,8 @@ class NotificationComponent extends React.Component<Props, State> {
                 <blockquote className="uk-text-normal uk-padding-left-small">{this.state.notification.Episode.Overview}</blockquote>
             );
         }
+
+        return "";
     }
 
     getNotificationTitle() {
@@ -185,6 +189,8 @@ class NotificationComponent extends React.Component<Props, State> {
                 </span>
             );
         }
+
+        return "";
     }
 
     getNotificationContent() {
