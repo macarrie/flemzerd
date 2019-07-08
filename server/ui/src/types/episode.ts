@@ -16,6 +16,7 @@ type Episode = {
 	Overview          :string,
 	Notified          :boolean,
 	DownloadingItem   :DownloadingItem,
+    ActionPending     :boolean,
 };
 
 export default Episode;

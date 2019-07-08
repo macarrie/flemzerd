@@ -141,6 +141,12 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
     }
 
     getDownloadButtons() {
+        if (this.state.item.ActionPending) {
+            return (
+                <span data-uk-spinner="ratio: 0.5"></span>
+            );
+        }
+
         if (this.state.item.DownloadingItem.Downloaded) {
             return (
                 <span className="uk-text-success"

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -160,11 +159,9 @@ func getSeasonDetails(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Season number: %+v\n", seasonNumber)
 	seasonInfo := TvSeason{}
 	seasonInfoFound := false
 	for _, season := range show.Seasons {
-		fmt.Printf("Seasons: %+v\n", season)
 		if season.SeasonNumber == seasonNb {
 			seasonInfoFound = true
 			seasonInfo = season

@@ -46,15 +46,22 @@ class SeasonList extends React.Component<Props, State> {
     }
 
     changeSeasonDownloadedState(season_number :number, downloaded_state :boolean) {
-        if (this.state.seasons == null || this.state.seasons[season_number] == null) {
+        if (this.state.seasons == null || this.state.seasons[season_number - 1] == null) {
             return;
         }
 
         let requests :any = [];
-        for (var index in this.state.seasons[season_number].EpisodeList) {
-            let episode = this.state.seasons[season_number].EpisodeList[index];
+        let seasons = this.state.seasons;
+        for (var index in this.state.seasons[season_number - 1].EpisodeList) {
+            let episode = this.state.seasons[season_number - 1].EpisodeList[index];
+            if (episode.DownloadingItem.Downloaded === downloaded_state || Helpers.dateIsInFuture(episode.Date)) {
+                continue;
+            }
+
+            seasons[season_number - 1].EpisodeList[index].ActionPending = true;
             requests.push(API.Episodes.changeDownloadedState(episode.ID, downloaded_state));
         }
+        this.setState({seasons: seasons});
 
         Promise.all(requests).then(values => {
             this.props.refreshSeason(season_number);
@@ -62,19 +69,23 @@ class SeasonList extends React.Component<Props, State> {
     }
 
     downloadSeason(season_number :number) {
-        if (this.state.seasons == null || this.state.seasons[season_number] == null) {
+        if (this.state.seasons == null || this.state.seasons[season_number - 1] == null) {
             return;
         }
 
         let requests :any = [];
-        for (var index in this.state.seasons[season_number].EpisodeList) {
-            let episode = this.state.seasons[season_number].EpisodeList[index];
+        let seasons = this.state.seasons;
+        for (var index in this.state.seasons[season_number - 1].EpisodeList) {
+            let episode = this.state.seasons[season_number - 1].EpisodeList[index];
             if (episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || episode.DownloadingItem.Downloaded || Helpers.dateIsInFuture(episode.Date)) {
                 continue;
             }
 
+            seasons[season_number - 1].EpisodeList[index].ActionPending = true;
             requests.push(API.Episodes.download(episode.ID));
         }
+        this.setState({seasons: seasons});
+
         Promise.all(requests).then(values => {
             this.props.refreshSeason(season_number);
         });
