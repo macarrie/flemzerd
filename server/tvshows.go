@@ -159,8 +159,20 @@ func getSeasonDetails(c *gin.Context) {
 		return
 	}
 
+	seasonInfo := TvSeason{}
+	seasonInfoFound := false
+	for _, season := range show.Seasons {
+		if season.SeasonNumber == seasonNb {
+			seasonInfoFound = true
+			seasonInfo = season
+		}
+	}
+	if !seasonInfoFound {
+		c.JSON(http.StatusNotFound, gin.H{})
+	}
+
 	c.JSON(http.StatusOK, SeasonDetails{
-		Info:        show.Seasons[seasonNb],
+		Info:        seasonInfo,
 		EpisodeList: epList,
 	})
 }

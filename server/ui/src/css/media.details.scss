@@ -76,7 +76,15 @@
     }
 
     &.removed-element {
-        background: #a51717;
+        background: $danger;
+
+        a, button {
+            color: #ddd !important;
+        }
+    }
+
+    &.downloaded-element {
+        background: $success;
 
         a, button {
             color: #ddd !important;
