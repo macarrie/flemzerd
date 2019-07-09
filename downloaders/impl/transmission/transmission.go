@@ -38,11 +38,16 @@ type TransmissionDownloader struct {
 
 func convertTorrent(t tr.Torrent) Torrent {
 	id := xid.New()
+	// TODO: Compute ETA into Time format
 	return Torrent{
-		TorrentId:   id.String(),
-		Name:        t.Name,
-		Link:        t.TorrentFile,
-		DownloadDir: t.DownloadDir,
+		TorrentId:    id.String(),
+		Name:         t.Name,
+		Link:         t.TorrentFile,
+		DownloadDir:  t.DownloadDir,
+		PercentDone:  t.PercentDone,
+		TotalSize:    t.TotalSize,
+		RateDownload: t.RateDownload,
+		RateUpload:   t.RateUpload,
 	}
 }
 

@@ -1,6 +1,10 @@
 package objects
 
-import "github.com/jinzhu/gorm"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 type Torrent struct {
 	gorm.Model
@@ -11,4 +15,9 @@ type Torrent struct {
 	Link             string
 	DownloadDir      string
 	Seeders          int
+	PercentDone      float64
+	TotalSize        int64
+	ETA              *time.Time
+	RateDownload     int64
+	RateUpload       int64
 }
