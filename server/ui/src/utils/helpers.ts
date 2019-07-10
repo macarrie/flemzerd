@@ -37,7 +37,7 @@ export default class Helpers {
         if (media.ID === 0) {
             return "Unknown media"
         }
-
+        
         if (media.hasOwnProperty("Season")) {
             return `${Helpers.getMediaTitle(media.TvShow)} S${Helpers.formatNumber(media.Season)}E${Helpers.formatNumber(media.Number)} - ${media.Title}`;
         }

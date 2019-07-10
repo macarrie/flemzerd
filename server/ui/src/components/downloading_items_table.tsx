@@ -64,7 +64,10 @@ class DownloadingItemTable extends React.Component<Props, State> {
                 </td>
                 <td className="uk-text-center uk-table-shrink uk-text-nowrap">
                     {(item.DownloadingItem.Downloading) && (
-                        <span className="uk-text-success">Started at {Helpers.formatDate(item.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')}</span>
+                        <>
+                            <progress className="uk-progress uk-margin-small-bottom" value={item.DownloadingItem.CurrentTorrent.PercentDone * 100} max="100">{item.DownloadingItem.CurrentTorrent.PercentDone * 100}%</progress>
+                            <span className="uk-text-success">Started at {Helpers.formatDate(item.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')}</span>
+                        </>
                     )}
 
                     {(item.DownloadingItem.Pending) && (
@@ -87,7 +90,7 @@ class DownloadingItemTable extends React.Component<Props, State> {
     render() {
         return (
             <div className="uk-width-1-1 uk-overflow-auto">
-                <table className="uk-table uk-table-small uk-table-divider">
+                <table className="uk-table uk-table-small uk-table-divider uk-table-middle">
                     <thead>
                         <tr>
                             <th>Name</th>

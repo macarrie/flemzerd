@@ -8,10 +8,11 @@ import (
 	"sync"
 	"time"
 
+	tr "github.com/macarrie/transmission"
+
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
-	tr "github.com/macarrie/transmission"
 
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
@@ -38,11 +39,16 @@ type TransmissionDownloader struct {
 
 func convertTorrent(t tr.Torrent) Torrent {
 	id := xid.New()
+	// TODO: Compute ETA into Time format
 	return Torrent{
-		TorrentId:   id.String(),
-		Name:        t.Name,
-		Link:        t.TorrentFile,
-		DownloadDir: t.DownloadDir,
+		TorrentId:    id.String(),
+		Name:         t.Name,
+		Link:         t.TorrentFile,
+		DownloadDir:  t.DownloadDir,
+		PercentDone:  t.PercentDone,
+		TotalSize:    t.TotalSize,
+		RateDownload: t.RateDownload,
+		RateUpload:   t.RateUpload,
 	}
 }
 
@@ -201,11 +207,12 @@ func (d TransmissionDownloader) RemoveTorrent(t Torrent) error {
 	return nil
 }
 
-func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
+func (d TransmissionDownloader) GetTorrentStatus(t *Torrent) error {
 	if err := retry.Double(3).Run(func() error {
 		return updateTorrentList()
 	}); err != nil {
-		return TORRENT_UNKNOWN_STATUS, errors.Wrap(err, "cannot update transmission torrent list")
+		t.Status = TORRENT_UNKNOWN_STATUS
+		return errors.Wrap(err, "cannot update transmission torrent list")
 	}
 
 	for _, torrent := range torrentList {
@@ -218,23 +225,36 @@ func (d TransmissionDownloader) GetTorrentStatus(t Torrent) (int, error) {
 				return torrent.Update()
 			})
 			if err != nil {
-				return TORRENT_UNKNOWN_STATUS, nil
+				t.Status = TORRENT_UNKNOWN_STATUS
+				return nil
 			}
+
+			t.ETA = time.Unix(torrent.Eta, 0)
+			t.PercentDone = torrent.PercentDone
+			t.TotalSize = torrent.TotalSize
+			t.RateDownload = torrent.RateDownload
+			t.RateUpload = torrent.RateUpload
 
 			switch (*torrent).Status {
 			case tr.StatusDownloading:
-				return TORRENT_DOWNLOADING, nil
+				t.Status = TORRENT_DOWNLOADING
+				return nil
 			case tr.StatusSeeding:
-				return TORRENT_SEEDING, nil
+				t.Status = TORRENT_SEEDING
+				return nil
 			case tr.StatusStopped:
-				return TORRENT_STOPPED, nil
+				t.Status = TORRENT_STOPPED
+				return nil
 			case tr.StatusDownloadPending:
-				return TORRENT_DOWNLOAD_PENDING, nil
+				t.Status = TORRENT_DOWNLOAD_PENDING
+				return nil
 			default:
-				return TORRENT_UNKNOWN_STATUS, nil
+				t.Status = TORRENT_UNKNOWN_STATUS
+				return nil
 			}
 		}
 	}
 
-	return TORRENT_UNKNOWN_STATUS, errors.New("Could not find torrent in transmission")
+	t.Status = TORRENT_UNKNOWN_STATUS
+	return errors.New("Could not find torrent in transmission")
 }

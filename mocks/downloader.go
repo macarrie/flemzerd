@@ -142,17 +142,21 @@ func (d DLErrorDownloader) Init() error {
 }
 
 // GetTorrentStatus
-func (d Downloader) GetTorrentStatus(t Torrent) (int, error) {
-	return TORRENT_SEEDING, nil
+func (d Downloader) GetTorrentStatus(t *Torrent) error {
+	t.Status = TORRENT_SEEDING
+	return nil
 }
-func (d ErrorDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	return TORRENT_STOPPED, errors.New("Downloader error")
+func (d ErrorDownloader) GetTorrentStatus(t *Torrent) error {
+	t.Status = TORRENT_STOPPED
+	return errors.New("Downloader error")
 }
-func (d StalledDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	return TORRENT_DOWNLOADING, nil
+func (d StalledDownloader) GetTorrentStatus(t *Torrent) error {
+	t.Status = TORRENT_DOWNLOADING
+	return nil
 }
-func (d DLErrorDownloader) GetTorrentStatus(t Torrent) (int, error) {
-	return TORRENT_STOPPED, nil
+func (d DLErrorDownloader) GetTorrentStatus(t *Torrent) error {
+	t.Status = TORRENT_STOPPED
+	return nil
 }
 
 // GetTorrentCount

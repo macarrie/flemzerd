@@ -136,7 +136,8 @@ func TestGetTorrentStatus(t *testing.T) {
 		TorrentId: strconv.Itoa(TORRENT_DOWNLOADING),
 	}
 
-	status, _ := GetTorrentStatus(testTorrent)
+	_ = GetTorrentStatus(&testTorrent)
+	status := testTorrent.Status
 
 	if status != TORRENT_SEEDING {
 		t.Errorf("Expected torrent status to be %d, got %d instead", TORRENT_SEEDING, status)

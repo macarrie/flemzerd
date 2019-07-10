@@ -60,8 +60,30 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Downloading</b></td>
                             <td>
-                                <span
-                                    className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </span>
+                                <div className="uk-grid-collapse" data-uk-grid="">
+                                    <div className="uk-width-1-1">
+                                        <div className="uk-child-1-4" data-uk-grid="">
+                                            <div className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </div>
+                                            <div> ETA: {Helpers.formatDate(item.CurrentTorrent.ETA, 'HH[h]mm[mn]')} left </div>
+                                            <div className="uk-flex uk-flex-middle">
+                                                <span className="uk-icon-link" data-uk-icon="download"></span>
+                                                {Math.round(item.CurrentTorrent.RateDownload / 1024)} ko/s
+                                            </div>
+                                            <div className="uk-flex uk-flex-middle">
+                                                <span className="uk-icon-link" data-uk-icon="upload"></span>
+                                                {Math.round(item.CurrentTorrent.RateUpload / 1024)} ko/s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="uk-width-1-1">
+                                        <div className="uk-flex uk-flex-middle" data-uk-grid="">
+                                            <div> {Math.round(item.CurrentTorrent.PercentDone * 100)}% done </div>
+                                            <div className="uk-width-expand">
+                                                <progress className="uk-progress" value={item.CurrentTorrent.PercentDone * 100} max="100">{item.CurrentTorrent.PercentDone * 100}%</progress>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         <tr>
