@@ -17,7 +17,8 @@ type Torrent struct {
 	Seeders          int
 	PercentDone      float64
 	TotalSize        int64
-	ETA              *time.Time
+	ETA              time.Time
 	RateDownload     int64
 	RateUpload       int64
+	Status           int
 }

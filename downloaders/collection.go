@@ -98,7 +98,7 @@ func RemoveTorrent(t Torrent) error {
 	return downloadersCollection[0].RemoveTorrent(t)
 }
 
-func GetTorrentStatus(t Torrent) (int, error) {
+func GetTorrentStatus(t *Torrent) error {
 	return downloadersCollection[0].GetTorrentStatus(t)
 }
 
@@ -179,16 +179,18 @@ func HandleTorrentDownload(ctx context.Context, d downloadable.Downloadable, rec
 }
 
 func WaitForDownload(ctx context.Context, t Torrent) (err error, aborted bool) {
-	downloadLoopTicker := time.NewTicker(1 * time.Minute)
+	downloadLoopTicker := time.NewTicker(20 * time.Second)
 	for {
 		log.WithFields(log.Fields{
 			"torrent": t.Name,
 		}).Debug("Checking torrent download progress")
 
-		status, err := GetTorrentStatus(t)
+		err := GetTorrentStatus(&t)
 		if err != nil {
 			return errors.Wrap(err, "error when getting download status"), false
 		}
+		db.Client.Save(&t)
+		status := t.Status
 
 		switch status {
 		case TORRENT_STOPPED:
