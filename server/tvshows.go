@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
-	provider "github.com/macarrie/flemzerd/providers"
+	"github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
 
@@ -215,6 +215,16 @@ func getEpisodeDetails(c *gin.Context) {
 	if req.RecordNotFound() {
 		c.JSON(http.StatusNotFound, gin.H{})
 		return
+	}
+
+	var show TvShow
+	if ep.TvShow.ID == 0 && ep.TvShowID != 0 {
+		// Episode tvshow has been deleted. Try to retrieve infos from db (show soft deleted)
+		if req := db.Client.Unscoped().Find(&show, ep.TvShowID); req.RecordNotFound() {
+			c.JSON(http.StatusNotFound, gin.H{})
+			return
+		}
+		ep.TvShow = show
 	}
 	c.JSON(http.StatusOK, ep)
 }
