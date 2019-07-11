@@ -3,6 +3,8 @@ import {BrowserRouter as Router, Redirect, Route} from "react-router-dom";
 
 import "./css/style.scss";
 
+import Auth from './auth';
+
 import Header from './components/header';
 import Footer from './components/footer';
 
@@ -21,6 +23,14 @@ function Root() {
 }
 
 function AppRouter() {
+    if (!Auth.IsLoggedIn()) {
+        return (
+            <div>
+            Login page
+            </div>
+        );
+    }
+
     return (
         <Router>
             <div>

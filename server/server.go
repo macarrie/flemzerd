@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/macarrie/flemzerd/configuration"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -37,21 +37,10 @@ func init() {
 	serverStarted = false
 }
 
-func helloHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	user, _ := c.Get(identityKey)
-	c.JSON(200, gin.H{
-		"userID":   claims["id"],
-		"userName": user.(*User).UserName,
-		"text":     "Hello World.",
-	})
-}
-
 func initRouter() {
-	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "test zone",
-		Key:         []byte("secret key"),
+		Realm:       "flemzerd",
+		Key:         []byte("flemzerd_key"),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
@@ -65,18 +54,21 @@ func initRouter() {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			fmt.Printf("Claims: %+v\n", claims)
 			return &User{
-				UserName: claims["id"].(string),
+				UserName: claims[identityKey].(string),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
+				log.Error("Error", err)
 				return "", jwt.ErrMissingLoginValues
 			}
 			userID := loginVals.Username
 			password := loginVals.Password
 
+			// TODO
 			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
 				return &User{
 					UserName:  userID,
@@ -86,13 +78,6 @@ func initRouter() {
 			}
 
 			return nil, jwt.ErrFailedAuthentication
-		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*User); ok && v.UserName == "admin" {
-				return true
-			}
-
-			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
@@ -137,18 +122,16 @@ func initRouter() {
 		})
 	}
 
-	auth := router.Group("/auth")
-	// Refresh time can be longer than token timeout
-	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-	auth.POST("/login", authMiddleware.LoginHandler)
-	auth.Use(authMiddleware.MiddlewareFunc())
-	{
-		auth.GET("/hello", helloHandler)
-	}
-
 	v1 := router.Group("/api/v1")
 	{
+		auth := v1.Group("/auth")
+		{
+			auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+			auth.POST("/login", authMiddleware.LoginHandler)
+		}
+
 		configRoute := v1.Group("/config")
+		configRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			configRoute.GET("/", func(c *gin.Context) {
 				c.JSON(http.StatusOK, configuration.Config)
@@ -171,11 +154,13 @@ func initRouter() {
 		v1.GET("/stats", stats.Handler())
 
 		actionsRoute := v1.Group("/actions")
+		actionsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			actionsRoute.POST("/poll", actionsCheckNow)
 		}
 
 		tvshowsRoute := v1.Group("/tvshows")
+		tvshowsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			tvshowsRoute.GET("/tracked", getTrackedShows)
 			tvshowsRoute.GET("/downloading", getDownloadingEpisodes)
@@ -197,6 +182,7 @@ func initRouter() {
 		}
 
 		moviesRoute := v1.Group("/movies")
+		moviesRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			moviesRoute.GET("/tracked", getTrackedMovies)
 			moviesRoute.GET("/downloading", getDownloadingMovies)
@@ -214,6 +200,7 @@ func initRouter() {
 		}
 
 		modules := v1.Group("/modules")
+		modules.Use(authMiddleware.MiddlewareFunc())
 		{
 			providers := modules.Group("/providers")
 			{
@@ -263,6 +250,7 @@ func initRouter() {
 		}
 
 		notificationsRoute := v1.Group("/notifications")
+		notificationsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			notificationsRoute.GET("/all", getNotifications)
 			notificationsRoute.DELETE("/all", deleteNotifications)
