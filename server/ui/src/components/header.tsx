@@ -50,6 +50,9 @@ class Header extends React.Component<any, State> {
             });
         }).catch(error => {
             console.log("Get notifications error: ", error);
+            if (error.response.status === 401) {
+                window.location.reload();
+            }
             this.setState({load_error: true});
         });
     }
@@ -62,6 +65,9 @@ class Header extends React.Component<any, State> {
             });
         }).catch(error => {
             console.log("Check configuration error: ", error);
+            if (error.response.status === 401) {
+                window.location.reload();
+            }
             this.setState({load_error: true});
         });
     }
