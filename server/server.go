@@ -28,9 +28,7 @@ type login struct {
 }
 
 type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
+	UserName string
 }
 
 func init() {
@@ -54,7 +52,6 @@ func initRouter() {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			fmt.Printf("Claims: %+v\n", claims)
 			return &User{
 				UserName: claims[identityKey].(string),
 			}
@@ -68,12 +65,9 @@ func initRouter() {
 			userID := loginVals.Username
 			password := loginVals.Password
 
-			// TODO
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
+			if userID == configuration.Config.Interface.Auth.Username && password == configuration.Config.Interface.Auth.Password {
 				return &User{
-					UserName:  userID,
-					LastName:  "Bo-Yi",
-					FirstName: "Wu",
+					UserName: userID,
 				}, nil
 			}
 
@@ -131,9 +125,8 @@ func initRouter() {
 		}
 
 		configRoute := v1.Group("/config")
-		configRoute.Use(authMiddleware.MiddlewareFunc())
 		{
-			configRoute.GET("/", func(c *gin.Context) {
+			configRoute.GET("/", authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 				c.JSON(http.StatusOK, configuration.Config)
 			})
 
