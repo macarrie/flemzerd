@@ -9,7 +9,7 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/vidocq"
 
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
@@ -84,6 +84,10 @@ type Configuration struct {
 	Interface struct {
 		Enabled bool
 		Port    int
+		Auth    struct {
+			Username string
+			Password string
+		}
 	}
 	Providers     map[string]map[string]string
 	Indexers      map[string][]map[string]string
@@ -123,6 +127,8 @@ type Configuration struct {
 func setDefaultValues() {
 	viper.SetDefault("interface.enabled", true)
 	viper.SetDefault("interface.port", 8080)
+	viper.SetDefault("interface.auth.username", "admin")
+	viper.SetDefault("interface.auth.password", "flemzerd")
 
 	viper.SetDefault("notifications.enabled", true)
 	viper.SetDefault("notifications.notify_new_episode", true)
@@ -413,6 +419,17 @@ func Check() error {
 		log.WithFields(log.Fields{
 			"error": configError,
 		}).Error("Configuration error")
+		errorList = multierror.Append(errorList, configError)
+	}
+
+	if Config.Interface.Enabled && Config.Interface.Auth.Username == "admin" && Config.Interface.Auth.Password == "flemzerd" {
+		configError = ConfigurationError{
+			Status:  WARNING,
+			Message: "Auth credentials defined in configuration. Please change them for a better security",
+		}
+		log.WithFields(log.Fields{
+			"error": configError,
+		}).Warning("Configuration warning")
 		errorList = multierror.Append(errorList, configError)
 	}
 

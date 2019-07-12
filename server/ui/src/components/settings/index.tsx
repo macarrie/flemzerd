@@ -1,6 +1,7 @@
 import React from "react";
 
 import API from "../../utils/api";
+import Auth from "../../auth";
 import Const from "../../const";
 import ModuleSettings from "../../types/module_settings";
 import Config from "../../types/config";
@@ -354,6 +355,16 @@ class Settings extends React.Component {
                         <div className="uk-width-1-1">
                             <h4 className="uk-heading-divider">About flemzerd</h4>
                             <ul className="uk-list uk-list-striped no-stripes">
+                                <li>
+                                    <div data-uk-grid="">
+                                        <div className="uk-width-expand">
+                                            Logged in as: <i>{this.state.config.Interface.Auth.Username}</i>
+                                        </div>
+                                        <div>
+                                            <button className="uk-button uk-button-small uk-button-danger" onClick={() => Auth.logout()}>Log out</button>
+                                        </div>
+                                    </div>
+                                </li>
                                 <li>Version: <code>{this.state.config.Version}</code></li>
                                 <li className="uk-text-center uk-padding-small">flemzerd is an Open Source software. For
                                     feature ideas, notifying bugs or contributing, do not hesitate to head to the <a

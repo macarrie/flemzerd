@@ -1,7 +1,10 @@
 type Config = {
     Interface :{
-        Enabled :boolean
-        Port    :number
+        Enabled :boolean,
+        Port    :number,
+        Auth: {
+            Username :string,
+        },
     },
     Providers     :any,
     Indexers      :any,

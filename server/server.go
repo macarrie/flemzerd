@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	multierror "github.com/hashicorp/go-multierror"
-
 	"github.com/macarrie/flemzerd/configuration"
+
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/stats"
 )
@@ -19,11 +20,88 @@ var srv *http.Server
 var router *gin.Engine
 var serverStarted bool
 
+var identityKey = "id"
+
+type login struct {
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
+}
+
+type User struct {
+	UserName string
+}
+
 func init() {
 	serverStarted = false
 }
 
 func initRouter() {
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "flemzerd",
+		Key:         []byte("flemzerd_key"),
+		Timeout:     time.Hour,
+		MaxRefresh:  time.Hour,
+		IdentityKey: identityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(*User); ok {
+				return jwt.MapClaims{
+					identityKey: v.UserName,
+				}
+			}
+			return jwt.MapClaims{}
+		},
+		IdentityHandler: func(c *gin.Context) interface{} {
+			claims := jwt.ExtractClaims(c)
+			return &User{
+				UserName: claims[identityKey].(string),
+			}
+		},
+		Authenticator: func(c *gin.Context) (interface{}, error) {
+			var loginVals login
+			if err := c.ShouldBind(&loginVals); err != nil {
+				log.Error("Error", err)
+				return "", jwt.ErrMissingLoginValues
+			}
+			userID := loginVals.Username
+			password := loginVals.Password
+
+			if userID == configuration.Config.Interface.Auth.Username && password == configuration.Config.Interface.Auth.Password {
+				return &User{
+					UserName: userID,
+				}, nil
+			}
+
+			return nil, jwt.ErrFailedAuthentication
+		},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			c.JSON(code, gin.H{
+				"code":    code,
+				"message": message,
+			})
+		},
+		// TokenLookup is a string in the form of "<source>:<name>" that is used
+		// to extract token from the request.
+		// Optional. Default value "header:Authorization".
+		// Possible values:
+		// - "header:<name>"
+		// - "query:<name>"
+		// - "cookie:<name>"
+		// - "param:<name>"
+		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		// TokenLookup: "query:token",
+		// TokenLookup: "cookie:token",
+
+		// TokenHeadName is a string in the header. Default value is "Bearer"
+		TokenHeadName: "Bearer",
+
+		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		TimeFunc: time.Now,
+	})
+
+	if err != nil {
+		log.Fatal("JWT Error:" + err.Error())
+	}
+
 	router = gin.Default()
 	router.Use(static.Serve("/static", static.LocalFile("/var/lib/flemzerd/server/ui/static", true)))
 
@@ -40,9 +118,15 @@ func initRouter() {
 
 	v1 := router.Group("/api/v1")
 	{
+		auth := v1.Group("/auth")
+		{
+			auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+			auth.POST("/login", authMiddleware.LoginHandler)
+		}
+
 		configRoute := v1.Group("/config")
 		{
-			configRoute.GET("/", func(c *gin.Context) {
+			configRoute.GET("/", authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 				c.JSON(http.StatusOK, configuration.Config)
 			})
 
@@ -63,11 +147,13 @@ func initRouter() {
 		v1.GET("/stats", stats.Handler())
 
 		actionsRoute := v1.Group("/actions")
+		actionsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			actionsRoute.POST("/poll", actionsCheckNow)
 		}
 
 		tvshowsRoute := v1.Group("/tvshows")
+		tvshowsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			tvshowsRoute.GET("/tracked", getTrackedShows)
 			tvshowsRoute.GET("/downloading", getDownloadingEpisodes)
@@ -89,6 +175,7 @@ func initRouter() {
 		}
 
 		moviesRoute := v1.Group("/movies")
+		moviesRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			moviesRoute.GET("/tracked", getTrackedMovies)
 			moviesRoute.GET("/downloading", getDownloadingMovies)
@@ -106,6 +193,7 @@ func initRouter() {
 		}
 
 		modules := v1.Group("/modules")
+		modules.Use(authMiddleware.MiddlewareFunc())
 		{
 			providers := modules.Group("/providers")
 			{
@@ -155,6 +243,7 @@ func initRouter() {
 		}
 
 		notificationsRoute := v1.Group("/notifications")
+		notificationsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			notificationsRoute.GET("/all", getNotifications)
 			notificationsRoute.DELETE("/all", deleteNotifications)

@@ -164,6 +164,19 @@ img[data-src][src*='data:image'] {
 ///////////////////////////////
 ///////////////////////////////
 
+.uk-logo {
+    font-size: 50px !important;
+    line-height: 30px !important;
+    font-family: "Alex Brush";
+    padding-left: 15px;
+    padding-right: 15px;
+    color: transparent !important;
+    background-color: $primary;
+    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
 .uk-navbar-container {
     background: $light;
     border-top: 3px solid $primary;
@@ -171,22 +184,12 @@ img[data-src][src*='data:image'] {
     border-image-slice: 1;
     font-family: $font-header;
 
-    a, button {
-        margin: 5px;
+    .uk-logo {
+        margin-right: 30px;
     }
 
-    .uk-logo {
-        font-size: 50px !important;
-        line-height: 30px !important;
-        font-family: "Alex Brush";
-        margin-right: 30px;
-        padding-left: 15px;
-        padding-right: 15px;
-        color: transparent !important;
-        background-color: $primary;
-        background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-        background-clip: text;
-        -webkit-background-clip: text;
+    a, button {
+        margin: 5px;
     }
 
     .uk-navbar-nav > li > .active {
