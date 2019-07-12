@@ -8,6 +8,8 @@ import Auth from './auth';
 import Header from './components/header';
 import Footer from './components/footer';
 
+import Login from './components/login';
+
 import Dashboard from './components/dashboard';
 import TvShows from './components/tvshows/index';
 import Movies from './components/movies/index';
@@ -25,9 +27,7 @@ function Root() {
 function AppRouter() {
     if (!Auth.IsLoggedIn()) {
         return (
-            <div>
-            Login page
-            </div>
+            <Login/>
         );
     }
 
