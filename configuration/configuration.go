@@ -425,7 +425,7 @@ func Check() error {
 	if Config.Interface.Enabled && Config.Interface.Auth.Username == "admin" && Config.Interface.Auth.Password == "flemzerd" {
 		configError = ConfigurationError{
 			Status:  WARNING,
-			Message: "Auth credentials defined in configuration. Please change them for a better security",
+			Message: "Auth credentials defined in configuration are the default ones. Please change them for a better security",
 		}
 		log.WithFields(log.Fields{
 			"error": configError,
