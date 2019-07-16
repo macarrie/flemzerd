@@ -102,7 +102,7 @@ class Login extends React.Component<any, State> {
                                     <input className="uk-checkbox uk-margin-small-right"
                                            name="rememberme"
                                            onChange={this.handleChange}
-                                           value={this.state.FormData.RememberMe}
+                                           value={this.state.FormData.rememberme}
                                            type="checkbox"/>
                                     <span>
                                         Remember me
