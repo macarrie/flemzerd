@@ -352,6 +352,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 	d.SetDownloadingItem(downloadingItem)
 	db.SaveDownloadable(&d)
 
+	// TODO: No need to search for torrents on recovery
 	torrentList, err := indexer.GetTorrents(d)
 	if err != nil {
 		log.Warning(err)
@@ -365,6 +366,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 		return
 	}
 
+	// TODO: Remove ?
 	if recovery && downloadingItem.CurrentTorrent.ID != 0 {
 		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
 	}
@@ -389,13 +391,14 @@ func Download(d downloadable.Downloadable, recovery bool) {
 		}).Debug("Torrents found")
 
 		downloadingItem.TorrentsNotFound = false
+		downloadingItem.TorrentList = toDownload
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
 	}
 
 	notifier.NotifyDownloadStart(d)
 
-	go downloader.Download(d, toDownload, recovery)
+	go downloader.Download(d, recovery)
 }
 
 func RecoverDownloadingItems() {

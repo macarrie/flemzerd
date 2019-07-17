@@ -8,7 +8,6 @@ import (
 
 type Torrent struct {
 	gorm.Model
-	FailedTorrentID  uint
 	CurrentTorrentID uint
 	TorrentId        string
 	Name             string

@@ -12,14 +12,14 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/downloadable"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
 )
@@ -219,10 +219,11 @@ func getDownloadRoutinesStruct(d downloadable.Downloadable) DownloadRoutineStruc
 	}
 }
 
-func Download(d downloadable.Downloadable, torrentList []Torrent, recovery bool) error {
+func Download(d downloadable.Downloadable, recovery bool) error {
 	routinesStruct := getDownloadRoutinesStruct(d)
 
 	downloadingItem := d.GetDownloadingItem()
+	torrentList := downloadingItem.TorrentList
 	recoveryDone := true
 
 	if downloadingItem.Downloaded || downloadingItem.Downloading {
