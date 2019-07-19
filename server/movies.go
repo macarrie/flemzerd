@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	downloader "github.com/macarrie/flemzerd/downloaders"
+	"github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
@@ -96,7 +96,7 @@ func downloadMovie(c *gin.Context) {
 
 	movie.GetLog().Info("Launching manual movie download")
 
-	scheduler.Download(&movie, false)
+	scheduler.Download(&movie)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return

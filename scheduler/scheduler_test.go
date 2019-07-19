@@ -160,7 +160,7 @@ func TestDownloadMedia(t *testing.T) {
 	db.Client.Save(&episode)
 
 	// Test case: No torrents found
-	Download(&episode, false)
+	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
 	if !episode.DownloadingItem.TorrentsNotFound {
@@ -173,10 +173,10 @@ func TestDownloadMedia(t *testing.T) {
 	episode.DownloadingItem = DownloadingItem{}
 	db.Client.Save(&episode)
 
-	Download(&episode, false)
+	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
-	if !episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading {
+	if episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || !episode.DownloadingItem.TorrentsNotFound {
 		t.Error("Expected download to fail because no torrent can be requested")
 	}
 
@@ -185,7 +185,7 @@ func TestDownloadMedia(t *testing.T) {
 	episode.DownloadingItem.Downloading = true
 	db.Client.Save(&episode)
 
-	Download(&episode, false)
+	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
 	if episode.DownloadingItem.Pending || !episode.DownloadingItem.Downloading {
@@ -198,7 +198,7 @@ func TestDownloadMedia(t *testing.T) {
 	episode.DownloadingItem.Downloaded = true
 	db.Client.Save(&episode)
 
-	Download(&episode, false)
+	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
 	if episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || !episode.DownloadingItem.Downloaded {
@@ -212,7 +212,7 @@ func TestDownloadMedia(t *testing.T) {
 	db.Client.Save(&movie)
 
 	// Test case: No torrents found
-	Download(&movie, false)
+	Download(&movie)
 
 	db.Client.Find(&movie, movie.ID)
 	if !movie.DownloadingItem.TorrentsNotFound {
@@ -223,7 +223,7 @@ func TestDownloadMedia(t *testing.T) {
 	movie.OriginalTitle = "error"
 	db.Client.Save(&movie)
 
-	Download(&movie, false)
+	Download(&movie)
 
 	db.Client.Find(&movie, movie.ID)
 	if !movie.DownloadingItem.TorrentsNotFound || movie.DownloadingItem.Downloading || movie.DownloadingItem.Pending {
@@ -235,7 +235,7 @@ func TestDownloadMedia(t *testing.T) {
 	movie.DownloadingItem.Downloading = true
 	db.Client.Save(&movie)
 
-	Download(&movie, false)
+	Download(&movie)
 
 	db.Client.Find(&movie, movie.ID)
 	if movie.DownloadingItem.Pending || !movie.DownloadingItem.Downloading {
@@ -248,7 +248,7 @@ func TestDownloadMedia(t *testing.T) {
 	movie.DownloadingItem.Downloaded = true
 	db.Client.Save(&movie)
 
-	Download(&movie, false)
+	Download(&movie)
 
 	db.Client.Find(&movie, movie.ID)
 	if movie.DownloadingItem.Pending || movie.DownloadingItem.Downloading || !movie.DownloadingItem.Downloaded {

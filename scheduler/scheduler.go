@@ -313,7 +313,7 @@ func Run(debug bool) {
 
 	initConfiguration(debug)
 
-	//	 Load configuration objects
+	// 	 Load configuration objects
 	var recoveryDone bool = false
 
 	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.CheckInterval) * time.Minute)
@@ -335,7 +335,7 @@ func Reload(debug bool) {
 	initConfiguration(debug)
 }
 
-func Download(d downloadable.Downloadable, recovery bool) {
+func Download(d downloadable.Downloadable) {
 	downloadingItem := d.GetDownloadingItem()
 
 	if downloadingItem.Downloaded {
@@ -352,23 +352,22 @@ func Download(d downloadable.Downloadable, recovery bool) {
 	d.SetDownloadingItem(downloadingItem)
 	db.SaveDownloadable(&d)
 
-	// TODO: No need to search for torrents on recovery
-	torrentList, err := indexer.GetTorrents(d)
-	if err != nil {
-		log.Warning(err)
-		notifier.NotifyTorrentsNotFound(d)
+	var torrentList []Torrent
+	if downloadingItem.CurrentTorrent.ID == 0 || len(downloadingItem.TorrentList) == 0 {
+		var err error
+		torrentList, err = indexer.GetTorrents(d)
+		if err != nil {
+			log.Warning(err)
+			notifier.NotifyTorrentsNotFound(d)
 
-		downloadingItem.Downloading = false
-		downloadingItem.Pending = false
-		d.SetDownloadingItem(downloadingItem)
-		db.SaveDownloadable(&d)
+			downloadingItem.Downloading = false
+			downloadingItem.Pending = false
+			downloadingItem.TorrentsNotFound = true
+			d.SetDownloadingItem(downloadingItem)
+			db.SaveDownloadable(&d)
 
-		return
-	}
-
-	// TODO: Remove ?
-	if recovery && downloadingItem.CurrentTorrent.ID != 0 {
-		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
+			return
+		}
 	}
 
 	toDownload := downloader.FillTorrentList(d, torrentList)
@@ -381,13 +380,14 @@ func Download(d downloadable.Downloadable, recovery bool) {
 
 		downloadingItem.Downloading = false
 		downloadingItem.Pending = false
+		downloadingItem.TorrentsNotFound = true
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
 
 		return
 	} else {
 		d.GetLog().WithFields(log.Fields{
-			"nb": len(torrentList),
+			"nb": len(toDownload),
 		}).Debug("Torrents found")
 
 		downloadingItem.TorrentsNotFound = false
@@ -398,7 +398,7 @@ func Download(d downloadable.Downloadable, recovery bool) {
 
 	notifier.NotifyDownloadStart(d)
 
-	go downloader.Download(d, recovery)
+	go downloader.Download(d)
 }
 
 func RecoverDownloadingItems() {
@@ -425,7 +425,7 @@ func RecoverDownloadingItems() {
 
 		ep.GetLog().Debug("Launched download processing recovery")
 		recoveryEpisode := ep
-		go Download(&recoveryEpisode, true)
+		go Download(&recoveryEpisode)
 
 	}
 
@@ -442,7 +442,7 @@ func RecoverDownloadingItems() {
 		m.GetLog().Debug("Launched download processing recovery")
 
 		recoveryMovie := m
-		go Download(&recoveryMovie, true)
+		go Download(&recoveryMovie)
 	}
 }
 
@@ -512,7 +512,7 @@ func poll(recoveryDone *bool) {
 
 				downloadDelayPassed := time.Now().After(recentEpisode.Date.AddDate(0, 0, configuration.Config.System.ShowDownloadDelay))
 				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
-					Download(&recentEpisode, false)
+					Download(&recentEpisode)
 				}
 			}
 		}
@@ -535,7 +535,7 @@ func poll(recoveryDone *bool) {
 
 			downloadDelayPassed := time.Now().After(movie.Date.AddDate(0, 0, configuration.Config.System.MovieDownloadDelay))
 			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload && downloadDelayPassed {
-				Download(&movie, false)
+				Download(&movie)
 			}
 		}
 	}

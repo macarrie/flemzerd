@@ -102,12 +102,12 @@ func GetTorrentStatus(t *Torrent) error {
 	return downloadersCollection[0].GetTorrentStatus(t)
 }
 
-func HandleTorrentDownload(ctx context.Context, d downloadable.Downloadable, recovery bool) (err error, aborted bool) {
+func HandleTorrentDownload(ctx context.Context, d downloadable.Downloadable, torrent Torrent) (err error, aborted bool) {
 	downloadingItem := d.GetDownloadingItem()
 	downloadRoutinesStruct := getDownloadRoutinesStruct(d)
 
-	torrent := downloadingItem.CurrentTorrent
-	if !recovery {
+	// If current torrent is set, we are recovering a download process and not adding torrents
+	if downloadingItem.CurrentTorrent.ID == 0 {
 		torrentId, err := AddTorrent(torrent)
 		if err != nil {
 			RemoveTorrent(torrent)
@@ -125,14 +125,21 @@ func HandleTorrentDownload(ctx context.Context, d downloadable.Downloadable, rec
 		db.SaveDownloadable(&d)
 	}
 
-	StartTorrent(torrent)
+	downloadingItem.CurrentTorrent = torrent
+	db.Client.Save(&downloadingItem)
+	_ = StartTorrent(torrent)
 
 	downloadErr, downloadAborted := WaitForDownload(ctx, torrent)
 	if downloadAborted {
 		return nil, downloadAborted
 	}
 	if downloadErr != nil {
-		RemoveTorrent(torrent)
+		if err := RemoveTorrent(torrent); err != nil {
+			log.WithFields(log.Fields{
+				"torrent": torrent.Name,
+				"error":   err,
+			}).Error("Could not remove torrent on download error")
+		}
 		downloadingItem.FailedTorrents = append(downloadingItem.FailedTorrents, torrent)
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
@@ -166,7 +173,12 @@ func HandleTorrentDownload(ctx context.Context, d downloadable.Downloadable, rec
 		mediacenter.RefreshLibrary()
 	}
 
-	RemoveTorrent(torrent)
+	if err := RemoveTorrent(torrent); err != nil {
+		log.WithFields(log.Fields{
+			"torrent": torrent.Name,
+			"error":   err,
+		}).Error("Could not remove torrent after download success ")
+	}
 
 	downloadRoutinesMutex.Lock()
 	ctxStore, ok := downloadRoutinesStruct[d.GetId()]
@@ -219,12 +231,16 @@ func getDownloadRoutinesStruct(d downloadable.Downloadable) DownloadRoutineStruc
 	}
 }
 
-func Download(d downloadable.Downloadable, recovery bool) error {
+func Download(d downloadable.Downloadable) error {
 	routinesStruct := getDownloadRoutinesStruct(d)
 
 	downloadingItem := d.GetDownloadingItem()
-	torrentList := downloadingItem.TorrentList
-	recoveryDone := true
+	var recovery bool
+	if downloadingItem.CurrentTorrent.ID != 0 {
+		recovery = true
+	} else {
+		recovery = false
+	}
 
 	if downloadingItem.Downloaded || downloadingItem.Downloading {
 		return errors.New("Item is currently downloading or already downloaded. Skipping")
@@ -259,31 +275,41 @@ func Download(d downloadable.Downloadable, recovery bool) error {
 		AddTorrentMapping(downloadingItem.CurrentTorrent.TorrentId, downloadingItem.CurrentDownloaderId)
 	}
 
-	for _, torrent := range torrentList {
+	for _, torrent := range downloadingItem.TorrentList {
 		torrent.DownloadDir = fmt.Sprintf("%s/%s/", configuration.Config.Library.CustomTmpPath, xid.New())
 
 		if db.TorrentHasFailed(downloadingItem, torrent) {
 			continue
 		}
 
-		downloadingItem.CurrentTorrent = torrent
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
 
-		var torrentDownload error
+		var torrentDownloadError error
 		var downloadAborted bool
-		if recoveryDone || !recovery {
-			torrentDownload, downloadAborted = HandleTorrentDownload(ctx, d, false)
+
+		if recovery {
+			torrentDownloadError, downloadAborted = HandleTorrentDownload(ctx, d, torrent)
 		} else {
-			recoveryDone = true
-			torrentDownload, downloadAborted = HandleTorrentDownload(ctx, d, true)
+			torrentDownloadError, downloadAborted = HandleTorrentDownload(ctx, d, torrent)
 		}
+
 		if downloadAborted {
 			d.GetLog().Info("Download manually aborted. Cleaning up current download artifacts.")
 
 			currentDownloadPath := downloadingItem.CurrentTorrent.DownloadDir
-			RemoveTorrent(downloadingItem.CurrentTorrent)
-			os.Remove(currentDownloadPath)
+			if err := RemoveTorrent(downloadingItem.CurrentTorrent); err != nil {
+				log.WithFields(log.Fields{
+					"torrent": downloadingItem.CurrentTorrent.Name,
+					"error":   err,
+				}).Error("Could not remove torrent from downloader when aborting download")
+			}
+			if err := os.Remove(currentDownloadPath); err != nil {
+				log.WithFields(log.Fields{
+					"path":  currentDownloadPath,
+					"error": err,
+				}).Error("Could not remove downloaded data for media when aborting download")
+			}
 
 			db.Client.Unscoped().Delete(&downloadingItem)
 			downloadingItem = DownloadingItem{}
@@ -292,11 +318,12 @@ func Download(d downloadable.Downloadable, recovery bool) error {
 
 			return nil
 		}
-		if torrentDownload != nil {
+		if torrentDownloadError != nil {
 			log.WithFields(log.Fields{
-				"err":     torrentDownload,
+				"err":     torrentDownloadError,
 				"torrent": torrent.Name,
-			}).Warning("Couldn't download torrent. Skipping to next torrent in list")
+			}).Warning("Couldn't dowonload torrent. Skipping to next torrent in list")
+			// downloadingItem.CurrentTorrent = nil
 		} else {
 			return nil
 		}
@@ -408,6 +435,7 @@ func FillTorrentList(d downloadable.Downloadable, list []Torrent) []Torrent {
 		}
 	}
 
+	// TODO: Change according to download torrent limit
 	if len(torrentList) < 10 {
 		return torrentList
 	} else {
