@@ -33,6 +33,7 @@ class EpisodeDetails extends React.Component<any, State> {
 
         this.downloadEpisode = this.downloadEpisode.bind(this);
         this.abortDownload = this.abortDownload.bind(this);
+        this.skipTorrent = this.skipTorrent.bind(this);
 
         this.getEpisodeNumber = this.getEpisodeNumber.bind(this);
     }
@@ -51,6 +52,7 @@ class EpisodeDetails extends React.Component<any, State> {
         API.Episodes.get(this.props.match.params.id).then(response => {
             let episode_result = response.data;
             episode_result.DisplayTitle = Helpers.getMediaTitle(episode_result)
+            console.log(episode_result);
             this.setState({episode: episode_result});
             this.getFanart();
         }).catch(error => {
@@ -105,6 +107,18 @@ class EpisodeDetails extends React.Component<any, State> {
         });
     }
 
+    skipTorrent() {
+        if (this.state.episode == null) {
+            return;
+        }
+
+        API.Episodes.skipTorrent(this.state.episode.ID).then(response => {
+            this.getEpisode();
+        }).catch(error => {
+            console.log("Skip torrent download error: ", error);
+        });
+    }
+
     abortDownload() {
         if (this.state.episode == null) {
             return;
@@ -152,6 +166,7 @@ class EpisodeDetails extends React.Component<any, State> {
                             downloadItem={this.downloadEpisode}
                             markNotDownloaded={this.markNotDownloaded}
                             markDownloaded={this.markDownloaded}
+                            skipTorrent={this.skipTorrent}
                             abortDownload={this.abortDownload}
                             type="episode"/>
 

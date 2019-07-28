@@ -6,7 +6,7 @@ type DownloadingItem = {
     Pending: boolean,
     Downloading: boolean,
     Downloaded: boolean,
-    FailedTorrents: Torrent[],
+    TorrentList: Torrent[],
     CurrentTorrent: Torrent,
     CurrentDownloaderId: string,
     DownloadFailed: boolean,

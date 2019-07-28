@@ -2,6 +2,7 @@ import React from "react";
 
 import Helpers from "../utils/helpers";
 import DownloadingItem from "../types/downloading_item";
+import Torrent from "../types/torrent";
 
 type Props = {
     item: DownloadingItem,
@@ -28,15 +29,39 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
     printDownloadedInfo() {
         let item = this.state.item;
+        let currentTorrent = Helpers.getCurrentTorrent(item);
+        let failedTorrents = Helpers.getFailedTorrents(item);
 
         if (item.Downloaded) {
             return (
                 <div>
-                    <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                        <span className="uk-h4 uk-text-success">
-                            <i className="material-icons md-18">check</i> Download successful
-                        </span>
-                    </div>
+                <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
+                <span className="uk-h4 uk-text-success">
+                <i className="material-icons md-18">check</i> Download successful
+                </span>
+                </div>
+                <table className="uk-table uk-table-small uk-table-divider">
+                <tbody>
+                <tr>
+                <td><b>Downloaded torrent</b></td>
+                {currentTorrent.Name ? (
+                    <td className="uk-font-italic uk-text-muted">
+                    {currentTorrent.Name}
+                    </td>
+                ) : (
+                    <td className="uk-font-italic uk-text-muted">
+                    Unknown
+                    </td>
+                )}
+                </tr>
+                <tr className={(failedTorrents || []).length > 0 ? "uk-text-danger" : "uk-text-success"}>
+                <td><b>Failed torrents</b></td>
+                <td>
+                <b>{(failedTorrents || []).length}</b>
+                </td>
+                </tr>
+                </tbody>
+                </table>
                 </div>
             );
         }
@@ -44,8 +69,36 @@ class DownloadingItemComponent extends React.Component<Props, State> {
         return "";
     }
 
+    getTorrentListItem(currentTorrent :Torrent, torrent :Torrent) {
+        if (torrent.Failed) {
+            return (
+                <li className="uk-text-danger">
+                    <i>
+                        {torrent.Name} (failed)
+                    </i>
+                </li>
+            );
+        };
+
+        if (torrent.ID === currentTorrent.ID && currentTorrent.ID !== 0) {
+            return (
+                <li className="uk-text-primary">
+                    {torrent.Name} <i>(current)</i>
+                </li>
+            );
+        };
+
+        return (
+            <li>
+            {torrent.Name}
+            </li>
+        );
+    }
+
     printDownloadingInfo() {
         let item = this.state.item;
+        let currentTorrent = Helpers.getCurrentTorrent(item)
+        let failedTorrents = Helpers.getFailedTorrents(item);
 
         if (item.Downloading && !item.Downloaded) {
             return (
@@ -63,23 +116,23 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                                 <div className="uk-grid-collapse" data-uk-grid="">
                                     <div className="uk-width-1-1">
                                         <div className="uk-child-1-4" data-uk-grid="">
-                                            <div className="uk-text-success">Started at {Helpers.formatDate(item.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </div>
-                                            <div> ETA: {Helpers.formatDate(item.CurrentTorrent.ETA, 'HH[h]mm[mn]')} left </div>
+                                            <div className="uk-text-success">Started at {Helpers.formatDate(currentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </div>
+                                            <div> ETA: {Helpers.formatDate(currentTorrent.ETA, 'HH[h]mm[mn]')} left </div>
                                             <div className="uk-flex uk-flex-middle">
                                                 <span className="uk-icon-link" data-uk-icon="download"></span>
-                                                {Math.round(item.CurrentTorrent.RateDownload / 1024)} ko/s
+                                                {Math.round(currentTorrent.RateDownload / 1024)} ko/s
                                             </div>
                                             <div className="uk-flex uk-flex-middle">
                                                 <span className="uk-icon-link" data-uk-icon="upload"></span>
-                                                {Math.round(item.CurrentTorrent.RateUpload / 1024)} ko/s
+                                                {Math.round(currentTorrent.RateUpload / 1024)} ko/s
                                             </div>
                                         </div>
                                     </div>
                                     <div className="uk-width-1-1">
                                         <div className="uk-flex uk-flex-middle" data-uk-grid="">
-                                            <div> {Math.round(item.CurrentTorrent.PercentDone * 100)}% done </div>
+                                            <div> {Math.round(currentTorrent.PercentDone * 100)}% done </div>
                                             <div className="uk-width-expand">
-                                                <progress className="uk-progress" value={item.CurrentTorrent.PercentDone * 100} max="100">{item.CurrentTorrent.PercentDone * 100}%</progress>
+                                                <progress className="uk-progress" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
                                             </div>
                                         </div>
                                     </div>
@@ -88,9 +141,9 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         </tr>
                         <tr>
                             <td><b>Current download</b></td>
-                            {item.CurrentTorrent.Name ? (
+                            {currentTorrent.Name ? (
                                 <td className="uk-font-italic uk-text-muted">
-                                    {item.CurrentTorrent.Name}
+                                    {currentTorrent.Name}
                                 </td>
                             ) : (
                                 <td className="uk-font-italic uk-text-muted">
@@ -99,11 +152,27 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                             )}
                         </tr>
                         <tr>
+                            <td><b>Download list</b></td>
+                            {item.TorrentList == null ? (
+                                <td className="uk-font-italic uk-text-muted">
+                                    Empty torrent list
+                                </td>
+                            ) : (
+                                <td className="uk-font-italic uk-text-muted">
+                                    <ul>
+                                        {item.TorrentList.map(torrent => {
+                                            return this.getTorrentListItem(currentTorrent, torrent)
+                                        })}
+                                    </ul>
+                                </td>
+                            )}
+                        </tr>
+                        <tr>
                             <td><b>Download directory</b></td>
-                            {item.CurrentTorrent.DownloadDir ? (
+                            {currentTorrent.DownloadDir ? (
                                 <td className="uk-text-muted uk-font-italic">
                                     <code>
-                                        {item.CurrentTorrent.DownloadDir}
+                                        {currentTorrent.DownloadDir}
                                     </code>
                                 </td>
                             ) : (
@@ -112,10 +181,10 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                                 </td>
                             )}
                         </tr>
-                        <tr className={item.FailedTorrents.length > 0 ? "uk-text-danger" : "uk-text-success"}>
+                        <tr className={(failedTorrents || []).length > 0 ? "uk-text-danger" : "uk-text-success"}>
                             <td><b>Failed torrents</b></td>
                             <td>
-                                <b>{item.FailedTorrents.length}</b>
+                                <b>{(failedTorrents || []).length}</b>
                             </td>
                         </tr>
                         </tbody>
@@ -137,7 +206,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
                             <span className="uk-text-muted">
                                 <div className="uk-h4 uk-text-bold">
-                                    <i className="material-icons uk-text-warning md-18">warning</i>
+                                    <i className="material-icons uk-text-warning md-18 uk-margin-small-right">warning</i>
                                     No torrents found
                                 </div>
                                 No torrents have been found during last download. <br/>

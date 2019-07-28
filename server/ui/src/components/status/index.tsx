@@ -4,7 +4,6 @@ import API from "../../utils/api";
 import Const from "../../const";
 import Module from "../../types/module";
 
-import Loading from "../loading";
 import ModuleStatus from "./module_status";
 
 type State = {
@@ -99,108 +98,62 @@ class Status extends React.Component<any, State> {
         });
     }
 
-    render() {
-        if (this.state.watchlists == null || this.state.providers == null || this.state.notifiers == null || this.state.indexers == null || this.state.downloaders == null || this.state.mediacenters == null) {
+    renderModuleList(list :Module[]) {
+        if (list.length === 0) {
             return (
-                <Loading/>
+                <li className="uk-text-center">
+                    <span data-uk-spinner="ratio: 0.8"></span>
+                </li>
             );
+        } else {
+            return list.map((i :Module) => (
+                <ModuleStatus key={i.Name} module={i} />
+            ));
         }
+    }
 
+    render() {
         return (
             <div className="uk-container">
-            <div className="uk-grid uk-child-width-1-1 uk-child-width-1-2@s" data-uk-grid="masonry: true">
-            <div>
-            <h3>Watchlists</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.watchlists != null ? (
-                this.state.watchlists.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
-            <div>
-            <h3>Providers</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.providers != null ? (
-                this.state.providers.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
-            <div>
-            <h3>Notifiers</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.notifiers != null ? (
-                this.state.notifiers.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
-            <div>
-            <h3>Indexers</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.indexers != null ? (
-                this.state.indexers.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
+                <div className="uk-grid uk-child-width-1-1 uk-child-width-1-2@s" data-uk-grid="masonry: true">
+                    <div>
+                        <h3>Watchlists</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.watchlists)}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Providers</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.providers)}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Notifiers</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.notifiers)}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Indexers</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.indexers)}
+                        </ul>
+                    </div>
 
-            <div>
-            <h3>Downloaders</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.downloaders != null ? (
-                this.state.downloaders.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
-            <div>
-            <h3>Media centers</h3>
-            <ul className="uk-list uk-list-striped no-stripes">
-            {this.state.mediacenters != null ? (
-                this.state.mediacenters.map(i => (
-                    <ModuleStatus key={i.Name}
-                    module={i} />
-                ))
-            ) : (
-                <li className="uk-text-center">
-                <span data-uk-spinner="ratio: 0.8"></span>
-                </li>
-            )}
-            </ul>
-            </div>
-            </div>
+                    <div>
+                        <h3>Downloaders</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.downloaders)}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Media centers</h3>
+                        <ul className="uk-list uk-list-striped no-stripes">
+                            {this.renderModuleList(this.state.mediacenters)}
+                        </ul>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -96,10 +96,24 @@ func downloadMovie(c *gin.Context) {
 
 	movie.GetLog().Info("Launching manual movie download")
 
-	scheduler.Download(&movie, false)
+	scheduler.Download(&movie)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
+}
+
+func skipMovieTorrentDownload(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Unscoped().Find(&movie, id)
+	if err := req.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	downloader.SkipTorrent(&movie)
+
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func abortMovieDownload(c *gin.Context) {

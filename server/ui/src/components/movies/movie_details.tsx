@@ -39,6 +39,7 @@ class MovieDetails extends React.Component<any, State> {
         this.changeDownloadedState = this.changeDownloadedState.bind(this);
 
         this.downloadMovie = this.downloadMovie.bind(this);
+        this.skipTorrent = this.skipTorrent.bind(this);
         this.abortDownload = this.abortDownload.bind(this);
 
         this.restoreMovie = this.restoreMovie.bind(this);
@@ -125,6 +126,14 @@ class MovieDetails extends React.Component<any, State> {
         });
     }
 
+    skipTorrent() {
+        API.Movies.skipTorrent(this.state.movie.ID).then(response => {
+            this.getMovie();
+        }).catch(error => {
+            console.log("Skip torrent download error: ", error);
+        });
+    }
+
     abortDownload() {
         API.Movies.abortDownload(this.state.movie.ID).then(response => {
             this.getMovie();
@@ -166,6 +175,7 @@ class MovieDetails extends React.Component<any, State> {
                             useDefaultTitle={this.useDefaultTitle}
                             markNotDownloaded={this.markNotDownloaded}
                             markDownloaded={this.markDownloaded}
+                            skipTorrent={this.skipTorrent}
                             abortDownload={this.abortDownload}
                             restoreItem={this.restoreMovie}
                             deleteItem={this.deleteMovie}

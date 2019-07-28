@@ -110,6 +110,10 @@ class TvShowDetails extends React.Component<any, State> {
     }
 
     getFanart() {
+        if (this.state.show == null) {
+            return;
+        }
+
         API.Fanart.getTvShowFanart(this.state.show).then(response => {
             let fanartObj = response.data;
             if (fanartObj["showbackground"] && fanartObj["showbackground"].length > 0) {

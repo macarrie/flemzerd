@@ -37,6 +37,7 @@ class TvShows extends React.Component<any, State> {
         this.renderShowList = this.renderShowList.bind(this);
         this.getDownloadingEpisodes = this.getDownloadingEpisodes.bind(this);
         this.abortEpisodeDownload = this.abortEpisodeDownload.bind(this);
+        this.skipTorrentDownload = this.skipTorrentDownload.bind(this);
     }
 
     componentDidMount() {
@@ -85,6 +86,14 @@ class TvShows extends React.Component<any, State> {
 
     }
 
+    skipTorrentDownload(id: number) {
+        API.Episodes.skipTorrent(id).then(response => {
+            this.getDownloadingEpisodes();
+        }).catch(error => {
+            console.log("Skip torrent download error: ", error);
+        });
+    }
+
     abortEpisodeDownload(id: number) {
         API.Episodes.abortDownload(id).then(response => {
             this.getDownloadingEpisodes();
@@ -104,6 +113,7 @@ class TvShows extends React.Component<any, State> {
                 <DownloadingItemTable 
                     list={this.state.downloading_episodes}
                     type="episode"
+                    skipTorrent={this.skipTorrentDownload}
                     abortDownload={this.abortEpisodeDownload}/>
                 </>
             );

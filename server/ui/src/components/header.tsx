@@ -3,6 +3,7 @@ import {NavLink} from "react-router-dom";
 
 import API from '../utils/api';
 import Const from "../const";
+import Auth from "../auth";
 
 type State = {
     unread_notifications_counter: number,
@@ -51,7 +52,7 @@ class Header extends React.Component<any, State> {
         }).catch(error => {
             console.log("Get notifications error: ", error);
             if (error.response.status === 401) {
-                window.location.reload();
+                Auth.logout();
             }
             this.setState({load_error: true});
         });
@@ -66,7 +67,7 @@ class Header extends React.Component<any, State> {
         }).catch(error => {
             console.log("Check configuration error: ", error);
             if (error.response.status === 401) {
-                window.location.reload();
+                Auth.logout();
             }
             this.setState({load_error: true});
         });

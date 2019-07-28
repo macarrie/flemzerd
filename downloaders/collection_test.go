@@ -152,14 +152,26 @@ func TestWaitForDownload(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err, _ := WaitForDownload(context.Background(), testTorrent)
+	ctx, cancel := context.WithCancel(context.Background())
+	ctxStore := ContextStorage{
+		Context:     ctx,
+		Cancel:      cancel,
+		SkipTorrent: make(chan bool),
+	}
+	err, _, _ := WaitForDownload(ctxStore, &testTorrent)
 	if err == nil {
 		t.Error("Expected to get an error when download is stopped, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	err, _ = WaitForDownload(context.Background(), testTorrent)
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	ctxStore2 := ContextStorage{
+		Context:     ctx2,
+		Cancel:      cancel2,
+		SkipTorrent: make(chan bool),
+	}
+	err, _, _ = WaitForDownload(ctxStore2, &testTorrent)
 	if err != nil {
 		t.Error("Expected nil error to return when download is complete, got \"", err, "\" instead")
 	}
@@ -191,27 +203,35 @@ func TestDownloadEpisode(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := Download(&episode, []Torrent{testTorrent}, false)
+	err := Download(&episode)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	episode.DownloadingItem = DownloadingItem{}
-	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent2, testTorrent},
+	}
+	err = Download(&episode)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent2, testTorrent},
+	}
+	err = Download(&episode)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 
 	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
-	err = Download(&episode, []Torrent{testTorrent2, testTorrent}, false)
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent2, testTorrent},
+	}
+	err = Download(&episode)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent status are unknown")
 	}
@@ -235,27 +255,38 @@ func TestDownloadMovie(t *testing.T) {
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err := Download(&testMovie, []Torrent{testTorrent}, false)
+	testMovie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent},
+	}
+	err := Download(&testMovie)
 	if err == nil {
 		t.Error("Expected stopped torrent to generate a download error, got none instead")
 	}
 
 	downloadersCollection = []Downloader{mock.Downloader{}}
 	testTorrent.TorrentId = strconv.Itoa(TORRENT_SEEDING)
-	testMovie.DownloadingItem = DownloadingItem{}
-	err = Download(&testMovie, []Torrent{testTorrent, testTorrent2, testTorrent}, false)
+	testMovie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent, testTorrent2, testTorrent},
+	}
+	err = Download(&testMovie)
 	if err != nil {
 		t.Error("Expected seeding torrent to return no errors when downloading, got \"", err, "\" instead")
 	}
 
 	downloadersCollection = []Downloader{mock.ErrorDownloader{}}
-	err = Download(&testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	testMovie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent2, testTorrent},
+	}
+	err = Download(&testMovie)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent cannot be added to downloader")
 	}
 
 	downloadersCollection = []Downloader{mock.DLErrorDownloader{}}
-	err = Download(&testMovie, []Torrent{testTorrent2, testTorrent}, false)
+	testMovie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{testTorrent2, testTorrent},
+	}
+	err = Download(&testMovie)
 	if err == nil {
 		t.Error("Expected torrent download to return an error because torrent status are unknown")
 	}
@@ -284,7 +315,9 @@ func TestMoveEpisodeToLibrary(t *testing.T) {
 		Season: 1,
 		Number: 1,
 		DownloadingItem: DownloadingItem{
-			CurrentTorrent: testTorrent,
+			TorrentList: []Torrent{
+				testTorrent,
+			},
 		},
 	}
 
@@ -312,7 +345,9 @@ func TestMoveMovieToLibrary(t *testing.T) {
 		Title:         "test movie",
 		OriginalTitle: "test movie",
 		DownloadingItem: DownloadingItem{
-			CurrentTorrent: testTorrent,
+			TorrentList: []Torrent{
+				testTorrent,
+			},
 		},
 	}
 
@@ -322,31 +357,24 @@ func TestMoveMovieToLibrary(t *testing.T) {
 	}
 }
 
-func TestFillEpisodeToDownload(t *testing.T) {
+func TestFillDownloadList(t *testing.T) {
 	torrent1 := Torrent{
 		TorrentId: "1",
+		Failed:    true,
 	}
 	torrent2 := Torrent{
 		TorrentId: "2",
 	}
 
-	episode := Episode{
-		Model: gorm.Model{
-			ID: 1000,
-		},
-		DownloadingItem: DownloadingItem{
-			Downloading: true,
-		},
-	}
-
-	episode.DownloadingItem.FailedTorrents = append(episode.DownloadingItem.FailedTorrents, torrent1)
-	torrentList := FillTorrentList(&episode, []Torrent{torrent1, torrent2})
+	configuration.Config.System.TorrentDownloadAttemptsLimit = 5
+	torrentList := FillTorrentList([]Torrent{torrent1, torrent2})
 	if len(torrentList) != 1 {
 		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
 	}
 
-	episode.DownloadingItem.FailedTorrents = []Torrent{}
-	torrentList = FillTorrentList(&episode, []Torrent{
+	torrent1.Failed = false
+	configuration.Config.System.TorrentDownloadAttemptsLimit = 5
+	torrentList = FillTorrentList([]Torrent{
 		torrent1,
 		torrent1,
 		torrent1,
@@ -359,50 +387,8 @@ func TestFillEpisodeToDownload(t *testing.T) {
 		torrent1,
 		torrent1,
 	})
-	if len(torrentList) > 10 {
-		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
-	}
-}
-
-func TestFillMovieToDownload(t *testing.T) {
-	torrent1 := Torrent{
-		TorrentId: "1",
-	}
-	torrent2 := Torrent{
-		TorrentId: "2",
-	}
-
-	movie := Movie{
-		Model: gorm.Model{
-			ID: 1000,
-		},
-		DownloadingItem: DownloadingItem{
-			Downloading: true,
-		},
-	}
-
-	movie.DownloadingItem.FailedTorrents = append(movie.DownloadingItem.FailedTorrents, torrent1)
-	torrentList := FillTorrentList(&movie, []Torrent{torrent1, torrent2})
-	if len(torrentList) != 1 {
-		t.Errorf("Expected torrent list to have 1 torrent, got %d instead", len(torrentList))
-	}
-
-	movie.DownloadingItem.FailedTorrents = []Torrent{}
-	torrentList = FillTorrentList(&movie, []Torrent{
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-		torrent1,
-	})
-	if len(torrentList) > 10 {
-		t.Errorf("Expected torrent list no to be bigger than 10 items, got %d instead", len(torrentList))
+	if len(torrentList) > configuration.Config.System.TorrentDownloadAttemptsLimit {
+		t.Errorf("Expected torrent list no to be bigger than %d items, got %d instead", configuration.Config.System.TorrentDownloadAttemptsLimit, len(torrentList))
 	}
 }
 
@@ -439,14 +425,20 @@ func TestAbortDownload(t *testing.T) {
 		},
 	}
 
-	go Download(&episode, []Torrent{torrent1, torrent2}, false)
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&episode)
 	time.Sleep(2 * time.Second)
 	AbortDownload(&episode)
 	if episode.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
-	go Download(&movie, []Torrent{torrent1, torrent2}, false)
+	movie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&movie)
 	time.Sleep(2 * time.Second)
 	AbortDownload(&movie)
 	if movie.DownloadingItem.Downloading {
@@ -454,18 +446,102 @@ func TestAbortDownload(t *testing.T) {
 	}
 
 	// Test same download with recovery mode enabled
-	go Download(&episode, []Torrent{torrent1, torrent2}, true)
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&episode)
 	time.Sleep(2 * time.Second)
 	AbortDownload(&episode)
 	if episode.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
 	}
 
-	go Download(&movie, []Torrent{torrent1, torrent2}, true)
+	movie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&movie)
 	time.Sleep(2 * time.Second)
 	AbortDownload(&movie)
 	if movie.DownloadingItem.Downloading {
 		t.Error("Expected download to be stopped")
+	}
+	downloadersCollection = []Downloader{mock.Downloader{}}
+}
+
+func TestSkipTorrent(t *testing.T) {
+	downloadersCollection = []Downloader{mock.StalledDownloader{}}
+
+	torrent1 := Torrent{
+		TorrentId: "1",
+	}
+	torrent2 := Torrent{
+		TorrentId: "2",
+	}
+
+	movie := Movie{
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		Title:         "test movie",
+		OriginalTitle: "test movie",
+	}
+	episode := Episode{
+		Model: gorm.Model{
+			ID: 1000,
+		},
+		Title:  "test episode",
+		Season: 1,
+		Number: 1,
+		TvShow: TvShow{
+			Model: gorm.Model{
+				ID: 1000,
+			},
+			Title:         "test show",
+			OriginalTitle: "test show",
+		},
+	}
+
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&episode)
+	time.Sleep(2 * time.Second)
+	SkipTorrent(&episode)
+	if episode.DownloadingItem.CurrentTorrent().TorrentId != "2" {
+		t.Error("Expected torrent to be skipped")
+	}
+
+	movie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{torrent1, torrent2},
+	}
+	go Download(&movie)
+	time.Sleep(2 * time.Second)
+	SkipTorrent(&movie)
+	if movie.DownloadingItem.CurrentTorrent().TorrentId != "2" {
+		t.Error("Expected torrent to be skipped")
+	}
+
+	// Test same download with recovery mode enabled
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList:         []Torrent{torrent1, torrent2},
+		CurrentDownloaderId: "test_recovery",
+	}
+	go Download(&episode)
+	time.Sleep(2 * time.Second)
+	SkipTorrent(&episode)
+	if episode.DownloadingItem.CurrentTorrent().TorrentId != "2" {
+		t.Error("Expected torrent to be skipped")
+	}
+
+	movie.DownloadingItem = DownloadingItem{
+		TorrentList:         []Torrent{torrent1, torrent2},
+		CurrentDownloaderId: "test_recovery",
+	}
+	go Download(&movie)
+	time.Sleep(2 * time.Second)
+	SkipTorrent(&movie)
+	if movie.DownloadingItem.CurrentTorrent().TorrentId != "2" {
+		t.Error("Expected torrent to be skipped")
 	}
 	downloadersCollection = []Downloader{mock.Downloader{}}
 }

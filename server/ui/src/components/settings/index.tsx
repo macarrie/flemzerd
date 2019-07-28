@@ -88,7 +88,6 @@ class Settings extends React.Component {
             } as ModuleSettings);
         });
 
-        // TODO: Transform module settings to component
         return (
             <div>
                 <h4>{title}</h4>

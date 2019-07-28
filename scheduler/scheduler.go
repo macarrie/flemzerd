@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -10,28 +11,28 @@ import (
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 
-	"github.com/macarrie/flemzerd/providers"
+	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
-	"github.com/macarrie/flemzerd/indexers"
+	indexer "github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
-	"github.com/macarrie/flemzerd/notifiers"
+	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
-	"github.com/macarrie/flemzerd/notifiers/impl/kodi"
+	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
-	"github.com/macarrie/flemzerd/watchlists"
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
-	"github.com/macarrie/flemzerd/mediacenters"
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
 	"github.com/macarrie/flemzerd/downloadable"
@@ -313,7 +314,7 @@ func Run(debug bool) {
 
 	initConfiguration(debug)
 
-	//	 Load configuration objects
+	// 	 Load configuration objects
 	var recoveryDone bool = false
 
 	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.CheckInterval) * time.Minute)
@@ -335,7 +336,7 @@ func Reload(debug bool) {
 	initConfiguration(debug)
 }
 
-func Download(d downloadable.Downloadable, recovery bool) {
+func Download(d downloadable.Downloadable) {
 	downloadingItem := d.GetDownloadingItem()
 
 	if downloadingItem.Downloaded {
@@ -352,24 +353,30 @@ func Download(d downloadable.Downloadable, recovery bool) {
 	d.SetDownloadingItem(downloadingItem)
 	db.SaveDownloadable(&d)
 
-	torrentList, err := indexer.GetTorrents(d)
-	if err != nil {
-		log.Warning(err)
-		notifier.NotifyTorrentsNotFound(d)
+	var torrentList []Torrent
+	downloadingItem.TorrentList = downloader.FillTorrentList(downloadingItem.TorrentList)
+	if len(downloadingItem.TorrentList) == 0 {
+		fmt.Printf("GETTING TORRENTS")
+		var err error
+		torrentList, err = indexer.GetTorrents(d)
+		if err != nil {
+			log.Warning(err)
+			notifier.NotifyTorrentsNotFound(d)
 
-		downloadingItem.Downloading = false
-		downloadingItem.Pending = false
-		d.SetDownloadingItem(downloadingItem)
-		db.SaveDownloadable(&d)
+			downloadingItem.Downloading = false
+			downloadingItem.Pending = false
+			downloadingItem.TorrentsNotFound = true
+			d.SetDownloadingItem(downloadingItem)
+			db.SaveDownloadable(&d)
 
-		return
+			return
+		}
+	} else {
+		d.GetLog().Debug("Torrents already retrieved. Performing download with current torrent list")
+		torrentList = downloadingItem.TorrentList
 	}
 
-	if recovery && downloadingItem.CurrentTorrent.ID != 0 {
-		torrentList = append([]Torrent{downloadingItem.CurrentTorrent}, torrentList...)
-	}
-
-	toDownload := downloader.FillTorrentList(d, torrentList)
+	toDownload := downloader.FillTorrentList(torrentList)
 	if len(toDownload) == 0 {
 		d.GetLog().Debug("No torrents found")
 
@@ -379,23 +386,25 @@ func Download(d downloadable.Downloadable, recovery bool) {
 
 		downloadingItem.Downloading = false
 		downloadingItem.Pending = false
+		downloadingItem.TorrentsNotFound = true
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
 
 		return
 	} else {
 		d.GetLog().WithFields(log.Fields{
-			"nb": len(torrentList),
+			"nb": len(toDownload),
 		}).Debug("Torrents found")
 
 		downloadingItem.TorrentsNotFound = false
+		downloadingItem.TorrentList = toDownload
 		d.SetDownloadingItem(downloadingItem)
 		db.SaveDownloadable(&d)
 	}
 
 	notifier.NotifyDownloadStart(d)
 
-	go downloader.Download(d, toDownload, recovery)
+	go downloader.Download(d)
 }
 
 func RecoverDownloadingItems() {
@@ -422,7 +431,7 @@ func RecoverDownloadingItems() {
 
 		ep.GetLog().Debug("Launched download processing recovery")
 		recoveryEpisode := ep
-		go Download(&recoveryEpisode, true)
+		go Download(&recoveryEpisode)
 
 	}
 
@@ -439,7 +448,7 @@ func RecoverDownloadingItems() {
 		m.GetLog().Debug("Launched download processing recovery")
 
 		recoveryMovie := m
-		go Download(&recoveryMovie, true)
+		go Download(&recoveryMovie)
 	}
 }
 
@@ -509,7 +518,7 @@ func poll(recoveryDone *bool) {
 
 				downloadDelayPassed := time.Now().After(recentEpisode.Date.AddDate(0, 0, configuration.Config.System.ShowDownloadDelay))
 				if executeDownloadChain && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
-					Download(&recentEpisode, false)
+					Download(&recentEpisode)
 				}
 			}
 		}
@@ -532,7 +541,7 @@ func poll(recoveryDone *bool) {
 
 			downloadDelayPassed := time.Now().After(movie.Date.AddDate(0, 0, configuration.Config.System.MovieDownloadDelay))
 			if executeDownloadChain && configuration.Config.System.AutomaticMovieDownload && downloadDelayPassed {
-				Download(&movie, false)
+				Download(&movie)
 			}
 		}
 	}
