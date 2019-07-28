@@ -38,6 +38,7 @@ class Movies extends React.Component<any, State> {
         this.renderDownloadingList = this.renderDownloadingList.bind(this);
         this.renderMovieList = this.renderMovieList.bind(this);
         this.abortMovieDownload = this.abortMovieDownload.bind(this);
+        this.skipTorrentDownload = this.skipTorrentDownload.bind(this);
     }
 
     componentDidMount() {
@@ -84,6 +85,14 @@ class Movies extends React.Component<any, State> {
         return API.Modules.Watchlists.refresh();
     }
 
+    skipTorrentDownload(id: number) {
+        API.Movies.skipTorrent(id).then(response => {
+            this.getMovies();
+        }).catch(error => {
+            console.log("Skip torrent download error: ", error);
+        });
+    }
+
     abortMovieDownload(id :number) {
         API.Movies.abortDownload(id).then(response => {
             this.getMovies();
@@ -103,6 +112,7 @@ class Movies extends React.Component<any, State> {
                 <DownloadingItemTable 
                 list={this.state.downloading}
                 type="movie"
+                skipTorrent={this.skipTorrentDownload}
                 abortDownload={this.abortMovieDownload}/>
                 </>
             );

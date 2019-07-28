@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
@@ -100,6 +100,20 @@ func downloadMovie(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
+}
+
+func skipMovieTorrentDownload(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Unscoped().Find(&movie, id)
+	if err := req.Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	downloader.SkipTorrent(&movie)
+
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func abortMovieDownload(c *gin.Context) {

@@ -1,5 +1,8 @@
 import * as moment from "moment";
 
+import DownloadingItem from "../types/downloading_item";
+import Torrent from "../types/torrent";
+
 export default class Helpers {
     static getYear = (datestring: Date) => {
         let d = new Date(datestring);
@@ -51,5 +54,28 @@ export default class Helpers {
         }
 
         return media.OriginalTitle;
+    };
+
+    static getCurrentTorrent(d :DownloadingItem) :Torrent {
+        for (let i in d.TorrentList) {
+            console.log("Torrent in torrent list: ", d.TorrentList[i]);
+            if (!d.TorrentList[i].Failed) {
+                return d.TorrentList[i];
+            }
+        }
+
+        return {} as Torrent;
+    };
+
+    static getFailedTorrents(d :DownloadingItem) :Torrent[] {
+        let retList :Torrent[] = [] as Torrent[];
+        for (let i in d.TorrentList) {
+            console.log("Torrent in torrent list: ", d.TorrentList[i]);
+            if (d.TorrentList[i].Failed) {
+                retList.push(d.TorrentList[i]);
+            }
+        }
+
+        return retList;
     };
 };

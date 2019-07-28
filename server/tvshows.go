@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/providers"
+	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/scheduler"
 	"github.com/macarrie/flemzerd/stats"
 
@@ -226,6 +226,7 @@ func getEpisodeDetails(c *gin.Context) {
 		}
 		ep.TvShow = show
 	}
+
 	c.JSON(http.StatusOK, ep)
 }
 
@@ -246,7 +247,7 @@ func downloadEpisode(c *gin.Context) {
 
 	ep.GetLog().Info("Launching individual episode download")
 
-	scheduler.Download(&ep, false)
+	scheduler.Download(&ep)
 
 	c.JSON(http.StatusOK, gin.H{})
 	return
@@ -274,6 +275,20 @@ func abortEpisodeDownload(c *gin.Context) {
 	}
 
 	downloader.AbortDownload(&ep)
+
+	c.AbortWithStatus(http.StatusNoContent)
+}
+
+func skipEpisodeTorrentDownload(c *gin.Context) {
+	id := c.Param("id")
+	var ep Episode
+	req := db.Client.Find(&ep, id)
+	if req.RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	downloader.SkipTorrent(&ep)
 
 	c.AbortWithStatus(http.StatusNoContent)
 }

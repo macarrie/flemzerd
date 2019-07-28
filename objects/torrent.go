@@ -8,16 +8,17 @@ import (
 
 type Torrent struct {
 	gorm.Model
-	CurrentTorrentID uint
-	TorrentId        string
-	Name             string
-	Link             string
-	DownloadDir      string
-	Seeders          int
-	PercentDone      float64
-	TotalSize        int64
-	ETA              time.Time
-	RateDownload     int64
-	RateUpload       int64
-	Status           int
+	TorrentListID uint
+	Failed        bool
+	TorrentId     string
+	Name          string
+	Link          string
+	DownloadDir   string
+	Seeders       int
+	PercentDone   float64
+	TotalSize     int64
+	ETA           time.Time
+	RateDownload  int64
+	RateUpload    int64
+	Status        int
 }

@@ -9,6 +9,7 @@ type Props = {
     list :Movie[] | Episode[],
     type :string,
     abortDownload(id: number): void,
+    skipTorrent(id: number): void,
 };
 
 type State = {
@@ -50,41 +51,53 @@ class DownloadingItemTable extends React.Component<Props, State> {
             list = this.state.list as Episode[];
         }
 
-        return list.map((item: Movie | Episode) => (
-            <tr key={item.ID}>
-                <td>
-                    <Link to={this.getMediaLink(item)}>
-                        {Helpers.getMediaTitle(item)}
-                    </Link>
-                </td>
-                <td className="uk-text-muted">
-                    <i>
-                        {item.DownloadingItem.CurrentTorrent.Name}
-                    </i>
-                </td>
-                <td className="uk-text-center uk-table-shrink uk-text-nowrap">
-                    {(item.DownloadingItem.Downloading) && (
-                        <>
-                            <progress className="uk-progress uk-margin-small-bottom" value={item.DownloadingItem.CurrentTorrent.PercentDone * 100} max="100">{item.DownloadingItem.CurrentTorrent.PercentDone * 100}%</progress>
-                            <span className="uk-text-success">Started at {Helpers.formatDate(item.DownloadingItem.CurrentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')}</span>
-                        </>
-                    )}
 
-                    {(item.DownloadingItem.Pending) && (
-                        <span className="uk-text-italic">Looking for torrents</span>
-                    )}
-                </td>
-                <td className={`uk-text-center uk-text-bold ${(item.DownloadingItem.FailedTorrents.length > 0) ? "uk-text-danger" : "uk-text-success"}`}>
-                    {item.DownloadingItem.FailedTorrents.length}
-                </td>
-                <td>
-                    <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
-                        data-uk-icon="icon: close; ratio: 0.75"
-                        onClick={() => this.props.abortDownload(item.ID)}>
-                    </button>
-                </td>
-            </tr>
-        ));
+        return list.map((item: Movie | Episode) => {
+            let currentTorrent = Helpers.getCurrentTorrent(item.DownloadingItem);
+            let failedTorrents = Helpers.getFailedTorrents(item.DownloadingItem);
+
+            return (
+                <tr key={item.ID}>
+                    <td>
+                        <Link to={this.getMediaLink(item)}>
+                            {Helpers.getMediaTitle(item)}
+                        </Link>
+                    </td>
+                    <td className="uk-text-muted">
+                        <i>
+                            {currentTorrent.Name}
+                        </i>
+                    </td>
+                    <td className="uk-text-center uk-table-shrink uk-text-nowrap">
+                        {(item.DownloadingItem.Downloading) && (
+                            <>
+                                <progress className="uk-progress uk-margin-small-bottom" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
+                                <span className="uk-text-success">Started at {Helpers.formatDate(currentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')}</span>
+                            </>
+                        )}
+
+                        {(item.DownloadingItem.Pending) && (
+                            <span className="uk-text-italic">Looking for torrents</span>
+                        )}
+                    </td>
+                    <td className={`uk-text-center uk-text-bold ${((failedTorrents || []).length > 0) ? "uk-text-danger" : "uk-text-success"}`}>
+                        {(failedTorrents || []).length}
+                    </td>
+                    <td>
+                        <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
+                            data-uk-icon="icon: ban; ratio: 0.75"
+                            data-uk-tooltip="delay: 500; title: Skip current torrent download"
+                            onClick={() => this.props.skipTorrent(item.ID)}>
+                        </button>
+                        <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
+                            data-uk-icon="icon: close; ratio: 0.75"
+                            data-uk-tooltip="delay: 500; title: Abort download"
+                            onClick={() => this.props.abortDownload(item.ID)}>
+                        </button>
+                    </td>
+                </tr>
+            );
+        });
     }
 
     render() {

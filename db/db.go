@@ -72,21 +72,6 @@ func Load() error {
 	return nil
 }
 
-// Returns true if torrent is in the DownloadingItem FailedTorrents list, else returns false
-func TorrentHasFailed(d DownloadingItem, t Torrent) bool {
-	if !d.Downloading {
-		return false
-	}
-
-	for _, torrent := range d.FailedTorrents {
-		if t.TorrentId == torrent.TorrentId {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Returns tracked movies, and an error. Tracked movies are movies retrieved from watchlists that are not already downloaded or currently downloading
 // Most recent tracked movies are returned first
 // A non nil error is returned if a problem was encoutered when getting movies from the database.
@@ -269,13 +254,27 @@ func SaveDownloadable(d *downloadable.Downloadable) {
 	case *Movie:
 		movie, ok := (*d).(*Movie)
 		if ok {
-			Client.Save(&movie)
+			if errors := Client.Save(&movie).GetErrors(); len(errors) > 0 {
+				log.WithFields(log.Fields{
+					"errors": errors,
+					"type":   "movie",
+				}).Error("Could not save downloadable")
+				return
+			}
+
 			return
 		}
 	case *Episode:
 		episode, ok := (*d).(*Episode)
 		if ok {
-			Client.Save(&episode)
+			if errors := Client.Save(&episode).GetErrors(); len(errors) > 0 {
+				log.WithFields(log.Fields{
+					"errors": errors,
+					"type":   "episode",
+				}).Error("Could not save downloadable")
+				return
+			}
+
 			return
 		}
 	}

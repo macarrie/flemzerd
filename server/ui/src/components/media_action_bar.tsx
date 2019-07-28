@@ -18,6 +18,7 @@ type Props = {
     markNotDownloaded?(): void,
     markDownloaded?(): void,
     abortDownload?(): void,
+    skipTorrent?(): void,
     restoreItem?(): void,
     deleteItem?(): void,
 };
@@ -168,6 +169,17 @@ class MediaActionBar extends React.Component<Props, State> {
                         </button>
                     );
                 }
+            }
+
+            if (item.DownloadingItem.Downloading) {
+                buttonsList.push(
+                    <button className="uk-button uk-button-link"
+                        key="skipTorrent"
+                        onClick={this.props.skipTorrent}>
+                        <span className="uk-icon uk-icon-link" data-uk-icon="icon: ban; ratio: 0.75"></span>
+                        Skip torrent
+                    </button>
+                );
             }
 
             if (item.DownloadingItem.Pending || item.DownloadingItem.Downloading) {

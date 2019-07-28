@@ -1,6 +1,8 @@
 import axios from "axios";
 
 import Auth from "../auth";
+import TvShow from "../types/tvshow";
+import Movie from "../types/movie";
 
 axios.defaults.baseURL = "/api/v1/";
 
@@ -68,6 +70,9 @@ export default class API {
         download: function (id: number) {
             return API.auth().post('/movies/details/' + id + '/download');
         },
+        skipTorrent: function (id: number) {
+            return API.auth().post('/movies/details/' + id + '/download/skip_torrent');
+        },
         abortDownload: function (id: number) {
             return API.auth().delete('/movies/details/' + id + '/download');
         },
@@ -97,6 +102,9 @@ export default class API {
         },
         download: function (id: number) {
             return API.auth().post('/tvshows/episodes/' + id + '/download');
+        },
+        skipTorrent: function (id: number) {
+            return API.auth().post('/tvshows/episodes/' + id + '/download/skip_torrent');
         },
         abortDownload: function (id: number) {
             return API.auth().delete('/tvshows/episodes/' + id + '/download');
@@ -178,16 +186,14 @@ export default class API {
         FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
         FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",
 
-        // TODO; Fix type
-        getTvShowFanart: function (show: any) {
+        getTvShowFanart: function (show: TvShow) {
             return axios.get(this.FANART_BASE_URL + "tv/" + show.MediaIds.Tvdb, {
                 params: {
                     "api_key": this.FANART_TV_KEY
                 }
             });
         },
-        // TODO; Fix type
-        getMovieFanart: function (movie: any) {
+        getMovieFanart: function (movie: Movie) {
             return axios.get(this.FANART_BASE_URL + "movies/" + movie.MediaIds.Tmdb, {
                 params: {
                     "api_key": this.FANART_TV_KEY

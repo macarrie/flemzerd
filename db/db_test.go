@@ -1,7 +1,6 @@
 package db
 
 import (
-	"strconv"
 	"testing"
 
 	downloadable "github.com/macarrie/flemzerd/downloadable"
@@ -24,31 +23,6 @@ func TestDBReadOnly(t *testing.T) {
 
 	DbPath = "/tmp/flemzerd.db"
 	Load()
-}
-
-func TestTorrentIsFailed(t *testing.T) {
-	torrent := Torrent{
-		TorrentId: strconv.Itoa(TORRENT_STOPPED),
-		Name:      "Test torrent",
-		Link:      "test.torrent",
-	}
-	movie := Movie{
-		Title:         "movie",
-		OriginalTitle: "movie",
-		DownloadingItem: DownloadingItem{
-			Downloading: true,
-		},
-	}
-
-	if TorrentHasFailed(movie.DownloadingItem, torrent) {
-		t.Error("Expected torrent not to be in failed torrents")
-	}
-
-	movie.DownloadingItem.FailedTorrents = []Torrent{torrent}
-
-	if !TorrentHasFailed(movie.DownloadingItem, torrent) {
-		t.Error("Expected torrent to be in failed torrents")
-	}
 }
 
 func TestGetTrackedItems(t *testing.T) {
@@ -250,34 +224,74 @@ func TestSaveTraktAndTelegramInfos(t *testing.T) {
 }
 
 func TestSaveDownloadable(t *testing.T) {
+	ResetDb()
+
 	movie := Movie{
 		Title:         "test_movie_save_downloadable",
 		OriginalTitle: "test_movie_save_downloadable",
 	}
 
-	Client.Save(&movie)
 	movie.DownloadingItem.Downloading = true
+	movie.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{
+			Torrent{
+				Name: "test_torrent_1",
+			},
+			Torrent{
+				Name: "test_torrent_2",
+			},
+			Torrent{
+				Name:   "test_torrent_3",
+				Failed: true,
+			},
+			Torrent{
+				Name:   "test_torrent_4",
+				Failed: true,
+			},
+		},
+	}
 	var movieDownloadable downloadable.Downloadable = &movie
 	SaveDownloadable(&movieDownloadable)
 
 	var movieFromDB Movie
 	Client.Where(Movie{Title: "test_movie_save_downloadable"}).First(&movieFromDB)
-	if !movieFromDB.DownloadingItem.Downloading {
-		t.Error("Expected movie downloading item to be saved during SaveDonloadable")
+	if movieFromDB.DownloadingItem.CurrentTorrent().ID == 0 || len(movieFromDB.DownloadingItem.TorrentList) != 4 || len(movieFromDB.DownloadingItem.FailedTorrents()) != 2 {
+		t.Error("Expected movie downloading item to be saved during SaveDownloadable")
 	}
 
 	episode := Episode{
 		Title: "test_episode_save_downloadable",
 	}
 
-	Client.Save(&episode)
+	test_torrent := Torrent{
+		Name: "test_torrent",
+	}
+	Client.Save(&test_torrent)
 	episode.DownloadingItem.Downloading = true
+	episode.DownloadingItem = DownloadingItem{
+		TorrentList: []Torrent{
+			Torrent{
+				Name: "test_torrent_1",
+			},
+			Torrent{
+				Name: "test_torrent_2",
+			},
+			Torrent{
+				Name:   "test_torrent_3",
+				Failed: true,
+			},
+			Torrent{
+				Name:   "test_torrent_4",
+				Failed: true,
+			},
+		},
+	}
 	var episodeDownloadable downloadable.Downloadable = &episode
 	SaveDownloadable(&episodeDownloadable)
 
 	var episodeFromDB Episode
 	Client.Where(Episode{Title: "test_episode_save_downloadable"}).First(&episodeFromDB)
-	if !episodeFromDB.DownloadingItem.Downloading {
-		t.Error("Expected episode downloading item to be saved during SaveDonloadable")
+	if episodeFromDB.DownloadingItem.CurrentTorrent().ID == 0 || len(episodeFromDB.DownloadingItem.TorrentList) != 4 || len(episodeFromDB.DownloadingItem.FailedTorrents()) != 2 {
+		t.Error("Expected episode downloading item to be saved during SaveDownloadable")
 	}
 }
