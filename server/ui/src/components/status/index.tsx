@@ -99,6 +99,16 @@ class Status extends React.Component<any, State> {
     }
 
     renderModuleList(list :Module[]) {
+        if (list == null) {
+            return (
+                <li className="uk-text-center uk-text-muted">
+                    <i>
+                        None defined in configuration
+                    </i>
+                </li>
+            );
+        }
+
         if (list.length === 0) {
             return (
                 <li className="uk-text-center">
