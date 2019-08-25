@@ -1,3 +1,5 @@
+import Helpers from "./utils/helpers";
+
 class Auth {
     static IsLoggedIn = (): boolean => {
         return Auth.getToken() !== "";
@@ -5,14 +7,14 @@ class Auth {
 
     static logout = () => {
         sessionStorage.removeItem("flemzerd_api_key");
-        localStorage.removeItem("flemzerd_api_key");
+        Helpers.eraseCookie("flemzerd_api_key");
         window.location.reload();
     };
 
     static setToken = (token: string, rememberme: boolean) => {
         sessionStorage.setItem('flemzerd_api_key', token);
         if (rememberme) {
-            localStorage.setItem('flemzerd_api_key', token);
+            Helpers.createCookie("flemzerd_api_key", token, 14);
         }
     };
 
@@ -22,9 +24,9 @@ class Auth {
             return tokenSessionStorage;
         }
 
-        let tokenLocalStorage = localStorage.getItem('flemzerd_api_key');
-        if (tokenLocalStorage != null) {
-            return tokenLocalStorage;
+        let tokenFromCookie = Helpers.readCookie('flemzerd_api_key');
+        if (tokenFromCookie != null) {
+            return tokenFromCookie;
         }
 
         return "";

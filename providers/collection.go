@@ -9,9 +9,9 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
 
-	"github.com/macarrie/flemzerd/watchlists"
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
 
@@ -113,14 +113,26 @@ func FindRecentlyAiredEpisodesForShow(show TvShow) ([]Episode, error) {
 
 			reqEpisode := Episode{}
 			req := db.Client.Where(Episode{
-				Title:  e.Title,
-				Season: e.Season,
-				Number: e.Number,
+				TvShowID: show.ID,
+				Season:   e.Season,
+				Number:   e.Number,
 			}).Find(&reqEpisode)
 			if req.RecordNotFound() {
+				log.WithFields(log.Fields{
+					"name":    show.GetTitle(),
+					"season":  recentEpisode.Season,
+					"episode": recentEpisode.Number,
+				}).Debug("Storing new episode in DB")
+
 				e.TvShow = show
 				db.Client.Create(&e)
 			} else {
+				log.WithFields(log.Fields{
+					"name":    show.GetTitle(),
+					"season":  recentEpisode.Season,
+					"episode": recentEpisode.Number,
+				}).Debug("Episode already stored in DB. Updating informations")
+
 				// Episodes did not have absolute number computed. Absolute Number is updated when querying episode
 				reqEpisode.AbsoluteNumber = e.AbsoluteNumber
 				e = reqEpisode

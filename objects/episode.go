@@ -11,9 +11,9 @@ import (
 type Episode struct {
 	gorm.Model
 	MediaIds          MediaIds
-	MediaIdsID        int
+	MediaIdsID        uint
 	TvShow            TvShow
-	TvShowID          int
+	TvShowID          uint
 	AbsoluteNumber    int
 	Number            int
 	Season            int
@@ -22,7 +22,7 @@ type Episode struct {
 	Overview          string
 	Notified          bool
 	DownloadingItem   DownloadingItem
-	DownloadingItemID int
+	DownloadingItemID uint
 }
 
 //////////////////////////////

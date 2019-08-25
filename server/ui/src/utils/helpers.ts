@@ -40,7 +40,7 @@ export default class Helpers {
         if (media.ID === 0) {
             return "Unknown media"
         }
-        
+
         if (media.hasOwnProperty("Season")) {
             return `${Helpers.getMediaTitle(media.TvShow)} S${Helpers.formatNumber(media.Season)}E${Helpers.formatNumber(media.Number)} - ${media.Title}`;
         }
@@ -77,5 +77,38 @@ export default class Helpers {
         }
 
         return retList;
+    };
+
+    static createCookie(name :string, value :string, days :number) {
+        let expires :string;
+        if (days) {
+            let date = new Date();
+            date.setTime(date.getTime()+(days*24*60*60*1000));
+            expires = "; expires="+date.toUTCString();
+        } else {
+            expires = "";
+        }
+
+        document.cookie = name+"="+value+expires+"; path=/";
+    };
+
+    static readCookie(name :string) {
+        let nameEQ = name + "=";
+        let ca = document.cookie.split(';');
+        for(let i=0;i < ca.length;i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1,c.length);
+            }
+
+            if (c.indexOf(nameEQ) === 0) {
+                return c.substring(nameEQ.length, c.length);
+            }
+        }
+        return null;
+    };
+
+    static eraseCookie(name :string) {
+        Helpers.createCookie(name,"",-1);
     };
 };
