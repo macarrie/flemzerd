@@ -16,6 +16,7 @@ create_folder_structure
 
 copy_binary
 copy_server_files
+copy_certs
 copy_config_files
 copy_dependencies_config_files
 

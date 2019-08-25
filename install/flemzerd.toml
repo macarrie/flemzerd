@@ -30,6 +30,13 @@
     # Port used for web interface
     port = 8400
 
+    # Use SSL for WebUI and API
+    use_ssl = true
+    # SSL Cert path. Those are self signed certificates, for better security, change them to use your own
+    ssl_cert = "/var/lib/flemzerd/certs/cert.pem"
+    # SSL server key. Those are self signed certificates, for better security, change them to use your own
+    ssl_server_key = "/var/lib/flemzerd/certs/server.key"
+
     # Auth settings
     [interface.auth]
         # UI username

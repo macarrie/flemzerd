@@ -88,6 +88,9 @@ type Configuration struct {
 			Username string
 			Password string
 		}
+		UseSSL       bool   `mapstructure:"use_ssl"`
+		SSLCert      string `mapstructure:"ssl_cert"`
+		SSLServerKey string `mapstructure:"ssl_server_key"`
 	}
 	Providers     map[string]map[string]string
 	Indexers      map[string][]map[string]string
@@ -129,6 +132,9 @@ func setDefaultValues() {
 	viper.SetDefault("interface.port", 8080)
 	viper.SetDefault("interface.auth.username", "admin")
 	viper.SetDefault("interface.auth.password", "flemzerd")
+	viper.SetDefault("interface.use_ssl", true)
+	viper.SetDefault("interface.ssl_cert", "/var/lib/flemzerd/certs/cert.pem")
+	viper.SetDefault("interface.ssl_server_key", "/var/lib/flemzerd/certs/server.key")
 
 	viper.SetDefault("notifications.enabled", true)
 	viper.SetDefault("notifications.notify_new_episode", true)

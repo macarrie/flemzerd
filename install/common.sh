@@ -54,6 +54,14 @@ function copy_server_files {
     print_done
 }
 
+function copy_certs {
+    log_line "- Copying SSL certs"
+    mkdir -p $LIB/certs
+    cp -r certs/* $LIB/certs
+    chown -R $USER:$GROUP $LIB/certs
+    print_done
+}
+
 function create_user {
     log_line "- Creating flemzer user"
     id -u $USER > /dev/null 2>&1
@@ -71,6 +79,7 @@ function create_folder_structure {
     mkdir -p $LIB/db
     mkdir -p $LIB/library/shows
     mkdir -p $LIB/library/movies
+    mkdir -p $LIB/certs
     mkdir -p $LIB/tmp
     mkdir -p $ETC
     chown -R $USER:$GROUP $ETC

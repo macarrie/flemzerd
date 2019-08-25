@@ -19,6 +19,7 @@ stop_flemzerd
 
 copy_binary
 copy_server_files
+copy_certs
 backup_db
 copy_dependencies_config_files
 

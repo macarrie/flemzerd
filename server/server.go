@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
@@ -269,9 +270,30 @@ func Start(port int, debug bool) {
 
 	initRouter()
 
-	srv = &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", port),
-		Handler: router,
+	var srv *http.Server
+	if configuration.Config.Interface.UseSSL {
+		tlsConfig := &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+			PreferServerCipherSuites: true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+		}
+		srv = &http.Server{
+			Addr:         fmt.Sprintf("0.0.0.0:%d", port),
+			Handler:      router,
+			TLSConfig:    tlsConfig,
+			TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		}
+	} else {
+		srv = &http.Server{
+			Addr:    fmt.Sprintf("0.0.0.0:%d", port),
+			Handler: router,
+		}
 	}
 
 	log.WithFields(log.Fields{
@@ -280,7 +302,13 @@ func Start(port int, debug bool) {
 
 	serverStarted = true
 
-	err := srv.ListenAndServe()
+	var err error
+	if configuration.Config.Interface.UseSSL {
+		err = srv.ListenAndServeTLS(configuration.Config.Interface.SSLCert, configuration.Config.Interface.SSLServerKey)
+	} else {
+		err = srv.ListenAndServe()
+	}
+
 	if err != nil {
 		log.Error(fmt.Sprintf("listen: %s\n", err))
 		serverStarted = false
