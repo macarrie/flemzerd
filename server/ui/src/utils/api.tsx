@@ -12,7 +12,8 @@ export default class API {
             baseURL: "/api/v1/",
             headers: {'Authorization': 'Bearer ' + Auth.getToken()}
         })
-    }
+    };
+
     static Auth = {
         login: function (username :string, password :string) {
             console.log("Username: ", username, " Password: ", password);
@@ -183,7 +184,7 @@ export default class API {
     };
 
     static Fanart = {
-        FANART_BASE_URL: "http://webservice.fanart.tv/v3/",
+        FANART_BASE_URL: "https://webservice.fanart.tv/v3/",
         FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",
 
         getTvShowFanart: function (show: TvShow) {
