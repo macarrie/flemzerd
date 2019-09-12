@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/macarrie/flemzerd/downloadable"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 type TVIndexer struct{}

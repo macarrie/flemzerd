@@ -2,6 +2,7 @@ package notifiers_helper
 
 import (
 	"fmt"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 func getShowTitle(s TvShow) string {

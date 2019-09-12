@@ -14,6 +14,7 @@ import (
 	"github.com/macarrie/flemzerd/vidocq"
 
 	"github.com/hashicorp/go-multierror"
+	. "github.com/macarrie/flemzerd/objects"
 )
 
 var indexersCollection []Indexer
