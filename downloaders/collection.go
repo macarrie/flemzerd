@@ -12,14 +12,14 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	mediacenter "github.com/macarrie/flemzerd/mediacenters"
-	notifier "github.com/macarrie/flemzerd/notifiers"
+	"github.com/macarrie/flemzerd/mediacenters"
+	"github.com/macarrie/flemzerd/notifiers"
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/stats"
 
 	"github.com/macarrie/flemzerd/downloadable"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
 )
@@ -272,7 +272,6 @@ func Download(d downloadable.Downloadable) error {
 	downloadingItem.Downloading = true
 	d.SetDownloadingItem(downloadingItem)
 	db.SaveDownloadable(&d)
-	fmt.Printf("DOWNLOADING\n")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {

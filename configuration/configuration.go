@@ -6,10 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/vidocq"
-
-	multierror "github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
