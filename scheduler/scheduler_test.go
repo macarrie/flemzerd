@@ -2,12 +2,13 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
-	"github.com/macarrie/flemzerd/db"
-
 	"github.com/macarrie/flemzerd/configuration"
+	"github.com/macarrie/flemzerd/db"
+	"github.com/macarrie/flemzerd/healthcheck"
 
 	"github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/indexers"
@@ -30,105 +31,7 @@ func init() {
 
 	// go test makes a cd into package directory when testing. We must go up by one level to load our testdata
 	configuration.UseFile("../testdata/test_config.toml")
-}
-
-func TestInitConfiguration(t *testing.T) {
-	providerList := []string{
-		"TMDB",
-		"TVDB",
-	}
-	notifierList := []string{
-		"Desktop notifier",
-		"Pushbullet",
-		"telegram",
-	}
-	indexerList := []string{
-		"Indexer 1",
-		"Indexer 2",
-	}
-	downloaderList := []string{
-		"transmission",
-	}
-	watchlistList := []string{
-		"manual",
-		"trakt",
-	}
-	mediacenterList := []string{
-		"kodi",
-	}
-
-	initConfiguration(true)
-
-	for _, not := range notifierList {
-		if _, err := notifier.GetNotifier(not); err != nil {
-			t.Errorf("Expected to have '%s' notifier loaded", not)
-		}
-	}
-	for _, prov := range providerList {
-		if _, err := provider.GetProvider(prov); err != nil {
-			t.Errorf("Expected to have '%s' provider loaded", prov)
-		}
-	}
-	for _, ind := range indexerList {
-		if _, err := indexer.GetIndexer(ind); err != nil {
-			t.Errorf("Expected to have '%s' indexer loaded", ind)
-		}
-	}
-	for _, dl := range downloaderList {
-		if _, err := downloader.GetDownloader(dl); err != nil {
-			t.Errorf("Expected to have '%s' downloader loaded", dl)
-		}
-	}
-	for _, wl := range watchlistList {
-		if _, err := watchlist.GetWatchlist(wl); err != nil {
-			t.Errorf("Expected to have '%s' watchlist loaded", wl)
-		}
-	}
-	for _, md := range mediacenterList {
-		if _, err := mediacenter.GetMediaCenter(md); err != nil {
-			t.Errorf("Expected to have '%s' mediacenter loaded", md)
-		}
-	}
-
-	notifier.Reset()
-	provider.Reset()
-	indexer.Reset()
-	downloader.Reset()
-	watchlist.Reset()
-	mediacenter.Reset()
-
-	Reload(true)
-
-	for _, not := range notifierList {
-		if _, err := notifier.GetNotifier(not); err != nil {
-			t.Errorf("Expected to have '%s' notifier loaded", not)
-		}
-	}
-	for _, prov := range providerList {
-		if _, err := provider.GetProvider(prov); err != nil {
-			t.Errorf("Expected to have '%s' provider loaded", prov)
-		}
-	}
-	for _, ind := range indexerList {
-		if _, err := indexer.GetIndexer(ind); err != nil {
-			t.Errorf("Expected to have '%s' indexer loaded", ind)
-		}
-	}
-	for _, dl := range downloaderList {
-		if _, err := downloader.GetDownloader(dl); err != nil {
-			t.Errorf("Expected to have '%s' downloader loaded", dl)
-		}
-	}
-	for _, wl := range watchlistList {
-		if _, err := watchlist.GetWatchlist(wl); err != nil {
-			t.Errorf("Expected to have '%s' watchlist loaded", wl)
-		}
-	}
-	for _, md := range mediacenterList {
-		if _, err := mediacenter.GetMediaCenter(md); err != nil {
-			t.Errorf("Expected to have '%s' mediacenter loaded", md)
-		}
-	}
+	configuration.Load()
 }
 
 func TestDownloadMedia(t *testing.T) {
@@ -141,12 +44,15 @@ func TestDownloadMedia(t *testing.T) {
 
 	provider.AddProvider(mock.TVProvider{})
 	provider.AddProvider(mock.MovieProvider{})
+	indexer.AddIndexer(mock.TorrentsNotFoundIndexer{})
 	indexer.AddIndexer(mock.ErrorTVIndexer{})
 	indexer.AddIndexer(mock.ErrorMovieIndexer{})
 	downloader.AddDownloader(mock.Downloader{})
 	notifier.AddNotifier(mock.Notifier{})
 	watchlist.AddWatchlist(mock.Watchlist{})
 	mediacenter.AddMediaCenter(mock.MediaCenter{})
+
+	healthcheck.CheckHealth()
 
 	episode := Episode{
 		Title:  "test_episode",
@@ -163,6 +69,7 @@ func TestDownloadMedia(t *testing.T) {
 	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
+	fmt.Printf("EPISODE: %+v\n", episode)
 	if !episode.DownloadingItem.TorrentsNotFound {
 		t.Error("Expected download to fail because no torrent can be found")
 	}
@@ -359,7 +266,7 @@ func TestRunAndStop(t *testing.T) {
 
 	configuration.Config.System.CheckInterval = 1
 
-	go Run(true)
+	go Run()
 	time.Sleep(10 * time.Second)
 	Stop()
 

@@ -11,7 +11,6 @@ import (
 
 	"github.com/macarrie/flemzerd/configuration"
 	log "github.com/macarrie/flemzerd/logging"
-	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/vidocq"
 
 	"github.com/hashicorp/go-multierror"
@@ -42,7 +41,8 @@ func Status() ([]Module, error) {
 			modChan <- mod
 			if indexerAliveError != nil {
 				log.WithFields(log.Fields{
-					"error": indexerAliveError,
+					"error":   indexerAliveError,
+					"indexer": indexer.GetName(),
 				}).Warning("Indexer is not alive")
 
 				errorListMutex.Lock()
