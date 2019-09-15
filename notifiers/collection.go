@@ -14,7 +14,7 @@ import (
 	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/stats"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
 
@@ -164,19 +164,24 @@ func NotifyDownloadedItem(d downloadable.Downloadable) error {
 // A movie is marked as failed when more that TorrentDownloadAttempts configuration parameter) torrent downloads have failed
 func NotifyFailedDownload(d downloadable.Downloadable) error {
 	notification := Notification{}
+	dlItem := d.GetDownloadingItem()
 	switch d.(type) {
 	case *Movie:
 		notification = Notification{
 			Type:  NOTIFICATION_DOWNLOAD_FAILURE,
 			Movie: *d.(*Movie),
 		}
-		stats.Stats.Movies.Downloading -= 1
+		if dlItem.Downloading {
+			stats.Stats.Movies.Downloading -= 1
+		}
 	case *Episode:
 		notification = Notification{
 			Type:    NOTIFICATION_DOWNLOAD_FAILURE,
 			Episode: *d.(*Episode),
 		}
-		stats.Stats.Episodes.Downloading -= 1
+		if dlItem.Downloading {
+			stats.Stats.Episodes.Downloading -= 1
+		}
 	}
 
 	if !configuration.Config.Notifications.Enabled || !configuration.Config.Notifications.NotifyFailure {

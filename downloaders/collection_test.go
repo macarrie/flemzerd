@@ -12,9 +12,8 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	"github.com/macarrie/flemzerd/downloadable"
-
 	log "github.com/macarrie/flemzerd/logging"
-	mock "github.com/macarrie/flemzerd/mocks"
+	"github.com/macarrie/flemzerd/mocks"
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -23,6 +22,9 @@ func init() {
 
 	db.DbPath = "/tmp/flemzerd.db"
 	db.Load()
+	db.ResetDb()
+
+	configuration.Load()
 }
 
 func TestStatus(t *testing.T) {
@@ -469,13 +471,17 @@ func TestAbortDownload(t *testing.T) {
 }
 
 func TestSkipTorrent(t *testing.T) {
+	db.ResetDb()
+
 	downloadersCollection = []Downloader{mock.StalledDownloader{}}
 
 	torrent1 := Torrent{
 		TorrentId: "1",
+		Name:      "torrent1",
 	}
 	torrent2 := Torrent{
 		TorrentId: "2",
+		Name:      "torrent2",
 	}
 
 	movie := Movie{

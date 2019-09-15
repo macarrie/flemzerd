@@ -206,6 +206,15 @@ class NotificationComponent extends React.Component<Props, State> {
             );
         }
 
+        if (this.state.notification.Type === Const.NOTIFICATION_DOWNLOAD_FAILURE) {
+            return (
+                <span>
+                    {this.getMediaOverview()}
+                    Maybe torrents could not be downloaded, or some essential modules for download were not available.
+                </span>
+            );
+        }
+
         if (this.state.notification.Type === Const.NOTIFICATION_NO_TORRENT) {
             return (
                 <span>

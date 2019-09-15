@@ -2,7 +2,6 @@ package notifiers_helper
 
 import (
 	"fmt"
-
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -58,11 +57,11 @@ func GetNotificationText(notif Notification) (notif_title, notif_content string,
 	case NOTIFICATION_DOWNLOAD_FAILURE:
 		if notif.Episode.ID != 0 {
 			title = fmt.Sprintf("%v S%03dE%03d: Episode download failed", getShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number)
-			content = fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v", getShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
+			content = fmt.Sprintf("Failed to download episode\n%v Season %03d Episode %03d: %v. Maybe torrents could not be downloaded, or some essential modules for download were not available.", getShowTitle(notif.Episode.TvShow), notif.Episode.Season, notif.Episode.Number, notif.Episode.Title)
 		}
 		if notif.Movie.ID != 0 {
 			title = fmt.Sprintf("%v: Movie download failed", getMovieTitle(notif.Movie))
-			content = fmt.Sprintf("Failed to download movie: %v", getMovieTitle(notif.Movie))
+			content = fmt.Sprintf("Failed to download movie: %v. Maybe torrents could not be downloaded, or some essential modules for download were not available.", getMovieTitle(notif.Movie))
 		}
 
 	case NOTIFICATION_TEXT:

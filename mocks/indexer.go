@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/macarrie/flemzerd/downloadable"
-
 	. "github.com/macarrie/flemzerd/objects"
 )
 
@@ -12,6 +11,7 @@ type TVIndexer struct{}
 type MovieIndexer struct{}
 type ErrorTVIndexer struct{}
 type ErrorMovieIndexer struct{}
+type TorrentsNotFoundIndexer struct{}
 
 func (m TVIndexer) GetName() string {
 	return "TVIndexer"
@@ -24,6 +24,9 @@ func (m ErrorTVIndexer) GetName() string {
 }
 func (m ErrorMovieIndexer) GetName() string {
 	return "ErrorMovieIndexer"
+}
+func (m TorrentsNotFoundIndexer) GetName() string {
+	return "TorrentsNotFoundIndexer"
 }
 
 func (m TVIndexer) Status() (Module, error) {
@@ -68,8 +71,18 @@ func (m ErrorMovieIndexer) Status() (Module, error) {
 		},
 	}, err
 }
+func (m TorrentsNotFoundIndexer) Status() (Module, error) {
+	return Module{
+		Name: "TorrentsNotFoundIndexer",
+		Type: "indexer",
+		Status: ModuleStatus{
+			Alive:   true,
+			Message: "",
+		},
+	}, nil
+}
 
-func CheckCapabilitiesForMovieIndexer(d downloadable.Downloadable) bool {
+func checkCapabilitiesForMovieIndexer(d downloadable.Downloadable) bool {
 	switch d.(type) {
 	case *Movie:
 		return true
@@ -79,7 +92,7 @@ func CheckCapabilitiesForMovieIndexer(d downloadable.Downloadable) bool {
 		return false
 	}
 }
-func CheckCapabilitiesForTVIndexer(d downloadable.Downloadable) bool {
+func checkCapabilitiesForTVIndexer(d downloadable.Downloadable) bool {
 	switch d.(type) {
 	case *Movie:
 		return false
@@ -215,16 +228,22 @@ func (ind ErrorMovieIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent
 
 	return getTorrentForMovie(d.GetTitle())
 }
+func (ind TorrentsNotFoundIndexer) GetTorrents(d downloadable.Downloadable) ([]Torrent, error) {
+	return []Torrent{}, nil
+}
 
 func (m MovieIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
-	return CheckCapabilitiesForMovieIndexer(d)
+	return checkCapabilitiesForMovieIndexer(d)
 }
 func (m ErrorMovieIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
-	return CheckCapabilitiesForMovieIndexer(d)
+	return checkCapabilitiesForMovieIndexer(d)
 }
 func (m TVIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
-	return CheckCapabilitiesForTVIndexer(d)
+	return checkCapabilitiesForTVIndexer(d)
 }
 func (m ErrorTVIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
-	return CheckCapabilitiesForTVIndexer(d)
+	return checkCapabilitiesForTVIndexer(d)
+}
+func (m TorrentsNotFoundIndexer) CheckCapabilities(d downloadable.Downloadable) bool {
+	return true
 }
