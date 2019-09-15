@@ -43,7 +43,7 @@ func main() {
 	scheduler.Run(*debugMode)
 	server.Stop()
 	if configuration.Config.Interface.Enabled {
-		go server.Start(configuration.Config.Interface.Port, *debugMode)
+		go server.Start(configuration.Config.Interface.Port)
 	}
 	daemon.SdNotify(false, "READY=1")
 
@@ -64,7 +64,7 @@ func main() {
 			server.Stop()
 			scheduler.Reload(*debugMode)
 			if configuration.Config.Interface.Enabled {
-				go server.Start(configuration.Config.Interface.Port, *debugMode)
+				go server.Start(configuration.Config.Interface.Port)
 			}
 
 			daemon.SdNotify(false, "READY=1")

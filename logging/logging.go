@@ -10,8 +10,7 @@ func Setup(debug bool) {
 	if debug {
 		log.SetLevel(log.DebugLevel)
 	}
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp:   true,
+	log.SetFormatter(&log.JSONFormatter{
 		TimestampFormat: time.RFC1123,
 	})
 }

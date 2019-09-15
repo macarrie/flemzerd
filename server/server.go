@@ -261,12 +261,9 @@ func initRouter() {
 	}
 }
 
-func Start(port int, debug bool) {
-	if debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+func Start(port int) {
+	//gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 
 	initRouter()
 
