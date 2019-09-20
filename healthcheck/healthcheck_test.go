@@ -29,7 +29,7 @@ func TestPoll(t *testing.T) {
 func TestRunAndStop(t *testing.T) {
 	configuration.Load()
 
-	configuration.Config.System.CheckInterval = 1
+	configuration.Config.System.HealthcheckInterval = 1
 
 	go Run()
 	time.Sleep(10 * time.Second)

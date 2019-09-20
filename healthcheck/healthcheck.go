@@ -26,7 +26,7 @@ func Run() {
 		}).Warning("Could not connect to database. Starting daemon without any previous data")
 	}
 
-	RunTicker = time.NewTicker(time.Duration(30) * time.Second)
+	RunTicker = time.NewTicker(time.Duration(configuration.Config.System.HealthcheckInterval) * time.Minute)
 	go func() {
 		log.Debug("Starting healthcheck loop")
 		for {

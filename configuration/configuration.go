@@ -107,6 +107,7 @@ type Configuration struct {
 	}
 	System struct {
 		CheckInterval                int    `mapstructure:"check_interval"`
+		HealthcheckInterval          int    `mapstructure:"healthcheck_interval"`
 		TorrentDownloadAttemptsLimit int    `mapstructure:"torrent_download_attempts_limit"`
 		TrackShows                   bool   `mapstructure:"track_shows"`
 		TrackMovies                  bool   `mapstructure:"track_movies"`
@@ -147,6 +148,7 @@ func setDefaultValues() {
 	viper.SetDefault("library.custom_tmp_path", "/var/lib/flemzerd/tmp")
 
 	viper.SetDefault("system.check_interval", 15)
+	viper.SetDefault("system.healthcheck_interval", 5)
 	viper.SetDefault("system.torrent_download_attempts_limit", 20)
 	viper.SetDefault("system.track_shows", true)
 	viper.SetDefault("system.track_movies", true)
