@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
+	"github.com/macarrie/flemzerd/vidocq"
 	flag "github.com/ogier/pflag"
 
 	"github.com/macarrie/flemzerd/providers"
@@ -304,6 +306,42 @@ func initStats() {
 	_, _ = db.GetUnreadNotifications()
 }
 
+func scan_dir(directory string) {
+	fileList := []string{}
+	_ = filepath.Walk(directory, func(path string, f os.FileInfo, err error) error {
+		if !f.IsDir() {
+			fileList = append(fileList, path)
+		}
+		return nil
+	})
+
+	for _, file := range fileList {
+		fmt.Println(file)
+	}
+
+	for _, file := range fileList {
+		info, err := vidocq.GetInfo(file)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"filepath": file,
+			}).Error("Could not get info from vidocq for filename from library")
+		} else {
+			if info.Container == "" {
+				fmt.Printf("File info: %+v\n", info)
+			} else {
+				log.Warning("No container")
+			}
+		}
+	}
+}
+
+func scan_library() {
+	scan_dir(configuration.Config.Library.MoviePath)
+	scan_dir(configuration.Config.Library.ShowPath)
+
+	os.Exit(0)
+}
+
 func main() {
 	debugMode := flag.BoolP("debug", "d", false, "Start in debug mode")
 	versionFlag := flag.BoolP("version", "v", false, "Display version number")
@@ -338,6 +376,7 @@ func main() {
 
 	initConfiguration()
 
+	scan_library()
 	// Perform initial healthcheck before starting check routines
 	healthcheck.CheckHealth()
 
