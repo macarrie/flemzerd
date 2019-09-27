@@ -2,6 +2,8 @@
 [system]
     # Check interval (in minutes) (default: 15)
     check_interval = 15
+    # Modules healthcheck interval (in minutes) (default: 5)
+    healthcheck_interval = 5
     # Number of different torrents to try to download before declaring download as failed (default = 20)
     torrent_download_attempts_limit = 20
     # Enable tvshows tracking
