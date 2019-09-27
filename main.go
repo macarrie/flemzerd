@@ -326,7 +326,8 @@ func scan_dir(directory string) {
 				"filepath": file,
 			}).Error("Could not get info from vidocq for filename from library")
 		} else {
-			if info.Container == "" {
+			fmt.Printf("Vidocq info: %+v\n", info)
+			if info.Container != "" {
 				fmt.Printf("File info: %+v\n", info)
 			} else {
 				log.Warning("No container")
