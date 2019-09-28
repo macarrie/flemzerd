@@ -9,10 +9,10 @@ import (
 	"github.com/macarrie/flemzerd/healthcheck"
 	log "github.com/macarrie/flemzerd/logging"
 
-	"github.com/macarrie/flemzerd/downloaders"
-	"github.com/macarrie/flemzerd/indexers"
-	"github.com/macarrie/flemzerd/notifiers"
-	"github.com/macarrie/flemzerd/providers"
+	downloader "github.com/macarrie/flemzerd/downloaders"
+	indexer "github.com/macarrie/flemzerd/indexers"
+	notifier "github.com/macarrie/flemzerd/notifiers"
+	provider "github.com/macarrie/flemzerd/providers"
 
 	"github.com/macarrie/flemzerd/downloadable"
 
@@ -201,7 +201,7 @@ func poll(recoveryDone *bool) {
 					log.Warning(err)
 				}
 
-				downloadDelayPassed := time.Now().After(recentEpisode.Date.AddDate(0, 0, configuration.Config.System.ShowDownloadDelay))
+				downloadDelayPassed := time.Now().After(recentEpisode.Date.Add(time.Duration(configuration.Config.System.ShowDownloadDelay) * time.Hour))
 				if healthcheck.CanDownload && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
 					Download(&recentEpisode)
 				}
@@ -224,7 +224,7 @@ func poll(recoveryDone *bool) {
 				log.Warning(err)
 			}
 
-			downloadDelayPassed := time.Now().After(movie.Date.AddDate(0, 0, configuration.Config.System.MovieDownloadDelay))
+			downloadDelayPassed := time.Now().After(movie.Date.Add(time.Duration(configuration.Config.System.MovieDownloadDelay) * time.Hour))
 			if healthcheck.CanDownload && configuration.Config.System.AutomaticMovieDownload && downloadDelayPassed {
 				Download(&movie)
 			}

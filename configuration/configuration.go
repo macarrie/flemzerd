@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	log "github.com/macarrie/flemzerd/logging"
 	"github.com/macarrie/flemzerd/vidocq"
 	"github.com/pkg/errors"
@@ -154,8 +154,8 @@ func setDefaultValues() {
 	viper.SetDefault("system.track_movies", true)
 	viper.SetDefault("system.automatic_show_download", true)
 	viper.SetDefault("system.automatic_movie_download", false)
-	viper.SetDefault("system.show_download_delay", 1)
-	viper.SetDefault("system.movie_download_delay", 7)
+	viper.SetDefault("system.show_download_delay", 12)
+	viper.SetDefault("system.movie_download_delay", 168) //168h is 1 week
 	viper.SetDefault("system.preferred_media_quality", "720p")
 	viper.SetDefault("system.excluded_release_types", "cam,screener,telesync,telecine")
 	viper.SetDefault("system.strict_torrent_check", true)
