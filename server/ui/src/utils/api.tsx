@@ -3,6 +3,7 @@ import axios from "axios";
 import Auth from "../auth";
 import TvShow from "../types/tvshow";
 import Movie from "../types/movie";
+import MediaInfo from "../types/media_info";
 
 axios.defaults.baseURL = "/api/v1/";
 
@@ -16,11 +17,13 @@ export default class API {
 
     static Auth = {
         login: function (username :string, password :string) {
-            console.log("Username: ", username, " Password: ", password);
             return axios.post('/auth/login', {
                 username: username,
                 password: password,
             });
+        },
+        refresh_token: function () {
+            return axios.get('/auth/refresh_token');
         },
     };
 
@@ -261,6 +264,20 @@ export default class API {
             status: function() {
                 return API.auth().get('/modules/mediacenters/status');
             }
-        }
+        },
+        Scanner: {
+            scan_movies: function() {
+                return API.auth().get('/modules/scan/movies');
+            },
+            import_movie: function(movie :MediaInfo) {
+                return API.auth().post('/modules/scan/movies/import', movie);
+            },
+            scan_shows: function() {
+                return API.auth().get('/modules/scan/tvshows');
+            },
+            import_show: function(show :MediaInfo) {
+                return API.auth().post('/modules/scan/tvshows/import', show);
+            },
+        },
     }
 }

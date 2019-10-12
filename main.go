@@ -13,28 +13,28 @@ import (
 	log "github.com/macarrie/flemzerd/logging"
 	flag "github.com/ogier/pflag"
 
-	"github.com/macarrie/flemzerd/providers"
+	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
-	"github.com/macarrie/flemzerd/indexers"
+	indexer "github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
-	"github.com/macarrie/flemzerd/notifiers"
+	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
-	"github.com/macarrie/flemzerd/notifiers/impl/kodi"
+	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
-	"github.com/macarrie/flemzerd/watchlists"
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
-	"github.com/macarrie/flemzerd/mediacenters"
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
 	"github.com/macarrie/flemzerd/healthcheck"

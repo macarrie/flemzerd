@@ -51,6 +51,7 @@ func (t *ManualWatchlist) GetTvShows() ([]MediaIds, error) {
 
 	return shows, nil
 }
+
 func (t *ManualWatchlist) GetMovies() ([]MediaIds, error) {
 	log.WithFields(log.Fields{
 		"watchlist": t.GetName(),

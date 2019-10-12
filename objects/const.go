@@ -22,6 +22,11 @@ const (
 )
 
 const (
+	MOVIE = iota
+	EPISODE
+)
+
+const (
 	DB_PATH = "/var/lib/flemzerd/db/flemzer.db"
 )
 
