@@ -37,8 +37,6 @@ class LibraryScan extends React.Component<Props, State> {
 
     scanMovies() {
         API.Modules.Scanner.scan_movies().then(response => {
-            let media_list :MediaInfo[] = response.data;
-
             this.setState({
                 import_status: "scanned",
                 media_list: response.data,
@@ -50,8 +48,6 @@ class LibraryScan extends React.Component<Props, State> {
 
     scanShows() {
         API.Modules.Scanner.scan_shows().then(response => {
-            let media_list :MediaInfo[] = response.data;
-
             this.setState({
                 import_status: "scanned",
                 media_list: response.data,
