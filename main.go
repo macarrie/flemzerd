@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -12,31 +11,30 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
-	"github.com/macarrie/flemzerd/vidocq"
 	flag "github.com/ogier/pflag"
 
-	"github.com/macarrie/flemzerd/providers"
+	provider "github.com/macarrie/flemzerd/providers"
 	"github.com/macarrie/flemzerd/providers/impl/tmdb"
 	"github.com/macarrie/flemzerd/providers/impl/tvdb"
 
-	"github.com/macarrie/flemzerd/indexers"
+	indexer "github.com/macarrie/flemzerd/indexers"
 	"github.com/macarrie/flemzerd/indexers/impl/torznab"
 
-	"github.com/macarrie/flemzerd/notifiers"
+	notifier "github.com/macarrie/flemzerd/notifiers"
 	"github.com/macarrie/flemzerd/notifiers/impl/desktop"
 	"github.com/macarrie/flemzerd/notifiers/impl/eventlog"
-	"github.com/macarrie/flemzerd/notifiers/impl/kodi"
+	kodi_notifier "github.com/macarrie/flemzerd/notifiers/impl/kodi"
 	"github.com/macarrie/flemzerd/notifiers/impl/pushbullet"
 	"github.com/macarrie/flemzerd/notifiers/impl/telegram"
 
-	"github.com/macarrie/flemzerd/downloaders"
+	downloader "github.com/macarrie/flemzerd/downloaders"
 	"github.com/macarrie/flemzerd/downloaders/impl/transmission"
 
-	"github.com/macarrie/flemzerd/watchlists"
+	watchlist "github.com/macarrie/flemzerd/watchlists"
 	"github.com/macarrie/flemzerd/watchlists/impl/manual"
 	"github.com/macarrie/flemzerd/watchlists/impl/trakt"
 
-	"github.com/macarrie/flemzerd/mediacenters"
+	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
 
 	"github.com/macarrie/flemzerd/healthcheck"
@@ -306,43 +304,6 @@ func initStats() {
 	_, _ = db.GetUnreadNotifications()
 }
 
-func scan_dir(directory string) {
-	fileList := []string{}
-	_ = filepath.Walk(directory, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() {
-			fileList = append(fileList, path)
-		}
-		return nil
-	})
-
-	for _, file := range fileList {
-		fmt.Println(file)
-	}
-
-	for _, file := range fileList {
-		info, err := vidocq.GetInfo(file)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"filepath": file,
-			}).Error("Could not get info from vidocq for filename from library")
-		} else {
-			fmt.Printf("Vidocq info: %+v\n", info)
-			if info.Container != "" {
-				fmt.Printf("File info: %+v\n", info)
-			} else {
-				log.Warning("No container")
-			}
-		}
-	}
-}
-
-func scan_library() {
-	scan_dir(configuration.Config.Library.MoviePath)
-	scan_dir(configuration.Config.Library.ShowPath)
-
-	os.Exit(0)
-}
-
 func main() {
 	debugMode := flag.BoolP("debug", "d", false, "Start in debug mode")
 	versionFlag := flag.BoolP("version", "v", false, "Display version number")
@@ -377,7 +338,6 @@ func main() {
 
 	initConfiguration()
 
-	scan_library()
 	// Perform initial healthcheck before starting check routines
 	healthcheck.CheckHealth()
 

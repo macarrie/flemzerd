@@ -40,8 +40,8 @@ func initRouter() {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "flemzerd",
 		Key:         []byte("flemzerd_key"),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Timeout:     48 * time.Hour,
+		MaxRefresh:  0,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*User); ok {
@@ -241,6 +241,20 @@ func initRouter() {
 					traktRoutes.GET("/auth_errors", getTraktAuthErrors)
 					traktRoutes.GET("/token", getTraktToken)
 					traktRoutes.GET("/devicecode", getTraktDeviceCode)
+				}
+			}
+
+			scanner := modules.Group("/scan")
+			{
+				movies_scan_group := scanner.Group("/movies")
+				{
+					movies_scan_group.GET("/", scanMovieLibrary)
+					movies_scan_group.POST("/import", importScannedMovie)
+				}
+				show_scan_group := scanner.Group("/tvshows")
+				{
+					show_scan_group.GET("/", scanShowLibrary)
+					show_scan_group.POST("/import", importScannedShow)
 				}
 			}
 		}

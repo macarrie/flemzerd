@@ -41,12 +41,20 @@ func CheckVidocq() {
 	LocalVidocqAvailable = true
 }
 
-func GetInfo(name string) (MediaInfo, error) {
+func GetInfo(name string, media_type ...int) (MediaInfo, error) {
 	if !LocalVidocqAvailable {
 		return MediaInfo{}, fmt.Errorf("vidocq not available locally")
 	}
 
-	cmd := exec.Command("vidocq", name)
+	var cmd *exec.Cmd
+	if len(media_type) > 0 && media_type[0] == MOVIE {
+		cmd = exec.Command("vidocq", "--type", "movie", name)
+	} else if len(media_type) > 0 && media_type[0] == EPISODE {
+		cmd = exec.Command("vidocq", "--type", "episode", name)
+	} else {
+		cmd = exec.Command("vidocq", name)
+	}
+
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 

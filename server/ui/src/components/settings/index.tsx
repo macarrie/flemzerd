@@ -10,6 +10,7 @@ import ConfigCheck from "../../types/config_check";
 import Loading from "../loading";
 import ModuleSettingsComponent from "./module_settings";
 import ConfigCheckComponent from "./config_check";
+import LibraryScan from "./scan_library";
 
 type State = {
     config :Config | null,
@@ -350,6 +351,18 @@ class Settings extends React.Component {
                             className="text-muted">(torznab)</span></>, this.state.config.Indexers.torznab, "indexer")}
                         {this.renderModuleList("Downloaders", this.state.config.Downloaders, "downloader")}
                         {this.renderModuleList("Media centers", this.state.config.MediaCenters, "mediacenter")}
+
+                        <div className="uk-width-1-1">
+                            <h4 className="uk-heading-divider">Library</h4>
+                            <ul className="uk-list uk-list-striped no-stripes">
+                                <li>
+                                    <LibraryScan scan_type="show" config={this.state.config} />
+                                </li>
+                                <li>
+                                    <LibraryScan scan_type="movie" config={this.state.config} />
+                                </li>
+                            </ul>
+                        </div>
 
                         <div className="uk-width-1-1">
                             <h4 className="uk-heading-divider">About flemzerd</h4>

@@ -90,6 +90,25 @@ func GetTvShows() ([]MediaIds, error) {
 	return retList, nil
 }
 
+func ImportMovies(movieWatchlist []MediaIds) []MediaIds {
+	movieWatchlist = removeDuplicates(movieWatchlist)
+
+	//Return elements saved into Db
+	retList := []MediaIds{}
+	for _, movieIds := range movieWatchlist {
+		idsFromDb := MediaIds{}
+		req := db.Client.Where("title = ?", movieIds.Title).Find(&idsFromDb)
+		if req.RecordNotFound() {
+			db.Client.Create(&movieIds)
+			retList = append(retList, movieIds)
+		} else {
+			retList = append(retList, idsFromDb)
+		}
+	}
+
+	return retList
+}
+
 // GetMovies retrieves movies from all watchlists then aggregates the result. Retrieved movies are added to the database to ease future requests.
 // Duplicates are removed.
 // Results are returned as an array of MediaIds structs
@@ -107,21 +126,7 @@ func GetMovies() ([]MediaIds, error) {
 		movieWatchlist = append(movieWatchlist, movies...)
 	}
 
-	movieWatchlist = removeDuplicates(movieWatchlist)
-
-	//Return elements saved into Db
-	retList := []MediaIds{}
-	for _, movieIds := range movieWatchlist {
-		idsFromDb := MediaIds{}
-		req := db.Client.Where("title = ?", movieIds.Title).Find(&idsFromDb)
-		if req.RecordNotFound() {
-			db.Client.Create(&movieIds)
-			retList = append(retList, movieIds)
-		} else {
-			retList = append(retList, idsFromDb)
-		}
-	}
-
+	retList := ImportMovies(movieWatchlist)
 	return retList, nil
 }
 

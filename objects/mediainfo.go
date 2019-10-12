@@ -3,6 +3,7 @@ package objects
 import "github.com/jinzhu/gorm"
 
 type MediaInfo struct {
+	Id           string
 	AudioCodec   string `json:"audio_codec"`
 	AudioQuality string `json:"audio_quality"`
 	Container    string `json:"container"`
@@ -13,7 +14,7 @@ type MediaInfo struct {
 	Season       int    `json:"season"`
 	Size         string `json:"size"`
 	Title        string `json:"title"`
-	Type         string `json:"type"`
+	Type         string `json:"media_type"`
 	Year         int    `json:"year"`
 }
 

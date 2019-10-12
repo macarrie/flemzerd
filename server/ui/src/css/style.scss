@@ -96,62 +96,6 @@ hr {
     border-top: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
-.doc_content {
-    font-size: 18px;
-
-    p, ul, pre {
-        margin-left: 15px;
-        max-width: 800px;
-    }
-
-    ul li {
-        margin-bottom: 10px;
-    }
-}
-
-blockquote {
-    border-left: 4px solid darken($light, 5%);
-    font-style: italic;
-    color: darken($light, 40%);
-}
-
-pre {
-    border-left: 4px solid $info;
-    background: #fff;
-    padding: 10px;
-}
-
-code {
-    font-size: 12px;
-}
-
-.img-thumbnail {
-    border-width: 2px;
-}
-
-div.toc_parent {
-    position: sticky;
-    top: 50px;
-    width: 100%;
-
-    .toc {
-        position: absolute;
-        right: 0;
-        max-width: 250px;
-        background: $light;
-        font-size: 16px;
-        padding-left: 20px;
-
-        ul, li {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            margin-left: 5px;
-            margin-top: 10px;
-        }
-    }
-}
-
 .abort-download-button {
     width: 14px;
 }
@@ -260,15 +204,6 @@ img[data-src][src*='data:image'] {
     background: $light;
 }
 
-
-// Documentation index page
-///////////////////////////////
-///////////////////////////////
-
-.jumbotron-fluid {
-    background-color: transparent;
-    background-image: linear-gradient(315deg, rgba(191, 58, 48, .6) -25%, rgba($secondary, .6) 125%);
-}
 
 // Notifications
 ///////////////////////////////
