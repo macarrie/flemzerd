@@ -249,20 +249,19 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
     render() {
         if (typeof this.state.item === "undefined") {
-            console.log("Downloading item: ", this.state.item);
             return (
-            <div className="uk-background-default uk-border-rounded uk-padding-small">
-                <div className="uk-flex uk-flex-middle uk-flex-center uk-margin-large-top">
-                    <span className="uk-margin-right" data-uk-spinner="ratio: 1"></span>
-                    <div>
-                            <span className="uk-h4 uk-text-muted">
-                                <i>
-                                    Loading
-                                </i>
-                            </span>
+                <div className="uk-background-default uk-border-rounded uk-padding-small">
+                    <div className="uk-flex uk-flex-middle uk-flex-center uk-margin-large-top">
+                        <span className="uk-margin-right" data-uk-spinner="ratio: 1"></span>
+                        <div>
+                                <span className="uk-h4 uk-text-muted">
+                                    <i>
+                                        Loading
+                                    </i>
+                                </span>
+                        </div>
                     </div>
                 </div>
-            </div>
             );
         }
 

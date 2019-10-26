@@ -17,7 +17,7 @@ img.black_and_white {
     background-color: rgba(200, 200, 200, 0.4);
 }
 
-.overlay-yellow {
+.overlay-yellow, tr.future-movie {
     background-color: rgba(211, 222, 0, 0.4);
 }
 
@@ -65,5 +65,23 @@ img.black_and_white {
         .uk-overlay {
             display: none;
         }
+    }
+}
+
+// List display
+///////////////////////////////
+///////////////////////////////
+
+tr {
+    &.removed-movie, &.removed-show {
+        background: lighten($danger, 40%);
+    }
+
+    &.downloaded-movie, &.downloaded-show {
+        background: lighten($success, 40%);
+    }
+
+    &.future-movie {
+        background-color: rgba(211, 222, 0, 0.4);
     }
 }
