@@ -24,7 +24,6 @@ h1, h2, h3, h4, h5, h6,
 }
 
 button,
-.btn,
 .uk-label,
 .sans-serif {
     font-family: $font-header !important;
@@ -280,4 +279,19 @@ table.notification-table {
 .configuration-error-status {
     min-width: 75px;
     text-align: center;
+}
+
+// Filter controls
+///////////////////////////////
+///////////////////////////////
+
+ul.filter-container li.uk-active {
+    .uk-button-text::before {
+        border: none;
+    }
+
+    .uk-button-text {
+        border-radius: 0;
+        border-bottom: 1px solid $dark;
+    }
 }

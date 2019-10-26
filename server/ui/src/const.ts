@@ -20,4 +20,7 @@ export default class Const {
     static TVSHOW_PLANNED = 2;
     static TVSHOW_ENDED = 3;
     static TVSHOW_UNKNOWN = 4;
+
+    static DISPLAY_MINIATURES = 0;
+    static DISPLAY_LIST = 1;
 }

@@ -2,6 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 
 import API from "../utils/api";
+import Const from "../const";
 import Helpers from "../utils/helpers";
 import Movie from "../types/movie";
 import TvShow from "../types/tvshow";
@@ -9,14 +10,21 @@ import TvShow from "../types/tvshow";
 type Props = {
     item :Movie | TvShow,
     type :string,
+    display_mode :number,
 };
 
-type State = Movie | TvShow;
+type State = {
+    item :Movie | TvShow;
+    display_mode :number,
+};
 
 class MediaMiniature extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = props.item;
+        this.state = {
+            item: props.item,
+            display_mode: props.display_mode,
+        };
 
         this.deleteItem = this.deleteItem.bind(this);
         this.deleteMovie = this.deleteMovie.bind(this);
@@ -33,6 +41,12 @@ class MediaMiniature extends React.Component<Props, State> {
         this.markNotDownloaded = this.markNotDownloaded.bind(this);
     }
 
+    componentWillReceiveProps(nextProps: Props) {
+        this.setState({
+            item: nextProps.item,
+            display_mode: nextProps.display_mode,
+        });
+    }
 
     getOverlayClassNames() {
         if (this.props.type === "movie") {
@@ -45,7 +59,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     getMovieOverlayClassNames() {
-        let item = this.state as Movie;
+        let item = this.state.item as Movie;
         let overlay = "";
 
         if (Helpers.dateIsInFuture(item.Date)) {
@@ -68,7 +82,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     getShowOverlayClassNames() {
-        let item = this.state as TvShow;
+        let item = this.state.item as TvShow;
         let overlay = "";
 
         if (item.DeletedAt) {
@@ -82,7 +96,7 @@ class MediaMiniature extends React.Component<Props, State> {
         let label = "";
 
         if (this.props.type === "movie") {
-            let item = this.state as Movie;
+            let item = this.state.item as Movie;
             if (!item.DeletedAt && Helpers.dateIsInFuture(item.Date)) {
                 label = "Future release";
             }
@@ -101,13 +115,18 @@ class MediaMiniature extends React.Component<Props, State> {
             }
         }
 
-        if (this.state.DeletedAt) {
+        if (this.state.item.DeletedAt) {
             label = "Removed";
         }
 
+        let classNames = "";
+        if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
+            classNames = "uk-position-center";
+        }
+
         return (
-            <span className="uk-position-center">
-                    {label}
+            <span className={classNames}>
+                {label}
             </span>
         );
     }
@@ -126,7 +145,7 @@ class MediaMiniature extends React.Component<Props, State> {
     getTvshowFilterClassName() {
         let className = "tracked-show";
 
-        if (this.state.DeletedAt) {
+        if (this.state.item.DeletedAt) {
             className = "removed-show";
         }
 
@@ -134,12 +153,9 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     getMovieFilterClassName() {
-        let item = this.state as Movie;
+        let item = this.state.item as Movie;
         let className = "tracked-movie";
 
-        if (item.DownloadingItem.Downloading || item.DownloadingItem.Pending) {
-            className = "";
-        }
         if (Helpers.dateIsInFuture(item.Date)) {
             className = "future-movie";
         }
@@ -159,7 +175,7 @@ class MediaMiniature extends React.Component<Props, State> {
             return;
         }
 
-        let item = this.state as Movie;
+        let item = this.state.item as Movie;
         let buttonList :any = [];
 
         if (item.DownloadingItem.Downloaded && (!item.DeletedAt)) {
@@ -201,7 +217,7 @@ class MediaMiniature extends React.Component<Props, State> {
 
 
     refreshMovie() {
-        API.Movies.get(this.state.ID).then(response => {
+        API.Movies.get(this.state.item.ID).then(response => {
             this.setState(response.data);
         }).catch(error => {
             console.log("Refresh movie error: ", error);
@@ -209,7 +225,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     refreshShow() {
-        API.Shows.get(this.state.ID).then(response => {
+        API.Shows.get(this.state.item.ID).then(response => {
             this.setState(response.data);
         }).catch(error => {
             console.log("Refresh show error: ", error);
@@ -226,7 +242,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     deleteMovie() {
-        API.Movies.delete(this.state.ID).then(response => {
+        API.Movies.delete(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
             console.log("Delete movie error: ", error);
@@ -234,7 +250,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     deleteShow() {
-        API.Shows.delete(this.state.ID).then(response => {
+        API.Shows.delete(this.state.item.ID).then(response => {
             this.refreshShow();
         }).catch(error => {
             console.log("Delete movie error: ", error);
@@ -251,7 +267,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     restoreMovie() {
-        API.Movies.restore(this.state.ID).then(response => {
+        API.Movies.restore(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
             console.log("Restore movie error: ", error);
@@ -259,7 +275,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     restoreShow() {
-        API.Shows.restore(this.state.ID).then(response => {
+        API.Shows.restore(this.state.item.ID).then(response => {
             this.refreshShow();
         }).catch(error => {
             console.log("Restore show error: ", error);
@@ -268,7 +284,7 @@ class MediaMiniature extends React.Component<Props, State> {
 
 
     downloadMovie() {
-        API.Movies.download(this.state.ID).then(response => {
+        API.Movies.download(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
             console.log("Download movie error: ", error);
@@ -285,7 +301,7 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     changeDownloadedState(downloaded_state: boolean) {
-        API.Movies.changeDownloadedState(this.state.ID, downloaded_state).then(response => {
+        API.Movies.changeDownloadedState(this.state.item.ID, downloaded_state).then(response => {
             this.refreshMovie();
         }).catch(error => {
             console.log("Change movie downloaded state error: ", error);
@@ -293,43 +309,83 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     render() {
-        return (
-            <div className={this.getFilterClassName()}>
-                <div className="uk-inline media-miniature">
-                    <div>
-                        <Link to={`/${this.props.type}s/${this.state.ID}`}>
-                            <img data-src={this.state.Poster} alt={this.state.Title}
-                                 className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`}
-                                 data-uk-img/>
-                            <div
-                                className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
-                                {this.getDownloadStatusLabel()}
-                            </div>
-                        </Link>
-                    </div>
+        if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
+            return (
+                <div className={this.getFilterClassName()}>
+                    <div className="uk-inline media-miniature">
+                        <div>
+                            <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
+                                <img data-src={this.state.item.Poster} alt={this.state.item.Title}
+                                     className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`}
+                                     data-uk-img/>
+                                <div
+                                    className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
+                                    {this.getDownloadStatusLabel()}
+                                </div>
+                            </Link>
+                        </div>
 
-                    <div className="uk-icon uk-position-top-right">
-                        {this.getDownloadControlButtons()}
+                        <div className="uk-icon uk-position-top-right">
+                            {this.getDownloadControlButtons()}
 
-                        {(!this.state.DeletedAt) ? (
-                            <button className="uk-icon"
-                                    onClick={this.deleteItem}
-                                    data-uk-tooltip="delay: 500; title: Remove"
-                                    data-uk-icon="icon: close; ratio: 0.75">
-                            </button>
-                        ) : ""}
+                            {(!this.state.item.DeletedAt) ? (
+                                <button className="uk-icon"
+                                        onClick={this.deleteItem}
+                                        data-uk-tooltip="delay: 500; title: Remove"
+                                        data-uk-icon="icon: close; ratio: 0.75">
+                                </button>
+                            ) : ""}
 
-                        {(this.state.DeletedAt) ? (
-                            <button className="uk-icon"
-                                    onClick={this.restoreItem}
-                                    data-uk-tooltip="delay: 500; title: Restore"
-                                    data-uk-icon="icon: reply; ratio: 0.75">
-                            </button>
-                        ) : ""}
+                            {(this.state.item.DeletedAt) ? (
+                                <button className="uk-icon"
+                                        onClick={this.restoreItem}
+                                        data-uk-tooltip="delay: 500; title: Restore"
+                                        data-uk-icon="icon: reply; ratio: 0.75">
+                                </button>
+                            ) : ""}
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
+        }
+
+        if (this.state.display_mode === Const.DISPLAY_LIST) {
+            return (
+                <tr className={this.getFilterClassName()}>
+                    <td>
+                        <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
+                            {Helpers.getMediaTitle(this.state.item)}
+                        </Link>
+                    </td>
+                    <td>
+                        <small>
+                            {this.getDownloadStatusLabel()}
+                        </small>
+                    </td>
+                    <td>
+                        {this.getDownloadControlButtons()}
+
+                        {(!this.state.item.DeletedAt) ? (
+                            <button className="uk-icon"
+                                onClick={this.deleteItem}
+                                data-uk-tooltip="delay: 500; title: Remove"
+                                data-uk-icon="icon: close; ratio: 0.75">
+                            </button>
+                        ) : ""}
+
+                        {(this.state.item.DeletedAt) ? (
+                            <button className="uk-icon"
+                                onClick={this.restoreItem}
+                                data-uk-tooltip="delay: 500; title: Restore"
+                                data-uk-icon="icon: reply; ratio: 0.75">
+                            </button>
+                        ) : ""}
+                    </td>
+                </tr>
+            );
+        }
+
+        return null;
     }
 }
 

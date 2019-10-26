@@ -16,6 +16,7 @@ type State = {
     tracked :TvShow[] | null,
     removed :TvShow[] | null,
     downloading_episodes :Episode[] | null,
+    display_mode :number,
 };
 
 class TvShows extends React.Component<any, State> {
@@ -24,6 +25,7 @@ class TvShows extends React.Component<any, State> {
         tracked: null,
         removed: null,
         downloading_episodes: null,
+        display_mode: Const.DISPLAY_MINIATURES,
     };
 
     constructor(props: any) {
@@ -102,6 +104,12 @@ class TvShows extends React.Component<any, State> {
         });
     }
 
+    changeDisplayMode(display_mode :number) {
+        this.setState({
+            display_mode: display_mode,
+        });
+    }
+
     renderDownloadingList() {
         if (this.state.downloading_episodes) {
             return (
@@ -110,7 +118,7 @@ class TvShows extends React.Component<any, State> {
                     <span className="uk-h3">Downloading episodes</span>
                     <hr />
                 </div>
-                <DownloadingItemTable 
+                <DownloadingItemTable
                     list={this.state.downloading_episodes}
                     type="episode"
                     skipTorrent={this.skipTorrentDownload}
@@ -120,6 +128,67 @@ class TvShows extends React.Component<any, State> {
         }
 
         return "";
+    }
+
+    renderShowListContent() {
+        if (this.state.tracked === null && this.state.removed === null) {
+            return null;
+        }
+
+        return (
+            <>
+                {this.state.tracked ? (
+                    this.state.tracked.map(show => (
+                        <MediaMiniature key={show.ID}
+                            item={show}
+                            type="tvshow"
+                            display_mode={this.state.display_mode}
+                        />
+                    ))
+                ) : ""
+                }
+                {this.state.removed ? (
+                    this.state.removed.map(show => (
+                        <MediaMiniature key={show.ID}
+                            item={show}
+                            type="tvshow"
+                            display_mode={this.state.display_mode}
+                        />
+                    ))
+                ) : ""
+                }
+            </>
+        );
+    }
+
+    renderShowListLayout() {
+        let filterClass :string = "item-filter";
+        if (this.state.tracked === null && this.state.removed === null) {
+            filterClass = "";
+        }
+
+        if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
+            return (
+                <div className={`uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s ${filterClass}`} data-uk-grid>
+                    {this.renderShowListContent()}
+                </div>
+            );
+        } else {
+            return (
+                <table className="uk-table uk-table-divider uk-table-small">
+                    <thead>
+                        <tr>
+                            <th className="uk-width-expand">Title</th>
+                            <th>State</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className={`${filterClass}`}>
+                        {this.renderShowListContent()}
+                    </tbody>
+                </table>
+            );
+        }
     }
 
     renderShowList() {
@@ -137,13 +206,13 @@ class TvShows extends React.Component<any, State> {
                     <div className="uk-width-expand">
                         <span className="uk-h3">TV Shows</span>
                     </div>
-                    <ul className="uk-subnav uk-subnav-pill">
-                        <li className="uk-visible@s uk-active" data-uk-filter-control="">
+                    <ul className="uk-subnav uk-subnav-pill filter-container">
+                        <li className="uk-visible@s" data-uk-filter-control="">
                             <button className="uk-button uk-button-text">
                                 All
                             </button>
                         </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .tracked-show">
+                        <li className="uk-visible@s uk-active" data-uk-filter-control="filter: .tracked-show">
                             <button className="uk-button uk-button-text">
                                 Tracked
                             </button>
@@ -154,37 +223,33 @@ class TvShows extends React.Component<any, State> {
                             </button>
                         </li>
                         <li>
-                            <LoadingButton 
+                            <LoadingButton
                                 text="Check now"
                                 loading_text="Checking"
                                 action={this.poll}
                             />
                         </li>
                         <li>
-                            <LoadingButton 
+                            <LoadingButton
                                 text="Refresh"
                                 loading_text="Refreshing"
                                 action={this.refreshWatchlists}
                             />
                         </li>
                     </ul>
+
+                    <div className="uk-button-group">
+                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
+                            <span uk-icon="icon: grid; ratio: 0.7"></span>
+                        </button>
+                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_LIST)}>
+                            <span uk-icon="icon: list; ratio: 0.7"></span>
+                        </button>
+                    </div>
                 </div>
                 <hr />
 
-                <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s item-filter" data-uk-grid>
-                    {this.state.tracked ? (
-                        this.state.tracked.map(show => (
-                            <MediaMiniature key={show.ID} item={show} type="tvshow" />
-                        ))
-                    ) : ""
-                    }
-                    {this.state.removed ? (
-                        this.state.removed.map(show => (
-                            <MediaMiniature key={show.ID} item={show} type="tvshow" />
-                        ))
-                    ) : ""
-                    }
-                </div>
+                {this.renderShowListLayout()}
             </div>
         )
     }
