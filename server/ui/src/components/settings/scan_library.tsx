@@ -48,9 +48,18 @@ class LibraryScan extends React.Component<Props, State> {
 
     scanShows() {
         API.Modules.Scanner.scan_shows().then(response => {
+            let media_list :MediaInfo[] = new Array<MediaInfo>();
+            for (let show in response.data) {
+                media_list.push({
+                    "title": show,
+                    "selected": false,
+                    "data": response.data[show],
+                } as MediaInfo);
+            }
+
             this.setState({
                 import_status: "scanned",
-                media_list: response.data,
+                media_list: media_list,
             });
         }).catch(error => {
             console.log("Getting tvshow scan list error: ", error);
@@ -104,7 +113,7 @@ class LibraryScan extends React.Component<Props, State> {
             let batch_nb :number = 0;
             for (let i = 0; i < selected_media.length; i++) {
                 if (request_batches[batch_nb].length >= batch_size) {
-                    batch_nb += 1;
+                  batch_nb += 1;
                 }
 
                 if (this.props.scan_type === "movie") {
@@ -197,6 +206,27 @@ class LibraryScan extends React.Component<Props, State> {
         return this.state.media_list.filter(item => item.import_status === "error").length;
     }
 
+    getSeasonCount(media :MediaInfo) {
+        if (media.data == null) {
+            return 0;
+        }
+
+        return Object.keys(media.data).length;
+    }
+
+    getEpisodeCount(media :MediaInfo) {
+        if (media.data == null) {
+            return 0;
+        }
+
+        let count = 0;
+        for (let season in media.data) {
+            count += Object.keys(media.data[season]).length;
+        }
+
+        return count;
+    }
+
     changeMediaSelection(selected :boolean) {
         let list = this.state.media_list;
         for (let i = 0; i < list.length; i++) {
@@ -242,6 +272,11 @@ class LibraryScan extends React.Component<Props, State> {
                             <li key={index}>
                                 <label>
                                     <input className="uk-checkbox" type="checkbox" name="selected" value={index} checked={this.state.media_list[index].selected} onChange={this.selectMediaToImport} /> {media.title}
+                                    {media.data != null && (
+                                        <i className="uk-text-muted uk-margin-small-left">
+                                            ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
+                                        </i>
+                                    )}
                                 </label>
                             </li>
                         )}
@@ -322,6 +357,11 @@ class LibraryScan extends React.Component<Props, State> {
                     <li key={index} className="uk-flex uk-flex-middle">
                         <div className="uk-width-expand">
                             {media.title}
+                            {media.data != null && (
+                                <i className="uk-text-muted uk-margin-small-left">
+                                    ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
+                                </i>
+                            )}
                         </div>
                         {this.mediaImportStatusLabel(media)}
                     </li>

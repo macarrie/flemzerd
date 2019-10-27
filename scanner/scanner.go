@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -35,8 +34,6 @@ func scan_dir(directory string, media_type int) ([]MediaInfo, error) {
 			}).Error("Could not get info from vidocq for filename from library")
 		} else {
 			if info.Container != "" {
-				fmt.Println(file)
-				fmt.Printf("File info: %+v\n", info)
 				info.Id = xid.New().String()
 				media_list = append(media_list, info)
 			}
@@ -60,36 +57,40 @@ func removeDuplicates(array []MediaInfo) []MediaInfo {
 	return ret
 }
 
+func groupByTvShow(list []MediaInfo) MediaInfoGroupedByShow {
+	var retList = make(MediaInfoGroupedByShow)
+	for _, episode := range list {
+		if len(retList[episode.Title]) == 0 {
+			retList[episode.Title] = make(MediaInfoSeasons)
+		}
+		if len(retList[episode.Title][episode.Season]) == 0 {
+			retList[episode.Title][episode.Season] = make(MediaInfoEpisodes)
+		}
+
+		retList[episode.Title][episode.Season][episode.Episode] = episode
+	}
+
+	return retList
+}
+
 func ScanMovies() ([]MediaInfo, error) {
 	movies, err := scan_dir(configuration.Config.Library.MoviePath, MOVIE)
-	fmt.Printf("Movies: %+v\n", movies)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Error("Could not scan movie library")
 	}
 
-	movies = removeDuplicates(movies)
-	for _, movie := range movies {
-		fmt.Printf("Movie: %v\n", movie.Title)
-	}
-
-	return movies, err
+	return removeDuplicates(movies), err
 }
 
-func ScanShows() ([]MediaInfo, error) {
+func ScanShows() (MediaInfoGroupedByShow, error) {
 	episodes, err := scan_dir(configuration.Config.Library.ShowPath, EPISODE)
-	fmt.Printf("Episodes: %+v\n", episodes)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Error("Could not scan TV show library")
 	}
 
-	episodes = removeDuplicates(episodes)
-	for _, ep := range episodes {
-		fmt.Printf("Episode: %v\n", ep.Title)
-	}
-
-	return episodes, err
+	return groupByTvShow(episodes), err
 }

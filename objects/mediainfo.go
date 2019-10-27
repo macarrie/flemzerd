@@ -9,6 +9,7 @@ type MediaInfo struct {
 	Container    string `json:"container"`
 	Episode      int    `json:"episode"`
 	Quality      string `json:"quality"`
+	Raw          string `json:"raw"`
 	ReleaseType  string `json:"release_type"`
 	ReleaseGroup string `json:"release_group"`
 	Season       int    `json:"season"`
@@ -17,6 +18,10 @@ type MediaInfo struct {
 	Type         string `json:"media_type"`
 	Year         int    `json:"year"`
 }
+
+type MediaInfoEpisodes map[int]MediaInfo
+type MediaInfoSeasons map[int]MediaInfoEpisodes
+type MediaInfoGroupedByShow map[string]MediaInfoSeasons
 
 type MediaIds struct {
 	gorm.Model
