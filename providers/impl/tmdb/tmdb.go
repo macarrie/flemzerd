@@ -24,7 +24,9 @@ var module Module
 
 // Create new instance of the tmdb info provider
 func New(apiKey string, order string) (tmdbProvider *TMDBProvider, err error) {
-	client := tmdb.Init(apiKey)
+	client := tmdb.Init(tmdb.Config{
+		APIKey: apiKey,
+	})
 	t := &TMDBProvider{}
 	parsedOrder, err := strconv.Atoi(order)
 	if err != nil {
