@@ -5,7 +5,7 @@ import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import Episode from "../../types/episode";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import MediaIdsComponent from "../media_ids";
 import MediaActionBar from "../media_action_bar";
 import DownloadingItemComponent from "../downloading_item";
@@ -154,13 +154,15 @@ class EpisodeDetails extends React.Component<any, State> {
     render() {
         if (this.state.episode == null) {
             return (
-                <Loading/>
+                <div className={"container"}>
+                    <Empty label={"Loading"}/>
+                </div>
             );
         }
 
         return (
             <>
-            <div id="full_background"
+            <div id="full_background" className={"has-background-dark"}
                 style={{backgroundImage: `url(${this.state.fanartURL})`}}></div>
             <MediaActionBar item={this.state.episode}
                             downloadItem={this.downloadEpisode}
@@ -170,31 +172,30 @@ class EpisodeDetails extends React.Component<any, State> {
                             abortDownload={this.abortDownload}
                             type="episode"/>
 
-            <div className="uk-container uk-light mediadetails">
-                <div className="uk-grid" data-uk-grid>
-                    <div className="uk-width-1-3">
-                        <img width="100%" src={this.state.episode.TvShow.Poster} alt="{this.state.epîsode.Title}" className="uk-border-rounded" data-uk-img />
+            <div className="container mediadetails">
+                <div className="columns">
+                    <div className="column is-one-quarter">
+                        <img width="100%" src={this.state.episode.TvShow.Poster} alt="{this.state.epîsode.Title}" className="thumbnail" />
                     </div>
-                    <div className="uk-width-expand">
-                        <div className="uk-grid uk-grid-collapse uk-flex uk-flex-middle" data-uk-grid>
-                            <div className="inlineedit">
-                                <span className="uk-h2">
+                    <div className="column">
+                        <div className="columns">
+                            <div className="column is-narrow inlineedit">
+                                <span className="title is-2 has-text-grey-light">
                                     {Helpers.getMediaTitle(this.state.episode.TvShow)} - {this.state.episode.Title}
                                 </span>
                             </div>
-                            <div>
-                                <span
-                                    className="uk-h3 uk-text-muted uk-margin-small-left media_title_details">({this.getEpisodeNumber()})</span>
+                            <div className={"column"}>
+                                <span className="title is-3 has-text-grey-light media_title_details">({this.getEpisodeNumber()})</span>
                             </div>
                         </div>
-                        <div className="uk-grid uk-grid-medium" data-uk-grid>
-                            <div> See on </div>
-                            <div><MediaIdsComponent ids={this.state.episode.MediaIds} type="episode"/></div>
+                        <div className="columns">
+                            <div className={"column is-narrow"}> See on </div>
+                            <div className={"column"}><MediaIdsComponent ids={this.state.episode.MediaIds} type="episode"/></div>
                         </div>
 
                         <div className="container">
                             <div className="row">
-                                <h5>Overview</h5>
+                                <h5 className={"title is-5 has-text-grey-light"}>Overview</h5>
                                 <div className="col-12">
                                     {this.state.episode.Overview}
                                 </div>
@@ -204,7 +205,7 @@ class EpisodeDetails extends React.Component<any, State> {
                 </div>
             </div>
 
-            <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+            <div className="container box">
                 <DownloadingItemComponent item={this.state.episode.DownloadingItem}/>
             </div>
             </>

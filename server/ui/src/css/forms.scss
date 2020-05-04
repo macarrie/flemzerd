@@ -1,0 +1,91 @@
+.progress:not(:last-child) {
+    margin-bottom: 0;
+}
+
+// Hide default checkbox
+input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    z-index: -1;
+}
+input[type="checkbox"]+span {
+    position: relative;
+    top: 3px;
+}
+input[type="checkbox"]+span:before {
+    color: darken($light, 30%);
+    font-family: FontAwesome;
+    content: '';
+    border: 1px solid darken($light, 15%);
+    border-radius: $radius;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    padding: 2px 0 0 3px;
+    margin-right: 4px;
+}
+
+input[type="checkbox"]:checked+span:before {
+    background: lighten($info, 10%);
+    border: 1px solid lighten($info, 10%)
+}
+
+input[type="checkbox"]:focus+span:before {
+    box-shadow: 0 0 0 2px lighten($info, 40%);
+}
+
+input[type="checkbox"]:disabled+span {
+    color: darken($light, 10%);
+}
+
+input[type="checkbox"]:not(:disabled)+span:hover:before {
+    color: lighten($dark, 10%);
+}
+
+.is-marginless.field:not(:last-child) {
+    margin-bottom: 0;
+}
+
+.buttons {
+    &:not(:last-child) {
+        margin-bottom: 0;
+    }
+
+    .button {
+        margin-bottom: 0;
+    }
+}
+
+.button {
+    .icon-left {
+        margin-right: 0 !important;
+    }
+
+    &.is-naked {
+        background: none;
+        border: none;
+
+        &:hover {
+            background: darken($light, 3%);
+        }
+        &.is-disabled:hover {
+            background: none;
+        }
+
+        &.is-underlined {
+            &:hover {
+                background: none;
+                border-bottom: 1px dashed $dark;
+            }
+
+            &:focus {
+                box-shadow: none;
+            }
+
+            &.active {
+                color: $info;
+                border-bottom: 1px dashed $info;
+            }
+        }
+    }
+}

@@ -1,7 +1,7 @@
 import MediaIds from "./media_ids";
 import Episode from "./episode";
 
-type TvSeason = {
+export type TvSeason = {
     ID: number,
     CreatedAt: Date,
 	AirDate      :Date,
@@ -15,12 +15,13 @@ export type SeasonDetails = {
 	Info        :TvSeason,
 	EpisodeList :Episode[],
     LoadError   :boolean,
+	LoadPending :boolean,
 };
 
 type TvShow = {
     ID: number,
     CreatedAt: Date,
-    DeletedAt: Date,
+    DeletedAt: Date | null,
 	MediaIds         :MediaIds,
 	Banner           :string,
 	Poster           :string,

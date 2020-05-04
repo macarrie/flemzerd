@@ -7,10 +7,12 @@ import ModuleSettings from "../../types/module_settings";
 import Config from "../../types/config";
 import ConfigCheck from "../../types/config_check";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import ModuleSettingsComponent from "./module_settings";
 import ConfigCheckComponent from "./config_check";
 import LibraryScan from "./scan_library";
+import SettingsBoolean from "./settings_boolean";
+import SettingsValue from "./settings_value";
 
 type State = {
     config :Config | null,
@@ -73,10 +75,10 @@ class Settings extends React.Component {
 
         if (!collection) {
             return (
-                <div>
-                    <h4>{title}</h4>
-                    <ul className="uk-list uk-list-striped no-stripes">
-                        <li className="uk-text-muted uk-text-center"><i>No {type}s defined in configuration</i></li>
+                <div className={"column is-half"}>
+                    <h4 className={"title is-4"}>{title}</h4>
+                    <ul className="block-list">
+                        <li className="has-text-grey-light has-text-centered"><i>No {type}s defined in configuration</i></li>
                     </ul>
                 </div>
             );
@@ -90,9 +92,9 @@ class Settings extends React.Component {
         });
 
         return (
-            <div>
-                <h4>{title}</h4>
-                <ul className="uk-list uk-list-striped no-stripes">
+            <div className={"column is-half"}>
+                <h4 className={"title is-4"}>{title}</h4>
+                <ul className="block-list">
                     {moduleList.map(module =>
                         <li key={module.Name}>
                             <ModuleSettingsComponent
@@ -108,241 +110,100 @@ class Settings extends React.Component {
     render() {
         if (this.state.config == null || this.state.config_checks == null) {
             return (
-                <Loading/>
+                <div className={"container"}>
+                    <Empty label={"Loading"}/>
+                </div>
             );
         }
 
         return (
             <>
                 {this.state.config_checks.length > 0 && (
-                    <div className="uk-container">
-                        <div className="uk-alert uk-alert-danger" data-uk-alert>
-                            <div className="uk-flex uk-flex-middle">
-                                <h3 className="uk-margin-remove">Configuration errors</h3>
-                                <button className="uk-alert-close" data-uk-close></button>
+                    <div className="container">
+                        <div className={"message is-danger configuration-errors"}>
+                            <div className="message-header">
+                                <p>Configuration errors</p>
                             </div>
-                            <hr/>
-                            <ul>
-                                {this.state.config_checks.map((check, index) => (
-                                    <ConfigCheckComponent item={check} key={index}/>
-                                ))}
-                            </ul>
+                            <div className={"message-body"}>
+                                <ul className={""}>
+                                    {this.state.config_checks.map((check, index) => (
+                                        <ConfigCheckComponent item={check} key={index}/>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 )}
 
-                <div className="uk-container">
-                    <div className="uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m" data-uk-grid>
-                        <div className="uk-width-1-1">
-                            <h3 className="uk-heading-divider">Global settings</h3>
+                <div className="container">
+                    <div className="columns is-multiline">
+                        <div className="column is-full">
+                            <h3 className="title is-3">Global settings</h3>
                         </div>
 
-                        <div>
-                            <ul className="uk-list uk-list-striped no-stripes">
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Polling interval
-                                    </div>
-                                    <div>
-                                        <code>
-                                            {this.state.config.System.CheckInterval}mn
-                                        </code>
-                                    </div>
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Torrent download attempts limit
-                                    </div>
-                                    <div>
-                                        <code>
-                                            {this.state.config.System.TorrentDownloadAttemptsLimit}
-                                        </code>
-                                    </div>
-                                </li>
+                        <div className={"column is-half"}>
+                            <ul className="block-list">
+                                <SettingsValue param={this.state.config.System.CheckInterval}
+                                               label={"Polling interval"}
+                                               unit={"mn"} />
+                                <SettingsValue param={this.state.config.System.TorrentDownloadAttemptsLimit}
+                                               label={"Torrent download attempts limit"} />
                             </ul>
                         </div>
 
-                        <div>
-                            <ul className="uk-list uk-list-striped no-stripes">
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Interface enabled
-                                    </div>
-                                    {this.state.config.Interface.Enabled ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Interface port
-                                    </div>
-                                    <div>
-                                        <code>
-                                            {this.state.config.Interface.Port}
-                                        </code>
-                                    </div>
-                                </li>
+                        <div className={"column is-half"}>
+                            <ul className="block-list">
+                                <SettingsBoolean param={this.state.config.Interface.Enabled}
+                                    label={"Interface enabled"} />
+                                <SettingsValue param={this.state.config.Interface.Port}
+k                                              label={"Interface port"} />
                             </ul>
                         </div>
 
-                        <div>
-                            <ul className="uk-list uk-list-striped no-stripes">
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        TV Shows tracking enabled
-                                    </div>
-                                    {this.state.config.System.TrackShows ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Movie tracking enabled
-                                    </div>
-                                    {this.state.config.System.TrackMovies ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Automatic show download
-                                    </div>
-                                    {this.state.config.System.AutomaticShowDownload ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Automatic movie download
-                                    </div>
-                                    {this.state.config.System.AutomaticMovieDownload ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Preferred media quality
-                                    </div>
-                                    {this.state.config.System.PreferredMediaQuality ? (
-                                        <div>
-                                            <code>
-                                                {this.state.config.System.PreferredMediaQuality}
-                                            </code>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            None
-                                        </div>
-                                    )}
-                                </li>
+                        <div className={"column is-half"}>
+                            <ul className="block-list">
+                                <SettingsBoolean param={this.state.config.System.TrackShows}
+                                                 label={"TV Shows tracking enabled"} />
+                                <SettingsBoolean param={this.state.config.System.TrackMovies}
+                                                 label={"Movie tracking enabled"} />
+                                <SettingsBoolean param={this.state.config.System.AutomaticShowDownload}
+                                                 label={"Automatic show download"} />
+                                <SettingsBoolean param={this.state.config.System.AutomaticMovieDownload}
+                                                 label={"Automatic movie download"} />
+                                <SettingsValue param={this.state.config.System.PreferredMediaQuality ? this.state.config.System.PreferredMediaQuality : "None"}
+                                               label={"Preferred media quality"} />
                             </ul>
                         </div>
 
-                        <div>
-                            <ul className="uk-list uk-list-striped no-stripes">
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        TV Shows library path
-                                    </div>
-                                    <div className="uk-text-small">
-                                        <code>
-                                            {this.state.config.Library.ShowPath}
-                                        </code>
-                                    </div>
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Movies library path
-                                    </div>
-                                    <div>
-                                        <code className="uk-text-small">
-                                <span className="uk-text-small">
-                                    {this.state.config.Library.MoviePath}
-                                </span>
-                                        </code>
-                                    </div>
-                                </li>
+                        <div className={"column is-half"}>
+                            <ul className="block-list">
+                                <SettingsValue param={this.state.config.Library.ShowPath}
+                                               label={"TV Shows library path"} />
+                                <SettingsValue param={this.state.config.Library.MoviePath}
+                                               label={"Movie library path"} />
                             </ul>
                         </div>
 
-                        <div className="uk-width-1-1">
-                            <h3 className="uk-heading-divider">Notifications</h3>
+                        <div className="column is-full">
+                            <h3 className="title is-3">Notifications</h3>
                         </div>
-                        <div>
-                            <ul className="uk-list uk-list-striped no-stripes">
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Notifications enabled
-                                    </div>
-                                    {this.state.config.Notifications.Enabled ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Notify on new episode
-                                    </div>
-                                    {this.state.config.Notifications.NotifyNewEpisode ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Notify on download complete
-                                    </div>
-                                    {this.state.config.Notifications.NotifyDownloadComplete ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
-                                <li className="uk-flex uk-flex-middle">
-                                    <div className="uk-width-expand">
-                                        Notify on download failure
-                                    </div>
-                                    {this.state.config.Notifications.NotifyFailure ? (
-                                        <div className="uk-text-success"><i
-                                            className="material-icons float-right md-18">check_circle_outline</i></div>
-                                    ) : (
-                                        <div className="uk-text-danger"><i
-                                            className="material-icons float-right md-18">clear</i></div>
-                                    )}
-                                </li>
+                        <div className={"column is-half"}>
+                            <ul className="block-list">
+                                <SettingsBoolean param={this.state.config.Notifications.Enabled}
+                                                 label={"Notifications enabled"} />
+                                <SettingsBoolean param={this.state.config.Notifications.NotifyNewEpisode}
+                                                 label={"Notify on new episode"} />
+                                <SettingsBoolean param={this.state.config.Notifications.NotifyNewMovie}
+                                                 label={"Notify on new movie"} />
+                                <SettingsBoolean param={this.state.config.Notifications.NotifyDownloadComplete}
+                                                 label={"Notify on on download complete"} />
+                                <SettingsBoolean param={this.state.config.Notifications.NotifyFailure}
+                                                 label={"Notify on on download failure"} />
                             </ul>
                         </div>
 
-                        <div className="uk-width-1-1">
-                            <h3 className="uk-heading-divider">Modules</h3>
+                        <div className="column is-full">
+                            <h3 className="title is-3">Modules</h3>
                         </div>
                         {this.renderModuleList("Watchlists", this.state.config.Watchlists, "watchlist")}
                         {this.renderModuleList("Providers", this.state.config.Providers, "provider")}
@@ -352,9 +213,9 @@ class Settings extends React.Component {
                         {this.renderModuleList("Downloaders", this.state.config.Downloaders, "downloader")}
                         {this.renderModuleList("Media centers", this.state.config.MediaCenters, "mediacenter")}
 
-                        <div className="uk-width-1-1">
-                            <h4 className="uk-heading-divider">Library</h4>
-                            <ul className="uk-list uk-list-striped no-stripes">
+                        <div className="column is-full">
+                            <h4 className="title is-4">Library</h4>
+                            <ul className="block-list">
                                 <li>
                                     <LibraryScan scan_type="show" config={this.state.config} />
                                 </li>
@@ -364,23 +225,31 @@ class Settings extends React.Component {
                             </ul>
                         </div>
 
-                        <div className="uk-width-1-1">
-                            <h4 className="uk-heading-divider">About flemzerd</h4>
-                            <ul className="uk-list uk-list-striped no-stripes">
+                        <div className="column is-full">
+                            <h4 className="title is-4">About flemzerd</h4>
+                            <ul className="block-list">
                                 <li>
-                                    <div data-uk-grid="">
-                                        <div className="uk-width-expand">
+                                    <div className={"columns is-gapless is-vcentered"}>
+                                        <div className="column">
                                             Logged in as: <i>{this.state.config.Interface.Auth.Username}</i>
                                         </div>
-                                        <div>
-                                            <button className="uk-button uk-button-small uk-button-danger" onClick={() => Auth.logout()}>Log out</button>
+                                        <div className={"column is-narrow"}>
+                                            <button className="button is-danger is-small" onClick={() => Auth.logout()}>Log out</button>
                                         </div>
                                     </div>
                                 </li>
-                                <li>Version: <code>{this.state.config.Version}</code></li>
-                                <li className="uk-text-center uk-padding-small">flemzerd is an Open Source software. For
-                                    feature ideas, notifying bugs or contributing, do not hesitate to head to the <a
-                                        target="blank" href="https://github.com/macarrie/flemzerd">GitHub repo</a></li>
+                                <li>
+                                    <div>
+                                        Version: <code>{this.state.config.Version}</code>
+                                    </div>
+                                </li>
+                                <li className="">
+                                    <div className={"columns is-centered"}>
+                                        <div className={"column is-narrow"}>
+                                            flemzerd is an Open Source software. For feature ideas, notifying bugs or contributing, do not hesitate to head to the <a target="blank" href="https://github.com/macarrie/flemzerd">GitHub repo</a>
+                                        </div>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>

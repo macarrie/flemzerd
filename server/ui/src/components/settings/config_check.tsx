@@ -29,9 +29,9 @@ class ConfigCheckComponent extends React.Component<Props, State> {
     getClassName() {
         switch (this.state.item.Status) {
             case Const.WARNING:
-                return "uk-label-warning";
+                return "is-warning";
             case Const.CRITICAL:
-                return "uk-label-danger";
+                return "is-danger";
             default:
                 return "";
         }
@@ -50,8 +50,8 @@ class ConfigCheckComponent extends React.Component<Props, State> {
 
     render() {
         return (
-            <li className="uk-flex uk-flex-middle">
-                <span className={`configuration-error-status uk-label uk-margin-small-right ${this.getClassName()}`}>
+            <li className="">
+                <span className={`configuration-error-status tag ${this.getClassName()}`}>
                     {this.getStatusStr()}
                 </span>
                 {this.state.item.Message}

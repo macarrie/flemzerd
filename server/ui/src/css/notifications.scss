@@ -1,0 +1,52 @@
+.notif-icon {
+    width: 20px;
+
+    div {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+    }
+
+    &.ok div {
+        background: $success;
+    }
+
+    &.warning div {
+        background: $warning;
+    }
+
+    &.critical div {
+        background: $danger;
+    }
+
+    &.unknown div {
+        background: darken($light, 25%);
+    }
+
+    &.info div {
+        background: $info;
+    }
+}
+
+li.notification_item {
+    //blockquote {
+    //font-size: 1em;
+    //padding-left: 5px;
+    //margin-bottom: 0px;
+    //}
+
+    &.read {
+        opacity: 0.5;
+        color: lighten($dark, 40%);
+
+        &:hover {
+            opacity: 1;
+            color: $dark;
+            font-style: normal;
+        }
+    }
+
+    .notification-content > div {
+        padding-left: 20px;
+    }
+}

@@ -1,10 +1,9 @@
 package server
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 
 	downloader "github.com/macarrie/flemzerd/downloaders"
 	log "github.com/macarrie/flemzerd/logging"

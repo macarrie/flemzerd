@@ -2,9 +2,15 @@ import React from "react";
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
-import {SeasonDetails} from "../../types/tvshow";
+import {SeasonDetails, TvSeason} from "../../types/tvshow";
 
 import EpisodeTable from "./episode_table";
+
+import {RiArrowDropUpLine} from "react-icons/ri";
+import {RiArrowDropDownLine} from "react-icons/ri";
+import {RiCheckDoubleLine} from "react-icons/ri";
+import {RiDownloadLine} from "react-icons/ri";
+import {RiEraserLine} from "react-icons/ri";
 
 type Props = {
     refreshSeason(n: number): void,
@@ -24,120 +30,177 @@ class SeasonList extends React.Component<Props, State> {
         super(props);
 
         this.state.seasons = this.props.seasons;
+    }
+
+    componentWillReceiveProps(nextProps :Props) {
+        if (nextProps.seasons === null) {
+            return;
+        }
+        console.log("Season list:", this.state.seasons);
+        let seasons = nextProps.seasons;
+        for (let i = 0; i < seasons.length; i++) {
+            console.log("ITEM", seasons[i]);
+            console.log(typeof seasons[i]);
+            if (seasons[i] === null || typeof seasons[i] == "undefined") {
+                console.log("EMPTY");
+                 seasons[i] = {
+                     Info: {SeasonNumber: i} as TvSeason,
+                     LoadPending: true,
+                } as SeasonDetails;
+            }
+        }
+
+        console.log("Handled seasons: ", seasons);
+        this.setState({ seasons: seasons });
+    }
+
+    render() {
+        if (this.state.seasons == null) {
+            return (
+                <div>No seasons</div>
+            )
+        }
+
+        return (
+            <div className={"seasonlist-container"}>
+                {this.state.seasons.map(season => (
+                    <SeasonElt key={season.Info.SeasonNumber}
+                               refreshSeason={this.props.refreshSeason}
+                               season={season} />
+                ))}
+            </div>
+        )
+    }
+}
+
+type SeasonProps = {
+    refreshSeason(n: number): void,
+    season :SeasonDetails | null,
+};
+
+type SeasonState = {
+    season :SeasonDetails | null,
+    show_episode_list :Boolean,
+};
+
+class SeasonElt extends React.Component<SeasonProps, SeasonState> {
+    state :SeasonState = {
+        season: null,
+        show_episode_list: false,
+    };
+
+    constructor(props: SeasonProps) {
+        super(props);
+
+        this.state.season = this.props.season;
 
         this.markSeasonDownloaded = this.markSeasonDownloaded.bind(this);
         this.markSeasonNotDownloaded = this.markSeasonNotDownloaded.bind(this);
         this.changeSeasonDownloadedState = this.changeSeasonDownloadedState.bind(this);
         this.downloadSeason = this.downloadSeason.bind(this);
+        this.toggleEpisodeList = this.toggleEpisodeList.bind(this);
 
         this.renderSeason = this.renderSeason.bind(this);
     }
 
-    componentWillReceiveProps(nextProps :Props) {
-        this.setState({ seasons: nextProps.seasons });
+    componentWillReceiveProps(nextProps :SeasonProps) {
+        this.setState({ season: nextProps.season });
     }
 
-    markSeasonDownloaded(season_number :number) {
-        this.changeSeasonDownloadedState(season_number, true);
+    markSeasonDownloaded() {
+        this.changeSeasonDownloadedState(true);
     }
 
-    markSeasonNotDownloaded(season_number :number) {
-        this.changeSeasonDownloadedState(season_number, false);
+    markSeasonNotDownloaded() {
+        this.changeSeasonDownloadedState(false);
     }
 
-    changeSeasonDownloadedState(season_number :number, downloaded_state :boolean) {
-        if (this.state.seasons == null || this.state.seasons[season_number - 1] == null) {
+    changeSeasonDownloadedState(downloaded_state :boolean) {
+        if (this.state.season == null) {
             return;
         }
 
         let requests :any = [];
-        let seasons = this.state.seasons;
-        for (var index in this.state.seasons[season_number - 1].EpisodeList) {
-            let episode = this.state.seasons[season_number - 1].EpisodeList[index];
+        let season = this.state.season;
+        for (var index in this.state.season.EpisodeList) {
+            let episode = this.state.season.EpisodeList[index];
             if (episode.DownloadingItem.Downloaded === downloaded_state || Helpers.dateIsInFuture(episode.Date)) {
                 continue;
             }
 
-            seasons[season_number - 1].EpisodeList[index].ActionPending = true;
+            season.EpisodeList[index].ActionPending = true;
             requests.push(API.Episodes.changeDownloadedState(episode.ID, downloaded_state));
         }
-        this.setState({seasons: seasons});
+        this.setState({season: season});
 
         Promise.all(requests).then(values => {
-            this.props.refreshSeason(season_number);
+            this.props.refreshSeason(season.Info.SeasonNumber);
         });
     }
 
-    downloadSeason(season_number :number) {
-        if (this.state.seasons == null || this.state.seasons[season_number - 1] == null) {
+    downloadSeason() {
+        if (this.state.season == null) {
             return;
         }
 
         let requests :any = [];
-        let seasons = this.state.seasons;
-        for (var index in this.state.seasons[season_number - 1].EpisodeList) {
-            let episode = this.state.seasons[season_number - 1].EpisodeList[index];
+        let season = this.state.season;
+        for (var index in this.state.season.EpisodeList) {
+            let episode = this.state.season.EpisodeList[index];
             if (episode.DownloadingItem.Pending || episode.DownloadingItem.Downloading || episode.DownloadingItem.Downloaded || Helpers.dateIsInFuture(episode.Date)) {
                 continue;
             }
 
-            seasons[season_number - 1].EpisodeList[index].ActionPending = true;
+            season.EpisodeList[index].ActionPending = true;
             requests.push(API.Episodes.download(episode.ID));
         }
-        this.setState({seasons: seasons});
+        this.setState({season: season});
 
         Promise.all(requests).then(values => {
-            this.props.refreshSeason(season_number);
+            this.props.refreshSeason(season.Info.SeasonNumber);
         });
     }
 
-    make_uuid() {
-        let length = 8;
-        let timestamp = +new Date();
-
-        var _getRandomInt = function (min: number, max: number) {
-            return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
-        }
-
-        let generate = function() {
-            var ts = timestamp.toString();
-            var parts = ts.split( "" ).reverse();
-            var id = "";
-
-            for( var i = 0; i < length; ++i ) {
-                var index = _getRandomInt( 0, parts.length - 1 );
-                id += parts[index];	 
-            }
-
-            return id;
-        }
-
-        return generate();
+    toggleEpisodeList() {
+        this.setState({show_episode_list: !this.state.show_episode_list});
     }
 
-    renderSeason(season :SeasonDetails) {
-        if (season == null) {
-            return (
-                <div 
-                    key={this.make_uuid()}
-                    className="uk-text-muted uk-flex uk-flex-middle">
-                <span className="uk-margin-right" data-uk-spinner="ratio: 0.5"></span>
-                <i>
-                        Loading season details
-                </i>
-            </div>
-            );
+    renderSeason() {
+        let season = this.state.season;
+        if (season === null) {
+            season = {
+                LoadError: true,
+            } as SeasonDetails;
         }
 
         if (season.LoadError) {
             return (
-                <div 
-                    key={this.make_uuid()}
-                    className="uk-text-muted uk-flex uk-flex-middle">
-                    <span className="uk-margin-right" data-uk-icon="close"></span>
+                <div className="uk-text-muted uk-flex uk-flex-middle">
                     <i>
-                            Could not load season
+                        Could not load season
                     </i>
+                </div>
+            );
+        }
+
+        if (season.LoadPending) {
+            return (
+                <div className={"season-container"} key={season.Info.SeasonNumber}>
+                    <div>
+                        <div className="columns is-gapless is-vcentered">
+                            <div className="column is-narrow">
+                                <button className={"button is-naked is-small is-loading"}>
+                                </button>
+                            </div>
+                            <div className="column">
+                                <span className="title is-5">
+                                    <i className={"has-text-grey"}>
+                                        Loading season details
+                                    </i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         }
@@ -151,59 +214,64 @@ class SeasonList extends React.Component<Props, State> {
         }
 
         return (
-            <div key={season.Info.SeasonNumber}>
+            <div className={"season-container"} key={season.Info.SeasonNumber}>
                 <div>
-                    <div className="uk-grid uk-grid-small uk-child-width-1-2 uk-flex uk-flex-middle" data-uk-grid>
-                        <div className="uk-width-expand uk-accordion-title">
-                            <span className="uk-h3">Season {season.Info.SeasonNumber} </span><span className="uk-text-muted uk-h6">( {season.EpisodeList.length} episodes )</span>
+                    <div className="columns is-gapless is-vcentered">
+                        <div className="column is-narrow">
+                            <button className={"button is-naked is-small"}
+                                    onClick={this.toggleEpisodeList}>
+                                <span className={"icon"}>
+                                {this.state.show_episode_list ? (
+                                    <RiArrowDropUpLine />
+                                ) : (
+                                    <RiArrowDropDownLine />
+                                )}
+                                </span>
+                            </button>
                         </div>
-                        <div className="uk-width-auto">
-                            <ul className="uk-iconnav">
-                                <li data-uk-tooltip="delay: 500; title: Mark whole season as not downloaded"
-                                    onClick={() => this.markSeasonNotDownloaded(season.Info.SeasonNumber)}
-                                    className="uk-icon"
-                                    data-uk-icon="icon: push; ratio: 0.75"></li>
-                                <li data-uk-tooltip="delay: 500; title: Mark whole season as downloaded"
-                                    onClick={() => this.markSeasonDownloaded(season.Info.SeasonNumber)}
-                                    className="uk-icon"
-                                    data-uk-icon="icon: check; ratio: 0.75"></li>
-                                <li data-uk-tooltip="delay: 500; title: Download the whole season"
-                                    onClick={() => this.downloadSeason(season.Info.SeasonNumber)}
-                                    className="uk-icon"
-                                    data-uk-icon="icon: download; ratio: 0.75"></li>
-                            </ul>
+                        <div className="column"
+                            onClick={this.toggleEpisodeList}>
+                            <span className="title is-3">Season {season.Info.SeasonNumber} </span><span className="title is-6 has-text-grey">( {season.EpisodeList.length} episodes )</span>
+                        </div>
+                        <div className="column is-narrow">
+                                <button data-tooltip="Mark whole season as not downloaded"
+                                    onClick={this.markSeasonNotDownloaded}
+                                    className="button is-small is-naked">
+                                    <span className={"icon is-small"}>
+                                        <RiEraserLine />
+                                    </span>
+                                </button>
+                                <button data-tooltip="Mark whole season as downloaded"
+                                    onClick={this.markSeasonDownloaded}
+                                    className="button is-small is-naked">
+                                    <span className={"icon is-small"}>
+                                        <RiCheckDoubleLine />
+                                    </span>
+                                </button>
+                                <button data-uk-tooltip="Download the whole season"
+                                    onClick={this.downloadSeason}
+                                    className="button is-small is-naked">
+                                    <span className={"icon is-small"}>
+                                        <RiDownloadLine />
+                                    </span>
+                                </button>
                         </div>
                     </div>
                 </div>
-                <div className="uk-accordion-content">
+                {this.state.show_episode_list && (
+                <div>
                     <EpisodeTable list={season.EpisodeList} />
                 </div>
+                )}
             </div>
         );
     }
 
-    renderSeasons() {
-        if (this.state.seasons == null) {
-            return;
-        }
-
-        let seasonRenders :any = [];
-
-        for (var i = 0; i < this.state.seasons.length; i++) {
-            seasonRenders.push(this.renderSeason(this.state.seasons[i]));
-        }
-
-        return seasonRenders;
-    }
-
     render() {
         return (
-            <div data-uk-accordion
-                data-toggle="> div > .uk-grid > .uk-accordion-title"
-                data-multiple="true"
-                data-collapsible="true">
-                {this.renderSeasons()}
-        </div>
+            <>
+                {this.renderSeason()}
+            </>
         )
     }
 }

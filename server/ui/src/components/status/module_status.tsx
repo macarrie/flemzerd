@@ -11,23 +11,29 @@ class ModuleStatus extends React.Component<Props, any> {
         const module = this.props.module;
         return (
             <li>
-                <div className="uk-flex uk-flex-middle uk-width-expand">
-                    <div className="uk-width-expand">{module.Name}</div>
+                <div className="columns is-multiline is-gapless">
+                    <div className="column">{module.Name}</div>
                     {(!module.Status.Alive) ? (
-                        <div className="uk-label uk-label-danger">ERROR</div>
-                    ) : (
-                        <div className="uk-label uk-label-success">OK</div>
+                        <div className="column is-narrow">
+                            <div className="tag is-danger">ERROR</div>
+                        </div>
+                        ) : (
+                        <div className="column is-narrow">
+                            <div className="tag is-success">OK</div>
+                        </div>
+                    )}
+
+                    {(!module.Status.Alive) && (
+                        <div className={"column is-full"}>
+                            <hr className="" />
+                            <article className="message is-danger">
+                                <div className={"message-body"}>
+                                    {module.Status.Message}
+                                </div>
+                            </article>
+                        </div>
                     )}
                 </div>
-
-                {(!module.Status.Alive) && (
-                    <div>
-                        <hr className="uk-margin-small-top" />
-                        <div className="uk-alert uk-alert-danger">
-                            {module.Status.Message}
-                        </div>
-                    </div>
-                )}
             </li>
         );
     }

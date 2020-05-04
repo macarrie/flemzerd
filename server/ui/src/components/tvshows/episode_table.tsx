@@ -1,9 +1,17 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import Moment from 'react-moment';
 
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Episode from "../../types/episode";
+
+import {RiStopCircleLine} from "react-icons/ri";
+import {RiDownloadLine} from "react-icons/ri";
+import {RiCheckLine} from "react-icons/ri";
+import {RiArrowUpDownLine} from "react-icons/ri";
+import {RiEraserLine} from "react-icons/ri";
+import {RiAlertLine} from "react-icons/ri";
 
 type Props = {
     list: Episode[] | null,
@@ -40,17 +48,17 @@ class EpisodeTable extends React.Component<Props, State> {
         }
 
         return (
-            <table className="uk-table uk-table-divider uk-table-small">
+            <table className="table is-fullwidth is-hoverable">
                 <thead>
                 <tr>
                     <th>Title</th>
-                    <th className="uk-hidden@m">Release</th>
-                    <th className="uk-visible@m">Release date</th>
+                    <th className="is-hidden-tablet">Release</th>
+                    <th className="is-hidden-mobile">Release date</th>
 
-                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@m">Status</th>
-                    <th className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">Download status</th>
+                    <th className="is-hidden-tablet has-text-centered">Status</th>
+                    <th className="is-hidden-mobile has-text-centered">Download status</th>
 
-                    <th className="uk-table-shrink uk-text-nowrap uk-text-center">Actions</th>
+                    <th className="has-text-centered">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -143,32 +151,39 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
     getDownloadButtons() {
         if (this.state.item.ActionPending) {
             return (
-                <span data-uk-spinner="ratio: 0.5"></span>
+                <button className={"button is-small is-loading is-naked"}></button>
             );
         }
 
         if (this.state.item.DownloadingItem.Downloaded) {
             return (
-                <span className="uk-text-success"
-                      data-uk-icon="icon: check; ratio: 0.75">
-                </span>
+                <button className="button is-small is-naked has-text-success is-disabled"
+                        data-tooltip={"Downloaded"}>
+                    <span className="icon is-small">
+                        <RiCheckLine/>
+                    </span>
+                </button>
             );
         }
 
         if (!(Helpers.dateIsInFuture(this.state.item.Date) || this.state.item.DownloadingItem.Downloaded || this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending)) {
             return (
                 <div>
-                    <button className="uk-icon"
+                    <button className="button is-small is-naked"
                             key="downloadEpisode"
                             onClick={this.downloadEpisode}
-                            data-uk-tooltip="delay: 500; title: Download"
-                            data-uk-icon="icon: download; ratio: 0.75">
+                            data-tooltip="Download">
+                        <span className="icon is-small">
+                            <RiDownloadLine/>
+                        </span>
                     </button>
                     {this.state.item.DownloadingItem.TorrentsNotFound && (
-                        <div className="btn btn-sm">
-                            <i className="material-icons uk-text-warning md-18"
-                               title="No torrents found for episode on last download">warning</i>
-                        </div>
+                        <button className="button is-small is-naked has-text-warning"
+                                data-tooltip="No torrents found on last attempt">
+                            <span className="icon is-small">
+                                <RiAlertLine/>
+                            </span>
+                        </button>
                     )}
                 </div>
             );
@@ -176,10 +191,12 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
 
         if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
             return (
-                <span className="btn btn-sm p-0">
-                <i className="material-icons uk-text-small">swap_vert</i>
-                </span>
-            );
+                <button className={"button is-small is-naked is-disabled"}>
+                    <span className="icon is-small">
+                        <RiArrowUpDownLine/>
+                    </span>
+                </button>
+        );
         }
 
         return "";
@@ -194,31 +211,37 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
 
         if (this.state.item.DownloadingItem.Downloaded) {
             buttonList.push(
-                <button className="uk-icon"
+                <button className="button is-small is-naked"
                         key="markNotDownloaded"
                         onClick={this.markNotDownloaded}
-                        data-uk-tooltip="delay: 500; title: Unmark as downloaded"
-                        data-uk-icon="icon: push; ratio: 0.75">
+                        data-tooltip="Unmark as downloaded">
+                        <span className="icon is-small">
+                            <RiEraserLine/>
+                        </span>
                 </button>
             );
         }
         if (this.state.item.DownloadingItem.Downloading || this.state.item.DownloadingItem.Pending) {
             buttonList.push(
-                <span className="btn btn-sm p-0"
+                <button className="button is-small is-naked"
                       key="abortDownload"
+                      data-tooltip={"Abort download"}
                       onClick={this.abortDownload}>
-                        <span className="uk-icon uk-icon-link uk-text-danger"
-                              data-uk-icon="icon: close; ratio: 0.75"></span>
-                    </span>
+                        <span className="icon is-small">
+                            <RiStopCircleLine/>
+                        </span>
+                    </button>
             );
         }
         if (!this.state.item.DownloadingItem.Downloaded && !this.state.item.DownloadingItem.Pending && !this.state.item.DownloadingItem.Downloading) {
             buttonList.push(
-                <button className="uk-icon"
+                <button className="button is-small is-naked"
                         key="markDownloaded"
                         onClick={this.markDownloaded}
-                        data-uk-tooltip="delay: 500; title: Mark as downloaded"
-                        data-uk-icon="icon: check; ratio: 0.75">
+                        data-tooltip="Mark as downloaded">
+                    <span className="icon is-small">
+                        <RiCheckLine/>
+                    </span>
                 </button>
             );
         }
@@ -246,14 +269,14 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
         return (
             <tr className={Helpers.dateIsInFuture(this.state.item.Date) ? "episode-list-future" : ""}>
                 <td>
-                    <span className="uk-text-small uk-border-rounded episode-label">{this.getEpisodeNumber()}</span>
+                    <span className="tag is-small episode-label">{this.getEpisodeNumber()}</span>
                     <Link to={`/tvshows/${this.state.item.TvShow.ID}/episodes/${this.state.item.ID}`}>
                         {this.state.item.Title}
                     </Link>
                 </td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-hidden@s">{Helpers.formatDate(this.state.item.Date, 'DD MMM YYYY')}</td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m">{Helpers.formatDate(this.state.item.Date, 'ddd DD MMM YYYY')}</td>
-                <td className="uk-table-shrink uk-text-nowrap uk-text-center uk-visible@m">{Helpers.formatDate(this.state.item.Date, 'dddd DD MMM YYYY')}</td>
+                <td className="uk-table-shrink is-hidden-tablet uk-text-nowrap uk-text-center uk-hidden@s"><Moment date={this.state.item.Date} format={"DD MMM YYYY"}/></td>
+                <td className="uk-table-shrink is-hidden-desktop is-hidden-mobile uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m"><Moment date={this.state.item.Date} format={"ddd DD MMM YYYY"}/></td>
+                <td className="uk-table-shrink is-hidden-mobile is-hidden-tablet-only uk-text-center uk-visible@m"><Moment date={this.state.item.Date} format={"dddd DD MMM YYYY"}/></td>
                 <td className="uk-text-center">
                     {this.getDownloadButtons()}
                 </td>

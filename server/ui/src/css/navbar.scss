@@ -1,0 +1,140 @@
+.logo span {
+    font-size: 50px !important;
+    line-height: 50px !important;
+    font-family: "Alex Brush";
+    padding: 0 15px;
+    color: transparent !important;
+    background-color: $primary;
+    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+.has-navbar-fixed-top {
+    padding-top: 67px !important;
+}
+
+.navbar {
+    background: $light;
+    border-top: 3px solid $primary;
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    border-image-slice: 1;
+    font-family: $font-header;
+
+    .logo {
+        margin-right: 30px;
+    }
+
+    .navbar-menu .navbar-item {
+        padding-left: 5px;
+        padding-right: 5px;
+
+        color: lighten($dark, 30%) !important;
+
+        div {
+            padding: 10px 15px;
+
+            span.icon {
+                margin-right: 5px !important;
+                position: relative;
+                top: 2px;
+                color: lighten($dark, 40%);
+                width: 18px;
+                height: 18px;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+            span.header-label {
+                position: relative;
+                top: -1px;
+            }
+        }
+
+        &.active, &:hover {
+            div {
+                background-color: darken($light, 3%);
+                border-radius: $radius;
+            }
+
+            //color: $dark !important;
+            //font-weight: bold;
+            //border-top: 1px solid $secondary;
+        }
+    }
+
+    & + .container {
+        margin-top: $gap;
+    }
+
+    //a, button {
+    //margin: 5px;
+    //}
+
+    //.uk-navbar-nav > li > .active {
+    //background: darken($light, 3%);
+    //border-radius: 4px;
+    //}
+
+    .notifications_counter {
+        background: none;
+        border: none;
+        padding-right: 0;
+
+        div {
+            padding: 10px 0 5px 10px !important;
+        }
+
+        span.tag {
+            position: relative;
+            left: -12px;
+            top: -10px;
+            font-size: 10px;
+            border-radius: 10px;
+
+            background-color: $light;
+            color: $dark;
+            box-shadow: 0 0 2px $secondary;
+
+            &.alerted {
+                background-color: $secondary;
+                color: $light;
+                font-weight: bold !important;
+                box-shadow: none;
+            }
+        }
+
+        &.configuration_errors_notification {
+            span.tag {
+                position: relative;
+                left: -6px;
+
+                &.alerted {
+                    background-color: $danger !important;
+                }
+            }
+        }
+    }
+
+    //.server-unavailable {
+    //background-color: lighten($danger, 5%);
+    //color: $light;
+    //border-radius: $border-rounded-border-radius;
+    //padding: 10px 20px;
+    //}
+}
+
+.footer {
+    margin-top: 30px;
+    padding: 0;
+    border-top: none;
+    border-bottom: 3px solid $primary;
+    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+    border-image-slice: 1;
+}
+
+//.footer, .topbar {
+//background: $light;
+//}

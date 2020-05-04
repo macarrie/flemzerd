@@ -6,7 +6,7 @@ import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import TvShow, {SeasonDetails} from "../../types/tvshow";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import MediaIdsComponent from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
@@ -67,7 +67,7 @@ class TvShowDetails extends React.Component<any, State> {
             show_result.DisplayTitle = Helpers.getMediaTitle(show_result)
             this.setState({
                 show: show_result,
-                seasons: this.state.seasons == null ? new Array(show_result.NumberOfSeasons) : this.state.seasons,
+                seasons: this.state.seasons == null ? new Array<SeasonDetails>(show_result.NumberOfSeasons) : this.state.seasons,
             });
             this.getFanart();
             this.getSeasonList();
@@ -203,13 +203,15 @@ class TvShowDetails extends React.Component<any, State> {
     renderMediaDetails() {
         if (this.state.show == null) {
             return (
-                <Loading/>
+                <div className={"container"}>
+                    <Empty label={"Loading"}/>
+                </div>
             );
         }
 
         return (
             <>
-                <div id="full_background"
+                <div id="full_background" className={"has-background-dark "}
                      style={{backgroundImage: `url(${this.state.fanartURL})`}}></div>
                 <MediaActionBar item={this.state.show}
                                 useOriginalTitle={this.useOriginalTitle}
@@ -220,48 +222,46 @@ class TvShowDetails extends React.Component<any, State> {
                                 deleteItem={this.deleteShow}
                                 type="tvshow"/>
 
-                <div className="uk-container uk-light mediadetails">
-                    <div className="uk-grid" data-uk-grid>
-                        <div className="uk-width-1-3">
-                            <img width="100%" src={this.state.show.Poster} alt="{this.state.show.Title}"
-                                 className="uk-border-rounded" data-uk-img/>
+                <div className="container mediadetails">
+                    <div className="columns">
+                        <div className="column is-one-quarter">
+                            <img width="100%" src={this.state.show.Poster} alt="{this.state.show.Title}" className="thumbnail" />
                         </div>
-                        <div className="uk-width-expand">
-                            <div className="uk-grid uk-grid-collapse uk-flex uk-flex-middle" data-uk-grid>
-                                <div className="inlineedit">
-                                <span className="uk-h2">
-                                    <Editable
-                                        value={this.state.show.DisplayTitle}
-                                        onFocusOut={this.exitTitleEdit}
-                                        editingClassName="uk-border-rounded uk-h2 uk-margin-remove-top uk-text-light"
-                                    />
-                                </span>
+                        <div className="column">
+                            <div className="columns">
+                                <div className="column is-narrow inlineedit">
+                                    <span className="title is-2 has-text-grey-light">
+                                        <Editable
+                                            value={this.state.show.DisplayTitle}
+                                            onFocusOut={this.exitTitleEdit}
+                                            editingClassName="title is-2 has-text-grey-light"
+                                        />
+                                    </span>
                                 </div>
-                                <div>
-                                    <span
-                                        className="uk-h3 uk-text-muted uk-margin-small-left media_title_details">({Helpers.getYear(this.state.show.FirstAired)})</span>
+                                <div className={"column"}>
+                                    <span className="title is-3 has-text-grey-light media_title_details">({Helpers.getYear(this.state.show.FirstAired)})</span>
                                 </div>
                             </div>
-                            <div className="uk-grid uk-grid-medium" data-uk-grid>
-                                <div> See on</div>
-                                <div><MediaIdsComponent ids={this.state.show.MediaIds} type="movie"/></div>
+                            <div className="columns">
+                                <div className={"column is-narrow"}> See on</div>
+                                <div className={"column"}><MediaIdsComponent ids={this.state.show.MediaIds} type="movie"/></div>
                             </div>
 
                             <div className="container">
                                 <div className="row">
-                                    <h5>Overview</h5>
+                                    <h5 className={"title is-5 has-text-grey-light"}>Overview</h5>
                                     <div className="col-12">
                                         {this.state.show.Overview}
                                     </div>
                                 </div>
                                 <div className="row">
-                                    <h5>Seasons</h5>
+                                    <h5 className={"title is-5 has-text-grey-light"}>Seasons</h5>
                                     <div className="col-12">
                                         {this.state.show.NumberOfSeasons} seasons, {this.state.show.NumberOfEpisodes} episodes
                                     </div>
                                 </div>
                                 <div className="row">
-                                    <h5>Additional info</h5>
+                                    <h5 className={"title is-5 has-text-grey-light"}>Additional info</h5>
                                     <div className="col-12">
                                         {this.state.show.IsAnime ? (
                                             <>
@@ -284,13 +284,11 @@ class TvShowDetails extends React.Component<any, State> {
                 </div>
 
                 {!this.state.show.DeletedAt && (
-                    <div className="uk-container uk-margin-medium-top uk-margin-medium-bottom">
-                        <div className="uk-background-default uk-border-rounded">
-                            <div className="uk-grid uk-child-width-1-1 uk-padding-small" data-uk-grid>
-                                <div>
-                                    <SeasonList refreshSeason={this.getSeason}
-                                                seasons={this.state.seasons}/>
-                                </div>
+                    <div className="container box">
+                        <div className="columns">
+                            <div className={"column"}>
+                                <SeasonList refreshSeason={this.getSeason}
+                                            seasons={this.state.seasons}/>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,7 @@
 import React from "react";
 
+import {RiRefreshLine} from "react-icons/ri";
+
 type Props = {
     action(): Promise<any>,
     text :string,
@@ -31,28 +33,21 @@ class LoadingButton extends React.Component<Props, State> {
     render() {
         if (this.state.loading) {
             return (
-                <button className="uk-button uk-button-text">
-                    <div className="uk-flex uk-flex-middle">
-                        <div data-uk-spinner="ratio: 0.5"></div>
-                        <div>
-                            <i>{this.props.loading_text}</i>
-                        </div>
-                    </div>
+                <button className="button is-loading">
+                    <i>{this.props.loading_text}</i>
                 </button>
             );
         }
 
         return (
-            <button className="uk-button uk-button-text"
+            <button className="button is-naked"
                 onClick={this.performAction}>
-                <div className="uk-flex uk-flex-middle">
-                    <div className="uk-float-left">
-                        <span className="uk-icon" data-uk-icon="icon: refresh; ratio: 0.75"></span>
-                    </div>
-                    <div className="uk-text-nowrap">
-                        {this.props.text}
-                    </div>
-                </div>
+                <span className="icon is-small has-text-grey-light">
+                    <RiRefreshLine />
+                </span>
+                <span>
+                    {this.props.text}
+                </span>
             </button>
         );
     }

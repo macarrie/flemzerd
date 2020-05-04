@@ -9,10 +9,20 @@ $danger: #D32F2F;
 $dark: #444444;
 $light: #F5F5F5;
 
-$body-bg: $light;
-$body-color: $dark;
+$scheme-main: $light;
+$scheme-invert: $dark;
 
-$link-hover-decoration: none;
+$background: $light;
+$text: $dark;
 
 $font-header: "Lato";
-$content-font: 'Crimson Text', serif;
+$family-primary: 'Crimson Text', serif;
+$family-secondary: 'Crimson Text', serif;
+$body-size: 14px;
+
+$title-family: $font-header;
+$subtitle-family: $font-header;
+$button-family: $font-header;
+
+//$navbar-height: 2rem;
+//$navbar-padding-vertical: 0px;

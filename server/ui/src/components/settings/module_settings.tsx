@@ -38,8 +38,12 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         if (this.state.type === "watchlist" && this.state.module.Name === "trakt") {
             return (
                 <>
-                    {this.state.module.Name}
-                    <TraktAuth/>
+                    <div className={"columns is-multiline is-gapless is-vcentered"}>
+                        <div className={"column"}>
+                            {this.state.module.Name}
+                        </div>
+                        <TraktAuth/>
+                    </div>
                 </>
             );
         }
@@ -47,8 +51,12 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         if (this.state.type === "notifier" && this.state.module.Name === "telegram") {
             return (
                 <>
-                    {this.state.module.Name}
-                    <TelegramAuth/>
+                    <div className={"columns is-multiline is-gapless is-vcentered"}>
+                        <div className={"column"}>
+                            {this.state.module.Name}
+                        </div>
+                        <TelegramAuth/>
+                    </div>
                 </>
             );
         }
@@ -56,12 +64,16 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         if (this.state.type === "indexer") {
             return (
                 <>
-                    {this.state.module.Config.name}
-                    <span className="float-right text-muted">
-                        <small>
-                            <code>{this.state.module.Config.url}</code>
-                        </small>
-                    </span>
+                    <div className={"columns is-multiline is-gapless is-vcentered"}>
+                        <div className={"column is-narrow"}>
+                            {this.state.module.Config.name}
+                        </div>
+                        <div className="column is-clipped">
+                            <small>
+                                <code>{this.state.module.Config.url}</code>
+                            </small>
+                        </div>
+                    </div>
                 </>
             );
         }

@@ -6,16 +6,26 @@ import Const from "../const";
 import Helpers from "../utils/helpers";
 import Movie from "../types/movie";
 import TvShow from "../types/tvshow";
+import {MediaMiniatureFilter} from "../types/media_miniature_filter";
+
+import {RiCloseLine} from "react-icons/ri";
+import {RiCheckLine} from "react-icons/ri";
+import {RiDownloadLine} from "react-icons/ri";
+import {RiEraserLine} from "react-icons/ri";
+import {RiEyeLine} from "react-icons/ri";
+import {RiArrowGoBackLine} from "react-icons/ri";
 
 type Props = {
     item :Movie | TvShow,
     type :string,
     display_mode :number,
+    filter :MediaMiniatureFilter,
 };
 
 type State = {
     item :Movie | TvShow;
     display_mode :number,
+    filter :MediaMiniatureFilter,
 };
 
 class MediaMiniature extends React.Component<Props, State> {
@@ -24,6 +34,7 @@ class MediaMiniature extends React.Component<Props, State> {
         this.state = {
             item: props.item,
             display_mode: props.display_mode,
+            filter: props.filter,
         };
 
         this.deleteItem = this.deleteItem.bind(this);
@@ -45,6 +56,7 @@ class MediaMiniature extends React.Component<Props, State> {
         this.setState({
             item: nextProps.item,
             display_mode: nextProps.display_mode,
+            filter: nextProps.filter,
         });
     }
 
@@ -94,34 +106,36 @@ class MediaMiniature extends React.Component<Props, State> {
 
     getDownloadStatusLabel() {
         let label = "";
+        let classNames = "";
+        if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
+            classNames = "has-text-center";
+        }
 
         if (this.props.type === "movie") {
             let item = this.state.item as Movie;
             if (!item.DeletedAt && Helpers.dateIsInFuture(item.Date)) {
                 label = "Future release";
+                classNames += "has-text-warning";
             }
 
             if (!item.DeletedAt && (item.DownloadingItem.Downloading || item.DownloadingItem.Pending)) {
+                if (item.DownloadingItem.Pending) {
+                    label = "Pending";
+                }
                 if (item.DownloadingItem.Downloading) {
                     label = "Downloading";
-
-                    if (item.DownloadingItem.Pending) {
-                        label = "Pending";
-                    }
                 }
+                classNames += "has-text-info";
             }
             if (item.DownloadingItem.Downloaded && !item.DeletedAt) {
                 label = "Downloaded";
+                classNames += "has-text-success";
             }
         }
 
         if (this.state.item.DeletedAt) {
             label = "Removed";
-        }
-
-        let classNames = "";
-        if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
-            classNames = "uk-position-center";
+            classNames += "has-text-danger";
         }
 
         return (
@@ -131,44 +145,61 @@ class MediaMiniature extends React.Component<Props, State> {
         );
     }
 
+    itemIsFiltered() :Boolean {
+        if (this.state.filter === MediaMiniatureFilter.NONE) {
+            return false;
+        }
 
-    getFilterClassName() {
         if (this.props.type === "movie") {
-            return this.getMovieFilterClassName();
+            return this.movieItemIsFiltered();
         } else if (this.props.type === "tvshow") {
-            return this.getTvshowFilterClassName();
+            return this.tvShowItemIsFiltered();
         }
 
-        return;
+        return false;
     }
 
-    getTvshowFilterClassName() {
-        let className = "tracked-show";
+    tvShowItemIsFiltered() :Boolean {
+        let item = this.state.item as TvShow;
 
-        if (this.state.item.DeletedAt) {
-            className = "removed-show";
+        if (item.DeletedAt && this.state.filter === MediaMiniatureFilter.REMOVED) {
+            return false;
         }
 
-        return className;
+        if (this.state.filter === MediaMiniatureFilter.TRACKED) {
+            if (item.DeletedAt) {
+                return true;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
-    getMovieFilterClassName() {
+    movieItemIsFiltered() :Boolean {
         let item = this.state.item as Movie;
-        let className = "tracked-movie";
 
-        if (Helpers.dateIsInFuture(item.Date)) {
-            className = "future-movie";
+        if (Helpers.dateIsInFuture(item.Date) && !item.DeletedAt && this.state.filter === MediaMiniatureFilter.FUTURE) {
+            return false;
         }
-        if (item.DownloadingItem.Downloaded) {
-            className = "downloaded-movie";
+        if (item.DownloadingItem.Downloaded && this.state.filter === MediaMiniatureFilter.DOWNLOADED) {
+            return false;
         }
-        if (item.DeletedAt) {
-            className = "removed-movie";
+        if (item.DeletedAt && this.state.filter === MediaMiniatureFilter.REMOVED) {
+            return false;
         }
 
-        return className;
+        if (this.state.filter === MediaMiniatureFilter.TRACKED) {
+            if (Helpers.dateIsInFuture(item.Date) || item.DownloadingItem.Downloaded || item.DeletedAt) {
+                return true;
+            }
+
+            return false;
+        }
+
+        return true;
     }
-
 
     getDownloadControlButtons() {
         if (this.props.type !== "movie") {
@@ -180,41 +211,52 @@ class MediaMiniature extends React.Component<Props, State> {
 
         if (item.DownloadingItem.Downloaded && (!item.DeletedAt)) {
             buttonList.push(
-                <button className="uk-icon"
-                        key="markNotDownloaded"
-                        onClick={this.markNotDownloaded}
-                        data-uk-tooltip="delay: 500; title: Unmark as downloaded"
-                        data-uk-icon="icon: push; ratio: 0.75">
-                </button>
+                <div className={"tile"}>
+                    <button className=""
+                            key="markNotDownloaded"
+                            onClick={this.markNotDownloaded}
+                            data-tooltip="Unmark as downloaded">
+                        <span className={"icon"}>
+                            <RiEraserLine />
+                        </span>
+                    </button>
+                </div>
             )
         }
 
         if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Downloaded && !item.DeletedAt) {
             buttonList.push(
-                <button className="uk-icon"
-                        key="markDownloaded"
-                        onClick={this.markDownloaded}
-                        data-uk-tooltip="delay: 500; title: Mark as downloaded"
-                        data-uk-icon="icon: check; ratio: 0.75">
-                </button>
+                <div className={"tile"}>
+                    <button className=""
+                            key="markDownloaded"
+                            onClick={this.markDownloaded}
+                            data-tooltip="Mark as downloaded">
+                        <span className={"icon"}>
+                            <RiCheckLine />
+                        </span>
+                    </button>
+                </div>
             );
         }
 
         //TODO: Handle configuration
         if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Pending && !item.DeletedAt && !Helpers.dateIsInFuture(item.Date)) {
             buttonList.push(
-                <button className="uk-icon"
-                        key="downloadMovie"
-                        onClick={this.downloadMovie}
-                        data-uk-tooltip="delay: 500; title: Download"
-                        data-uk-icon="icon: download; ratio: 0.75">
-                </button>
+                <div className={"tile"}>
+                    <button className=""
+                            key="downloadMovie"
+                            onClick={this.downloadMovie}
+                            data-tooltip="Download">
+                        <span className={"icon"}>
+                            <RiDownloadLine />
+                        </span>
+                    </button>
+                </div>
             )
         }
 
         return buttonList;
     }
-
 
     refreshMovie() {
         API.Movies.get(this.state.item.ID).then(response => {
@@ -242,6 +284,11 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     deleteMovie() {
+        // Update locally first to update display immediately
+        let movie = this.state.item as Movie;
+        movie.DeletedAt = new Date();
+        this.setState({item: movie});
+
         API.Movies.delete(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
@@ -250,6 +297,11 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     deleteShow() {
+        // Update locally first to update display immediately
+        let show = this.state.item as TvShow;
+        show.DeletedAt = new Date();
+        this.setState({item: show});
+
         API.Shows.delete(this.state.item.ID).then(response => {
             this.refreshShow();
         }).catch(error => {
@@ -267,6 +319,11 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     restoreMovie() {
+        // Update locally first to update display immediately
+        let movie = this.state.item as Movie;
+        movie.DeletedAt = null;
+        this.setState({item: movie});
+
         API.Movies.restore(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
@@ -275,6 +332,11 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     restoreShow() {
+        // Update locally first to update display immediately
+        let show = this.state.item as TvShow;
+        show.DeletedAt = null;
+        this.setState({item: show});
+
         API.Shows.restore(this.state.item.ID).then(response => {
             this.refreshShow();
         }).catch(error => {
@@ -284,13 +346,17 @@ class MediaMiniature extends React.Component<Props, State> {
 
 
     downloadMovie() {
+        // Update locally first to update display immediately
+        let movie = this.state.item as Movie;
+        movie.DownloadingItem.Pending = true;
+        this.setState({item: movie});
+
         API.Movies.download(this.state.item.ID).then(response => {
             this.refreshMovie();
         }).catch(error => {
             console.log("Download movie error: ", error);
         });
     }
-
 
     markDownloaded() {
         this.changeDownloadedState(true);
@@ -301,6 +367,11 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     changeDownloadedState(downloaded_state: boolean) {
+        // Update locally first to update display immediately
+        let movie = this.state.item as Movie;
+        movie.DownloadingItem.Downloaded = downloaded_state;
+        this.setState({item: movie});
+
         API.Movies.changeDownloadedState(this.state.item.ID, downloaded_state).then(response => {
             this.refreshMovie();
         }).catch(error => {
@@ -309,41 +380,59 @@ class MediaMiniature extends React.Component<Props, State> {
     }
 
     render() {
+        if (this.itemIsFiltered()) {
+            return "";
+        }
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={this.getFilterClassName()}>
-                    <div className="uk-inline media-miniature">
-                        <div>
+                <div className={`column is-2 media-miniature is-relative`}>
+                    <div className={"is-relative"}>
+                        <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
+                            <div className={"thumbnail-container"}>
+                                <span className={"thumbnail-alt"}>{this.state.item.Title}</span>
+                                <img src={this.state.item.Poster} alt={""}
+                                     className={`thumbnail ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`} />
+                            </div>
+                            <div className={`thumbnail-overlay is-overlay ${this.getOverlayClassNames()}`}>
+                                {this.getDownloadStatusLabel()}
+                            </div>
+                        </Link>
+                    </div>
+
+                    <div className="tile is-ancestor has-text-centered is-vertical media-miniature-controls is-overlay">
+                        <div className={"tile"}>
                             <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
-                                <img data-src={this.state.item.Poster} alt={this.state.item.Title}
-                                     className={`uk-border-rounded ${this.getOverlayClassNames() !== "" ? "black_and_white" : ""}`}
-                                     data-uk-img/>
-                                <div
-                                    className={`uk-overlay uk-border-rounded uk-position-cover ${this.getOverlayClassNames()}`}>
-                                    {this.getDownloadStatusLabel()}
-                                </div>
+                                <span data-tooltip="See details" className="icon">
+                                    <RiEyeLine />
+                                </span>
                             </Link>
                         </div>
 
-                        <div className="uk-icon uk-position-top-right">
-                            {this.getDownloadControlButtons()}
+                        {this.getDownloadControlButtons()}
 
-                            {(!this.state.item.DeletedAt) ? (
-                                <button className="uk-icon"
+                        {(!this.state.item.DeletedAt) ? (
+                            <div className={"tile"}>
+                                <button className="tooltip-danger"
                                         onClick={this.deleteItem}
-                                        data-uk-tooltip="delay: 500; title: Remove"
-                                        data-uk-icon="icon: close; ratio: 0.75">
+                                        data-tooltip="Remove">
+                                    <span className="icon">
+                                        <RiCloseLine />
+                                    </span>
                                 </button>
-                            ) : ""}
+                            </div>
+                        ) : ""}
 
-                            {(this.state.item.DeletedAt) ? (
-                                <button className="uk-icon"
+                        {(this.state.item.DeletedAt) ? (
+                            <div className={"tile"}>
+                                <button className=""
                                         onClick={this.restoreItem}
-                                        data-uk-tooltip="delay: 500; title: Restore"
-                                        data-uk-icon="icon: reply; ratio: 0.75">
+                                        data-tooltip="Restore">
+                                    <span className="icon">
+                                        <RiArrowGoBackLine />
+                                    </span>
                                 </button>
-                            ) : ""}
-                        </div>
+                            </div>
+                        ) : ""}
                     </div>
                 </div>
             );
@@ -351,7 +440,7 @@ class MediaMiniature extends React.Component<Props, State> {
 
         if (this.state.display_mode === Const.DISPLAY_LIST) {
             return (
-                <tr className={this.getFilterClassName()}>
+                <tr>
                     <td>
                         <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
                             {Helpers.getMediaTitle(this.state.item)}
@@ -362,22 +451,26 @@ class MediaMiniature extends React.Component<Props, State> {
                             {this.getDownloadStatusLabel()}
                         </small>
                     </td>
-                    <td>
+                    <td className={"has-text-centered"}>
                         {this.getDownloadControlButtons()}
 
                         {(!this.state.item.DeletedAt) ? (
-                            <button className="uk-icon"
+                            <button className=""
                                 onClick={this.deleteItem}
-                                data-uk-tooltip="delay: 500; title: Remove"
-                                data-uk-icon="icon: close; ratio: 0.75">
+                                data-tooltip="Remove">
+                                <span className={"icon"}>
+                                    <RiCloseLine/>
+                                </span>
                             </button>
                         ) : ""}
 
                         {(this.state.item.DeletedAt) ? (
-                            <button className="uk-icon"
+                            <button className=""
                                 onClick={this.restoreItem}
-                                data-uk-tooltip="delay: 500; title: Restore"
-                                data-uk-icon="icon: reply; ratio: 0.75">
+                                data-tooltip="Restore">
+                                <span className={"icon"}>
+                                    <RiArrowGoBackLine/>
+                                </span>
                             </button>
                         ) : ""}
                     </td>

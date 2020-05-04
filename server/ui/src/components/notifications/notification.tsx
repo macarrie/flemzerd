@@ -4,6 +4,11 @@ import {Link} from "react-router-dom";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import Notification from "../../types/notification";
+import Moment from "react-moment";
+
+import {RiCheckLine} from "react-icons/ri";
+import {RiArrowDropDownLine} from "react-icons/ri";
+import {RiArrowDropUpLine} from "react-icons/ri";
 
 interface Props {
     item :Notification;
@@ -12,11 +17,13 @@ interface Props {
 
 type State = {
     notification: Notification,
+    display_detailed_contents: Boolean,
 };
 
 class NotificationComponent extends React.Component<Props, State> {
     state: State = {
         notification: {} as Notification,
+        display_detailed_contents: false,
     };
 
     constructor(props: Props) {
@@ -26,6 +33,7 @@ class NotificationComponent extends React.Component<Props, State> {
 
         this.getMediaLink = this.getMediaLink.bind(this);
         this.getMediaOverview = this.getMediaOverview.bind(this);
+        this.toggleContent = this.toggleContent.bind(this);
     }
 
     componentWillReceiveProps(nextProps: Props) {
@@ -230,6 +238,24 @@ class NotificationComponent extends React.Component<Props, State> {
         );
     }
 
+    toggleContent() {
+        this.setState({ display_detailed_contents: !this.state.display_detailed_contents });
+    }
+    getContentToggleIcon() {
+        return (
+            <button className={"button is-naked is-small"}
+                    onClick={this.toggleContent}>
+                <span className={"icon"}>
+                {this.state.display_detailed_contents ? (
+                    <RiArrowDropUpLine />
+                ) : (
+                    <RiArrowDropDownLine />
+                )}
+                </span>
+            </button>
+        );
+    }
+
     render() {
         if (this.props.markRead == null) {
             console.log("markRead props is null");
@@ -242,37 +268,49 @@ class NotificationComponent extends React.Component<Props, State> {
             );
         }
 
+        let read_class = "";
+        if (this.state.notification.Read) {
+            read_class = "read";
+        }
+
         return (
-            <li className={this.state.notification.Read ? "read" : ""}>
-                <table
-                    className={`uk-table-middle notification-table ${this.state.notification.Read ? "notification_read" : ""}`}>
-                    <tbody>
-                        <tr data-uk-toggle={`target: .notification-detailed-content-${this.state.notification.ID}`}>
-                            <td className={`uk-width-auto uk-padding-medium-right notif-icon ${this.getStatusClass()}`}><div></div></td>
-                            <td className="uk-width-expand">
-                                {this.getNotificationTitle()}
-                            </td>
-                            <td className="uk-table-shrink uk-text-nowrap uk-text-muted uk-text-right">
-                                <small>
-                                    {Helpers.formatDate(this.state.notification.CreatedAt, 'ddd DD MMM hh:mm')}
-                                </small>
-                            </td>
-                            {!this.state.notification.Read && (
-                                <td className="notification_action_button uk-text-success"
-                                    onClick={() => this.props.markRead(this.state.notification.ID)}>
-                                    <span data-uk-icon="icon: check"></span>
-                                </td>
-                            )}
-                        </tr>
-                        <tr className={`notification-detailed-content-${this.state.notification.ID}`} hidden>
-                            <td></td>
-                            <td colSpan={2}>
+            <li className={`notification_item ${read_class}`}>
+                <div className={"columns is-gapless is-multiline is-vcentered"}>
+                    <div className={`column is-narrow ${this.getStatusClass()}`}><div></div></div>
+                    <div className="column"
+                         onClick={this.toggleContent}>
+                        {this.getNotificationTitle()}
+                    </div>
+                    <div className="column is-narrow">
+                        {this.getContentToggleIcon()}
+                    </div>
+                    <div className="column is-narrow">
+                        <span className={"has-text-grey"}>
+                            <i>
+                                <Moment date={this.state.notification.CreatedAt} format={"ddd DD MMM hh:mm"}/>
+                            </i>
+                        </span>
+                    </div>
+                    {!this.state.notification.Read && (
+                        <div className="notification_action_button uk-text-success"
+                            onClick={() => this.props.markRead(this.state.notification.ID)}>
+                            <button className="button is-small is-naked"
+                                    data-tooltip="Mark as read">
+                                <span className={"icon has-text-success"}>
+                                    <RiCheckLine />
+                                </span>
+                            </button>
+                        </div>
+                    )}
+                    {this.state.display_detailed_contents && (
+                        <div className={"column is-full notification-content"}>
+                            <div>
+                                <hr />
                                 {this.getNotificationContent()}
-                            </td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </li>
         );
     }
