@@ -135,7 +135,7 @@ class TelegramAuth extends React.Component<any, State> {
                     <div className={"column is-full"}>
                         <hr />
                         Send the following code to <code>@flemzerd_bot</code> Telegram bot to link flemzerd with Telegram
-                        <div className={"columns is-centered"}>
+                        <div className={"columns is-mobile is-centered"}>
                             <div className={"column is-narrow"}>
                                 <h5 className="title is-3 has-text-info trakt-auth-code">{this.state.auth_code}</h5>
                             </div>

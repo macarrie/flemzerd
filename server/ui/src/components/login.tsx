@@ -78,7 +78,7 @@ class Login extends React.Component<any, State> {
                         </div>
                     </div>
                     <div className="columns is-centered is-mobile">
-                        <form className="column is-one-third-desktop is-four-fifths-mobile"
+                        <form className="column is-one-third-desktop is-full-mobile"
                               onSubmit={this.handleSubmit}>
                             <div className="field">
                                 <label className="label"></label>
@@ -97,7 +97,7 @@ class Login extends React.Component<any, State> {
                             </div>
 
                             <div className="field">
-                                <label className="label" uk-icon="icon: lock"></label>
+                                <label className="label"></label>
                                 <div className={"control has-icons-right"}>
                                     <input className="input"
                                            name="password"
@@ -134,8 +134,8 @@ class Login extends React.Component<any, State> {
                     </div>
                     {this.state.BadCredentials && (
                         <>
-                            <div className="columns is-centered">
-                                <div className="column is-one-third">
+                            <div className="columns is-centered is-mobile">
+                                <div className="column is-one-third-desktop is-full-mobile">
                                     <div className="message is-danger">
                                         <div className={"message-body"}>
                                             Bad credentials
@@ -148,8 +148,8 @@ class Login extends React.Component<any, State> {
 
                     {this.state.ServerUnavailable && (
                         <>
-                        <div className="columns is-centered">
-                            <div className="column is-one-third">
+                        <div className="columns is-centered is-mobile">
+                            <div className="column is-one-third-desktop is-full-mobile">
                                 <div className="message is-danger">
                                     <div className={"message-body"}>
                                         Server unavailable

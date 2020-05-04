@@ -9,6 +9,7 @@
     }
 
     &::before {
+        display: none;
         visibility: hidden;
         opacity: 0;
 
@@ -24,7 +25,7 @@
     }
 
     &::after {
-        visibility: hidden;
+        display: none;
         opacity: 0;
 
         content: attr(data-tooltip);
@@ -53,6 +54,7 @@
 
 [data-tooltip]:hover {
     &::before, &::after {
+        display: block;
         visibility: visible;
         opacity: 1;
     }

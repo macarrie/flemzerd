@@ -91,13 +91,15 @@ class MediaActionBar extends React.Component<Props, State> {
             }
             if (!item.DeletedAt && !item.DownloadingItem.Pending && !item.DownloadingItem.Downloading && !item.DownloadingItem.Downloaded && !Helpers.dateIsInFuture(item.Date)) {
                 buttonsList.push(
-                    <button className="uk-button uk-button-link"
+                    <button className=""
                         key="download"
                         onClick={this.props.downloadItem}>
                         <span className="icon is-small">
                             <RiDownloadLine />
                         </span>
-                        Download
+                        <span className={"is-hidden-mobile"}>
+                            Download
+                        </span>
                     </button>
                 );
             }
@@ -126,24 +128,28 @@ class MediaActionBar extends React.Component<Props, State> {
             if (item.Title !== item.OriginalTitle) {
                 if (item.UseDefaultTitle) {
                     buttonsList.push(
-                        <button className="uk-button uk-button-link"
+                        <button className=""
                             key="useOriginalTitle"
                             onClick={this.props.useOriginalTitle}>
                             <span className="icon is-small">
                                 <RiCheckboxMultipleBlankLine />
                             </span>
-                            Use original title
+                            <span className={"is-hidden-mobile"}>
+                                Use original title
+                            </span>
                         </button>
                     );
                 } else {
                     buttonsList.push(
-                        <button className="uk-button uk-button-link"
+                        <button className=""
                             key="useDefaultTitle"
                             onClick={this.props.useDefaultTitle}>
                             <span className="icon is-small">
                                 <RiCheckboxMultipleBlankLine />
                             </span>
-                            Use default title
+                            <span className={"is-hidden-mobile"}>
+                                Use default title
+                            </span>
                         </button>
                     );
                 }
@@ -185,7 +191,9 @@ class MediaActionBar extends React.Component<Props, State> {
                         <span className="icon is-small">
                             <RiEraserLine />
                         </span>
-                        Unmark as downloaded
+                        <span className={"is-hidden-mobile"}>
+                            Unmark as downloaded
+                        </span>
                     </button>
                 );
             } else {
@@ -197,7 +205,9 @@ class MediaActionBar extends React.Component<Props, State> {
                             <span className="icon is-small">
                                 <RiCheckLine />
                             </span>
-                            Mark as downloaded
+                            <span className={"is-hidden-mobile"}>
+                                Mark as downloaded
+                            </span>
                         </button>
                     );
                 }
@@ -211,7 +221,9 @@ class MediaActionBar extends React.Component<Props, State> {
                         <span className="icon is-small">
                             <RiSkipForwardLine />
                         </span>
-                        Skip torrent
+                        <span className={"is-hidden-mobile"}>
+                            Skip torrent
+                        </span>
                     </button>
                 );
             }
@@ -224,7 +236,9 @@ class MediaActionBar extends React.Component<Props, State> {
                         <span className="icon is-small">
                             <RiStopCircleLine />
                         </span>
-                        Abort download
+                        <span className={"is-hidden-mobile"}>
+                            Abort download
+                        </span>
                     </button>
                 );
             }
@@ -265,7 +279,9 @@ class MediaActionBar extends React.Component<Props, State> {
                         <span className="icon is-small">
                             <FaGlobeEurope />
                         </span>
-                        Treat as regular show
+                        <span className={"is-hidden-mobile"}>
+                            Treat as regular show
+                        </span>
                     </button>
                 );
             } else {
@@ -276,7 +292,9 @@ class MediaActionBar extends React.Component<Props, State> {
                         <span className="icon is-small">
                             <FaGlobeAsia />
                         </span>
-                        Treat as anime
+                        <span className={"is-hidden-mobile"}>
+                            Treat as anime
+                        </span>
                     </button>
                 );
             }
@@ -319,13 +337,15 @@ class MediaActionBar extends React.Component<Props, State> {
             return (
                 <div className={`action-bar ${this.getTopbarClass()}`}>
                     <div className="container">
-                        <div className="columns">
+                        <div className="columns is-mobile">
                             <div className="column">
                                 <Link to={this.getBackLink()}>
                                 <span className="icon is-small">
                                     <RiArrowLeftLine />
                                 </span>
-                                    Back
+                                    <span className={"is-hidden-mobile"}>
+                                        Back
+                                    </span>
                                 </Link>
                             </div>
                             <div className="column is-narrow">
@@ -346,13 +366,15 @@ class MediaActionBar extends React.Component<Props, State> {
         return (
             <div className={`action-bar ${this.getTopbarClass()}`}>
                 <div className="container">
-                    <div className="columns">
+                    <div className="columns is-mobile">
                         <div className="column">
                             <Link to={this.getBackLink()}>
                                 <span className="icon is-small">
                                     <RiArrowLeftLine />
                                 </span>
-                                Back
+                                <span className={"is-hidden-mobile"}>
+                                    Back
+                                </span>
                             </Link>
                         </div>
                         <div className="column is-narrow">
@@ -366,7 +388,9 @@ class MediaActionBar extends React.Component<Props, State> {
                                     <span className="icon is-small">
                                         <RiArrowGoBackLine />
                                     </span>
-                                    Restore
+                                    <span className={"is-hidden-mobile"}>
+                                        Restore
+                                    </span>
                                 </button>
                             )}
 
@@ -378,7 +402,9 @@ class MediaActionBar extends React.Component<Props, State> {
                                     <span className="icon is-small">
                                         <RiCloseLine />
                                     </span>
-                                    Remove
+                                    <span className={"is-hidden-mobile"}>
+                                        Remove
+                                    </span>
                                 </button>
                             )}
                         </div>

@@ -4,7 +4,7 @@ import {Route} from "react-router-dom";
 import API from "../../utils/api";
 import Helpers from "../../utils/helpers";
 import Const from "../../const";
-import TvShow, {SeasonDetails} from "../../types/tvshow";
+import TvShow, {TvSeason, SeasonDetails} from "../../types/tvshow";
 
 import Empty from "../empty";
 import MediaIdsComponent from "../media_ids";
@@ -93,7 +93,12 @@ class TvShowDetails extends React.Component<any, State> {
             }
 
             let seasonlist :SeasonDetails[] = this.state.seasons;
-            seasonlist[n - 1] = {LoadError: true} as SeasonDetails;
+            seasonlist[n - 1] = {
+                Info: {
+                    SeasonNumber: n,
+                } as TvSeason,
+                LoadError: true,
+            } as SeasonDetails;
 
             this.setState({seasons: seasonlist});
         });
@@ -223,12 +228,12 @@ class TvShowDetails extends React.Component<any, State> {
                                 type="tvshow"/>
 
                 <div className="container mediadetails">
-                    <div className="columns">
-                        <div className="column is-one-quarter">
+                    <div className="columns is-mobile">
+                        <div className="column is-one-quarter-desktop is-one-third-tablet is-hidden-mobile">
                             <img width="100%" src={this.state.show.Poster} alt="{this.state.show.Title}" className="thumbnail" />
                         </div>
                         <div className="column">
-                            <div className="columns">
+                            <div className="columns is-mobile">
                                 <div className="column is-narrow inlineedit">
                                     <span className="title is-2 has-text-grey-light">
                                         <Editable
@@ -242,7 +247,7 @@ class TvShowDetails extends React.Component<any, State> {
                                     <span className="title is-3 has-text-grey-light media_title_details">({Helpers.getYear(this.state.show.FirstAired)})</span>
                                 </div>
                             </div>
-                            <div className="columns">
+                            <div className="columns is-mobile">
                                 <div className={"column is-narrow"}> See on</div>
                                 <div className={"column"}><MediaIdsComponent ids={this.state.show.MediaIds} type="movie"/></div>
                             </div>
@@ -284,11 +289,13 @@ class TvShowDetails extends React.Component<any, State> {
                 </div>
 
                 {!this.state.show.DeletedAt && (
-                    <div className="container box">
-                        <div className="columns">
-                            <div className={"column"}>
-                                <SeasonList refreshSeason={this.getSeason}
-                                            seasons={this.state.seasons}/>
+                    <div className="container">
+                        <div className="columns is-mobile">
+                            <div className={"column is-full"}>
+                                <div className={"box"}>
+                                    <SeasonList refreshSeason={this.getSeason}
+                                                seasons={this.state.seasons}/>
+                                </div>
                             </div>
                         </div>
                     </div>

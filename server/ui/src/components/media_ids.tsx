@@ -51,7 +51,7 @@ class MediaIdsComponent extends React.Component<Props, State> {
         }
 
         return (
-            <div className="columns external-links-banner">
+            <div className="columns is-mobile external-links-banner">
                 <div className={"column is-narrow"}>
                     {ids.Imdb !== "" ? (
                         <a href={`https://www.imdb.com/title/${ids.Imdb}`}

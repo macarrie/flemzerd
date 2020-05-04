@@ -44,7 +44,7 @@ class SeasonList extends React.Component<Props, State> {
             if (seasons[i] === null || typeof seasons[i] == "undefined") {
                 console.log("EMPTY");
                  seasons[i] = {
-                     Info: {SeasonNumber: i} as TvSeason,
+                     Info: {SeasonNumber: i + 1} as TvSeason,
                      LoadPending: true,
                 } as SeasonDetails;
             }
@@ -62,12 +62,14 @@ class SeasonList extends React.Component<Props, State> {
         }
 
         return (
-            <div className={"seasonlist-container"}>
+            <div className={"columns is-mobile seasonlist-container"}>
+                <div className={"column is-full"}>
                 {this.state.seasons.map(season => (
                     <SeasonElt key={season.Info.SeasonNumber}
                                refreshSeason={this.props.refreshSeason}
                                season={season} />
                 ))}
+                </div>
             </div>
         )
     }
@@ -175,10 +177,18 @@ class SeasonElt extends React.Component<SeasonProps, SeasonState> {
 
         if (season.LoadError) {
             return (
-                <div className="uk-text-muted uk-flex uk-flex-middle">
-                    <i>
-                        Could not load season
-                    </i>
+                <div className={"season-container"} key={season.Info.SeasonNumber}>
+                    <div>
+                        <div className="columns is-gapless is-vcentered is-mobile">
+                            <div className="column">
+                                <span className="title is-5">
+                                    <i className={"has-text-grey"}>
+                                        Could not load season details
+                                    </i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         }
@@ -187,7 +197,7 @@ class SeasonElt extends React.Component<SeasonProps, SeasonState> {
             return (
                 <div className={"season-container"} key={season.Info.SeasonNumber}>
                     <div>
-                        <div className="columns is-gapless is-vcentered">
+                        <div className="columns is-gapless is-vcentered is-mobile">
                             <div className="column is-narrow">
                                 <button className={"button is-naked is-small is-loading"}>
                                 </button>
@@ -216,9 +226,9 @@ class SeasonElt extends React.Component<SeasonProps, SeasonState> {
         return (
             <div className={"season-container"} key={season.Info.SeasonNumber}>
                 <div>
-                    <div className="columns is-gapless is-vcentered">
+                    <div className="columns is-gapless is-vcentered is-mobile">
                         <div className="column is-narrow">
-                            <button className={"button is-naked is-small"}
+                            <button className={"button is-naked is-small season-deploy-button"}
                                     onClick={this.toggleEpisodeList}>
                                 <span className={"icon"}>
                                 {this.state.show_episode_list ? (
@@ -248,7 +258,7 @@ class SeasonElt extends React.Component<SeasonProps, SeasonState> {
                                         <RiCheckDoubleLine />
                                     </span>
                                 </button>
-                                <button data-uk-tooltip="Download the whole season"
+                                <button data-tooltip="Download the whole season"
                                     onClick={this.downloadSeason}
                                     className="button is-small is-naked">
                                     <span className={"icon is-small"}>

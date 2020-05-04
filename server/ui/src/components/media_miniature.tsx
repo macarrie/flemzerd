@@ -385,7 +385,7 @@ class MediaMiniature extends React.Component<Props, State> {
         }
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={`column is-2 media-miniature is-relative`}>
+                <div className={`column is-half-mobile is-one-third-tablet is-2-desktop media-miniature is-relative`}>
                     <div className={"is-relative"}>
                         <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
                             <div className={"thumbnail-container"}>
@@ -399,7 +399,7 @@ class MediaMiniature extends React.Component<Props, State> {
                         </Link>
                     </div>
 
-                    <div className="tile is-ancestor has-text-centered is-vertical media-miniature-controls is-overlay">
+                    <div className="tile is-ancestor has-text-centered is-vertical media-miniature-controls is-overlay is-hidden-touch">
                         <div className={"tile"}>
                             <Link to={`/${this.props.type}s/${this.state.item.ID}`}>
                                 <span data-tooltip="See details" className="icon">

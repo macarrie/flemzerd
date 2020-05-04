@@ -115,6 +115,10 @@ func initRouter() {
 		routes.GET("/", func(c *gin.Context) {
 			c.Redirect(http.StatusMovedPermanently, "/dashboard")
 		})
+
+		routes.GET("/manifest.json", func(c *gin.Context) {
+			c.File("/var/lib/flemzerd/server/ui/manifest.json")
+		})
 	}
 
 	v1 := router.Group("/api/v1")

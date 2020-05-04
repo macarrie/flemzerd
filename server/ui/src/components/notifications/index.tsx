@@ -84,7 +84,7 @@ class Notifications extends React.Component<any, State> {
 
         return (
             <div className="container">
-                <div className="columns">
+                <div className="columns is-mobile">
                     <div className="column">
                         <span className="title is-3">Notifications</span>
                     </div>
@@ -94,33 +94,41 @@ class Notifications extends React.Component<any, State> {
                             <span className={"icon icon-left is-small"}>
                                 <RiCheckDoubleLine />
                             </span>
-                            Mark all as read
+                            <span className={"is-hidden-mobile"}>
+                                Mark all as read
+                            </span>
                         </button>
                         <button className="button is-naked is-underlined"
                             onClick={this.deleteAll}>
                             <span className={"icon icon-left is-small"}>
                                 <RiDeleteBin5Line />
                             </span>
-                            Delete all
+                            <span className={"is-hidden-mobile"}>
+                                Delete all
+                            </span>
                         </button>
                     </div>
                 </div>
                 <hr />
 
                 <div className="container">
-                    <ul className="block-list">
-                    {this.state.list.length === 0 ? 
-                        (
-                            <Empty label={"No notifications"} />
-                        ) :
-                        this.state.list.map(notification => (
-                            <NotificationComponent
-                            key={notification.ID}
-                            markRead={this.markRead}
-                            item={notification} />
-                        ))
-                    }
-                    </ul>
+                    <div className={"columns is-mobile"}>
+                        <div className={"column is-full"}>
+                            <ul className="block-list">
+                            {this.state.list.length === 0 ?
+                                (
+                                    <Empty label={"No notifications"} />
+                                ) :
+                                this.state.list.map(notification => (
+                                    <NotificationComponent
+                                    key={notification.ID}
+                                    markRead={this.markRead}
+                                    item={notification} />
+                                ))
+                            }
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
             </div>

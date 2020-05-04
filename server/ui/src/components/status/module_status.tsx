@@ -11,7 +11,7 @@ class ModuleStatus extends React.Component<Props, any> {
         const module = this.props.module;
         return (
             <li>
-                <div className="columns is-multiline is-gapless">
+                <div className="columns is-mobile is-multiline is-gapless">
                     <div className="column">{module.Name}</div>
                     {(!module.Status.Alive) ? (
                         <div className="column is-narrow">

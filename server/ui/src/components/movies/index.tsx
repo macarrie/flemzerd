@@ -184,7 +184,7 @@ class Movies extends React.Component<any, State> {
 
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={`columns is-multiline`}>
+                <div className={`columns is-multiline is-mobile`}>
                     {this.renderMovieListContent()}
                 </div>
             );
@@ -193,7 +193,7 @@ class Movies extends React.Component<any, State> {
                 <table className="table is-fullwidth">
                     <thead>
                         <tr>
-                            <th className="uk-width-expand">Title</th>
+                            <th>Title</th>
                             <th>State</th>
                             <th>Actions</th>
                         </tr>
@@ -259,7 +259,7 @@ class Movies extends React.Component<any, State> {
 
     renderMovieList() {
         return (
-            <div className="container" data-uk-filter="target: .item-filter">
+            <div className="container">
                 {this.renderDownloadingList()}
 
                 <div className="columns">
@@ -283,7 +283,7 @@ class Movies extends React.Component<any, State> {
                             action={this.refreshWatchlists}
                         />
                     </div>
-                    <div className="column is-narrow">
+                    <div className="column is-narrow is-hidden-mobile">
                         <div className="buttons has-addons">
                             <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_MINIATURES)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
                                 <span className="icon is-small">

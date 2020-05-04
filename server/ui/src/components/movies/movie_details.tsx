@@ -182,12 +182,12 @@ class MovieDetails extends React.Component<any, State> {
                             type="movie"/>
 
             <div className="container mediadetails">
-                <div className="columns">
-                    <div className="column is-one-quarter">
+                <div className="columns is-mobile">
+                    <div className="column is-one-quarter-desktop is-one-third-tablet is-hidden-mobile">
                         <img width="100%" src={this.state.movie.Poster} alt="{this.state.movie.Title}" className="thumbnail" />
                     </div>
                     <div className="column">
-                        <div className="columns">
+                        <div className="columns is-mobile">
                             <div className="column is-narrow inlineedit">
                                 <span className="title is-2 has-text-grey-light">
                                     <Editable
@@ -201,7 +201,7 @@ class MovieDetails extends React.Component<any, State> {
                                 <span className="title is-3 has-text-grey-light media_title_details">({Helpers.getYear(this.state.movie.Date)})</span>
                             </div>
                         </div>
-                        <div className="columns">
+                        <div className="columns is-mobile">
                             <div className={"column is-narrow"}> See on </div>
                             <div className={"column"}><MediaIdsComponent ids={this.state.movie.MediaIds} type="movie"/></div>
                         </div>
@@ -218,8 +218,14 @@ class MovieDetails extends React.Component<any, State> {
                 </div>
             </div>
 
-            <div className="container box">
-                <DownloadingItemComponent item={this.state.movie.DownloadingItem}/>
+            <div className="container">
+                <div className="columns is-mobile">
+                    <div className={"column is-full"}>
+                        <div className={"box"}>
+                            <DownloadingItemComponent item={this.state.movie.DownloadingItem}/>
+                        </div>
+                    </div>
+                </div>
             </div>
             </>
         );

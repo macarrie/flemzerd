@@ -1,17 +1,29 @@
-.logo span {
-    font-size: 50px !important;
-    line-height: 50px !important;
-    font-family: "Alex Brush";
-    padding: 0 15px;
-    color: transparent !important;
-    background-color: $primary;
-    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-    background-clip: text;
-    -webkit-background-clip: text;
-}
-
 .has-navbar-fixed-top {
     padding-top: 67px !important;
+}
+
+.logo {
+    margin-right: 30px;
+
+    &:hover {
+        background-color: transparent !important;
+
+        span {
+            background-image: linear-gradient(315deg, $info 0%, $secondary 74%);
+        }
+    }
+
+    span {
+        font-size: 50px !important;
+        line-height: 50px !important;
+        font-family: "Alex Brush";
+        padding: 0 15px;
+        color: transparent !important;
+        background-color: $primary;
+        background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
+        background-clip: text;
+        -webkit-background-clip: text;
+    }
 }
 
 .navbar {
@@ -21,11 +33,13 @@
     border-image-slice: 1;
     font-family: $font-header;
 
-    .logo {
-        margin-right: 30px;
+    .navbar-burger {
+        height: 64px;
+        padding: 0 32px;
+        margin-left: 10px;
     }
 
-    .navbar-menu .navbar-item {
+    .navbar-menu .navbar-item, .external-navbar-item {
         padding-left: 5px;
         padding-right: 5px;
 
@@ -54,14 +68,12 @@
         }
 
         &.active, &:hover {
+            background-color: transparent !important;
+
             div {
                 background-color: darken($light, 3%);
                 border-radius: $radius;
             }
-
-            //color: $dark !important;
-            //font-weight: bold;
-            //border-top: 1px solid $secondary;
         }
     }
 
@@ -69,19 +81,14 @@
         margin-top: $gap;
     }
 
-    //a, button {
-    //margin: 5px;
-    //}
-
-    //.uk-navbar-nav > li > .active {
-    //background: darken($light, 3%);
-    //border-radius: 4px;
-    //}
-
     .notifications_counter {
         background: none;
         border: none;
         padding-right: 0;
+
+        &.mobile {
+            margin-left: auto;
+        }
 
         div {
             padding: 10px 0 5px 10px !important;
@@ -118,12 +125,9 @@
         }
     }
 
-    //.server-unavailable {
-    //background-color: lighten($danger, 5%);
-    //color: $light;
-    //border-radius: $border-rounded-border-radius;
-    //padding: 10px 20px;
-    //}
+    .server-unavailable {
+        padding: 0 !important;
+    }
 }
 
 .footer {

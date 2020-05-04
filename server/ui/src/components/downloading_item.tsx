@@ -42,9 +42,9 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
         if (item.Downloaded) {
             return (
-                <div className={"columns is-multiline"}>
+                <div className={"columns is-mobile is-multiline"}>
                     <div className="column is-full has-text-centered">
-                        <div className={"columns is-gapless is-centered is-vcentered"}>
+                        <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
                             <div className={"column is-narrow"}>
                                 <button className={"button is-naked is-disabled"}>
                                     <span className={"icon has-text-success"}>
@@ -127,9 +127,9 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
         if (item.Downloading && !item.Downloaded) {
             return (
-                <div className={"columns is-vcentered is-multiline"}>
+                <div className={"columns is-mobile is-vcentered is-multiline"}>
                     <div className="column is-full has-text-centered">
-                        <div className={"columns is-gapless is-centered is-vcentered"}>
+                        <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
                             <div className={"column is-narrow"}>
                                 <button className={"button is-naked is-disabled"}>
                                     <span className={"icon has-text-grey"}>
@@ -149,12 +149,12 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Downloading</b></td>
                             <td>
-                                <div className="columns is-multiline is-gapless">
+                                <div className="columns is-mobile is-multiline is-gapless">
                                     <div className="column is-full">
-                                        <div className="columns is-vcentered">
-                                            <div className="column has-text-success">Started at <Moment date={currentTorrent.CreatedAt} format={"HH:mm DD/MMM/YYYY"}/> </div>
-                                            <div className={"column"}> ETA: <Moment date={currentTorrent.CreatedAt} format={"HH[h]mm[mn]"}/> left </div>
-                                            <div className="column">
+                                        <div className="columns is-mobile is-multiline is-vcentered">
+                                            <div className="column is-full-mobile has-text-success">Started at <Moment date={currentTorrent.CreatedAt} format={"HH:mm DD/MMM/YYYY"}/> </div>
+                                            <div className={"column is-full-mobile"}> ETA: <Moment date={currentTorrent.CreatedAt} format={"HH[h]mm[mn]"}/> left </div>
+                                            <div className="column is-half-mobile">
                                                 <button className={"button is-small is-naked is-disabled"}>
                                                     <span className={"icon is-small"}>
                                                         <RiDownloadLine/>
@@ -162,7 +162,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                                                 </button>
                                                 {Math.round(currentTorrent.RateDownload / 1024)} ko/s
                                             </div>
-                                            <div className="column">
+                                            <div className="column is-half-mobile">
                                                 <button className={"button is-small is-naked is-disabled"}>
                                                     <span className={"icon is-small"}>
                                                         <RiUploadLine/>
@@ -173,7 +173,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                                         </div>
                                     </div>
                                     <div className="column">
-                                        <div className="columns is-vcentered">
+                                        <div className="columns is-mobile is-vcentered">
                                             <div className={"column is-narrow"}> {Math.round(currentTorrent.PercentDone * 100)}% done </div>
                                             <div className="column">
                                                 <progress className="progress is-info is-small" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
@@ -186,27 +186,23 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Current download</b></td>
                             {currentTorrent.Name ? (
-                                <td className="has-text-grey">
-                                    <i>
-                                        {currentTorrent.Name}
-                                    </i>
+                                <td className="has-text-grey is-italic">
+                                    {currentTorrent.Name}
                                 </td>
                             ) : (
-                                <td className="has-text-grey">
-                                    <i>
-                                        Unknown
-                                    </i>
+                                <td className="has-text-grey is-italic">
+                                    Unknown
                                 </td>
                             )}
                         </tr>
                         <tr>
                             <td><b>Download list</b></td>
                             {item.TorrentList == null ? (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     Empty torrent list
                                 </td>
                             ) : (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     <ul>
                                         {item.TorrentList.map(torrent => {
                                             return this.getTorrentListItem(currentTorrent, torrent)
@@ -218,18 +214,18 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Download directory</b></td>
                             {currentTorrent.DownloadDir ? (
-                                <td className="uk-text-muted uk-font-italic">
+                                <td className="has-text-grey is-italic">
                                     <code>
                                         {currentTorrent.DownloadDir}
                                     </code>
                                 </td>
                             ) : (
-                                <td className="uk-text-muted uk-font-italic">
+                                <td className="has-text-grey is-italic">
                                     Unknown
                                 </td>
                             )}
                         </tr>
-                        <tr className={(failedTorrents || []).length > 0 ? "uk-text-danger" : "uk-text-success"}>
+                        <tr className={(failedTorrents || []).length > 0 ? "has-text-danger" : "has-text-success"}>
                             <td><b>Failed torrents</b></td>
                             <td>
                                 <b>{(failedTorrents || []).length}</b>
@@ -250,9 +246,9 @@ class DownloadingItemComponent extends React.Component<Props, State> {
         if (!item.Downloading && !item.Downloaded && !item.Pending) {
             if (item.TorrentsNotFound) {
                 return (
-                    <div className={"columns is-vcentered is-multiline"}>
+                    <div className={"columns is-mobile is-vcentered is-multiline"}>
                         <div className="column is-full has-text-centered">
-                            <div className={"columns is-gapless is-centered is-vcentered"}>
+                            <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
                                 <div className={"column is-narrow"}>
                                     <button className={"button is-naked is-disabled"}>
                                     <span className={"icon has-text-warning"}>
@@ -296,7 +292,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
     render() {
         if (typeof this.state.item === "undefined") {
             return (
-                <div className="columns is-multiline">
+                <div className="columns is-mobile is-multiline">
                     <div className="column is-12">
                         <span className="title is-2 has-text-centered">
                             <i>
@@ -309,7 +305,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
         }
 
         return (
-            <div className="columns is-multiline">
+            <div className="columns is-mobile is-multiline">
                 <div className="column is-12">
                     <span className="title is-4">Download status</span>
                     <hr />

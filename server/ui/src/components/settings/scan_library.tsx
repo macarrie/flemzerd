@@ -166,7 +166,7 @@ class LibraryScan extends React.Component<Props, State> {
             );
         } else if (this.state.import_status === "scanning") {
             return (
-                <div className="columns is-vcentered">
+                <div className="columns is-mobile is-vcentered">
                     <div className={"column"}>
                         <button className={"button is-small is-naked is-disabled is-loading"}>Scanning</button>
                     </div>
@@ -177,7 +177,7 @@ class LibraryScan extends React.Component<Props, State> {
             );
         } else if (this.state.import_status === "importing") {
             return (
-                <div className="columns is-vcentered">
+                <div className="columns is-mobile is-vcentered">
                     <div className={"column"}>
                         <button className={"button is-small is-naked is-disabled is-loading"}>Importing</button>
                     </div>
@@ -276,7 +276,7 @@ class LibraryScan extends React.Component<Props, State> {
             <div className={"column is-full"}>
                 <hr />
                     {Helpers.count(this.state.media_list) > 0 ? (
-                        <div className="columns is-gapless">
+                        <div className="columns is-mobile is-gapless">
                             <div className="column">
                                 <span className="title is-4">Select media to import ({this.countSelectedItems()}/{this.state.media_list.length})</span>
                             </div>
@@ -290,7 +290,7 @@ class LibraryScan extends React.Component<Props, State> {
                     ) : (
                         <Empty label={"No media detected in library"} />
                     )}
-                    <form className="columns is-multiline"
+                    <form className="columns is-mobile is-multiline"
                           onSubmit={this.importScannedMedia}>
                         <div className={"column is-full"}>
                             <ul className="">
@@ -345,7 +345,7 @@ class LibraryScan extends React.Component<Props, State> {
         }
 
         return (
-            <div className="columns is-vcentered">
+            <div className="columns is-mobile is-vcentered">
                 <div className={"column"}>
                     <button className={"button is-small is-naked is-disabled is-loading"}>Pending</button>
                 </div>
@@ -360,27 +360,27 @@ class LibraryScan extends React.Component<Props, State> {
         return (
             <div className={"column is-full"}>
                 <hr />
-                <div className="columns is-vcentered is-multiline">
+                <div className="columns is-mobile is-vcentered is-multiline">
                     <div className="column is-half">
                         <span className="title is-4">Importing media</span>
                     </div>
-                    <div className="columns column is-half">
-                        <div className="column is-one-quarter">
+                    <div className="columns is-mobile is-multiline column is-half">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-grey">
                             <b>
                                 {this.state.media_list.length} total
                             </b>
                         </div>
-                        <div className="column is-one-quarter has-text-grey">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-info">
                             <b>
                                 {this.state.media_list.length - this.countImportedItems() - this.countImportedErrorItems()} pending
                             </b>
                         </div>
-                        <div className="column is-one-quarter has-text-success">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-success">
                             <b>
                                 {this.countImportedItems()} success
                             </b>
                         </div>
-                        <div className="column is-one-quarter has-text-danger">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-danger">
                             <b>
                                 {this.countImportedErrorItems()} errors
                             </b>
@@ -390,7 +390,7 @@ class LibraryScan extends React.Component<Props, State> {
                         <ul className="">
                         {this.state.media_list.map((media, index) =>
                             <li key={index} className="">
-                                <div className={"columns"}>
+                                <div className={"columns is-mobile"}>
                                     <div className="column">
                                         {media.title} &nbsp;
                                         {media.data != null && (
@@ -446,11 +446,11 @@ class LibraryScan extends React.Component<Props, State> {
 
         return (
             <>
-                <div className="columns is-gapless is-multiline is-vcentered library-scan-dialog">
-                    <div className="column">
+                <div className="columns is-mobile is-gapless is-multiline is-vcentered library-scan-dialog">
+                    <div className="column is-full-mobile">
                         {label}
                     </div>
-                    <div className="column is-narrow">
+                    <div className="column is-narrow-tablet">
                         <code>
                             <span className="">
                                 {option}

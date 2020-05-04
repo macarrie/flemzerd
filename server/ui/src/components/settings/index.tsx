@@ -229,7 +229,7 @@ k                                              label={"Interface port"} />
                             <h4 className="title is-4">About flemzerd</h4>
                             <ul className="block-list">
                                 <li>
-                                    <div className={"columns is-gapless is-vcentered"}>
+                                    <div className={"columns is-mobile is-gapless is-vcentered"}>
                                         <div className="column">
                                             Logged in as: <i>{this.state.config.Interface.Auth.Username}</i>
                                         </div>

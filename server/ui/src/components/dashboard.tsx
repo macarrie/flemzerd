@@ -126,13 +126,13 @@ class Dashboard extends React.Component<any, State> {
             <div className={"container"}>
                 {(Helpers.count(this.state.downloading_episodes) + Helpers.count(this.state.downloading_movies) > 0) && (
                     <>
-                        <div className="columns is-vcentered">
-                            <div className="column is-narrow">
+                        <div className="columns is-mobile is-vcentered is-multiline">
+                            <div className="column is-narrow-tablet is-full-mobile">
                                 <div className="title is-3">
                                     Currently downloading
                                 </div>
                             </div>
-                            <div className="column">
+                            <div className="column is-full-mobile">
                                 <div className={"title is-5 has-text-grey subtitle-horizontal"}>
                                     ({Helpers.count(this.state.downloading_episodes)} episodes, {Helpers.count(this.state.downloading_movies)} movies)
                                 </div>
@@ -143,7 +143,7 @@ class Dashboard extends React.Component<any, State> {
                             <>
                                 <DownloadingItemTable
                                     list={this.state.downloading_episodes}
-                                    type="movie"
+                                    type="episode"
                                     skipTorrent={this.skipEpisodeTorrentDownload}
                                     abortDownload={this.abortEpisodeDownload}/>
                                 <hr />
@@ -163,10 +163,10 @@ class Dashboard extends React.Component<any, State> {
                 )}
             </div>
             <div className="container">
-                <div className="columns has-text-centered is-multiline">
+                <div className="columns has-text-centered is-multiline is-mobile">
                     {this.state.config.System.TrackShows && (
                             <>
-                                <div className="column is-half">
+                                <div className="column is-half-tablet is-full-mobile">
                                     <div className="title jumbo title-gradient">
                                         <Link to="/tvshows">
                                             {this.state.stats.Shows.Tracked}
@@ -176,7 +176,7 @@ class Dashboard extends React.Component<any, State> {
                                         Tracked shows
                                     </span>
                                 </div>
-                                <div className="column is-half">
+                                <div className="column is-half-tablet is-full-mobile">
                                     <div className="title jumbo title-gradient">
                                         <Link to="/tvshows">
                                             {this.state.stats.Episodes.Downloading}
@@ -191,7 +191,7 @@ class Dashboard extends React.Component<any, State> {
 
                         {this.state.config.System.TrackMovies && (
                             <>
-                                <div className="column is-one-third">
+                                <div className="column is-one-third-tablet is-full-mobile">
                                     <div className="title jumbo title-gradient">
                                         <Link to="/movies">
                                             {this.state.stats.Movies.Tracked}
@@ -201,7 +201,7 @@ class Dashboard extends React.Component<any, State> {
                                         New movies
                                     </span>
                                 </div>
-                                <div className="column is-one-third">
+                                <div className="column is-one-third-tablet is-full-mobile">
                                     <div className="title jumbo is-1 title-gradient">
                                         <Link to="/movies">
                                             {this.state.stats.Movies.Downloading}
@@ -211,7 +211,7 @@ class Dashboard extends React.Component<any, State> {
                                         Downloading movies
                                     </span>
                                 </div>
-                                <div className="column is-one-third">
+                                <div className="column is-one-third-tablet is-full-mobile">
                                     <div className="title jumbo is-1 title-gradient">
                                         <Link to="/movies">
                                             {this.state.stats.Movies.Downloaded}

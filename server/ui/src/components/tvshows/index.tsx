@@ -202,7 +202,7 @@ class TvShows extends React.Component<any, State> {
 
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={`columns is-multiline`}>
+                <div className={`columns is-multiline is-mobile`}>
                     {this.renderShowListContent()}
                 </div>
             );
@@ -234,11 +234,11 @@ class TvShows extends React.Component<any, State> {
         }
 
         return (
-            <div className="container" data-uk-filter="target: .item-filter">
+            <div className="container">
                 {this.renderDownloadingList()}
 
-                <div className="columns">
-                    <div className="column">
+                <div className="columns is-mobile is-multiline">
+                    <div className="column is-full-mobile">
                         <span className="title is-3">TV Shows</span>
                     </div>
                     <ItemFilterControls
@@ -258,7 +258,7 @@ class TvShows extends React.Component<any, State> {
                                 action={this.refreshWatchlists}
                             />
                     </div>
-                    <div className="column is-narrow">
+                    <div className="column is-narrow is-hidden-mobile">
                         <div className="buttons has-addons">
                             <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_MINIATURES)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
                                 <span className="icon is-small">

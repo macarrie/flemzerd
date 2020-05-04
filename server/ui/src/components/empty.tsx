@@ -3,8 +3,8 @@ import React from "react";
 class Empty extends React.Component<any, any> {
     render() {
         return (
-            <div className="container">
-                <div className="columns is-centered empty-section-placeholder is-centered">
+            <div className="container is-marginless">
+                <div className="columns is-mobile is-centered empty-section-placeholder is-centered">
                     <div className={"column is-narrow"}>
                         <i>
                             <div className="title is-3 has-text-grey-light">

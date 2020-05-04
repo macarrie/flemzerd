@@ -125,12 +125,12 @@ class NotificationComponent extends React.Component<Props, State> {
 
         if (this.state.notification.Movie.ID) {
             return (
-                <blockquote className="uk-text-normal uk-padding-left-small">{this.state.notification.Movie.Overview}</blockquote>
+                <blockquote>{this.state.notification.Movie.Overview}</blockquote>
             );
         }
         if (this.state.notification.Episode.ID) {
             return (
-                <blockquote className="uk-text-normal uk-padding-left-small">{this.state.notification.Episode.Overview}</blockquote>
+                <blockquote>{this.state.notification.Episode.Overview}</blockquote>
             );
         }
 
@@ -275,7 +275,7 @@ class NotificationComponent extends React.Component<Props, State> {
 
         return (
             <li className={`notification_item ${read_class}`}>
-                <div className={"columns is-gapless is-multiline is-vcentered"}>
+                <div className={"columns is-mobile is-gapless is-multiline is-vcentered"}>
                     <div className={`column is-narrow ${this.getStatusClass()}`}><div></div></div>
                     <div className="column"
                          onClick={this.toggleContent}>
@@ -284,7 +284,8 @@ class NotificationComponent extends React.Component<Props, State> {
                     <div className="column is-narrow">
                         {this.getContentToggleIcon()}
                     </div>
-                    <div className="column is-narrow">
+                    <div className="column is-narrow"
+                         onClick={this.toggleContent}>
                         <span className={"has-text-grey"}>
                             <i>
                                 <Moment date={this.state.notification.CreatedAt} format={"ddd DD MMM hh:mm"}/>
@@ -292,7 +293,7 @@ class NotificationComponent extends React.Component<Props, State> {
                         </span>
                     </div>
                     {!this.state.notification.Read && (
-                        <div className="notification_action_button uk-text-success"
+                        <div className="column is-narrow"
                             onClick={() => this.props.markRead(this.state.notification.ID)}>
                             <button className="button is-small is-naked"
                                     data-tooltip="Mark as read">

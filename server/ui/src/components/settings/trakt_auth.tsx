@@ -147,7 +147,7 @@ class TraktAuth extends React.Component<any, State> {
                     <div className={"column is-full"}>
                         <hr />
                         Enter the following validation code into <a target="_blank" rel="noopener noreferrer" href={this.state.verification_url}>{this.state.verification_url}</a>
-                        <div className={"columns is-centered"}>
+                        <div className={"columns is-mobile is-centered"}>
                             <div className={"column is-narrow"}>
                                     <h5 className="title is-3 has-text-info trakt-auth-code">{this.state.user_code}</h5>
                             </div>

@@ -39,16 +39,14 @@ class EpisodeTable extends React.Component<Props, State> {
     render() {
         if (this.state.list == null || this.state.list.length === 0) {
             return (
-                <div className="uk-text-muted uk-text-center">
-                    <i>
-                        No episodes for this season
-                    </i>
+                <div className="is-italic has-text-centered has-text-grey">
+                    No episodes for this season
                 </div>
             );
         }
 
         return (
-            <table className="table is-fullwidth is-hoverable">
+            <table className="table is-fullwidth is-hoverable not-responsive">
                 <thead>
                 <tr>
                     <th>Title</th>
@@ -274,13 +272,13 @@ class EpisodeTableLine extends React.Component<TableLineProps, TableLineState> {
                         {this.state.item.Title}
                     </Link>
                 </td>
-                <td className="uk-table-shrink is-hidden-tablet uk-text-nowrap uk-text-center uk-hidden@s"><Moment date={this.state.item.Date} format={"DD MMM YYYY"}/></td>
-                <td className="uk-table-shrink is-hidden-desktop is-hidden-mobile uk-text-nowrap uk-text-center uk-visible@s uk-hidden@m"><Moment date={this.state.item.Date} format={"ddd DD MMM YYYY"}/></td>
-                <td className="uk-table-shrink is-hidden-mobile is-hidden-tablet-only uk-text-center uk-visible@m"><Moment date={this.state.item.Date} format={"dddd DD MMM YYYY"}/></td>
-                <td className="uk-text-center">
+                <td className="is-hidden-tablet has-text-centered"><Moment date={this.state.item.Date} format={"DD MMM YYYY"}/></td>
+                <td className="is-hidden-desktop is-hidden-mobile has-text-centered"><Moment date={this.state.item.Date} format={"ddd DD MMM YYYY"}/></td>
+                <td className="is-hidden-mobile is-hidden-tablet-only has-text-centered"><Moment date={this.state.item.Date} format={"dddd DD MMM YYYY"}/></td>
+                <td className="has-text-centered">
                     {this.getDownloadButtons()}
                 </td>
-                <td className="uk-text-center">
+                <td className="has-text-centered">
                     {this.getDownloadControlButtons()}
                 </td>
             </tr>

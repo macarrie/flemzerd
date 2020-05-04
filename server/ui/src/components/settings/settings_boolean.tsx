@@ -28,7 +28,7 @@ class SettingsBoolean extends React.Component<any, State> {
         return (
             <>
                 <li>
-                    <div className="columns is-gapless">
+                    <div className="columns is-mobile is-gapless">
                         <div className="column">
                             { this.state.label}
                         </div>

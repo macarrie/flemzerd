@@ -72,7 +72,7 @@ class DownloadingItemTable extends React.Component<Props, State> {
                             {currentTorrent.Name}
                         </i>
                     </td>
-                    <td className="is-narrow">
+                    <td className="is-narrow is-hidden-mobile">
                         {(item.DownloadingItem.Downloading) && (
                             <>
                                 <progress className="progress is-info is-small" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
@@ -84,12 +84,12 @@ class DownloadingItemTable extends React.Component<Props, State> {
                             <span className="has-text-grey"><i> Looking for torrents </i></span>
                         )}
                     </td>
-                    <td className={`has-text-centered ${((failedTorrents || []).length > 0) ? "has-text-danger" : "has-text-success"}`}>
+                    <td className={`is-hidden-mobile has-text-centered ${((failedTorrents || []).length > 0) ? "has-text-danger" : "has-text-success"}`}>
                         <b>
                             {(failedTorrents || []).length}
                         </b>
                     </td>
-                    <td>
+                    <td className={"is-hidden-mobile"}>
                         <button className="button is-naked is-small"
                             data-tooltip="Skip current torrent download"
                             onClick={() => this.props.skipTorrent(item.ID)}>
@@ -113,13 +113,13 @@ class DownloadingItemTable extends React.Component<Props, State> {
     render() {
         return (
             <div className="column">
-                <table className="table is-fullwidth">
+                <table className="table not-responsive is-fullwidth">
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th className="">Current download</th>
-                            <th className="">Download status</th>
-                            <th className="has-text-centered">Failed torrents</th>
+                            <th>Current download</th>
+                            <th className="is-hidden-mobile">Download status</th>
+                            <th className="has-text-centered is-hidden-mobile">Failed torrents</th>
                             <th></th>
                         </tr>
                     </thead>

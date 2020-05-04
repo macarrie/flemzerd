@@ -38,7 +38,7 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         if (this.state.type === "watchlist" && this.state.module.Name === "trakt") {
             return (
                 <>
-                    <div className={"columns is-multiline is-gapless is-vcentered"}>
+                    <div className={"columns is-mobile is-multiline is-gapless is-vcentered"}>
                         <div className={"column"}>
                             {this.state.module.Name}
                         </div>
@@ -51,7 +51,7 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
         if (this.state.type === "notifier" && this.state.module.Name === "telegram") {
             return (
                 <>
-                    <div className={"columns is-multiline is-gapless is-vcentered"}>
+                    <div className={"columns is-mobile is-multiline is-gapless is-vcentered"}>
                         <div className={"column"}>
                             {this.state.module.Name}
                         </div>
