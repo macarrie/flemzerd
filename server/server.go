@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -116,9 +118,25 @@ func initRouter() {
 			c.Redirect(http.StatusMovedPermanently, "/dashboard")
 		})
 
+		// Manifest and service worker are required for PWA
 		routes.GET("/manifest.json", func(c *gin.Context) {
 			c.File("/var/lib/flemzerd/server/ui/manifest.json")
 		})
+
+		// Register js files route for pwa (precache-manifest.js and others)
+		webuiRoot := "/var/lib/flemzerd/server/ui/"
+		err := filepath.Walk(webuiRoot, func(path string, info os.FileInfo, err error) error {
+			extension := filepath.Ext(path)
+			if extension == ".js" {
+				routes.GET(filepath.Base(path), func(c *gin.Context) {
+					c.File(path)
+				})
+			}
+			return nil
+		})
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	v1 := router.Group("/api/v1")
