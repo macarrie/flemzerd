@@ -3,6 +3,14 @@ import React from "react";
 import Helpers from "../utils/helpers";
 import DownloadingItem from "../types/downloading_item";
 import Torrent from "../types/torrent";
+import Empty from "./empty";
+
+import {RiCheckLine} from "react-icons/ri";
+import {RiDownloadLine} from "react-icons/ri";
+import {RiUploadLine} from "react-icons/ri";
+import {RiAlertLine} from "react-icons/ri";
+
+import Moment from "react-moment";
 
 type Props = {
     item: DownloadingItem,
@@ -34,34 +42,51 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
         if (item.Downloaded) {
             return (
-                <div>
-                <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                <span className="uk-h4 uk-text-success">
-                <i className="material-icons md-18">check</i> Download successful
-                </span>
-                </div>
-                <table className="uk-table uk-table-small uk-table-divider">
-                <tbody>
-                <tr>
-                <td><b>Downloaded torrent</b></td>
-                {currentTorrent.Name ? (
-                    <td className="uk-font-italic uk-text-muted">
-                    {currentTorrent.Name}
-                    </td>
-                ) : (
-                    <td className="uk-font-italic uk-text-muted">
-                    Unknown
-                    </td>
-                )}
-                </tr>
-                <tr className={(failedTorrents || []).length > 0 ? "uk-text-danger" : "uk-text-success"}>
-                <td><b>Failed torrents</b></td>
-                <td>
-                <b>{(failedTorrents || []).length}</b>
-                </td>
-                </tr>
-                </tbody>
-                </table>
+                <div className={"columns is-mobile is-multiline"}>
+                    <div className="column is-full has-text-centered">
+                        <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
+                            <div className={"column is-narrow"}>
+                                <button className={"button is-naked is-disabled"}>
+                                    <span className={"icon has-text-success"}>
+                                        <RiCheckLine />
+                                    </span>
+                                </button>
+                            </div>
+                            <div className={"column is-narrow"}>
+                                <span className="title is-4 has-text-success">
+                                    Download successful
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={"column"}>
+                        <table className="table is-fullwidth">
+                            <tbody>
+                            <tr>
+                                <td className={"is-narrow"}><b>Downloaded torrent</b></td>
+                                {currentTorrent.Name ? (
+                                    <td className="has-text-grey">
+                                        <i>
+                                            {currentTorrent.Name}
+                                        </i>
+                                    </td>
+                                ) : (
+                                    <td className="has-text-grey">
+                                        <i>
+                                            Unknown
+                                        </i>
+                                    </td>
+                                )}
+                            </tr>
+                            <tr className={Helpers.count(failedTorrents) > 0 ? "has-text-danger" : "has-text-success"}>
+                                <td><b>Failed torrents</b></td>
+                                <td>
+                                    <b>{Helpers.count(failedTorrents)}</b>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             );
         }
@@ -72,7 +97,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
     getTorrentListItem(currentTorrent :Torrent, torrent :Torrent) {
         if (torrent.Failed) {
             return (
-                <li className="uk-text-danger">
+                <li className="has-text-danger">
                     <i>
                         {torrent.Name} (failed)
                     </i>
@@ -82,7 +107,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
         if (torrent.ID === currentTorrent.ID && currentTorrent.ID !== 0) {
             return (
-                <li className="uk-text-primary">
+                <li className="has-text-info">
                     {torrent.Name} <i>(current)</i>
                 </li>
             );
@@ -102,37 +127,56 @@ class DownloadingItemComponent extends React.Component<Props, State> {
 
         if (item.Downloading && !item.Downloaded) {
             return (
-                <div>
-                    <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                        <span className="uk-h4">
-                            <i className="material-icons md-18">swap_vert</i> Download in progress
-                        </span>
+                <div className={"columns is-mobile is-vcentered is-multiline"}>
+                    <div className="column is-full has-text-centered">
+                        <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
+                            <div className={"column is-narrow"}>
+                                <button className={"button is-naked is-disabled"}>
+                                    <span className={"icon has-text-grey"}>
+                                        <RiDownloadLine />
+                                    </span>
+                                </button>
+                            </div>
+                            <div className={"column is-narrow"}>
+                                <span className="title is-4">
+                                    Download in progress
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <table className="uk-table uk-table-small uk-table-divider">
+                    <table className="table is-fullwidth">
                         <tbody>
                         <tr>
                             <td><b>Downloading</b></td>
                             <td>
-                                <div className="uk-grid-collapse" data-uk-grid="">
-                                    <div className="uk-width-1-1">
-                                        <div className="uk-child-1-4" data-uk-grid="">
-                                            <div className="uk-text-success">Started at {Helpers.formatDate(currentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')} </div>
-                                            <div> ETA: {Helpers.formatDate(currentTorrent.ETA, 'HH[h]mm[mn]')} left </div>
-                                            <div className="uk-flex uk-flex-middle">
-                                                <span className="uk-icon-link" data-uk-icon="download"></span>
+                                <div className="columns is-mobile is-multiline is-gapless">
+                                    <div className="column is-full">
+                                        <div className="columns is-mobile is-multiline is-vcentered">
+                                            <div className="column is-full-mobile has-text-success">Started at <Moment date={currentTorrent.CreatedAt} format={"HH:mm DD/MMM/YYYY"}/> </div>
+                                            <div className={"column is-full-mobile"}> ETA: <Moment date={currentTorrent.CreatedAt} format={"HH[h]mm[mn]"}/> left </div>
+                                            <div className="column is-half-mobile">
+                                                <button className={"button is-small is-naked is-disabled"}>
+                                                    <span className={"icon is-small"}>
+                                                        <RiDownloadLine/>
+                                                    </span>
+                                                </button>
                                                 {Math.round(currentTorrent.RateDownload / 1024)} ko/s
                                             </div>
-                                            <div className="uk-flex uk-flex-middle">
-                                                <span className="uk-icon-link" data-uk-icon="upload"></span>
+                                            <div className="column is-half-mobile">
+                                                <button className={"button is-small is-naked is-disabled"}>
+                                                    <span className={"icon is-small"}>
+                                                        <RiUploadLine/>
+                                                    </span>
+                                                </button>
                                                 {Math.round(currentTorrent.RateUpload / 1024)} ko/s
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="uk-width-1-1">
-                                        <div className="uk-flex uk-flex-middle" data-uk-grid="">
-                                            <div> {Math.round(currentTorrent.PercentDone * 100)}% done </div>
-                                            <div className="uk-width-expand">
-                                                <progress className="uk-progress" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
+                                    <div className="column">
+                                        <div className="columns is-mobile is-vcentered">
+                                            <div className={"column is-narrow"}> {Math.round(currentTorrent.PercentDone * 100)}% done </div>
+                                            <div className="column">
+                                                <progress className="progress is-info is-small" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
                                             </div>
                                         </div>
                                     </div>
@@ -142,11 +186,11 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Current download</b></td>
                             {currentTorrent.Name ? (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     {currentTorrent.Name}
                                 </td>
                             ) : (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     Unknown
                                 </td>
                             )}
@@ -154,11 +198,11 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Download list</b></td>
                             {item.TorrentList == null ? (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     Empty torrent list
                                 </td>
                             ) : (
-                                <td className="uk-font-italic uk-text-muted">
+                                <td className="has-text-grey is-italic">
                                     <ul>
                                         {item.TorrentList.map(torrent => {
                                             return this.getTorrentListItem(currentTorrent, torrent)
@@ -170,18 +214,18 @@ class DownloadingItemComponent extends React.Component<Props, State> {
                         <tr>
                             <td><b>Download directory</b></td>
                             {currentTorrent.DownloadDir ? (
-                                <td className="uk-text-muted uk-font-italic">
+                                <td className="has-text-grey is-italic">
                                     <code>
                                         {currentTorrent.DownloadDir}
                                     </code>
                                 </td>
                             ) : (
-                                <td className="uk-text-muted uk-font-italic">
+                                <td className="has-text-grey is-italic">
                                     Unknown
                                 </td>
                             )}
                         </tr>
-                        <tr className={(failedTorrents || []).length > 0 ? "uk-text-danger" : "uk-text-success"}>
+                        <tr className={(failedTorrents || []).length > 0 ? "has-text-danger" : "has-text-success"}>
                             <td><b>Failed torrents</b></td>
                             <td>
                                 <b>{(failedTorrents || []).length}</b>
@@ -202,28 +246,32 @@ class DownloadingItemComponent extends React.Component<Props, State> {
         if (!item.Downloading && !item.Downloaded && !item.Pending) {
             if (item.TorrentsNotFound) {
                 return (
-                    <div>
-                        <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                            <span className="uk-text-muted">
-                                <div className="uk-h4 uk-text-bold">
-                                    <i className="material-icons uk-text-warning md-18 uk-margin-small-right">warning</i>
-                                    No torrents found
+                    <div className={"columns is-mobile is-vcentered is-multiline"}>
+                        <div className="column is-full has-text-centered">
+                            <div className={"columns is-mobile is-gapless is-centered is-vcentered"}>
+                                <div className={"column is-narrow"}>
+                                    <button className={"button is-naked is-disabled"}>
+                                    <span className={"icon has-text-warning"}>
+                                        <RiAlertLine />
+                                    </span>
+                                    </button>
                                 </div>
+                                <div className={"column is-narrow"}>
+                                    <span className="title is-4">
+                                        No torrents found
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
                                 No torrents have been found during last download. <br/>
                                 Try again later (in case of recent releases) or after adding new indexers.
-                            </span>
+                            </div>
                         </div>
                     </div>
                 );
             } else {
                 return (
-                    <div>
-                        <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                            <span className="uk-h4 uk-text-muted">
-                                Not downloading
-                            </span>
-                        </div>
-                    </div>
+                    <Empty label={"Not downloading"} />
                 );
             }
         }
@@ -234,13 +282,7 @@ class DownloadingItemComponent extends React.Component<Props, State> {
     printDownloadPending() {
         if (this.state.item.Pending) {
             return (
-                <div>
-                    <div className="uk-text-center uk-margin-small-top uk-margin-small-bottom">
-                        <span className="uk-h4 uk-text-muted">
-                            Looking for torrents
-                        </span>
-                    </div>
-                </div>
+                <Empty label={"Looking for torrents"}/>
             );
         }
 
@@ -250,30 +292,30 @@ class DownloadingItemComponent extends React.Component<Props, State> {
     render() {
         if (typeof this.state.item === "undefined") {
             return (
-                <div className="uk-background-default uk-border-rounded uk-padding-small">
-                    <div className="uk-flex uk-flex-middle uk-flex-center uk-margin-large-top">
-                        <span className="uk-margin-right" data-uk-spinner="ratio: 1"></span>
-                        <div>
-                                <span className="uk-h4 uk-text-muted">
-                                    <i>
-                                        Loading
-                                    </i>
-                                </span>
-                        </div>
+                <div className="columns is-mobile is-multiline">
+                    <div className="column is-12">
+                        <span className="title is-2 has-text-centered">
+                            <i>
+                                Loading
+                            </i>
+                        </span>
                     </div>
                 </div>
             );
         }
 
         return (
-            <div className="uk-background-default uk-border-rounded uk-padding-small">
-                <div className="col-12 my-3">
-                    <span className="uk-h4">Download status</span>
+            <div className="columns is-mobile is-multiline">
+                <div className="column is-12">
+                    <span className="title is-4">Download status</span>
+                    <hr />
                 </div>
-                {this.printDownloadedInfo()}
-                {this.printDownloadingInfo()}
-                {this.printNotDownloadingInfo()}
-                {this.printDownloadPending()}
+                <div className="column is-12">
+                    {this.printDownloadedInfo()}
+                    {this.printDownloadingInfo()}
+                    {this.printNotDownloadingInfo()}
+                    {this.printDownloadPending()}
+                </div>
             </div>
         );
     }

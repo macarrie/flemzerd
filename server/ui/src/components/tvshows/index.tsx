@@ -2,21 +2,27 @@ import React from "react";
 import {Route} from "react-router-dom";
 
 import API from "../../utils/api";
+import Helpers from "../../utils/helpers";
 import Const from "../../const";
 import TvShow from "../../types/tvshow";
 import Episode from "../../types/episode";
+import {MediaMiniatureFilter} from "../../types/media_miniature_filter";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import MediaMiniature from "../media_miniature";
 import TvShowDetails from "./tvshow_details";
 import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
+import ItemFilterControls from "../item_filter_controls";
+
+import {RiLayoutGridLine, RiLayoutRowLine} from "react-icons/ri";
 
 type State = {
     tracked :TvShow[] | null,
     removed :TvShow[] | null,
     downloading_episodes :Episode[] | null,
     display_mode :number,
+    item_filter :MediaMiniatureFilter,
 };
 
 class TvShows extends React.Component<any, State> {
@@ -26,6 +32,7 @@ class TvShows extends React.Component<any, State> {
         removed: null,
         downloading_episodes: null,
         display_mode: Const.DISPLAY_MINIATURES,
+        item_filter: MediaMiniatureFilter.TRACKED,
     };
 
     constructor(props: any) {
@@ -36,6 +43,8 @@ class TvShows extends React.Component<any, State> {
         this.poll = this.poll.bind(this);
         this.refreshWatchlists = this.refreshWatchlists.bind(this);
 
+        this.getActiveLayoutClass = this.getActiveLayoutClass.bind(this);
+        this.setFilter = this.setFilter.bind(this);
         this.renderShowList = this.renderShowList.bind(this);
         this.getDownloadingEpisodes = this.getDownloadingEpisodes.bind(this);
         this.abortEpisodeDownload = this.abortEpisodeDownload.bind(this);
@@ -55,6 +64,11 @@ class TvShows extends React.Component<any, State> {
     load() {
         this.getShows();
         this.getDownloadingEpisodes();
+    }
+
+    setFilter(val :MediaMiniatureFilter) {
+        console.log("UPDATE FILTER: ", val);
+        this.setState({item_filter: val});
     }
 
     getShows() {
@@ -104,6 +118,14 @@ class TvShows extends React.Component<any, State> {
         });
     }
 
+    getActiveLayoutClass(targetLayout :number) :String {
+        if (targetLayout === this.state.display_mode) {
+            return "is-info is-outlined";
+        }
+
+        return "";
+    }
+
     changeDisplayMode(display_mode :number) {
         this.setState({
             display_mode: display_mode,
@@ -114,15 +136,18 @@ class TvShows extends React.Component<any, State> {
         if (this.state.downloading_episodes) {
             return (
                 <>
-                <div className="uk-width-1-1">
-                    <span className="uk-h3">Downloading episodes</span>
+                    <div className="columns">
+                        <div className="column">
+                            <span className="title is-3">Downloading episodes</span>
+                        </div>
+                    </div>
                     <hr />
-                </div>
-                <DownloadingItemTable
-                    list={this.state.downloading_episodes}
-                    type="episode"
-                    skipTorrent={this.skipTorrentDownload}
-                    abortDownload={this.abortEpisodeDownload}/>
+                    <DownloadingItemTable
+                        list={this.state.downloading_episodes}
+                        type="episode"
+                        skipTorrent={this.skipTorrentDownload}
+                        abortDownload={this.abortEpisodeDownload}/>
+                    <hr />
                 </>
             );
         }
@@ -142,6 +167,7 @@ class TvShows extends React.Component<any, State> {
                         <MediaMiniature key={show.ID}
                             item={show}
                             type="tvshow"
+                            filter={this.state.item_filter}
                             display_mode={this.state.display_mode}
                         />
                     ))
@@ -152,6 +178,7 @@ class TvShows extends React.Component<any, State> {
                         <MediaMiniature key={show.ID}
                             item={show}
                             type="tvshow"
+                            filter={this.state.item_filter}
                             display_mode={this.state.display_mode}
                         />
                     ))
@@ -162,28 +189,34 @@ class TvShows extends React.Component<any, State> {
     }
 
     renderShowListLayout() {
-        let filterClass :string = "item-filter";
-        if (this.state.tracked === null && this.state.removed === null) {
-            filterClass = "";
+        let total_count = Helpers.count(this.state.tracked) + Helpers.count(this.state.removed);
+        if (this.state.item_filter === MediaMiniatureFilter.NONE && total_count === 0) {
+            return <Empty label={"No shows"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.TRACKED && Helpers.count(this.state.tracked) === 0) {
+            return <Empty label={"No tracked shows"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.REMOVED && Helpers.count(this.state.removed) === 0) {
+            return <Empty label={"No removed shows"} />;
         }
 
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={`uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s ${filterClass}`} data-uk-grid>
+                <div className={`columns is-multiline is-mobile`}>
                     {this.renderShowListContent()}
                 </div>
             );
         } else {
             return (
-                <table className="uk-table uk-table-divider uk-table-small">
+                <table className="table is-fullwidth">
                     <thead>
                         <tr>
-                            <th className="uk-width-expand">Title</th>
-                            <th>State</th>
-                            <th>Actions</th>
+                            <th>Title</th>
+                            <th className={"is-narrow"}>State</th>
+                            <th className={"is-narrow"}>Actions</th>
                         </tr>
                     </thead>
-                    <tbody className={`${filterClass}`}>
+                    <tbody>
                         {this.renderShowListContent()}
                     </tbody>
                 </table>
@@ -194,57 +227,50 @@ class TvShows extends React.Component<any, State> {
     renderShowList() {
         if (this.state.downloading_episodes == null && this.state.removed == null && this.state.tracked == null) {
             return (
-                <Loading/>
+                <div className={"container"}>
+                    <Empty label={"Loading"}/>
+                </div>
             );
         }
 
         return (
-            <div className="uk-container" data-uk-filter="target: .item-filter">
+            <div className="container">
                 {this.renderDownloadingList()}
 
-                <div className="uk-grid" data-uk-grid>
-                    <div className="uk-width-expand">
-                        <span className="uk-h3">TV Shows</span>
+                <div className="columns is-mobile is-multiline">
+                    <div className="column is-full-mobile">
+                        <span className="title is-3">TV Shows</span>
                     </div>
-                    <ul className="uk-subnav uk-subnav-pill filter-container">
-                        <li className="uk-visible@s" data-uk-filter-control="">
-                            <button className="uk-button uk-button-text">
-                                All
-                            </button>
-                        </li>
-                        <li className="uk-visible@s uk-active" data-uk-filter-control="filter: .tracked-show">
-                            <button className="uk-button uk-button-text">
-                                Tracked
-                            </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .removed-show">
-                            <button className="uk-button uk-button-text">
-                                Removed
-                            </button>
-                        </li>
-                        <li>
+                    <ItemFilterControls
+                        type={"tvshow"}
+                        filterValue={this.state.item_filter}
+                        updateFilter={this.setFilter}
+                    />
+                    <div className="column is-narrow field is-marginless is-grouped">
                             <LoadingButton
                                 text="Check now"
                                 loading_text="Checking"
                                 action={this.poll}
                             />
-                        </li>
-                        <li>
                             <LoadingButton
                                 text="Refresh"
                                 loading_text="Refreshing"
                                 action={this.refreshWatchlists}
                             />
-                        </li>
-                    </ul>
-
-                    <div className="uk-button-group">
-                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
-                            <span uk-icon="icon: grid; ratio: 0.7"></span>
-                        </button>
-                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_LIST)}>
-                            <span uk-icon="icon: list; ratio: 0.7"></span>
-                        </button>
+                    </div>
+                    <div className="column is-narrow is-hidden-mobile">
+                        <div className="buttons has-addons">
+                            <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_MINIATURES)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
+                                <span className="icon is-small">
+                                    <RiLayoutGridLine />
+                                </span>
+                            </button>
+                            <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_LIST)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_LIST)}>
+                                <span className="icon is-small">
+                                    <RiLayoutRowLine />
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <hr />

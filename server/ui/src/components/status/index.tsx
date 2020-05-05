@@ -101,8 +101,8 @@ class Status extends React.Component<any, State> {
     renderModuleList(list :Module[]) {
         if (list == null) {
             return (
-                <li className="uk-text-center uk-text-muted">
-                    <i>
+                <li className="has-text-centered">
+                    <i className={"has-text-grey"}>
                         None defined in configuration
                     </i>
                 </li>
@@ -111,8 +111,17 @@ class Status extends React.Component<any, State> {
 
         if (list.length === 0) {
             return (
-                <li className="uk-text-center">
-                    <span data-uk-spinner="ratio: 0.8"></span>
+                <li className="has-text-centered">
+                    <div className={"columns is-gapless is-vcentered is-centered"}>
+                        <div className={"column is-narrow"}>
+                            <button className={"button is-loading is-small is-naked"}>Loading</button>
+                        </div>
+                        <div className={"column is-narrow"}>
+                            <i className={"has-text-grey"}>
+                                Loading
+                            </i>
+                        </div>
+                    </div>
                 </li>
             );
         } else {
@@ -124,42 +133,41 @@ class Status extends React.Component<any, State> {
 
     render() {
         return (
-            <div className="uk-container">
-                <div className="uk-grid uk-child-width-1-1 uk-child-width-1-2@s" data-uk-grid="masonry: true">
-                    <div>
-                        <h3>Watchlists</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+            <div className="container">
+                <div className="columns is-mobile is-multiline">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Watchlists</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.watchlists)}
                         </ul>
                     </div>
-                    <div>
-                        <h3>Providers</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Providers</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.providers)}
                         </ul>
                     </div>
-                    <div>
-                        <h3>Notifiers</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Notifiers</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.notifiers)}
                         </ul>
                     </div>
-                    <div>
-                        <h3>Indexers</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Indexers</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.indexers)}
                         </ul>
                     </div>
-
-                    <div>
-                        <h3>Downloaders</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Downloaders</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.downloaders)}
                         </ul>
                     </div>
-                    <div>
-                        <h3>Media centers</h3>
-                        <ul className="uk-list uk-list-striped no-stripes">
+                    <div className={"column is-half-tablet is-full-mobile"}>
+                        <h3 className={"title is-3"}>Media centers</h3>
+                        <ul className="block-list">
                             {this.renderModuleList(this.state.mediacenters)}
                         </ul>
                     </div>

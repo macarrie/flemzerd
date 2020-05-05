@@ -22,5 +22,5 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/upgear/go-kit v0.0.0-20180517233053-4d662cc2f16f
-	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527
+	golang.org/x/sys v0.0.0-20200316202146-9a0dfc3c5568
 )

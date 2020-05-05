@@ -1,5 +1,3 @@
-import * as moment from "moment";
-
 import DownloadingItem from "../types/downloading_item";
 import Torrent from "../types/torrent";
 
@@ -7,10 +5,6 @@ export default class Helpers {
     static getYear = (datestring: Date) => {
         let d = new Date(datestring);
         return d.getFullYear();
-    };
-
-    static formatDate = (date: Date, format: string) => {
-        return moment.default(date).format(format);
     };
 
     static formatNumber = (nb: number) => {
@@ -58,7 +52,6 @@ export default class Helpers {
 
     static getCurrentTorrent(d :DownloadingItem) :Torrent {
         for (let i in d.TorrentList) {
-            console.log("Torrent in torrent list: ", d.TorrentList[i]);
             if (!d.TorrentList[i].Failed) {
                 return d.TorrentList[i];
             }
@@ -110,5 +103,37 @@ export default class Helpers {
 
     static eraseCookie(name :string) {
         Helpers.createCookie(name,"",-1);
+    };
+
+    static count(collection :Array<any> | null) :number {
+        if (collection === null) {
+            return 0;
+        }
+
+        return collection.length;
+    };
+
+    static makeUUID() {
+        let length = 8;
+        let timestamp = +new Date();
+
+        var _getRandomInt = function (min: number, max: number) {
+            return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+        }
+
+        let generate = function() {
+            var ts = timestamp.toString();
+            var parts = ts.split( "" ).reverse();
+            var id = "";
+
+            for( var i = 0; i < length; ++i ) {
+                var index = _getRandomInt( 0, parts.length - 1 );
+                id += parts[index];
+            }
+
+            return id;
+        }
+
+        return generate();
     };
 };

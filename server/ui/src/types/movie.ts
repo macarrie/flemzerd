@@ -4,7 +4,7 @@ import DownloadingItem from "./downloading_item";
 type Movie = {
     ID: number,
     CreatedAt: Date,
-    DeletedAt: Date,
+    DeletedAt: Date | null,
     MediaIds: MediaIds,
     Title: string,
     OriginalTitle: string,

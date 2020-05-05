@@ -93,7 +93,7 @@ class TelegramAuth extends React.Component<any, State> {
     telegramAuthStatusButton() {
         if (this.state.config_error) {
             return (
-                <span className="uk-text-danger">
+                <span className="has-text-danger">
                     <small><i>configuration error</i></small>
                 </span>
             );
@@ -101,28 +101,25 @@ class TelegramAuth extends React.Component<any, State> {
 
         if (this.state.authenticated) {
             return (
-                <span className="uk-text-success">
+                <span className="has-text-success">
                     <small><i>configured</i></small>
                 </span>
             );
         } else if (this.state.loading) {
             return (
-                <div className="uk-flex uk-flex-middle">
-                    <div className="uk-margin-small-right"
-                         data-uk-spinner="ratio: 0.5"></div>
-                    <div>
-                        <small><i>Loading</i></small>
-                    </div>
-                </div>
+                <button
+                    className="button is-loading is-small is-outlined is-info is-disabled">
+                    Loading
+                </button>
             );
-        } else if (this.state.auth_code !== null) {
+        } else if (this.state.auth_code !== 0) {
             return "";
         }
 
         return (
             <button
                 onClick={this.startAuth}
-                className="uk-button uk-button-default uk-text-danger uk-button-small uk-text-right">
+                className="button is-small is-outlined is-info">
                 Connect to Telegram
             </button>
         );
@@ -131,15 +128,18 @@ class TelegramAuth extends React.Component<any, State> {
     render() {
         return (
             <>
-                <div className="uk-float-right">
+                <div className="column is-narrow">
                     {this.telegramAuthStatusButton()}
                 </div>
-                {(this.state.auth_code && !this.state.authenticated) && (
-                    <div>
-                        <hr className="uk-margin-small-top"/>
-                        Send the following code to <code>@flemzerd_bot</code> Telegram bot to link flemzerd with
-                        Telegram
-                        <h5 className="uk-h2 uk-text-center uk-text-primary">{this.state.auth_code}</h5>
+                {!!(this.state.auth_code && !this.state.authenticated) && (
+                    <div className={"column is-full"}>
+                        <hr />
+                        Send the following code to <code>@flemzerd_bot</code> Telegram bot to link flemzerd with Telegram
+                        <div className={"columns is-mobile is-centered"}>
+                            <div className={"column is-narrow"}>
+                                <h5 className="title is-3 has-text-info trakt-auth-code">{this.state.auth_code}</h5>
+                            </div>
+                        </div>
                     </div>
                 )}
             </>

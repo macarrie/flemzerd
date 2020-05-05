@@ -114,29 +114,25 @@ class TraktAuth extends React.Component<any, State> {
     traktAuthStatusButton() {
         if (this.state.authenticated) {
             return (
-                <span className="uk-text-success">
-                <small><i>configured</i></small>
+                <span className="has-text-success">
+                    <small><i>configured</i></small>
                 </span>
             );
         } else if (this.state.loading) {
             return (
-                <div className="uk-flex uk-flex-middle">
-                <div className="uk-margin-small-right"
-                data-uk-spinner="ratio: 0.5"></div>
-                <div>
-                <small><i>Loading</i></small>
-                </div>
-                </div>
+                <button
+                    className="button is-loading is-small is-outlined is-info is-disabled">
+                    Loading
+                </button>
             );
         } else if (this.state.user_code !== "") {
             return "";
         }
 
         return (
-            <button
-            onClick={this.startAuth}
-            className="uk-button uk-button-default uk-text-danger uk-button-small uk-text-right">
-            Connect to trakt.tv
+            <button onClick={this.startAuth}
+                    className="button is-small is-outlined is-info">
+                Connect to trakt.tv
             </button>
         );
     }
@@ -144,18 +140,20 @@ class TraktAuth extends React.Component<any, State> {
     render() {
         return (
             <>
-            <div className="uk-float-right">
-            {this.traktAuthStatusButton()}
-            </div>
-            {(this.state.user_code && !this.state.authenticated) && (
-                <div>
-                <hr className="uk-margin-small-top"/>
-                Enter the following validation code into <a target="_blank"
-                rel="noopener noreferrer"
-                href={this.state.verification_url}>{this.state.verification_url}</a>
-                <h5 className="uk-h2 uk-text-center uk-text-primary">{this.state.user_code}</h5>
+                <div className="column is-narrow">
+                    {this.traktAuthStatusButton()}
                 </div>
-            )}
+                {(this.state.user_code && !this.state.authenticated) && (
+                    <div className={"column is-full"}>
+                        <hr />
+                        Enter the following validation code into <a target="_blank" rel="noopener noreferrer" href={this.state.verification_url}>{this.state.verification_url}</a>
+                        <div className={"columns is-mobile is-centered"}>
+                            <div className={"column is-narrow"}>
+                                    <h5 className="title is-3 has-text-info trakt-auth-code">{this.state.user_code}</h5>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </>
         );
     }

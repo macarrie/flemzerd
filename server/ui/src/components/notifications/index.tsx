@@ -4,8 +4,11 @@ import API from "../../utils/api";
 import Const from "../../const";
 import Notification from "../../types/notification";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import NotificationComponent from "./notification";
+
+import {RiCheckDoubleLine} from "react-icons/ri";
+import {RiDeleteBin5Line} from "react-icons/ri";
 
 type State = {
     list: Notification[] | null,
@@ -73,67 +76,59 @@ class Notifications extends React.Component<any, State> {
     render() {
         if (this.state.list == null) {
             return (
-                <Loading/>
+                <div className={"container"}>
+                    <Empty label={"Loading"} />
+                </div>
             );
         }
 
         return (
-            <div className="uk-container" data-uk-filter="target: .item-filter">
-                <div className="uk-grid" data-uk-grid>
-                    <div className="uk-width-expand">
-                        <span className="uk-h3">Notifications</span>
+            <div className="container">
+                <div className="columns is-mobile">
+                    <div className="column">
+                        <span className="title is-3">Notifications</span>
                     </div>
-                    <div>
-                        <ul className="uk-subnav uk-subnav-pill">
-                            <li data-uk-filter-control="" className="uk-active">
-                                <button className="uk-button uk-button-text">
-                                    All
-                                </button>
-                            </li>
-                            <li data-uk-filter-control="filter: .read">
-                                <button className="uk-button uk-button-text">
-                                    Read
-                                </button>
-                            </li>
-                            <li>
-                                <button 
-                                    className="uk-button uk-button-small uk-button-text"
-                                    onClick={this.markAllRead}>
-                                    <span className="uk-icon"
-                                        data-uk-tooltip="delay: 500; title: Mark all notifications as read"
-                                        data-uk-icon="icon: check; ratio: 0.75"></span>
-                                    Mark all as read
-                                </button>
-                            </li>
-                            <li>
-                                <button 
-                                    className="uk-button uk-button-small uk-button-text"
-                                    onClick={this.deleteAll}>
-                                    <span className="uk-icon"
-                                        data-uk-tooltip="delay: 500; title: Delete all notifications"
-                                        data-uk-icon="icon: trash; ratio: 0.75"></span>
-                                    Delete all
-                                </button>
-                            </li>
-                        </ul>
+                    <div className={"column is-narrow buttons has-addons"}>
+                        <button className="button is-naked is-underlined"
+                            onClick={this.markAllRead}>
+                            <span className={"icon icon-left is-small"}>
+                                <RiCheckDoubleLine />
+                            </span>
+                            <span className={"is-hidden-mobile"}>
+                                Mark all as read
+                            </span>
+                        </button>
+                        <button className="button is-naked is-underlined"
+                            onClick={this.deleteAll}>
+                            <span className={"icon icon-left is-small"}>
+                                <RiDeleteBin5Line />
+                            </span>
+                            <span className={"is-hidden-mobile"}>
+                                Delete all
+                            </span>
+                        </button>
                     </div>
                 </div>
                 <hr />
 
-                <div className="uk-grid uk-child-width-1-1">
-                    <ul className="uk-list uk-list-striped no-stripes item-filter">
-                    {this.state.list.length === 0 ? 
-                        (
-                            <div className="uk-text-center uk-h3 uk-text-muted">No notifications</div>
-                        ) : 
-                        this.state.list.map(notification => (
-                            <NotificationComponent
-                            key={notification.ID}
-                            markRead={this.markRead}
-                            item={notification} />
-                        ))
-                    }
-                    </ul>
+                <div className="container">
+                    <div className={"columns is-mobile"}>
+                        <div className={"column is-full"}>
+                            <ul className="block-list">
+                            {this.state.list.length === 0 ?
+                                (
+                                    <Empty label={"No notifications"} />
+                                ) :
+                                this.state.list.map(notification => (
+                                    <NotificationComponent
+                                    key={notification.ID}
+                                    markRead={this.markRead}
+                                    item={notification} />
+                                ))
+                            }
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
             </div>

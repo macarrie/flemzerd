@@ -1,38 +1,86 @@
 @import url('https://fonts.googleapis.com/css?family=Alex+Brush');
 @import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,700,700i');
 @import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
+
 @import "vars.scss";
-@import "media.details.scss";
-@import "media.miniatures.scss";
-@import "uikit/src/scss/variables-theme.scss";
-@import "uikit/src/scss/mixins-theme.scss";
+@import "../../node_modules/bulma/bulma.sass";
 
-$global-font-family: $content-font;
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
 
-@import "uikit/src/scss/uikit-theme.scss";
+    #root {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        flex: 1;
 
-// Overload
-///////////////////////////////
-///////////////////////////////
+        .global-container {
+            flex: 1;
 
-h1, h2, h3, h4, h5, h6,
-.uk-h1, .uk-h2, .uk-h3, .uk-h4, .uk-h5, .uk-h6,
-.uk-heading-hero {
+            .container:first-child {
+                margin-top: 20px;
+            }
+        }
+    }
+}
+
+.columns {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.tag, th, .title {
+    font-family: $font-header;
+}
+
+th, .title {
     font-family: $font-header;
     font-weight: 300;
-    margin-top: 30px;
 }
 
-button,
-.uk-label,
-.sans-serif {
-    font-family: $font-header !important;
-    font-weight: 400 !important;
+.title.jumbo {
+    font-size: 96px;
 }
 
-.background-gradient {
-    background-image: linear-gradient(315deg, $primary -25%, $secondary 125%);
+.subtitle-horizontal {
+    position: relative;
+    top: 2px;
 }
+
+.empty-section-placeholder {
+    .title {
+        margin: 50px 0;
+    }
+}
+
+.icon.is-small svg {
+    height: 1rem;
+    width: 1rem;
+}
+
+.icon svg {
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.icon.is-medium svg {
+    height: 2rem;
+    width: 2rem;
+}
+
+.icon.is-large svg {
+    height: 3rem;
+    width: 3rem;
+}
+
+@import "tooltips.scss";
+@import "navbar.scss";
+@import "forms.scss";
+@import "notifications.scss";
+@import "media.details.scss";
+@import "media.miniatures.scss";
 
 .title-gradient a {
     color: transparent !important;
@@ -42,232 +90,23 @@ button,
     -webkit-background-clip: text;
 }
 
-html {
-    position: relative;
-    min-height: 100%;
-    background-color: $light;
-    color: $dark;
-}
-
-body {
-    font-family: $content-font;
-    font-weight: 400;
-    font-size: 16px;
-    overflow-x: hidden;
-    margin-bottom: 100px;
-}
-
-.material-icons.md-18 {
-    font-size: 18px;
-    position: relative;
-    top: 1px;
-}
-
-.material-icons.md-24 {
-    font-size: 24px;
-}
-
-.material-icons.md-36 {
-    font-size: 36px;
-}
-
-.material-icons.md-48 {
-    font-size: 48px;
-}
-
-a {
-    color: lighten($info, 10%);
-
-    &:hover {
-        cursor: pointer;
-        color: $info;
-    }
-
-    i.material-icons {
-        font-size: 16px;
-        margin-right: 3px;
-        position: relative;
-        top: 3px;
-    }
-}
-
 hr {
-    border-top: 1px dashed rgba(0, 0, 0, 0.1);
-}
-
-.abort-download-button {
-    width: 14px;
-}
-
-img[data-src][src*='data:image'] {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-// Navbar
-///////////////////////////////
-///////////////////////////////
-
-.uk-logo {
-    font-size: 50px !important;
-    line-height: 30px !important;
-    font-family: "Alex Brush";
-    padding-left: 15px;
-    padding-right: 15px;
-    color: transparent !important;
-    background-color: $primary;
-    background-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-    background-clip: text;
-    -webkit-background-clip: text;
-}
-
-.uk-navbar-container {
-    background: $light;
-    border-top: 3px solid $primary;
-    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-    border-image-slice: 1;
-    font-family: $font-header;
-
-    .uk-logo {
-        margin-right: 30px;
-    }
-
-    a, button {
-        margin: 5px;
-    }
-
-    .uk-navbar-nav > li > .active {
-        background: darken($light, 3%);
-        border-radius: 4px;
-    }
-
-    .notifications_counter {
-        background: none;
-        border: none;
-        padding-right: 0;
-
-        span.uk-badge {
-            position: relative;
-            left: -12px;
-            top: -10px;
-            font-size: 10px;
-
-            background-color: $light;
-            color: $dark;
-            box-shadow: 0 0 2px $secondary;
-
-            &.alerted {
-                background-color: $secondary;
-                color: $light;
-                font-weight: bold !important;
-                box-shadow: none;
-            }
-        }
-
-        &.active {
-            background: darken($light, 10%);
-            border-radius: 4px;
-        }
-
-        &.configuration_errors_notification {
-            span.uk-badge {
-                position: relative;
-                left: -6px;
-
-                &.alerted {
-                    background-color: $danger !important;
-                }
-            }
-        }
-    }
-
-    .server-unavailable {
-        background-color: lighten($danger, 5%);
-        color: $light;
-        border-radius: $border-rounded-border-radius;
-        padding: 10px 20px;
-    }
-}
-
-.footer {
-    //position: absolute;
-    //bottom: 0;
-    width: 100%;
-
+    height: 0;
     border-top: none;
-    border-bottom: 3px solid $primary;
-    border-image: linear-gradient(315deg, $primary 0%, $secondary 74%);
-    border-image-slice: 1;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    margin: 0.75rem 0;
 }
 
-.footer, .topbar {
-    background: $light;
+.message.configuration-errors {
+    margin-bottom: 30px;
+}
+.message .message-header {
+    font-family: $title-family;
 }
 
-
-// Notifications
-///////////////////////////////
-///////////////////////////////
-
-.notif-icon {
-    width: 20px;
-    padding-right: 10px;
-
-    div {
-        width: 10px;
-        height: 10px;
-        border-radius: 5px;
-    }
-
-    &.ok div {
-        background: $success;
-    }
-
-    &.warning div {
-        background: $warning;
-    }
-
-    &.critical div {
-        background: $danger;
-    }
-
-    &.unknown div {
-        background: darken($light, 25%);
-    }
-
-    &.info div {
-        background: $info;
-    }
-}
-
-
-table.notification-table {
-    blockquote {
-        font-size: 1em;
-        padding-left: 5px;
-        margin-bottom: 0px;
-    }
-
-    &.notification_read {
-        opacity: 0.4;
-        color: lighten($dark, 40%);
-        font-style: italic;
-
-        &:hover {
-            opacity: 1;
-            color: $dark;
-            font-style: normal;
-        }
-    }
-
-    .notification_action_button {
-        display: block;
-        width: 25px
-    }
-}
-
-// Inline edit component
-///////////////////////////////
-///////////////////////////////
+//// Inline edit component
+/////////////////////////////////
+/////////////////////////////////
 
 .inlineedit {
     input[type=text] {
@@ -279,19 +118,71 @@ table.notification-table {
 .configuration-error-status {
     min-width: 75px;
     text-align: center;
+    margin-right: 5px;
 }
 
-// Filter controls
-///////////////////////////////
-///////////////////////////////
+//// Block list
+/////////////////////////////////
+/////////////////////////////////
 
-ul.filter-container li.uk-active {
-    .uk-button-text::before {
-        border: none;
+ul.block-list {
+    border-radius: $radius;
+    margin-bottom: 30px;
+
+    li {
+        background: linear-gradient(#ffffff,#fcfcfc) !important;
+        border-bottom: 1px dashed darken($light, 10%);
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        & > .columns {
+            width: 100%;
+        }
+
+        &:first-child {
+            border-top-left-radius: $radius;
+            border-top-right-radius: $radius;
+        }
+
+        &:last-child {
+            border-bottom-left-radius: $radius;
+            border-bottom-right-radius: $radius;
+            border-bottom: none;
+        }
+    }
+}
+
+//// Filter controls
+/////////////////////////////////
+/////////////////////////////////
+
+.item-filter-controls {
+    .button.is-naked {
+        &.active {
+            color: $info;
+            border-bottom: 1px dashed $info;
+        }
+    }
+}
+
+.trakt-auth-code {
+    margin: 20px 0;
+}
+
+.library-scan-dialog code {
+    margin-right: 10px;
+}
+
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+    .table:not(.not-responsive) {
+        td, th {
+            display: block;
+        }
     }
 
-    .uk-button-text {
-        border-radius: 0;
-        border-bottom: 1px solid $dark;
+    .box {
+        padding: 0;
     }
 }

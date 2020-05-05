@@ -1,6 +1,8 @@
 import React from "react";
 import MediaIds from "../types/media_ids";
 
+import {FaExternalLinkAlt} from "react-icons/fa";
+
 type Props = {
     ids: MediaIds,
     type: string,
@@ -44,41 +46,47 @@ class MediaIdsComponent extends React.Component<Props, State> {
 
         if (typeof ids === "undefined" || ids.ID === 0) {
             return (
-                <div>Loading</div>
+                <div className={"has-text-grey"}>---</div>
             );
         }
 
         return (
-            <div className="uk-grid uk-grid-small external-links-banner" data-uk-grid>
-                <div>
+            <div className="columns is-mobile external-links-banner">
+                <div className={"column is-narrow"}>
                     {ids.Imdb !== "" ? (
                         <a href={`https://www.imdb.com/title/${ids.Imdb}`}
                            target="_blank"
                            rel="noopener noreferrer"
                            className="imdb">
-                            <span className="uk-icon uk-icon-link" data-uk-icon="link"></span>
+                            <span className="icon is-small">
+                                    <FaExternalLinkAlt/>
+                            </span>
                             IMDB
                         </a>
                     ) : ""}
                 </div>
-                <div>
+                <div className={"column is-narrow"}>
                     {ids.Trakt !== 0 ? (
                         <a href={this.getTraktUrl(type)}
                            target="_blank"
                            rel="noopener noreferrer"
                            className="trakt">
-                            <span className="uk-icon uk-icon-link" data-uk-icon="link"></span>
+                            <span className="icon is-small">
+                                    <FaExternalLinkAlt/>
+                            </span>
                             Trakt
                         </a>
                     ) : ""}
                 </div>
-                <div>
+                <div className={"column is-narrow"}>
                     {ids.Tmdb !== 0 ? (
                         <a href={`https://themoviedb.org/tv/${ids.Tmdb}`}
                            target="_blank"
                            rel="noopener noreferrer"
                            className="tmdb">
-                            <span className="uk-icon uk-icon-link" data-uk-icon="link"></span>
+                            <span className="icon is-small">
+                                    <FaExternalLinkAlt/>
+                            </span>
                             TMDB
                         </a>
                     ) : ""}

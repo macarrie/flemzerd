@@ -1,32 +1,37 @@
 import React from "react";
-import {Link} from "react-router-dom";
 
+import {RiQuestionLine} from "react-icons/ri";
+import {RiGithubLine} from "react-icons/ri";
 
 class Footer extends React.Component {
     render() {
         return (
-            <nav className="uk-navbar-container uk-navbar-transparent uk-position-bottom footer">
-                <div className="uk-container uk-navbar uk-flex uk-flex-middle">
-                    <div className="uk-navbar-left">
-                        <Link className="uk-navbar-item uk-logo" to="/dashboard">
+            <nav className="navbar is-light is-transparent footer">
+                <div className="container">
+                    <div className="navbar-brand">
+                        <a className="navbar-item logo" href="/dashboard">
                             <span className="navbar-brand">flemzer</span>
-                        </Link>
+                        </a>
                     </div>
-                    <div className="uk-navbar-right">
-                        <ul className="uk-navbar-nav">
-                            <li>
-                                <a href="https://macarrie.github.io/flemzerd/">
-                                    <span className="uk-icon uk-margin-small-right" data-uk-icon="question"></span>
-                                    Documentation
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://github.com/macarrie/flemzerd">
-                                    <span className="uk-icon uk-margin-small-right" data-uk-icon="github"></span>
-                                    GitHub
-                                </a>
-                            </li>
-                        </ul>
+                    <div id="navbarLinks" className={"navbar-menu"}>
+                        <div className={"navbar-end"}>
+                            <a href="https://github.com/macarrie/flemzerd/wiki" className={"navbar-item"}>
+                                <div>
+                                    <span className="icon">
+                                        <RiQuestionLine/>
+                                    </span>
+                                    <span className={"header-label"}> Documentation </span>
+                                </div>
+                            </a>
+                            <a href="https://github.com/macarrie/flemzerd" className={"navbar-item"}>
+                                <div>
+                                    <span className="icon">
+                                        <RiGithubLine/>
+                                    </span>
+                                    <span className={"header-label"}> Github </span>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </nav>

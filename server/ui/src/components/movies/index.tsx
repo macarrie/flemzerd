@@ -4,12 +4,18 @@ import {Route} from "react-router-dom";
 import API from "../../utils/api";
 import Const from "../../const";
 import Movie from "../../types/movie";
+import {MediaMiniatureFilter} from "../../types/media_miniature_filter";
 
-import Loading from "../loading";
+import Empty from "../empty";
 import MediaMiniature from "../media_miniature";
+import ItemFilterControls from "../item_filter_controls";
 import MovieDetails from "./movie_details";
 import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
+
+import {RiLayoutRowLine} from "react-icons/ri";
+import {RiLayoutGridLine} from "react-icons/ri";
+import Helpers from "../../utils/helpers";
 
 type State = {
     tracked :Movie[] | null,
@@ -17,6 +23,7 @@ type State = {
     downloaded :Movie[] | null,
     downloading :Movie[] | null,
     display_mode :number,
+    item_filter :MediaMiniatureFilter,
 };
 
 class Movies extends React.Component<any, State> {
@@ -27,6 +34,7 @@ class Movies extends React.Component<any, State> {
         downloaded: null,
         downloading: null,
         display_mode: Const.DISPLAY_MINIATURES,
+        item_filter: MediaMiniatureFilter.TRACKED,
     };
 
     constructor(props: any) {
@@ -34,6 +42,7 @@ class Movies extends React.Component<any, State> {
 
         this.movies_refresh_interval = 0;
 
+        this.setFilter = this.setFilter.bind(this);
         this.poll = this.poll.bind(this);
         this.refreshWatchlists = this.refreshWatchlists.bind(this);
 
@@ -51,6 +60,10 @@ class Movies extends React.Component<any, State> {
 
     componentWillUnmount() {
         clearInterval(this.movies_refresh_interval);
+    }
+
+    setFilter(val :MediaMiniatureFilter) {
+        this.setState({item_filter: val});
     }
 
     getMovies() {
@@ -109,19 +122,30 @@ class Movies extends React.Component<any, State> {
         });
     }
 
+    getActiveLayoutClass(targetLayout :number) :String {
+        if (targetLayout === this.state.display_mode) {
+            return "is-info is-outlined";
+        }
+
+        return "";
+    }
+
     renderDownloadingList() {
         if (this.state.downloading) {
             return (
                 <>
-                <div className="uk-width-1-1">
-                <span className="uk-h3">Downloading movies</span>
-                <hr />
-                </div>
-                <DownloadingItemTable 
-                list={this.state.downloading}
-                type="movie"
-                skipTorrent={this.skipTorrentDownload}
-                abortDownload={this.abortMovieDownload}/>
+                    <div className="columns">
+                        <div className="column">
+                            <span className="title is-3">Downloading movies</span>
+                        </div>
+                    </div>
+                    <hr />
+                    <DownloadingItemTable
+                        list={this.state.downloading}
+                        type="movie"
+                        skipTorrent={this.skipTorrentDownload}
+                        abortDownload={this.abortMovieDownload}/>
+                    <hr />
                 </>
             );
         }
@@ -130,28 +154,51 @@ class Movies extends React.Component<any, State> {
     }
 
     renderMovieListLayout() {
-        let filterClass :string = "item-filter";
-        if (this.state.downloading === null && this.state.tracked === null && this.state.downloaded === null && this.state.removed === null) {
-            filterClass = "";
+        // Load finished but no movies are track by flemzerd
+        let total_count = Helpers.count(this.state.tracked) + Helpers.count(this.state.downloaded) + Helpers.count(this.state.downloading) + Helpers.count(this.state.removed);
+        if (this.state.item_filter === MediaMiniatureFilter.NONE && total_count === 0) {
+            return <Empty label={"No movies"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.TRACKED && Helpers.count(this.state.tracked) === 0) {
+            return <Empty label={"No tracked movies"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.DOWNLOADED && Helpers.count(this.state.downloaded) === 0) {
+            return <Empty label={"No downloaded movies"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.DOWNLOADING && Helpers.count(this.state.downloading) === 0) {
+            return <Empty label={"No downloading movies"} />;
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.REMOVED && Helpers.count(this.state.removed) === 0) {
+            return <Empty label={"No removed movies"} />;
+        }
+
+        let futures :Array<Movie>;
+        if (this.state.tracked !== null) {
+            futures = this.state.tracked.filter(function(movie) { return Helpers.dateIsInFuture(movie.Date)})
+        } else {
+            futures = new Array<Movie>();
+        }
+        if (this.state.item_filter === MediaMiniatureFilter.FUTURE && Helpers.count(futures) === 0) {
+            return <Empty label={"No future movies"} />;
         }
 
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {
             return (
-                <div className={`uk-grid uk-grid-small uk-child-width-1-2 uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-3@s ${filterClass}`} data-uk-grid>
+                <div className={`columns is-multiline is-mobile`}>
                     {this.renderMovieListContent()}
                 </div>
             );
         } else {
             return (
-                <table className="uk-table uk-table-divider uk-table-small">
+                <table className="table is-fullwidth">
                     <thead>
                         <tr>
-                            <th className="uk-width-expand">Title</th>
+                            <th>Title</th>
                             <th>State</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody className={`${filterClass}`}>
+                    <tbody>
                         {this.renderMovieListContent()}
                     </tbody>
                 </table>
@@ -170,6 +217,7 @@ class Movies extends React.Component<any, State> {
                     this.state.downloading.map(movie => (
                         <MediaMiniature key={movie.ID}
                         item={movie}
+                        filter={this.state.item_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -179,6 +227,7 @@ class Movies extends React.Component<any, State> {
                     this.state.tracked.map(movie => (
                         <MediaMiniature key={movie.ID}
                         item={movie}
+                        filter={this.state.item_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -188,6 +237,7 @@ class Movies extends React.Component<any, State> {
                     this.state.downloaded.map(movie => (
                         <MediaMiniature key={movie.ID}
                         item={movie}
+                        filter={this.state.item_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -197,6 +247,7 @@ class Movies extends React.Component<any, State> {
                     this.state.removed.map(movie => (
                         <MediaMiniature key={movie.ID}
                         item={movie}
+                        filter={this.state.item_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -207,59 +258,44 @@ class Movies extends React.Component<any, State> {
     }
 
     renderMovieList() {
-        if (this.state.downloaded == null && this.state.downloading == null && this.state.removed == null && this.state.tracked == null) {
-            return (
-                <Loading/>
-            );
-        }
-
         return (
-            <div className="uk-container" data-uk-filter="target: .item-filter">
+            <div className="container">
                 {this.renderDownloadingList()}
 
-                <div className="uk-grid" data-uk-grid>
-                    <div className="uk-width-expand">
-                        <span className="uk-h3">Movies</span>
+                <div className="columns">
+                    <div className="column">
+                        <span className="title is-3">Movies</span>
                     </div>
-                    <ul className="uk-subnav uk-subnav-pill filter-container">
-                        <li className="uk-visible@s" data-uk-filter-control="">
-                            <button className="uk-button uk-button-text"> All </button>
-                        </li>
-                        <li className="uk-visible@s uk-active" data-uk-filter-control="filter: .tracked-movie">
-                            <button className="uk-button uk-button-text"> Tracked </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .future-movie">
-                            <button className="uk-button uk-button-text"> Future </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .downloaded-movie">
-                            <button className="uk-button uk-button-text"> Downloaded </button>
-                        </li>
-                        <li className="uk-visible@s" data-uk-filter-control="filter: .removed-movie">
-                            <button className="uk-button uk-button-text"> Removed </button>
-                        </li>
-                        <li>
-                            <LoadingButton 
-                                text="Check now"
-                                loading_text="Checking"
-                                action={this.poll}
-                            />
-                        </li>
-                        <li>
-                            <LoadingButton 
-                                text="Refresh"
-                                loading_text="Refreshing"
-                                action={this.refreshWatchlists}
-                            />
-                        </li>
-                    </ul>
-
-                    <div className="uk-button-group">
-                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
-                            <span uk-icon="icon: grid; ratio: 0.7"></span>
-                        </button>
-                        <button className="uk-button uk-button-default uk-button-small" onClick={() => this.changeDisplayMode(Const.DISPLAY_LIST)}>
-                            <span uk-icon="icon: list; ratio: 0.7"></span>
-                        </button>
+                    <ItemFilterControls
+                        type={"movie"}
+                        filterValue={this.state.item_filter}
+                        updateFilter={this.setFilter}
+                    />
+                    <div className={"column is-narrow field is-marginless is-grouped"}>
+                        <LoadingButton
+                            text="Check now"
+                            loading_text="Checking"
+                            action={this.poll}
+                        />
+                        <LoadingButton
+                            text="Refresh"
+                            loading_text="Refreshing"
+                            action={this.refreshWatchlists}
+                        />
+                    </div>
+                    <div className="column is-narrow is-hidden-mobile">
+                        <div className="buttons has-addons">
+                            <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_MINIATURES)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_MINIATURES)}>
+                                <span className="icon is-small">
+                                    <RiLayoutGridLine />
+                                </span>
+                            </button>
+                            <button className={`button ${this.getActiveLayoutClass(Const.DISPLAY_LIST)}`} onClick={() => this.changeDisplayMode(Const.DISPLAY_LIST)}>
+                                <span className="icon is-small">
+                                    <RiLayoutRowLine />
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <hr />

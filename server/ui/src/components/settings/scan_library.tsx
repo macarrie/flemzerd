@@ -3,6 +3,8 @@ import React from "react";
 import API from "../../utils/api";
 import Config from "../../types/config";
 import MediaInfo from "../../types/media_info";
+import Empty from "../empty";
+import Helpers from "../../utils/helpers";
 
 type Props = {
     scan_type :string,
@@ -37,9 +39,13 @@ class LibraryScan extends React.Component<Props, State> {
 
     scanMovies() {
         API.Modules.Scanner.scan_movies().then(response => {
+            let media_list = Array<MediaInfo>();
+            if (response.data !== null) {
+                media_list = response.data;
+            }
             this.setState({
                 import_status: "scanned",
-                media_list: response.data,
+                media_list: media_list,
             });
         }).catch(error => {
             console.log("Getting movie scan list error: ", error);
@@ -154,40 +160,42 @@ class LibraryScan extends React.Component<Props, State> {
     scanButton() {
         if (this.state.import_status === "scanned") {
             return (
-                <span className="uk-text-success">
+                <span className="has-text-success">
                     <small><i>scanned</i></small>
                 </span>
             );
         } else if (this.state.import_status === "scanning") {
             return (
-                <div className="uk-flex uk-flex-middle">
-                    <div className="uk-margin-small-right"
-                    data-uk-spinner="ratio: 0.5"></div>
-                    <div>
+                <div className="columns is-mobile is-vcentered">
+                    <div className={"column"}>
+                        <button className={"button is-small is-naked is-disabled is-loading"}>Scanning</button>
+                    </div>
+                    <div className={"column"}>
                         <small><i>Scanning</i></small>
                     </div>
                 </div>
             );
         } else if (this.state.import_status === "importing") {
             return (
-                <div className="uk-flex uk-flex-middle">
-                    <div className="uk-margin-small-right"
-                    data-uk-spinner="ratio: 0.5"></div>
-                    <div>
+                <div className="columns is-mobile is-vcentered">
+                    <div className={"column"}>
+                        <button className={"button is-small is-naked is-disabled is-loading"}>Importing</button>
+                    </div>
+                    <div className={"column"}>
                         <small><i>Importing</i></small>
                     </div>
                 </div>
             );
         } else if (this.state.import_status === "done") {
             return (
-                <span className="uk-text-primary uk-text-bold">
+                <span className="has-text-info has-text-bold">
                     <small><i>done</i></small>
                 </span>
             );
         }
 
         return (
-            <button className="uk-button uk-button-small uk-button-default uk-margin-small-left"
+            <button className="button is-small is-info is-outlined"
                     onClick={() => this.performScan()}>
                 Scan
             </button>
@@ -195,14 +203,26 @@ class LibraryScan extends React.Component<Props, State> {
     }
 
     countSelectedItems() {
+        if (this.state.media_list === null)  {
+            return 0;
+        }
+
         return this.state.media_list.filter(item => item.selected).length;
     }
 
     countImportedItems() {
+        if (this.state.media_list === null)  {
+            return 0;
+        }
+
         return this.state.media_list.filter(item => item.import_status === "success").length;
     }
 
     countImportedErrorItems() {
+        if (this.state.media_list === null)  {
+            return 0;
+        }
+
         return this.state.media_list.filter(item => item.import_status === "error").length;
     }
 
@@ -253,46 +273,59 @@ class LibraryScan extends React.Component<Props, State> {
 
     selectedMediaToImportDialog() {
         return (
-            <div>
-                <hr className="uk-margin-small-top" />
-                    <div className="uk-grid uk-flex uk-flex-middle" data-uk-grid>
-                        <div className="uk-width-expand">
-                            <span className="uk-h3">Select media to import ({this.countSelectedItems()}/{this.state.media_list.length})</span>
+            <div className={"column is-full"}>
+                <hr />
+                    {Helpers.count(this.state.media_list) > 0 ? (
+                        <div className="columns is-mobile is-gapless">
+                            <div className="column">
+                                <span className="title is-4">Select media to import ({this.countSelectedItems()}/{this.state.media_list.length})</span>
+                            </div>
+                            <div className="column is-narrow">
+                                <div className={"buttons"}>
+                                    <button className="button is-small is-info is-outlined" onClick={this.selectAllMedia}>Select all</button>
+                                    <button className="button is-small is-info is-outlined" onClick={this.unselectAllMedia}>Clear selection</button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="uk-button-group">
-                            <button className="uk-button uk-button-default uk-button-small" onClick={this.selectAllMedia}>Select all</button>
-                            <button className="uk-button uk-button-default uk-button-small" onClick={this.unselectAllMedia}>Clear selection</button>
-                        </div>
-                    </div>
-                    <form className="uk-grid-small" 
-                          data-uk-grid
+                    ) : (
+                        <Empty label={"No media detected in library"} />
+                    )}
+                    <form className="columns is-mobile is-multiline"
                           onSubmit={this.importScannedMedia}>
-                        <ul className="uk-list uk-list-striped no-stripes uk-width-1-1 uk-overflow-auto uk-height-max-large">
-                        {this.state.media_list.map((media, index) =>
-                            <li key={index}>
-                                <label>
-                                    <input className="uk-checkbox" type="checkbox" name="selected" value={index} checked={this.state.media_list[index].selected} onChange={this.selectMediaToImport} /> {media.title}
-                                    {media.data != null && (
-                                        <i className="uk-text-muted uk-margin-small-left">
-                                            ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
-                                        </i>
-                                    )}
-                                </label>
-                            </li>
-                        )}
-                        </ul>
+                        <div className={"column is-full"}>
+                            <ul className="">
+                            {this.state.media_list.map((media, index) =>
+                                <li key={index}>
+                                    <div className={"field"}>
+                                        <label className={"checkbox"}>
+                                            <input type="checkbox" name="selected" value={index} checked={this.state.media_list[index].selected} onChange={this.selectMediaToImport} />
+                                            <span></span>
+                                            {media.title} &nbsp;
+                                            {media.data != null && (
+                                                <i className="has-text-grey">
+                                                    ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
+                                                </i>
+                                            )}
+                                        </label>
+                                    </div>
+                                </li>
+                            )}
+                            </ul>
+                        </div>
 
-                        <div className="uk-width-1-2">
-                            <input className="uk-button uk-button-danger uk-input"
+                        <div className="column">
+                            <input className="button is-danger is-fullwidth"
                                    value="Cancel"
                                    onClick={this.abortImport}
                                    type="button"/>
                         </div>
-                        <div className="uk-width-1-2">
-                            <input className="uk-button uk-button-primary uk-input"
-                                   value="Import"
-                                   type="submit"/>
-                        </div>
+                        {Helpers.count(this.state.media_list) > 0 && (
+                            <div className="column">
+                                <input className="button is-success is-fullwidth"
+                                       value="Import"
+                                       type="submit"/>
+                            </div>
+                        )}
                     </form>
             </div>
         );
@@ -301,20 +334,22 @@ class LibraryScan extends React.Component<Props, State> {
     mediaImportStatusLabel(media :MediaInfo) {
         if (media.import_status === "error") {
             return (
-                <div className="uk-text-danger"><small><i>Error</i></small></div>
+                <div className="has-text-danger"><small><i>Error</i></small></div>
             );
         }
 
         if (media.import_status === "success") {
             return (
-                <div className="uk-text-success"><small><i>Imported</i></small></div>
+                <div className="has-text-success"><small><i>Imported</i></small></div>
             );
         }
 
         return (
-            <div className="uk-flex uk-flex-middle">
-                <div className="uk-margin-small-right" data-uk-spinner="ratio: 0.5"></div>
-                <div>
+            <div className="columns is-mobile is-vcentered">
+                <div className={"column"}>
+                    <button className={"button is-small is-naked is-disabled is-loading"}>Pending</button>
+                </div>
+                <div className={"column"}>
                     <small><i>Pending</i></small>
                 </div>
             </div>
@@ -323,56 +358,62 @@ class LibraryScan extends React.Component<Props, State> {
 
     importRecapDialog() {
         return (
-            <div>
-                <hr className="uk-margin-small-top" />
-                <div className="uk-grid uk-flex uk-flex-middle uk-margin-small-bottom" data-uk-grid>
-                    <div className="uk-width-1-2">
-                        <span className="uk-h3">Importing media</span>
+            <div className={"column is-full"}>
+                <hr />
+                <div className="columns is-mobile is-vcentered is-multiline">
+                    <div className="column is-half">
+                        <span className="title is-4">Importing media</span>
                     </div>
-                    <div className="uk-width-1-2 uk-grid-small" data-uk-grid> 
-                        <div className="uk-width-1-4">
+                    <div className="columns is-mobile is-multiline column is-half">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-grey">
                             <b>
                                 {this.state.media_list.length} total
                             </b>
                         </div>
-                        <div className="uk-width-1-4 uk-text-muted">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-info">
                             <b>
                                 {this.state.media_list.length - this.countImportedItems() - this.countImportedErrorItems()} pending
                             </b>
                         </div>
-                        <div className="uk-width-1-4 uk-text-success">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-success">
                             <b>
                                 {this.countImportedItems()} success
                             </b>
                         </div>
-                        <div className="uk-width-1-4 uk-text-danger">
+                        <div className="column is-one-quarter-tablet is-half-mobile has-text-danger">
                             <b>
                                 {this.countImportedErrorItems()} errors
                             </b>
                         </div>
                     </div>
-                </div>
-                <ul className="uk-list uk-list-striped no-stripes uk-padding-remove">
-                {this.state.media_list.map((media, index) =>
-                    <li key={index} className="uk-flex uk-flex-middle">
-                        <div className="uk-width-expand">
-                            {media.title}
-                            {media.data != null && (
-                                <i className="uk-text-muted uk-margin-small-left">
-                                    ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
-                                </i>
-                            )}
-                        </div>
-                        {this.mediaImportStatusLabel(media)}
-                    </li>
-                )}
-                </ul>
+                    <div className={"column is-full"}>
+                        <ul className="">
+                        {this.state.media_list.map((media, index) =>
+                            <li key={index} className="">
+                                <div className={"columns is-mobile"}>
+                                    <div className="column">
+                                        {media.title} &nbsp;
+                                        {media.data != null && (
+                                            <i className="has-text-grey">
+                                                ({this.getSeasonCount(media)} seasons, {this.getEpisodeCount(media)} episodes)
+                                            </i>
+                                        )}
+                                    </div>
+                                    <div className={"column is-narrow"}>
+                                        {this.mediaImportStatusLabel(media)}
+                                    </div>
+                                </div>
+                            </li>
+                        )}
+                        </ul>
+                    </div>
 
-                <div className="uk-inline uk-width-1-1">
-                    <button className="uk-button uk-button-primary uk-input"
-                            onClick={this.abortImport}>
-                        Close
-                    </button>
+                    <div className="column is-full">
+                        <button className="button is-danger is-fullwidth"
+                                onClick={this.abortImport}>
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -405,22 +446,22 @@ class LibraryScan extends React.Component<Props, State> {
 
         return (
             <>
-                <div className="uk-flex uk-flex-middle">
-                    <div className="uk-width-expand">
+                <div className="columns is-mobile is-gapless is-multiline is-vcentered library-scan-dialog">
+                    <div className="column is-full-mobile">
                         {label}
                     </div>
-                    <div className="uk-flex uk-flex-middle">
-                        <code className="uk-text-small">
-                            <span className="uk-text-small">
+                    <div className="column is-narrow-tablet">
+                        <code>
+                            <span className="">
                                 {option}
                             </span>
                         </code>
-                        <div className="uk-margin-small-left">
-                            {this.scanButton()}
-                        </div>
                     </div>
+                    <div className="column is-narrow">
+                        {this.scanButton()}
+                    </div>
+                    {this.importDialog()}
                 </div>
-                {this.importDialog()}
             </>
         );
     }

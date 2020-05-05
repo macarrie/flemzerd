@@ -33,9 +33,9 @@ function AppRouter() {
 
     return (
         <Router>
-            <div>
-                <Header />
+            <Header />
 
+            <div className={"global-container"}>
                 <Route path="/"          exact  component={Root} />
                 <Route path="/dashboard" exact  component={Dashboard} />
                 <Route path="/tvshows"          component={TvShows} />
@@ -44,9 +44,9 @@ function AppRouter() {
                 <Route path="/settings"         component={Settings} />
 
                 <Route path="/notifications"         component={Notifications} />
-
-                <Footer/>
             </div>
+
+            <Footer/>
         </Router>
     );
 }

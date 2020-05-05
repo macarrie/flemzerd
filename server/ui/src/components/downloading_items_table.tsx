@@ -4,6 +4,10 @@ import {Link} from "react-router-dom";
 import Helpers from "../utils/helpers";
 import Movie from "../types/movie";
 import Episode from "../types/episode";
+import Moment from "react-moment";
+
+import {RiSkipForwardLine} from "react-icons/ri";
+import {RiStopCircleLine} from "react-icons/ri";
 
 type Props = {
     list :Movie[] | Episode[],
@@ -63,36 +67,42 @@ class DownloadingItemTable extends React.Component<Props, State> {
                             {Helpers.getMediaTitle(item)}
                         </Link>
                     </td>
-                    <td className="uk-text-muted">
+                    <td className="has-text-grey-light">
                         <i>
                             {currentTorrent.Name}
                         </i>
                     </td>
-                    <td className="uk-text-center uk-table-shrink uk-text-nowrap">
+                    <td className="is-narrow is-hidden-mobile">
                         {(item.DownloadingItem.Downloading) && (
                             <>
-                                <progress className="uk-progress uk-margin-small-bottom" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
-                                <span className="uk-text-success">Started at {Helpers.formatDate(currentTorrent.CreatedAt, 'HH:mm DD/MM/YYYY')}</span>
+                                <progress className="progress is-info is-small" value={currentTorrent.PercentDone * 100} max="100">{currentTorrent.PercentDone * 100}%</progress>
+                                <span className="has-text-success">Started at <Moment date={currentTorrent.CreatedAt} format={"HH:mm DD/MMM/YYYY"}/></span>
                             </>
                         )}
 
                         {(item.DownloadingItem.Pending) && (
-                            <span className="uk-text-italic">Looking for torrents</span>
+                            <span className="has-text-grey"><i> Looking for torrents </i></span>
                         )}
                     </td>
-                    <td className={`uk-text-center uk-text-bold ${((failedTorrents || []).length > 0) ? "uk-text-danger" : "uk-text-success"}`}>
-                        {(failedTorrents || []).length}
+                    <td className={`is-hidden-mobile has-text-centered ${((failedTorrents || []).length > 0) ? "has-text-danger" : "has-text-success"}`}>
+                        <b>
+                            {(failedTorrents || []).length}
+                        </b>
                     </td>
-                    <td>
-                        <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
-                            data-uk-icon="icon: ban; ratio: 0.75"
-                            data-uk-tooltip="delay: 500; title: Skip current torrent download"
+                    <td className={"is-hidden-mobile"}>
+                        <button className="button is-naked is-small"
+                            data-tooltip="Skip current torrent download"
                             onClick={() => this.props.skipTorrent(item.ID)}>
+                            <span className={"icon is-small"}>
+                                <RiSkipForwardLine />
+                            </span>
                         </button>
-                        <button className="uk-icon uk-icon-link uk-text-danger abort-download-button" 
-                            data-uk-icon="icon: close; ratio: 0.75"
-                            data-uk-tooltip="delay: 500; title: Abort download"
+                        <button className="button is-naked is-small"
+                            data-tooltip="Abort download"
                             onClick={() => this.props.abortDownload(item.ID)}>
+                            <span className={"icon is-small"}>
+                                <RiStopCircleLine />
+                            </span>
                         </button>
                     </td>
                 </tr>
@@ -102,14 +112,14 @@ class DownloadingItemTable extends React.Component<Props, State> {
 
     render() {
         return (
-            <div className="uk-width-1-1 uk-overflow-auto">
-                <table className="uk-table uk-table-small uk-table-divider uk-table-middle">
+            <div className="column">
+                <table className="table not-responsive is-fullwidth">
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th className="uk-text-nowrap">Current download</th>
-                            <th className="uk-text-nowrap">Download status</th>
-                            <th className="uk-text-center uk-table-shrink uk-text-nowrap">Failed torrents</th>
+                            <th>Current download</th>
+                            <th className="is-hidden-mobile">Download status</th>
+                            <th className="has-text-centered is-hidden-mobile">Failed torrents</th>
                             <th></th>
                         </tr>
                     </thead>

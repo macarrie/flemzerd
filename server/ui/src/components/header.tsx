@@ -5,10 +5,18 @@ import API from '../utils/api';
 import Const from "../const";
 import Auth from "../auth";
 
+import { RiHome2Line } from "react-icons/ri";
+import { RiTvLine } from "react-icons/ri";
+import { RiFilmLine } from "react-icons/ri";
+import { RiHospitalLine } from "react-icons/ri";
+import { RiSettings3Line } from "react-icons/ri";
+import { RiNotification3Line } from "react-icons/ri";
+
 type State = {
     unread_notifications_counter: number,
     config_errors_count: number,
     load_error: boolean,
+    mobile_menu_active: boolean,
 };
 
 class Header extends React.Component<any, State> {
@@ -19,6 +27,7 @@ class Header extends React.Component<any, State> {
         unread_notifications_counter: 0,
         config_errors_count: 0,
         load_error: false,
+        mobile_menu_active: false,
     };
 
     constructor(props: any) {
@@ -27,6 +36,8 @@ class Header extends React.Component<any, State> {
         this.notifications_refresh_interval = 0;
         this.config_check_refresh_interval = 0;
 
+        this.closeMobileMenu = this.closeMobileMenu.bind(this);
+        this.toggleMobileMenu = this.toggleMobileMenu.bind(this);
         this.countNotifications = this.countNotifications.bind(this);
     }
 
@@ -41,6 +52,14 @@ class Header extends React.Component<any, State> {
     componentWillUnmount() {
         clearInterval(this.notifications_refresh_interval);
         clearInterval(this.config_check_refresh_interval);
+    }
+
+    closeMobileMenu () {
+        this.setState({mobile_menu_active: false});
+    }
+
+    toggleMobileMenu () {
+        this.setState({mobile_menu_active: !this.state.mobile_menu_active});
     }
 
     countNotifications() {
@@ -73,91 +92,135 @@ class Header extends React.Component<any, State> {
         });
     }
 
+    getSettingsClassnames() :String {
+        if (this.state.config_errors_count > 0) {
+            return "notifications_counter configuration_errors_notification";
+        }
+
+        return "";
+    }
+
     render() {
         return (
-            <nav className="uk-navbar-container uk-navbar-transparent topbar uk-margin-small-bottom" data-uk-sticky>
-                <div className="uk-container uk-navbar uk-flex uk-flex-middle">
-                    <div className="uk-navbar-left">
-                        <a className="uk-navbar-item uk-logo" href="/dashboard">
+            <nav className="navbar is-light is-transparent is-fixed-top">
+                <div className="container">
+                    <div className="navbar-brand">
+                        <a className="navbar-item logo" href="/dashboard">
                             <span className="navbar-brand">flemzer</span>
                         </a>
-                        <ul className="uk-navbar-nav uk-visible@m">
-                            <li><NavLink activeClassName="active" to="/dashboard"> <span
-                                className="uk-icon uk-margin-small-right"
-                                data-uk-icon="ratio: 0.8; icon: home"></span> Dashboard </NavLink></li>
-                            <li><NavLink activeClassName="active" to="/tvshows"> <span
-                                className="uk-icon uk-margin-small-right"
-                                data-uk-icon="ratio: 0.8; icon: laptop"></span> TVShows </NavLink></li>
-                            <li><NavLink activeClassName="active" to="/movies"> <span
-                                className="uk-icon uk-margin-small-right"
-                                data-uk-icon="ratio: 0.8; icon: video-camera"></span> Movies </NavLink></li>
-                            <li><NavLink activeClassName="active" to="/status"> <span
-                                className="uk-icon uk-margin-small-right"
-                                data-uk-icon="ratio: 0.8; icon: heart"></span> Status </NavLink></li>
-                            <li className="notifications_counter configuration_errors_notification">
-                                <NavLink activeClassName="active" to="/settings">
-                                    <span className="uk-icon uk-margin-small-right"
-                                          data-uk-icon="ratio: 0.8; icon: settings"></span>
-                                    Settings
+                        <NavLink type="button"
+                                 activeClassName="active"
+                                 to="/notifications"
+                                 className="external-navbar-item notifications_counter navbar-item is-hidden-desktop mobile"
+                                 onClick={this.closeMobileMenu}>
+                            <div>
+                                <span className="icon">
+                                    <RiNotification3Line />
+                                </span>
+
+                                <span className={`tag ${this.state.unread_notifications_counter > 0 ? "alerted" : ""}`}>
+                                    {this.state.unread_notifications_counter}
+                                </span>
+                            </div>
+                        </NavLink>
+                        <button className={`navbar-burger button is-naked burger ${this.state.mobile_menu_active ? "is-active" : ""}`} aria-label="menu" aria-expanded="false"
+                           data-target="navbarLinks"
+                           onClick={this.toggleMobileMenu}>
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div id="navbarLinks" className={`navbar-menu ${this.state.mobile_menu_active ? "is-active" : ""}`}>
+                        <div className={"navbar-start"}>
+                            <NavLink activeClassName="active"
+                                     to="/dashboard"
+                                     className={"navbar-item"}
+                                     onClick={this.closeMobileMenu}>
+                                <div>
+                                    <span className="icon">
+                                        <RiHome2Line/>
+                                    </span>
+                                    <span className={"header-label"}> Dashboard </span>
+                                </div>
+                            </NavLink>
+                            <NavLink activeClassName="active"
+                                     to="/tvshows"
+                                     className={"navbar-item"}
+                                     onClick={this.closeMobileMenu}>
+                                <div>
+                                    <span className="icon">
+                                        <RiTvLine/>
+                                    </span>
+                                    <span className={"header-label"}> TV Shows </span>
+                                </div>
+                            </NavLink>
+                            <NavLink activeClassName="active"
+                                     to="/movies"
+                                     className={"navbar-item has-text-grey"}
+                                     onClick={this.closeMobileMenu}>
+                                <div>
+                                    <span className="icon">
+                                        <RiFilmLine/>
+                                    </span>
+                                    <span className={"header-label"}> Movies </span>
+                                </div>
+                            </NavLink>
+                            <NavLink activeClassName="active"
+                                     to="/status"
+                                     className={"navbar-item has-text-grey"}
+                                     onClick={this.closeMobileMenu}>
+                                <div>
+                                    <span className="icon">
+                                        <RiHospitalLine />
+                                    </span>
+                                    <span className={"header-label"}> Status </span>
+                                </div>
+                            </NavLink>
+                            <NavLink activeClassName="active"
+                                     to="/settings"
+                                     className={`navbar-item has-text-grey ${this.getSettingsClassnames()}`}
+                                     onClick={this.closeMobileMenu}>
+                                <div>
+                                    <span className="icon">
+                                        <RiSettings3Line />
+                                    </span>
+                                    <span className={"header-label"}> Settings </span>
                                     {this.state.config_errors_count > 0 && (
                                         <span
-                                            className={`uk-badge uk-border-pill uk-text-small ${this.state.config_errors_count > 0 ? "alerted" : ""}`}>
-                                            {this.state.config_errors_count}
+                                            className={`tag ${this.state.config_errors_count > 0 ? "alerted" : ""}`}>
+                                                {this.state.config_errors_count}
                                         </span>
                                     )}
-                                </NavLink>
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="uk-navbar-right">
-                        <ul className="uk-navbar-nav">
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div className="navbar-end">
                             {this.state.load_error !== false && (
-                                <li className="uk-padding-small">
-                                    <i className="server-unavailable">
-                                        Server unavailable
-                                    </i>
-                                </li>
+                                <div className="navbar-item">
+                                    <div className="server-unavailable message is-danger">
+                                        <div className={"message-body"}>
+                                            Server unavailable
+                                        </div>
+                                    </div>
+                                </div>
                             )}
-                            <li>
-                                <NavLink type="button"
-                                         className="notifications_counter"
-                                         to="/notifications">
-                                    <span data-uk-icon="bell"></span>
-                                    <span
-                                        className={`uk-badge uk-border-pill uk-text-small ${this.state.unread_notifications_counter > 0 ? "alerted" : ""}`}>
-                                        {this.state.unread_notifications_counter}
+                            <NavLink type="button"
+                                     activeClassName="active"
+                                     className="notifications_counter navbar-item is-hidden-touch"
+                                     onClick={this.closeMobileMenu}
+                                     to="/notifications">
+                                <div>
+                                    <span className="icon">
+                                        <RiNotification3Line />
                                     </span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <button className="uk-icon-link uk-hidden@m" data-uk-icon="menu"
-                                        data-uk-toggle="target: #offcanvas-nav-primary"></button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div id="offcanvas-nav-primary" data-uk-offcanvas="mode: push; overlay: true; flip: true">
-                    <div className="uk-offcanvas-bar uk-flex uk-flex-column">
-
-                        <ul className="uk-nav uk-nav-default">
-                            <li><NavLink activeClassName="uk-active" to="/"> <span
-                                className="uk-icon uk-margin-small-right" data-uk-icon="home"></span> Dashboard
-                            </NavLink></li>
-                            <li><NavLink activeClassName="uk-active" to="/tvshows"> <span
-                                className="uk-icon uk-margin-small-right" data-uk-icon="laptop"></span> TVShows
-                            </NavLink></li>
-                            <li><NavLink activeClassName="uk-active" to="/movies"> <span
-                                className="uk-icon uk-margin-small-right" data-uk-icon="video-camera"></span> Movies
-                            </NavLink></li>
-                            <li><NavLink activeClassName="uk-active" to="/status"> <span
-                                className="uk-icon uk-margin-small-right" data-uk-icon="heart"></span> Status </NavLink>
-                            </li>
-                            <li><NavLink activeClassName="uk-active" to="/settings"><span
-                                className="uk-icon uk-margin-small-right" data-uk-icon="settings"></span> Settings
-                            </NavLink></li>
-                        </ul>
-
+                                    <span className={`tag ${this.state.unread_notifications_counter > 0 ? "alerted" : ""}`}>
+                                            {this.state.unread_notifications_counter}
+                                    </span>
+                                </div>
+                            </NavLink>
+                        </div>
                     </div>
                 </div>
             </nav>

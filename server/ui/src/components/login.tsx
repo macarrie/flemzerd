@@ -3,6 +3,9 @@ import React from "react";
 import API from "../utils/api";
 import Auth from "../auth";
 
+import { FaUser } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
+
 type State = {
     BadCredentials: boolean,
     ServerUnavailable: boolean,
@@ -65,65 +68,79 @@ class Login extends React.Component<any, State> {
 
     render() {
         return (
-            <div className="uk-container uk-position-center">
-                <div className="uk-flex uk-flex-middle uk-flex-center" data-uk-grid>
-                    <div className="uk-width-1-1 uk-text-center">
-                        <a className="uk-navbar-item uk-logo" href="/dashboard">
-                            <span className="navbar-brand">flemzer</span>
-                        </a>
+            <div className="">
+                <div className="container">
+                    <div className="columns is-centered is-mobile">
+                        <div className={"column is-narrow"}>
+                            <a className="logo" href="/dashboard">
+                                <span className="navbar-brand">flemzer</span>
+                            </a>
+                        </div>
                     </div>
-                    <div className="uk-width-1-1@s uk-width-1-2@m">
-                        <form className="uk-grid-small" data-uk-grid
+                    <div className="columns is-centered is-mobile">
+                        <form className="column is-one-third-desktop is-full-mobile"
                               onSubmit={this.handleSubmit}>
-                            <div className="uk-inline uk-width-1-1">
-                                <span className="uk-form-icon uk-form-icon-flip" uk-icon="icon: user"></span>
-                                <input className="uk-input uk-width-1-1"
-                                       name="username"
-                                       placeholder="Username"
-                                       onChange={this.handleChange}
-                                       value={this.state.FormData.username}
-                                       required
-                                       type="text"/>
+                            <div className="field">
+                                <label className="label"></label>
+                                <div className={"control has-icons-right"}>
+                                    <input className="input"
+                                           name="username"
+                                           placeholder="Username"
+                                           onChange={this.handleChange}
+                                           value={this.state.FormData.username}
+                                           required
+                                           type="text"/>
+                                    <span className="icon is-small is-right">
+                                        <FaUser/>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="uk-inline uk-width-1-1">
-                                <span className="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
-                                <input className="uk-input uk-width-1-1"
-                                       name="password"
-                                       placeholder="Password"
-                                       onChange={this.handleChange}
-                                       value={this.state.FormData.password}
-                                       required
-                                       type="password"/>
+                            <div className="field">
+                                <label className="label"></label>
+                                <div className={"control has-icons-right"}>
+                                    <input className="input"
+                                           name="password"
+                                           placeholder="Password"
+                                           onChange={this.handleChange}
+                                           value={this.state.FormData.password}
+                                           required
+                                           type="password"/>
+                                    <span className="icon is-small is-right">
+                                        <FaLock/>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="uk-inline uk-width-1-1">
-                                <label className="uk-flex uk-flex-middle">
-                                    <input className="uk-checkbox uk-margin-small-right"
-                                           name="rememberme"
+                            <div className="field">
+                                <label className="checkbox">
+                                    <input name="rememberme"
                                            onChange={this.handleChange}
                                            value={this.state.FormData.rememberme}
                                            type="checkbox"/>
-                                    <span>
-                                        Remember me
-                                   </span>
+                                       <span></span>
+                                       Remember me
                                 </label>
                             </div>
 
-                            <div className="uk-inline uk-width-1-1">
-                                <input className="uk-button uk-button-primary uk-input"
-                                       value="Log in"
-                                       type="submit"/>
+                            <div className="field">
+                                <div className="control">
+                                    <input className="button is-link is-fullwidth"
+                                           value="Log in"
+                                           type="submit"/>
+                                </div>
                             </div>
                         </form>
                     </div>
                     {this.state.BadCredentials && (
                         <>
-                            <div className="uk-width-1-1">
-                            </div>
-                            <div className="uk-with-1-1@s uk-width-1-2@m uk-flex-center">
-                                <div className="uk-alert-danger" data-uk-alert>
-                                    Bad credentials
+                            <div className="columns is-centered is-mobile">
+                                <div className="column is-one-third-desktop is-full-mobile">
+                                    <div className="message is-danger">
+                                        <div className={"message-body"}>
+                                            Bad credentials
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -131,15 +148,17 @@ class Login extends React.Component<any, State> {
 
                     {this.state.ServerUnavailable && (
                         <>
-                            <div className="uk-width-1-1">
-                            </div>
-                            <div className="uk-with-1-1@s uk-width-1-2@m uk-flex-center">
-                                <div className="uk-alert-danger" data-uk-alert>
-                                    Server unavailable
+                        <div className="columns is-centered is-mobile">
+                            <div className="column is-one-third-desktop is-full-mobile">
+                                <div className="message is-danger">
+                                    <div className={"message-body"}>
+                                        Server unavailable
+                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </>
-                    )}
+                        )}
                 </div>
             </div>
         );
