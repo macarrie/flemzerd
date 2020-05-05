@@ -37,6 +37,11 @@
         height: 64px;
         padding: 0 32px;
         margin-left: 10px;
+        border-radius: 0;
+
+        &:focus {
+            box-shadow: none;
+        }
     }
 
     .navbar-menu .navbar-item, .external-navbar-item {

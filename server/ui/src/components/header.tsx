@@ -123,13 +123,13 @@ class Header extends React.Component<any, State> {
                                 </span>
                             </div>
                         </NavLink>
-                        <a role="button" className={`navbar-burger burger ${this.state.mobile_menu_active ? "is-active" : ""}`} aria-label="menu" aria-expanded="false"
+                        <button className={`navbar-burger button is-naked burger ${this.state.mobile_menu_active ? "is-active" : ""}`} aria-label="menu" aria-expanded="false"
                            data-target="navbarLinks"
                            onClick={this.toggleMobileMenu}>
                             <span aria-hidden="true"></span>
                             <span aria-hidden="true"></span>
                             <span aria-hidden="true"></span>
-                        </a>
+                        </button>
                     </div>
                     <div id="navbarLinks" className={`navbar-menu ${this.state.mobile_menu_active ? "is-active" : ""}`}>
                         <div className={"navbar-start"}>

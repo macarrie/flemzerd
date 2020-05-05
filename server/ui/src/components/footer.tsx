@@ -1,5 +1,4 @@
 import React from "react";
-import {NavLink} from "react-router-dom";
 
 import {RiQuestionLine} from "react-icons/ri";
 import {RiGithubLine} from "react-icons/ri";
