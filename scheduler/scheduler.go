@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -200,12 +199,8 @@ func poll(recoveryDone *bool) {
 					log.Warning(err)
 				}
 
-				fmt.Printf("EPISODE: %+v\n", recentEpisode)
 				downloadDelayPassed := time.Now().After(recentEpisode.Date.Add(time.Duration(configuration.Config.System.ShowDownloadDelay) * time.Hour))
-				fmt.Printf("DELAY PASSED: %+v\n", downloadDelayPassed)
-				fmt.Printf("HEALTHCHECK CAN DOWNLOAD: %+v\n", healthcheck.CanDownload)
 				if healthcheck.CanDownload && configuration.Config.System.AutomaticShowDownload && downloadDelayPassed {
-					fmt.Printf("DOWNLOAD START: %+v\n", recentEpisode)
 					Download(&recentEpisode)
 				}
 			}

@@ -273,7 +273,6 @@ func TestRunAndStop(t *testing.T) {
 }
 
 func TestDownloadDelay(t *testing.T) {
-	fmt.Printf("------------- TEST DL DELAY")
 	db.ResetDb()
 
 	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)
@@ -307,7 +306,6 @@ func TestDownloadDelay(t *testing.T) {
 		recentEpisodes, _ := provider.FindRecentlyAiredEpisodesForShow(show)
 
 		for _, recentEpisode := range recentEpisodes {
-			fmt.Printf("RECENT EPISODE: %+v\n", recentEpisode)
 			if recentEpisode.DownloadingItem.Downloading != false || recentEpisode.DownloadingItem.Downloaded != false {
 				t.Error("Expected episode not to be downloaded or downloading due to download delay")
 			}
