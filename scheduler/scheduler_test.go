@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -69,7 +68,6 @@ func TestDownloadMedia(t *testing.T) {
 	Download(&episode)
 
 	db.Client.Find(&episode, episode.ID)
-	fmt.Printf("EPISODE: %+v\n", episode)
 	if !episode.DownloadingItem.TorrentsNotFound {
 		t.Error("Expected download to fail because no torrent can be found")
 	}
