@@ -170,7 +170,7 @@ func (p DownloadDelayTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 		{
 			Number: 1,
 			Season: 1,
-			Title:  "Test episode",
+			Title:  "Test episode downloaddelaytvprovider",
 			Date: time.Now(),
 		},
 	}, nil
@@ -183,7 +183,7 @@ func (p DownloadDelayTVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber 
 		{
 			Number: 1,
 			Season: 1,
-			Title:  "Test episode",
+			Title:  "Test episode downloaddelaytvprovider",
 			Date: time.Now(),
 		},
 	}, nil
@@ -192,7 +192,7 @@ func (p DownloadDelayTVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episo
 	return Episode{
 		Number: 1,
 		Season: 1,
-		Title:  "Test episode",
+		Title:  "Test episode downloaddelaytvprovider",
 		Date: time.Now(),
 	}, nil
 }
