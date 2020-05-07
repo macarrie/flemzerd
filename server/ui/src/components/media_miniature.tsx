@@ -211,9 +211,9 @@ class MediaMiniature extends React.Component<Props, State> {
 
         if (item.DownloadingItem.Downloaded && (!item.DeletedAt)) {
             buttonList.push(
-                <div className={"tile"}>
+                <div className={"tile"}
+                    key="markNotDownloaded">
                     <button className=""
-                            key="markNotDownloaded"
                             onClick={this.markNotDownloaded}
                             data-tooltip="Unmark as downloaded">
                         <span className={"icon"}>
@@ -226,9 +226,9 @@ class MediaMiniature extends React.Component<Props, State> {
 
         if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Downloaded && !item.DeletedAt) {
             buttonList.push(
-                <div className={"tile"}>
+                <div className={"tile"}
+                     key="markDownloaded">
                     <button className=""
-                            key="markDownloaded"
                             onClick={this.markDownloaded}
                             data-tooltip="Mark as downloaded">
                         <span className={"icon"}>
@@ -242,9 +242,9 @@ class MediaMiniature extends React.Component<Props, State> {
         //TODO: Handle configuration
         if (!item.DownloadingItem.Downloaded && !item.DownloadingItem.Downloading && !item.DownloadingItem.Pending && !item.DeletedAt && !Helpers.dateIsInFuture(item.Date)) {
             buttonList.push(
-                <div className={"tile"}>
+                <div className={"tile"}
+                    key="downloadMovie">
                     <button className=""
-                            key="downloadMovie"
                             onClick={this.downloadMovie}
                             data-tooltip="Download">
                         <span className={"icon"}>

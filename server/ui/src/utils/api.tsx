@@ -1,8 +1,6 @@
 import axios from "axios";
 
 import Auth from "../auth";
-import TvShow from "../types/tvshow";
-import Movie from "../types/movie";
 import MediaInfo from "../types/media_info";
 
 axios.defaults.baseURL = "/api/v1/";
@@ -30,7 +28,10 @@ export default class API {
     static Actions = {
         poll: function () {
             return API.auth().post('/actions/poll');
-        }
+        },
+        refreshAllMetadata: function () {
+            return API.auth().post('/actions/refresh_all_metadata');
+        },
     };
 
     static Config = {
@@ -94,7 +95,10 @@ export default class API {
             return API.auth().put('/movies/details/' + id + '/use_default_title', {
                 UseDefaultTitle: useDefaultTitle,
             });
-        }
+        },
+        refreshMetadata: function (id: number) {
+            return API.auth().post('/movies/details/' + id + '/refresh_metadata');
+        },
     };
 
     static Episodes = {
@@ -137,12 +141,6 @@ export default class API {
         restore: function (id: number) {
             return API.auth().post('/tvshows/restore/' + id);
         },
-        download: function (id: number) {
-            return API.auth().post('/tvshows/details/' + id + '/download');
-        },
-        abortDownload: function (id: number) {
-            return API.auth().delete('/tvshows/details/' + id + '/download');
-        },
         changeCustomTitle: function (id: number, customTitle: string) {
             return API.auth().put('/tvshows/details/' + id + '/custom_title', {
                 CustomTitle: customTitle,
@@ -160,7 +158,10 @@ export default class API {
         },
         getSeason: function (id: number, seasonNb: number) {
             return API.auth().get('/tvshows/details/' + id + '/seasons/' + seasonNb);
-        }
+        },
+        refreshMetadata: function (id: number) {
+            return API.auth().post('/tvshows/details/' + id + '/refresh_metadata');
+        },
     };
 
     static Notifications = {
@@ -184,26 +185,6 @@ export default class API {
         deleteAll: function() {
             return API.auth().delete('/notifications/all');
         },
-    };
-
-    static Fanart = {
-        FANART_BASE_URL: "https://webservice.fanart.tv/v3/",
-        FANART_TV_KEY: "648ff4214a1eea4416ad51417fc8a4e4",
-
-        getTvShowFanart: function (show: TvShow) {
-            return axios.get(this.FANART_BASE_URL + "tv/" + show.MediaIds.Tvdb, {
-                params: {
-                    "api_key": this.FANART_TV_KEY
-                }
-            });
-        },
-        getMovieFanart: function (movie: Movie) {
-            return axios.get(this.FANART_BASE_URL + "movies/" + movie.MediaIds.Tmdb, {
-                params: {
-                    "api_key": this.FANART_TV_KEY
-                }
-            });
-        }
     };
 
     static Modules = {

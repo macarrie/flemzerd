@@ -1,9 +1,12 @@
 package objects
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	log "github.com/macarrie/flemzerd/logging"
 )
 
 const (
@@ -19,6 +22,7 @@ type TvShow struct {
 	MediaIdsID       int
 	Banner           string
 	Poster           string
+	Background       string
 	FirstAired       time.Time
 	Overview         string
 	Title            string
@@ -45,7 +49,6 @@ type SeasonDetails struct {
 	EpisodeList []Episode
 }
 
-
 func (s TvShow) GetTitle() string {
 	if s.CustomTitle != "" {
 		return s.CustomTitle
@@ -56,4 +59,27 @@ func (s TvShow) GetTitle() string {
 	}
 
 	return s.OriginalTitle
+}
+
+//////////////////////////////
+// Cachable implementation
+//////////////////////////////
+
+func (s *TvShow) IsCached(value string) bool {
+	return strings.HasPrefix(value, "/cache")
+}
+
+func (s *TvShow) GetId() uint {
+	return s.ID
+}
+
+func (s *TvShow) GetLog() *log.Entry {
+	return log.WithFields(log.Fields{
+		"show": s.GetTitle(),
+	})
+}
+
+func (s *TvShow) ClearCache() {
+	s.Poster = ""
+	s.Background = ""
 }

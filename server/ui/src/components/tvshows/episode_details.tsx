@@ -12,14 +12,12 @@ import DownloadingItemComponent from "../downloading_item";
 
 type State = {
     episode :Episode | null,
-    fanartURL :string,
 };
 
 class EpisodeDetails extends React.Component<any, State> {
     episode_refresh_interval :number;
     state :State = {
         episode: null,
-        fanartURL: "",
     };
 
     constructor(props: any) {
@@ -54,24 +52,8 @@ class EpisodeDetails extends React.Component<any, State> {
             episode_result.DisplayTitle = Helpers.getMediaTitle(episode_result)
             console.log(episode_result);
             this.setState({episode: episode_result});
-            this.getFanart();
         }).catch(error => {
             console.log("Get episode details error: ", error);
-        });
-    }
-
-    getFanart() {
-        if (this.state.episode == null) {
-            return;
-        }
-
-        API.Fanart.getTvShowFanart(this.state.episode.TvShow).then(response => {
-            let fanartObj = response.data;
-            if (fanartObj["showbackground"] && fanartObj["showbackground"].length > 0) {
-                this.setState({fanartURL: fanartObj["showbackground"][0]["url"]});
-            }
-        }).catch(error => {
-            console.log("Get show fanart error: ", error);
         });
     }
 
@@ -163,7 +145,7 @@ class EpisodeDetails extends React.Component<any, State> {
         return (
             <>
             <div id="full_background" className={"has-background-dark"}
-                style={{backgroundImage: `url(${this.state.fanartURL})`}}></div>
+                style={{backgroundImage: `url(${this.state.episode?.TvShow.Background})`}}></div>
             <MediaActionBar item={this.state.episode}
                             downloadItem={this.downloadEpisode}
                             markNotDownloaded={this.markNotDownloaded}
@@ -175,7 +157,10 @@ class EpisodeDetails extends React.Component<any, State> {
             <div className="container mediadetails">
                 <div className="columns is-mobile">
                     <div className="column is-one-quarter-desktop is-one-third-tablet is-hidden-mobile">
-                        <img width="100%" src={this.state.episode.TvShow.Poster} alt="{this.state.epîsode.Title}" className="thumbnail" />
+                        <div className={"poster-container"}>
+                            <span className={"poster-alt"}>{this.state.episode.Title}</span>
+                            <img width="100%" src={this.state.episode.TvShow.Poster} alt={""} className="poster" />
+                        </div>
                     </div>
                     <div className="column">
                         <div className="columns">

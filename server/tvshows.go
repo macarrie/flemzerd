@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/macarrie/flemzerd/cache"
 	"net/http"
 	"strconv"
 
@@ -314,4 +315,23 @@ func changeEpisodeDownloadedState(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, episode)
+}
+
+func refreshShowMetadata(c *gin.Context) {
+	id := c.Param("id")
+	var show TvShow
+	req := db.Client.Find(&show, id)
+	if req.RecordNotFound() {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	cache.Clear(&show)
+	db.Client.Save(&show)
+
+	if _, err := provider.FindShow(show.MediaIds); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	c.AbortWithStatus(http.StatusOK)
 }

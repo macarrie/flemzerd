@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/macarrie/flemzerd/configuration"
@@ -61,7 +60,6 @@ func Download(d downloadable.Downloadable) {
 		// Check modules health again just in case
 		healthcheck.CheckHealth()
 		if !healthcheck.CanDownload {
-			fmt.Printf("CAN DOWNLOAD IZ FALSE")
 			_ = notifier.NotifyFailedDownload(d)
 			return
 		}

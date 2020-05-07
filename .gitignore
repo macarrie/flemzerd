@@ -9,6 +9,7 @@ server/ui/build
 install/vidocq
 cover/
 package/
+env
 
 ### Intellij IDEA
 .idea/

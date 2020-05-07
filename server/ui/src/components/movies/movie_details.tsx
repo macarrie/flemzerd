@@ -13,14 +13,12 @@ import DownloadingItemComponent from "../downloading_item";
 
 type State = {
     movie: Movie,
-    fanartURL: string,
 };
 
 class MovieDetails extends React.Component<any, State> {
     movie_refresh_interval: number;
     state: State = {
         movie: {} as Movie,
-        fanartURL: "",
     };
 
     constructor(props: any) {
@@ -44,6 +42,7 @@ class MovieDetails extends React.Component<any, State> {
 
         this.restoreMovie = this.restoreMovie.bind(this);
         this.deleteMovie = this.deleteMovie.bind(this);
+        this.refreshMetadata = this.refreshMetadata.bind(this);
     }
 
     componentDidMount() {
@@ -61,20 +60,8 @@ class MovieDetails extends React.Component<any, State> {
             let movie_result: Movie = response.data;
             movie_result.DisplayTitle = Helpers.getMediaTitle(movie_result);
             this.setState({movie: movie_result});
-            this.getFanart();
         }).catch(error => {
             console.log("Get movie details error: ", error);
-        });
-    }
-
-    getFanart() {
-        API.Fanart.getMovieFanart(this.state.movie).then(response => {
-            let fanartObj = response.data;
-            if (fanartObj["moviebackground"] && fanartObj["moviebackground"].length > 0) {
-                this.setState({fanartURL: fanartObj["moviebackground"][0]["url"]});
-            }
-        }).catch(error => {
-            console.log("Get movie fanart error: ", error);
         });
     }
 
@@ -158,6 +145,14 @@ class MovieDetails extends React.Component<any, State> {
         });
     }
 
+    refreshMetadata() {
+        API.Movies.refreshMetadata(this.state.movie.ID).then(response => {
+            this.getMovie();
+        }).catch(error => {
+            console.log("Refresh movie metadata error: ", error);
+        });
+    }
+
     render() {
         if (this.state.movie.ID === 0) {
             return (
@@ -168,7 +163,7 @@ class MovieDetails extends React.Component<any, State> {
         return (
             <>
             <div id="full_background" className={"has-background-dark"}
-                style={{backgroundImage: `url(${this.state.fanartURL})`}}></div>
+                style={{backgroundImage: `url(${this.state.movie.Background})`}}></div>
             <MediaActionBar item={this.state.movie}
                             downloadItem={this.downloadMovie}
                             useOriginalTitle={this.useOriginalTitle}
@@ -179,12 +174,16 @@ class MovieDetails extends React.Component<any, State> {
                             abortDownload={this.abortDownload}
                             restoreItem={this.restoreMovie}
                             deleteItem={this.deleteMovie}
+                            refreshMetadata={this.refreshMetadata}
                             type="movie"/>
 
             <div className="container mediadetails">
                 <div className="columns is-mobile">
                     <div className="column is-one-quarter-desktop is-one-third-tablet is-hidden-mobile">
-                        <img width="100%" src={this.state.movie.Poster} alt="{this.state.movie.Title}" className="thumbnail" />
+                        <div className={"poster-container"}>
+                            <span className={"poster-alt"}>{this.state.movie.Title}</span>
+                            <img width="100%" src={this.state.movie.Poster} alt={""} className="poster" />
+                        </div>
                     </div>
                     <div className="column">
                         <div className="columns is-mobile">

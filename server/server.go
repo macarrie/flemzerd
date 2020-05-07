@@ -16,6 +16,7 @@ import (
 	"github.com/macarrie/flemzerd/configuration"
 
 	log "github.com/macarrie/flemzerd/logging"
+	. "github.com/macarrie/flemzerd/objects"
 	"github.com/macarrie/flemzerd/stats"
 )
 
@@ -107,6 +108,7 @@ func initRouter() {
 
 	router = gin.Default()
 	router.Use(static.Serve("/static", static.LocalFile("/var/lib/flemzerd/server/ui/static", true)))
+	router.Use(static.Serve("/cache", static.LocalFile(CACHE_BASE_PATH, true)))
 
 	router.NoRoute(func(c *gin.Context) {
 		c.File("/var/lib/flemzerd/server/ui/index.html")
@@ -177,6 +179,7 @@ func initRouter() {
 		actionsRoute.Use(authMiddleware.MiddlewareFunc())
 		{
 			actionsRoute.POST("/poll", actionsCheckNow)
+			actionsRoute.POST("/refresh_all_metadata", resetAllMetadata)
 		}
 
 		tvshowsRoute := v1.Group("/tvshows")
@@ -200,6 +203,7 @@ func initRouter() {
 			tvshowsRoute.DELETE("/episodes/:id/download", abortEpisodeDownload)
 			tvshowsRoute.POST("/episodes/:id/download/skip_torrent", skipEpisodeTorrentDownload)
 			tvshowsRoute.PUT("/episodes/:id/download_state", changeEpisodeDownloadedState)
+			tvshowsRoute.POST("/details/:id/refresh_metadata", refreshShowMetadata)
 		}
 
 		moviesRoute := v1.Group("/movies")
@@ -219,6 +223,7 @@ func initRouter() {
 			moviesRoute.PUT("/details/:id/custom_title", changeMovieCustomTitle)
 			moviesRoute.PUT("/details/:id/use_default_title", useMovieDefaultTitle)
 			moviesRoute.POST("/restore/:id", restoreMovie)
+			moviesRoute.POST("/details/:id/refresh_metadata", refreshMovieMetadata)
 		}
 
 		modules := v1.Group("/modules")

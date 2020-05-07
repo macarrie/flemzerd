@@ -1,6 +1,8 @@
 package server
 
 import (
+	"github.com/macarrie/flemzerd/cache"
+	provider "github.com/macarrie/flemzerd/providers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -224,4 +226,23 @@ func restoreMovie(c *gin.Context) {
 	stats.Stats.Movies.Removed -= 1
 
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func refreshMovieMetadata(c *gin.Context) {
+	id := c.Param("id")
+	var movie Movie
+	req := db.Client.Find(&movie, id)
+	if req.RecordNotFound() {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	cache.Clear(&movie)
+	db.Client.Save(&movie)
+
+	if _, err := provider.FindMovie(movie.MediaIds); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	c.AbortWithStatus(http.StatusOK)
 }
