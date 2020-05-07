@@ -29,7 +29,7 @@ func resetAllMetadata(c *gin.Context) {
 			"path": movieCacheFolderPath,
 		}).Error("Could not delete movie cache folder")
 	} else {
-		err := os.MkdirAll(movieCacheFolderPath, 0644)
+		err := os.MkdirAll(movieCacheFolderPath, 0755)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"err":  err,
@@ -45,7 +45,7 @@ func resetAllMetadata(c *gin.Context) {
 			"path": showsCacheFolderPath,
 		}).Error("Could not delete shows cache folder")
 	} else {
-		err := os.MkdirAll(showsCacheFolderPath, 0644)
+		err := os.MkdirAll(showsCacheFolderPath, 0755)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"err":  err,
