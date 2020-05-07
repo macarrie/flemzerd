@@ -272,6 +272,54 @@ func TestRunAndStop(t *testing.T) {
 	db.Load()
 }
 
+func TestDownloadDelay(t *testing.T) {
+	fmt.Printf("------------- TEST DL DELAY")
+	db.ResetDb()
+
+	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)
+	downloader.MovieDownloadRoutines = make(map[uint]downloader.ContextStorage)
+
+	notifier.Reset()
+	provider.Reset()
+	indexer.Reset()
+	downloader.Reset()
+	watchlist.Reset()
+	mediacenter.Reset()
+
+	provider.AddProvider(mock.DownloadDelayTVProvider{})
+	provider.AddProvider(mock.DownloadDelayMovieProvider{})
+	indexer.AddIndexer(mock.TVIndexer{})
+	indexer.AddIndexer(mock.MovieIndexer{})
+	downloader.AddDownloader(mock.Downloader{})
+	notifier.AddNotifier(mock.Notifier{})
+	watchlist.AddWatchlist(mock.Watchlist{})
+	mediacenter.AddMediaCenter(mock.MediaCenter{})
+
+	provider.GetTVShowsInfoFromConfig()
+	provider.GetMoviesInfoFromConfig()
+
+	recoveryDone := false
+	poll(&recoveryDone)
+
+	configuration.Load()
+
+	for _, show := range provider.TVShows {
+		recentEpisodes, _ := provider.FindRecentlyAiredEpisodesForShow(show)
+
+		for _, recentEpisode := range recentEpisodes {
+			fmt.Printf("RECENT EPISODE: %+v\n", recentEpisode)
+			if recentEpisode.DownloadingItem.Downloading != false || recentEpisode.DownloadingItem.Downloaded != false {
+				t.Error("Expected episode not to be downloaded or downloading due to download delay")
+			}
+		}
+	}
+	for _, movie := range provider.Movies {
+		if movie.DownloadingItem.Downloading != false || movie.DownloadingItem.Downloaded != false {
+			t.Error("Expected movie not to be downloaded or downloading due to download delay")
+		}
+	}
+}
+
 func TestRecovery(t *testing.T) {
 	db.ResetDb()
 	downloader.EpisodeDownloadRoutines = make(map[uint](downloader.ContextStorage))
@@ -367,53 +415,5 @@ func TestRecovery(t *testing.T) {
 			}
 		}
 
-	}
-}
-
-func TestDownloadDelay(t *testing.T) {
-	fmt.Printf("------------- TEST DL DELAY")
-	db.ResetDb()
-
-	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)
-	downloader.MovieDownloadRoutines = make(map[uint]downloader.ContextStorage)
-
-	notifier.Reset()
-	provider.Reset()
-	indexer.Reset()
-	downloader.Reset()
-	watchlist.Reset()
-	mediacenter.Reset()
-
-	provider.AddProvider(mock.DownloadDelayTVProvider{})
-	provider.AddProvider(mock.DownloadDelayMovieProvider{})
-	indexer.AddIndexer(mock.TVIndexer{})
-	indexer.AddIndexer(mock.MovieIndexer{})
-	downloader.AddDownloader(mock.Downloader{})
-	notifier.AddNotifier(mock.Notifier{})
-	watchlist.AddWatchlist(mock.Watchlist{})
-	mediacenter.AddMediaCenter(mock.MediaCenter{})
-
-	provider.GetTVShowsInfoFromConfig()
-	provider.GetMoviesInfoFromConfig()
-
-	recoveryDone := false
-	poll(&recoveryDone)
-
-	configuration.Load()
-
-	for _, show := range provider.TVShows {
-		recentEpisodes, _ := provider.FindRecentlyAiredEpisodesForShow(show)
-
-		for _, recentEpisode := range recentEpisodes {
-			fmt.Printf("RECENT EPISODE: %+v\n", recentEpisode)
-			if recentEpisode.DownloadingItem.Downloading != false || recentEpisode.DownloadingItem.Downloaded != false {
-				t.Error("Expected episode not to be downloaded or downloading due to download delay")
-			}
-		}
-	}
-	for _, movie := range provider.Movies {
-		if movie.DownloadingItem.Downloading != false || movie.DownloadingItem.Downloaded != false {
-			t.Error("Expected movie not to be downloaded or downloading due to download delay")
-		}
 	}
 }
