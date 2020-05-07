@@ -95,7 +95,7 @@ func FindShow(ids MediaIds) (TvShow, error) {
 		}
 
 		// Update show saved in db with info retrieved from provider
-		mergeRecentShowProperties(&showReq, &show)
+		//mergeRecentShowProperties(&showReq, &show)
 		posterCachePath, err := cache.CacheShowPoster(&showReq)
 		if err != nil {
 			showReq.GetLog().WithFields(log.Fields{
@@ -175,7 +175,7 @@ func FindMovie(query MediaIds) (Movie, error) {
 		}
 
 		// Update movie saved in db with info retrieved from provider
-		mergeRecentMovieProperties(&movieReq, &movie)
+		//mergeRecentMovieProperties(&movieReq, &movie)
 		if movieReq.Background == "" {
 			url, err := GetMovieFanart(&movieReq)
 			if err != nil {
