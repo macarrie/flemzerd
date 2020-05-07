@@ -13,6 +13,7 @@ import ConfigCheckComponent from "./config_check";
 import LibraryScan from "./scan_library";
 import SettingsBoolean from "./settings_boolean";
 import SettingsValue from "./settings_value";
+import LoadingButton from "../loading_button";
 
 type State = {
     config :Config | null,
@@ -32,6 +33,7 @@ class Settings extends React.Component {
         this.settings_refresh_interval = 0;
 
         this.renderModuleList = this.renderModuleList.bind(this);
+        this.refreshAllMetadata = this.refreshAllMetadata.bind(this);
     }
 
     componentDidMount() {
@@ -55,6 +57,10 @@ class Settings extends React.Component {
         }).catch(error => {
             console.log("Get config error: ", error);
         });
+    }
+
+    refreshAllMetadata() {
+        return API.Actions.refreshAllMetadata()
     }
 
     checkConfig() {
@@ -216,6 +222,17 @@ k                                              label={"Interface port"} />
                         <div className="column is-full">
                             <h4 className="title is-4">Library</h4>
                             <ul className="block-list">
+                                <li>
+                                    <div className={"columns is-gapless is-mobile is-vcentered"}>
+                                        <div className={"column"}>
+                                            Refresh all metadata &nbsp;
+                                            <span className={"has-text-grey"}>(media info, posters and background images)</span>
+                                        </div>
+                                        <div className={"column is-narrow"}>
+                                            <LoadingButton action={this.refreshAllMetadata} text={"Refresh all"} loading_text={"Refreshing"} styleClass={"button is-info is-outlined is-small"} />
+                                        </div>
+                                    </div>
+                                </li>
                                 <li>
                                     <LibraryScan scan_type="show" config={this.state.config} />
                                 </li>

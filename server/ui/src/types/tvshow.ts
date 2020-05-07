@@ -25,6 +25,7 @@ type TvShow = {
 	MediaIds         :MediaIds,
 	Banner           :string,
 	Poster           :string,
+	Background       :string,
 	FirstAired       :Date,
 	Overview         :string,
 	Title            :string,

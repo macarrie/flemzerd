@@ -36,13 +36,10 @@ class SeasonList extends React.Component<Props, State> {
         if (nextProps.seasons === null) {
             return;
         }
-        console.log("Season list:", this.state.seasons);
+
         let seasons = nextProps.seasons;
         for (let i = 0; i < seasons.length; i++) {
-            console.log("ITEM", seasons[i]);
-            console.log(typeof seasons[i]);
             if (seasons[i] === null || typeof seasons[i] == "undefined") {
-                console.log("EMPTY");
                  seasons[i] = {
                      Info: {SeasonNumber: i + 1} as TvSeason,
                      LoadPending: true,
@@ -50,7 +47,6 @@ class SeasonList extends React.Component<Props, State> {
             }
         }
 
-        console.log("Handled seasons: ", seasons);
         this.setState({ seasons: seasons });
     }
 

@@ -12,6 +12,7 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/macarrie/transmission v0.0.0-20180521203359-2a6f6cd93675
+	github.com/odwrtw/fanarttv v0.0.0-20170412122542-9f67d3cf0188
 	github.com/ogier/pflag v0.0.1
 	github.com/pdf/kodirpc v0.0.1
 	github.com/pioz/tvdb v0.0.0-20190503215423-f45c687faba9

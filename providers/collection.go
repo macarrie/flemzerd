@@ -2,12 +2,13 @@ package provider
 
 import (
 	"fmt"
-	"sort"
-	"sync"
-
+	"github.com/macarrie/flemzerd/cache"
 	"github.com/macarrie/flemzerd/db"
 	log "github.com/macarrie/flemzerd/logging"
 	. "github.com/macarrie/flemzerd/objects"
+	"github.com/odwrtw/fanarttv"
+	"sort"
+	"sync"
 
 	watchlist "github.com/macarrie/flemzerd/watchlists"
 
@@ -55,15 +56,72 @@ func FindShow(ids MediaIds) (TvShow, error) {
 			return TvShow{}, err
 		}
 		showReq := TvShow{}
-		req := db.Client.Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
+		req := db.Client.Unscoped().Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
 		if req.RecordNotFound() {
-			// Look in deleted records too
-			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", ids.Model.ID).Find(&showReq)
-			if unscopedReq.RecordNotFound() {
-				db.Client.Create(&show)
-				return show, nil
+			db.Client.Create(&show)
+
+			posterCachePath, err := cache.CacheShowPoster(&show)
+			if err != nil {
+				show.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not cache poster")
 			}
+
+			if show.Background == "" {
+				url, err := GetShowFanart(&show)
+				if err != nil {
+					show.GetLog().WithFields(log.Fields{
+						"err": err,
+					}).Error("Could not get fanart for movie")
+				}
+				show.Background = url
+			}
+			fanartCachePath, err := cache.CacheShowFanart(&show)
+			if err != nil {
+				show.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not cache fanart")
+			}
+
+			show.Poster = posterCachePath
+			show.Background = fanartCachePath
+			db.Client.Save(&show)
+
+			return show, nil
 		}
+
+		if showReq.DeletedAt != nil {
+			return showReq, nil
+		}
+
+		// Update show saved in db with info retrieved from provider
+		mergeRecentShowProperties(&showReq, &show)
+		posterCachePath, err := cache.CacheShowPoster(&showReq)
+		if err != nil {
+			showReq.GetLog().WithFields(log.Fields{
+				"err": err,
+			}).Error("Could not cache poster")
+		}
+
+		if showReq.Background == "" {
+			url, err := GetShowFanart(&showReq)
+			if err != nil {
+				showReq.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not get fanart")
+			}
+			showReq.Background = url
+		}
+		fanartCachePath, err := cache.CacheShowFanart(&showReq)
+		if err != nil {
+			showReq.GetLog().WithFields(log.Fields{
+				"err": err,
+			}).Error("Could not cache fanart")
+		}
+
+		showReq.Poster = posterCachePath
+		showReq.Background = fanartCachePath
+		db.Client.Save(&showReq)
 
 		return showReq, nil
 	}
@@ -75,20 +133,74 @@ func FindMovie(query MediaIds) (Movie, error) {
 	p := getMovieProvider()
 	if p != nil {
 		movie, err := (*p).GetMovie(query)
-		movie.MediaIds = query
 		if err != nil {
 			return Movie{}, err
 		}
+		movie.MediaIds = query
 		movieReq := Movie{}
-		req := db.Client.Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
+		req := db.Client.Unscoped().Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
 		if req.RecordNotFound() {
-			// Look in deleted records too
-			unscopedReq := db.Client.Unscoped().Where("media_ids_id = ?", query.Model.ID).Find(&movieReq)
-			if unscopedReq.RecordNotFound() {
-				db.Client.Create(&movie)
-				return movie, nil
+			db.Client.Create(&movie)
+			posterCachePath, err := cache.CacheMoviePoster(&movie)
+			if err != nil {
+				movie.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not cache poster")
 			}
+
+			if movie.Background == "" {
+				url, err := GetMovieFanart(&movie)
+				if err != nil {
+					movie.GetLog().WithFields(log.Fields{
+						"err": err,
+					}).Error("Could not get fanart")
+				}
+				movie.Background = url
+			}
+			fanartCachePath, err := cache.CacheMovieFanart(&movie)
+			if err != nil {
+				movie.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not cache fanart")
+			}
+
+			movie.Background = fanartCachePath
+			movie.Poster = posterCachePath
+			db.Client.Save(&movie)
+			return movie, nil
 		}
+
+		if movieReq.DeletedAt != nil {
+			return movieReq, nil
+		}
+
+		// Update movie saved in db with info retrieved from provider
+		mergeRecentMovieProperties(&movieReq, &movie)
+		if movieReq.Background == "" {
+			url, err := GetMovieFanart(&movieReq)
+			if err != nil {
+				movieReq.GetLog().WithFields(log.Fields{
+					"err": err,
+				}).Error("Could not get fanart for movie")
+			}
+			movieReq.Background = url
+		}
+		fanartCachePath, err := cache.CacheMovieFanart(&movieReq)
+		if err != nil {
+			movieReq.GetLog().WithFields(log.Fields{
+				"err": err,
+			}).Error("Could not cache fanart")
+		}
+		posterCachePath, err := cache.CacheMoviePoster(&movieReq)
+		if err != nil {
+			movieReq.GetLog().WithFields(log.Fields{
+				"err": err,
+			}).Error("Could not cache poster")
+		}
+
+		movieReq.Poster = posterCachePath
+		movieReq.Background = fanartCachePath
+		db.Client.Save(&movieReq)
 
 		return movieReq, nil
 	}
@@ -346,4 +458,69 @@ func GetProvider(name string) (Provider, error) {
 	}
 
 	return nil, fmt.Errorf("Provider %s not found in configuration", name)
+}
+
+func GetShowFanart(s *TvShow) (url string, err error) {
+	s.GetLog().Debug("Looking for fanart")
+
+	client := fanarttv.New(FANART_TV_KEY)
+	if client == nil {
+		return "", errors.New("could not create fanart API client")
+	}
+
+	res, err := client.GetShowImages(fmt.Sprintf("%d", s.MediaIds.Tvdb))
+	if err != nil {
+		return "", errors.Wrap(err, "could not find fanart for show")
+	}
+
+	if len(res.Backgrounds) == 0 {
+		return "", errors.New("no background fanart available for show")
+	}
+
+	return fanarttv.Best(res.Backgrounds).URL, nil
+}
+
+func GetMovieFanart(m *Movie) (url string, err error) {
+	m.GetLog().Debug("Looking for fanart")
+
+	client := fanarttv.New(FANART_TV_KEY)
+	if client == nil {
+		return "", errors.New("could not create fanart API client")
+	}
+
+	res, err := client.GetMovieImages(m.MediaIds.Imdb)
+	if err != nil {
+		return "", errors.Wrap(err, "could not find fanart for movie")
+	}
+
+	if len(res.Backgrounds) == 0 {
+		return "", errors.New("no background fanart available for movie")
+	}
+
+	return fanarttv.Best(res.Backgrounds).URL, nil
+}
+
+// Updates currentMovie (saved in DB) with updates retrieved from Provider
+func mergeRecentShowProperties(currentShow *TvShow, updatedShow *TvShow) {
+	currentShow.Title = updatedShow.Title
+	currentShow.OriginalTitle = updatedShow.OriginalTitle
+	currentShow.Overview = updatedShow.Overview
+	currentShow.Banner = updatedShow.Banner
+	currentShow.NumberOfSeasons = updatedShow.NumberOfSeasons
+	currentShow.NumberOfEpisodes = updatedShow.NumberOfEpisodes
+	currentShow.FirstAired = updatedShow.FirstAired
+	currentShow.Status = updatedShow.Status
+	if !currentShow.IsCached(currentShow.Poster) {
+		currentShow.Poster = updatedShow.Poster
+	}
+}
+
+// Updates currentMovie (saved in DB) with updates retrieved from Provider
+func mergeRecentMovieProperties(currentMovie *Movie, updatedMovie *Movie) {
+	currentMovie.Title = updatedMovie.Title
+	currentMovie.OriginalTitle = updatedMovie.OriginalTitle
+	currentMovie.Overview = updatedMovie.Overview
+	if !currentMovie.IsCached(currentMovie.Poster) {
+		currentMovie.Poster = updatedMovie.Poster
+	}
 }

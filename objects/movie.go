@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -17,6 +18,7 @@ type Movie struct {
 	CustomTitle       string
 	Overview          string
 	Poster            string
+	Background        string
 	Date              time.Time
 	Notified          bool
 	DownloadingItem   DownloadingItem
@@ -56,4 +58,17 @@ func (m *Movie) GetDownloadingItem() DownloadingItem {
 
 func (m *Movie) SetDownloadingItem(d DownloadingItem) {
 	m.DownloadingItem = d
+}
+
+//////////////////////////////
+// Cachable implementation
+//////////////////////////////
+
+func (m *Movie) IsCached(value string) bool {
+	return strings.HasPrefix(value, "/cache")
+}
+
+func (m *Movie) ClearCache() {
+	m.Poster = ""
+	m.Background = ""
 }

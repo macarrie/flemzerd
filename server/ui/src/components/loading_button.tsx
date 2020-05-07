@@ -6,6 +6,7 @@ type Props = {
     action(): Promise<any>,
     text :string,
     loading_text :string,
+    styleClass? :string,
 };
 
 type State = {
@@ -31,16 +32,21 @@ class LoadingButton extends React.Component<Props, State> {
     }
 
     render() {
+        let classes = "button is-naked";
+        if (this.props.styleClass) {
+            classes = this.props.styleClass;
+        }
+
         if (this.state.loading) {
             return (
-                <button className="button is-loading">
+                <button className={`${classes} is-loading`}>
                     <i>{this.props.loading_text}</i>
                 </button>
             );
         }
 
         return (
-            <button className="button is-naked"
+            <button className={classes}
                 onClick={this.performAction}>
                 <span className="icon is-small has-text-grey-light">
                     <RiRefreshLine />

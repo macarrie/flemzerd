@@ -12,6 +12,7 @@ type Movie = {
     DisplayTitle: string,
     Overview: string,
     Poster: string,
+    Background: string,
     Date: Date,
     Notified: boolean,
     DownloadingItem: DownloadingItem,

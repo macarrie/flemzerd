@@ -16,7 +16,6 @@ import EpisodeDetails from './episode_details';
 type State = {
     show :TvShow | null,
     seasons :SeasonDetails[] | null,
-    fanartURL :string,
 };
 
 class TvShowDetails extends React.Component<any, State> {
@@ -24,7 +23,6 @@ class TvShowDetails extends React.Component<any, State> {
     state :State = {
         show: null,
         seasons: null,
-        fanartURL: "",
     };
 
     constructor(props: any) {
@@ -47,6 +45,7 @@ class TvShowDetails extends React.Component<any, State> {
 
         this.restoreShow = this.restoreShow.bind(this);
         this.deleteShow = this.deleteShow.bind(this);
+        this.refreshMetadata = this.refreshMetadata.bind(this);
 
         this.renderMediaDetails = this.renderMediaDetails.bind(this);
     }
@@ -69,7 +68,6 @@ class TvShowDetails extends React.Component<any, State> {
                 show: show_result,
                 seasons: this.state.seasons == null ? new Array<SeasonDetails>(show_result.NumberOfSeasons) : this.state.seasons,
             });
-            this.getFanart();
             this.getSeasonList();
         }).catch(error => {
             console.log("Get show details error: ", error);
@@ -112,21 +110,6 @@ class TvShowDetails extends React.Component<any, State> {
         for (let season in this.state.show.Seasons) {
             this.getSeason(this.state.show.Seasons[season].SeasonNumber);
         }
-    }
-
-    getFanart() {
-        if (this.state.show == null) {
-            return;
-        }
-
-        API.Fanart.getTvShowFanart(this.state.show).then(response => {
-            let fanartObj = response.data;
-            if (fanartObj["showbackground"] && fanartObj["showbackground"].length > 0) {
-                this.setState({fanartURL: fanartObj["showbackground"][0]["url"]});
-            }
-        }).catch(error => {
-            console.log("Get show fanart error: ", error);
-        });
     }
 
     exitTitleEdit(value :string) {
@@ -205,6 +188,18 @@ class TvShowDetails extends React.Component<any, State> {
         });
     }
 
+    refreshMetadata() {
+        if (this.state.show == null) {
+            return;
+        }
+
+        API.Shows.refreshMetadata(this.state.show.ID).then(response => {
+            this.getShow();
+        }).catch(error => {
+            console.log("Refresh show metadata error: ", error);
+        });
+    }
+
     renderMediaDetails() {
         if (this.state.show == null) {
             return (
@@ -217,7 +212,7 @@ class TvShowDetails extends React.Component<any, State> {
         return (
             <>
                 <div id="full_background" className={"has-background-dark "}
-                     style={{backgroundImage: `url(${this.state.fanartURL})`}}></div>
+                     style={{backgroundImage: `url(${this.state.show?.Background})`}}></div>
                 <MediaActionBar item={this.state.show}
                                 useOriginalTitle={this.useOriginalTitle}
                                 useDefaultTitle={this.useDefaultTitle}
@@ -225,12 +220,16 @@ class TvShowDetails extends React.Component<any, State> {
                                 treatAsAnime={this.treatAsAnime}
                                 restoreItem={this.restoreShow}
                                 deleteItem={this.deleteShow}
+                                refreshMetadata={this.refreshMetadata}
                                 type="tvshow"/>
 
                 <div className="container mediadetails">
                     <div className="columns is-mobile">
                         <div className="column is-one-quarter-desktop is-one-third-tablet is-hidden-mobile">
-                            <img width="100%" src={this.state.show.Poster} alt="{this.state.show.Title}" className="thumbnail" />
+                            <div className={"poster-container"}>
+                                <span className={"poster-alt"}>{this.state.show.Title}</span>
+                                <img width="100%" src={this.state.show.Poster} alt={""} className="poster" />
+                            </div>
                         </div>
                         <div className="column">
                             <div className="columns is-mobile">

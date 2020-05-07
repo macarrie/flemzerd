@@ -79,12 +79,14 @@ function create_folder_structure {
     mkdir -p $LIB/db
     mkdir -p $LIB/library/shows
     mkdir -p $LIB/library/movies
+    mkdir -p $LIB/cache/shows
+    mkdir -p $LIB/cache/movies
     mkdir -p $LIB/certs
     mkdir -p $LIB/tmp
     mkdir -p $ETC
     chown -R $USER:$GROUP $ETC
     chown -R $USER:$GROUP $LIB
-    chmod 0777 $LIB/tmp
+    chmod 0755 $LIB/tmp
 
     print_done
 }

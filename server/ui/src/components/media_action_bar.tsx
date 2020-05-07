@@ -16,6 +16,7 @@ import {RiStopCircleLine} from "react-icons/ri";
 import {RiArrowGoBackLine} from "react-icons/ri";
 import {RiCheckboxMultipleBlankLine} from "react-icons/ri";
 import {RiSkipForwardLine} from "react-icons/ri";
+import {RiRefreshLine} from "react-icons/ri";
 
 import {FaGlobeEurope} from "react-icons/fa";
 import {FaGlobeAsia} from "react-icons/fa";
@@ -34,6 +35,7 @@ type Props = {
     skipTorrent?(): void,
     restoreItem?(): void,
     deleteItem?(): void,
+    refreshMetadata?(): void,
 };
 
 type State = {
@@ -397,8 +399,19 @@ class MediaActionBar extends React.Component<Props, State> {
                             {this.getDownloadControlButtons()}
 
                             {(!item.DeletedAt && (this.props.type === "movie" || this.props.type === "tvshow")) && (
+                                <>
                                 <button className=""
-                                    onClick={this.props.deleteItem}>
+                                        onClick={this.props.refreshMetadata}>
+                                    <span className="icon is-small">
+                                        <RiRefreshLine />
+                                    </span>
+                                    <span className={"is-hidden-mobile"}>
+                                        Refresh metadata
+                                    </span>
+                                </button>
+
+                                <button className=""
+                                        onClick={this.props.deleteItem}>
                                     <span className="icon is-small">
                                         <RiCloseLine />
                                     </span>
@@ -406,6 +419,7 @@ class MediaActionBar extends React.Component<Props, State> {
                                         Remove
                                     </span>
                                 </button>
+                                </>
                             )}
                         </div>
                     </div>
