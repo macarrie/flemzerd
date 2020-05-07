@@ -371,6 +371,7 @@ func TestRecovery(t *testing.T) {
 }
 
 func TestDownloadDelay(t *testing.T) {
+	fmt.Printf("------------- TEST DL DELAY")
 	db.ResetDb()
 
 	downloader.EpisodeDownloadRoutines = make(map[uint]downloader.ContextStorage)

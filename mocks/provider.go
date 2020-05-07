@@ -115,7 +115,7 @@ func (p TVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Episode, error) {
 		{
 			Number: 1,
 			Season: 1,
-			Title:  "Test episode",
+			Title:  "Test episode tvprovider",
 		},
 	}, nil
 }
@@ -127,7 +127,7 @@ func (p TVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber int) ([]Episo
 		{
 			Number: 1,
 			Season: 1,
-			Title:  "Test episode",
+			Title:  "Test episode tvprovider",
 		},
 	}, nil
 }
@@ -135,7 +135,7 @@ func (p TVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episodeNb int) (Ep
 	return Episode{
 		Number: 1,
 		Season: 1,
-		Title:  "Test episode",
+		Title:  "Test episode tvprovider",
 	}, nil
 }
 
@@ -149,7 +149,7 @@ func (p DownloadDelayMovieProvider) GetMovie(movie MediaIds) (Movie, error) {
 	return Movie{
 		Title:         "Test Movie",
 		OriginalTitle: "Test Movie",
-		Date: time.Now(),
+		Date:          time.Now(),
 	}, nil
 }
 
@@ -171,7 +171,7 @@ func (p DownloadDelayTVProvider) GetRecentlyAiredEpisodes(tvShow TvShow) ([]Epis
 			Number: 1,
 			Season: 1,
 			Title:  "Test episode downloaddelaytvprovider",
-			Date: time.Now(),
+			Date:   time.Now(),
 		},
 	}, nil
 }
@@ -184,7 +184,7 @@ func (p DownloadDelayTVProvider) GetSeasonEpisodeList(show TvShow, seasonNumber 
 			Number: 1,
 			Season: 1,
 			Title:  "Test episode downloaddelaytvprovider",
-			Date: time.Now(),
+			Date:   time.Now(),
 		},
 	}, nil
 }
@@ -193,7 +193,7 @@ func (p DownloadDelayTVProvider) GetEpisode(tvShow MediaIds, seasonNb int, episo
 		Number: 1,
 		Season: 1,
 		Title:  "Test episode downloaddelaytvprovider",
-		Date: time.Now(),
+		Date:   time.Now(),
 	}, nil
 }
 
