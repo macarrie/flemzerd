@@ -123,16 +123,40 @@
 ///////////////////////////////
 ///////////////////////////////
 
-tr {
-    &.removed-movie, &.removed-show {
-        background: lighten($danger, 40%);
+.media-miniature-table {
+    td, th {
+        vertical-align: middle;
     }
 
-    &.downloaded-movie, &.downloaded-show {
-        background: lighten($success, 40%);
+    .action-buttons-container {
+        display: flex;
     }
 
-    &.future-movie {
-        background-color: rgba(211, 222, 0, 0.4);
+    tr {
+        &.removed-movie, &.removed-show {
+            background: lighten($danger, 40%);
+        }
+
+        &.downloaded-movie, &.downloaded-show {
+            background: lighten($success, 40%);
+        }
+
+        &.future-movie {
+            background-color: rgba(211, 222, 0, 0.4);
+        }
+
+        .tile {
+            display: block !important;
+        }
+
+        button {
+            background: none;
+            border: none;
+
+            &:hover {
+                background: none;
+                color: $info;
+            }
+        }
     }
 }

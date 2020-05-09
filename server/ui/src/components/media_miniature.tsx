@@ -446,33 +446,41 @@ class MediaMiniature extends React.Component<Props, State> {
                             {Helpers.getMediaTitle(this.state.item)}
                         </Link>
                     </td>
-                    <td>
-                        <small>
-                            {this.getDownloadStatusLabel()}
-                        </small>
+                    <td className={"has-text-centered"}>
+                        <div>
+                            <small>
+                                {this.getDownloadStatusLabel()}
+                            </small>
+                        </div>
                     </td>
                     <td className={"has-text-centered"}>
-                        {this.getDownloadControlButtons()}
+                        <div className={"action-buttons-container"}>
+                            {this.getDownloadControlButtons()}
 
-                        {(!this.state.item.DeletedAt) ? (
-                            <button className=""
-                                onClick={this.deleteItem}
-                                data-tooltip="Remove">
-                                <span className={"icon"}>
-                                    <RiCloseLine/>
-                                </span>
-                            </button>
-                        ) : ""}
+                            {(!this.state.item.DeletedAt) ? (
+                                <div className={"tile"}>
+                                    <button className=""
+                                            onClick={this.deleteItem}
+                                            data-tooltip="Remove">
+                                    <span className={"icon"}>
+                                        <RiCloseLine/>
+                                    </span>
+                                    </button>
+                                </div>
+                            ) : ""}
 
-                        {(this.state.item.DeletedAt) ? (
-                            <button className=""
-                                onClick={this.restoreItem}
-                                data-tooltip="Restore">
-                                <span className={"icon"}>
-                                    <RiArrowGoBackLine/>
-                                </span>
-                            </button>
-                        ) : ""}
+                            {(this.state.item.DeletedAt) ? (
+                                <div className={"tile"}>
+                                    <button className=""
+                                            onClick={this.restoreItem}
+                                            data-tooltip="Restore">
+                                    <span className={"icon"}>
+                                        <RiArrowGoBackLine/>
+                                    </span>
+                                    </button>
+                                </div>
+                            ) : ""}
+                        </div>
                     </td>
                 </tr>
             );

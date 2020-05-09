@@ -208,12 +208,12 @@ class TvShows extends React.Component<any, State> {
             );
         } else {
             return (
-                <table className="table is-fullwidth">
+                <table className="table is-fullwidth media-miniature-table">
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th className={"is-narrow"}>State</th>
-                            <th className={"is-narrow"}>Actions</th>
+                            <th className={"has-text-centered"}>State</th>
+                            <th className={"has-text-centered is-narrow"}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>

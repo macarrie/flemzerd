@@ -190,12 +190,12 @@ class Movies extends React.Component<any, State> {
             );
         } else {
             return (
-                <table className="table is-fullwidth">
+                <table className="table is-fullwidth media-miniature-table">
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th>State</th>
-                            <th>Actions</th>
+                            <th className={"has-text-centered"}>State</th>
+                            <th className={"has-text-centered is-narrow"}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -70,39 +70,11 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 		"name": torznabIndexer.GetName(),
 	}).Debug("Checking torznab indexer status")
 
-	baseURL := torznabIndexer.Url
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	testMovie := Movie{
+		Title: "Big Buck Bunny",
 	}
-	httpClient := &http.Client{
-		Transport: tr,
-		Timeout:   time.Duration(HTTP_TIMEOUT * time.Second),
-	}
-	urlObject, _ := url.ParseRequestURI(baseURL)
-
-	var request *http.Request
-
-	params := url.Values{}
-	params.Add("apikey", torznabIndexer.ApiKey)
-	urlObject.RawQuery = params.Encode()
-
-	request, err := http.NewRequest("GET", urlObject.String(), nil)
+	_, err := torznabIndexer.GetTorrents(&testMovie)
 	if err != nil {
-		returnStruct.Status.Message = err.Error()
-		return returnStruct, errors.Wrap(err, "error while constructing HTTP request to torznab indexer")
-	}
-	request.Close = true
-
-	response, err := httpClient.Do(request)
-	if err != nil {
-		returnStruct.Status.Message = err.Error()
-		return returnStruct, errors.Wrap(err, "error while performing HTTP request to torznab indexer")
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != 200 {
-		err := errors.New(fmt.Sprintf("Torznab indexer request returned %d status code", response.StatusCode))
 		returnStruct.Status.Message = err.Error()
 		return returnStruct, err
 	}
