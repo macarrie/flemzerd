@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -96,8 +97,12 @@ func New(address string, port int, user string, password string) *TransmissionDo
 }
 
 func (d *TransmissionDownloader) Init() error {
+	if !strings.HasPrefix(d.Address, "http") {
+		d.Address = fmt.Sprintf("http://%s", d.Address)
+	}
+
 	client, err := tr.New(tr.Config{
-		Address:  fmt.Sprintf("http://%s:%d/transmission/rpc", d.Address, d.Port),
+		Address:  fmt.Sprintf("%s:%d/transmission/rpc", d.Address, d.Port),
 		User:     d.User,
 		Password: d.Password,
 	})
@@ -123,7 +128,7 @@ func (d *TransmissionDownloader) Status() (Module, error) {
 	client := &http.Client{
 		Timeout: time.Duration(HTTP_TIMEOUT * time.Second),
 	}
-	url := fmt.Sprintf("http://%s:%d/transmission/rpc", d.Address, d.Port)
+	url := fmt.Sprintf("%s:%d/transmission/rpc", d.Address, d.Port)
 	params := map[string]string{
 		"method":    "port-test",
 		"arguments": "",
