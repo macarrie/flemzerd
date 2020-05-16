@@ -46,6 +46,10 @@ func (e *Episode) GetLog() *log.Entry {
 	})
 }
 
+func (e *Episode) GetMediaIds() MediaIds {
+	return e.MediaIds
+}
+
 func (e *Episode) GetDownloadingItem() DownloadingItem {
 	return e.DownloadingItem
 }

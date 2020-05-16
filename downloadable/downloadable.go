@@ -10,6 +10,7 @@ type Downloadable interface {
 	GetId() uint
 	GetTitle() string
 	GetLog() *log.Entry
+	GetMediaIds() MediaIds
 	GetDownloadingItem() DownloadingItem
 	SetDownloadingItem(DownloadingItem)
 }

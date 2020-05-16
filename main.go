@@ -101,7 +101,10 @@ func initIndexers() {
 		switch indexerType {
 		case "torznab":
 			for _, indexer := range indexerList {
-				newIndexers = append(newIndexers, torznab.New(indexer["name"], indexer["url"], indexer["apikey"]))
+				name := indexer["name"].(string)
+				url := indexer["url"].(string)
+				apikey := indexer["apikey"].(string)
+				newIndexers = append(newIndexers, torznab.New(name, url, apikey))
 			}
 		default:
 			log.WithFields(log.Fields{
