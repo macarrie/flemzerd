@@ -3,6 +3,7 @@ import React from "react";
 import ModuleSettings from "../../types/module_settings";
 import TraktAuth from "./trakt_auth";
 import TelegramAuth from "./telegram_auth";
+import TorznabIndexerComponent from "./torznab_indexer";
 
 type Props = {
     module :ModuleSettings,
@@ -63,18 +64,7 @@ class ModuleSettingsComponent extends React.Component<Props, State> {
 
         if (this.state.type === "indexer") {
             return (
-                <>
-                    <div className={"columns is-multiline is-gapless is-vcentered"}>
-                        <div className={"column is-narrow"}>
-                            {this.state.module.Config.name}
-                        </div>
-                        <div className="column is-clipped">
-                            <small>
-                                <code>{this.state.module.Config.url}</code>
-                            </small>
-                        </div>
-                    </div>
-                </>
+                <TorznabIndexerComponent indexer={this.state.module} />
             );
         }
 

@@ -60,6 +60,10 @@ func (m *Movie) SetDownloadingItem(d DownloadingItem) {
 	m.DownloadingItem = d
 }
 
+func (m *Movie) GetMediaIds() MediaIds {
+	return m.MediaIds
+}
+
 //////////////////////////////
 // Cachable implementation
 //////////////////////////////

@@ -327,7 +327,7 @@ func GetMoviesInfoFromConfig() {
 	movieList = append(movieList, moviesFromWatchlists...)
 
 	for _, movie := range movieList {
-		movieTitle := movie
+		movieTitle := movie.Title
 		movie, err := FindMovie(movie)
 		if err != nil {
 			log.WithFields(log.Fields{

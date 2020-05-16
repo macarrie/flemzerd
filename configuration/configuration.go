@@ -92,7 +92,7 @@ type Configuration struct {
 		SSLServerKey string `mapstructure:"ssl_server_key"`
 	}
 	Providers     map[string]map[string]string
-	Indexers      map[string][]map[string]string
+	Indexers      map[string][]map[string]interface{}
 	Notifiers     map[string]map[string]string
 	Downloaders   map[string]map[string]string
 	Watchlists    map[string]interface{}
