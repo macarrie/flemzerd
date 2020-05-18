@@ -369,6 +369,40 @@ func Check() error {
 		}
 	}
 
+	_, jellyfin := Config.MediaCenters["jellyfin"]
+	if jellyfin {
+		_, jellyfinAddress := Config.MediaCenters["jellyfin"]["address"]
+		if !jellyfinAddress {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Jellyfin mediacenter address not defined. Using 'localhost'",
+				Key:     "mediacenters.jellyfin.address",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+			Config.MediaCenters["jellyfin"]["address"] = "localhost"
+		}
+		_, jellyfinPort := Config.MediaCenters["jellyfin"]["port"]
+		if !jellyfinPort {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Jellyfin mediacenter port not defined. Using '8096'",
+				Key:     "mediacenters.jellyfin.port",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+			Config.MediaCenters["jellyfin"]["port"] = "8096"
+		}
+	}
+
 	qualityFilters := strings.Split(Config.System.PreferredMediaQuality, ",")
 	for i := range qualityFilters {
 		qualityFilters[i] = strings.TrimSpace(qualityFilters[i])

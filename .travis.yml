@@ -8,7 +8,7 @@ services:
     - docker
 
 env:
-    - GO111MODULE=on VIDOCQ_VERSION="v0.1.1"
+    - GO111MODULE=on VIDOCQ_VERSION="v0.1.3"
 
 before_install:
     - mkdir tmp
@@ -37,6 +37,14 @@ jobs:
                 on:
                     tags: true
                     branch: master
+              - provider: releases
+                api_key: "$GITHUB_OAUTH_TOKEN"
+                file: "packages/flemzerd_v*"
+                skip_cleanup: true
+                draft: true
+                on:
+                  branch: master
+                  tags: true
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)

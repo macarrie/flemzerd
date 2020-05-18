@@ -90,9 +90,13 @@
     ]
 
 [mediacenters]
-    [mediacenters.kodi] 
+    [mediacenters.kodi]
         address = "ADDRESS"
         port = 1234
+    [mediacenters.jellyfin]
+        address = "ADDRESS"
+        port = 1234
+        apikey = "jellyfin_api_key"
 
 # Notifications parameters
 [notifications]
