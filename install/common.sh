@@ -51,6 +51,7 @@ function copy_server_files {
     log_line "- Copying UI files"
     mkdir -p $LIB/server/ui
     cp -r ui/* $LIB/server/ui
+    chown $USER:$GROUP -R $LIB/server/ui
     print_done
 }
 
