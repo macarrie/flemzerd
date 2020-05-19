@@ -35,7 +35,7 @@ func TestCheck(t *testing.T) {
 		FilePath       string
 	}{
 		{
-			7,
+			6,
 			"../testdata/test_config.toml",
 		},
 		{
@@ -43,11 +43,11 @@ func TestCheck(t *testing.T) {
 			"../testdata/test_config_bad.toml",
 		},
 		{
-			14,
+			15,
 			"../testdata/test_config_mediacenters.toml",
 		},
 		{
-			6,
+			7,
 			"../testdata/test_config_no_notifiers.toml",
 		},
 	}
