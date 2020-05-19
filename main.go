@@ -37,6 +37,7 @@ import (
 	mediacenter "github.com/macarrie/flemzerd/mediacenters"
 	"github.com/macarrie/flemzerd/mediacenters/impl/jellyfin"
 	"github.com/macarrie/flemzerd/mediacenters/impl/kodi"
+	"github.com/macarrie/flemzerd/mediacenters/impl/plex"
 
 	"github.com/macarrie/flemzerd/healthcheck"
 	"github.com/macarrie/flemzerd/scheduler"
@@ -264,6 +265,15 @@ func initMediaCenters() {
 	var newMC []mediacenter.MediaCenter
 	for mcType, _ := range configuration.Config.MediaCenters {
 		switch mcType {
+		case "plex":
+			mc, err := plex.New()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"mediacenter": "plex",
+					"error":       err,
+				}).Warning("Cannot connect to mediacenter")
+			}
+			newMC = append(newMC, mc)
 		case "jellyfin":
 			mc, err := jellyfin.New()
 			if err != nil {

@@ -9,8 +9,10 @@ require (
 	github.com/gin-contrib/static v0.0.0-20191128031702-f81c604d8ac2
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/jinzhu/gorm v1.9.12
+	github.com/macarrie/go-plex-client v0.0.0-20200519084113-891e405f90c9
 	github.com/macarrie/transmission v0.0.0-20180521203359-2a6f6cd93675
 	github.com/odwrtw/fanarttv v0.0.0-20170412122542-9f67d3cf0188
 	github.com/ogier/pflag v0.0.1
