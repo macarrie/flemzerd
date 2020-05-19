@@ -72,6 +72,10 @@
         #address = "ADDRESS"
         #port = 1234
         #apikey = "jellyfin_api_key"
+    #[mediacenters.plex]
+        #address = "ADDRESS"
+        #port = 1234
+        #token = "plex_token"
 
 # Notifications parameters
 [notifications]

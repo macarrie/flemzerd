@@ -369,6 +369,54 @@ func Check() error {
 		}
 	}
 
+	_, plex := Config.MediaCenters["plex"]
+	if plex {
+		_, plexAddress := Config.MediaCenters["plex"]["address"]
+		if !plexAddress {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Plex mediacenter address not defined. Using 'localhost'",
+				Key:     "mediacenters.plex.address",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+			Config.MediaCenters["plex"]["address"] = "localhost"
+		}
+		_, plexPort := Config.MediaCenters["plex"]["port"]
+		if !plexPort {
+			configError = ConfigurationError{
+				Status:  WARNING,
+				Message: "Plex mediacenter port not defined. Using '32400'",
+				Key:     "mediacenters.plex.port",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Warning("Configuration warning")
+			errorList = multierror.Append(errorList, configError)
+			Config.MediaCenters["plex"]["port"] = "32400"
+		}
+		_, plexToken := Config.MediaCenters["plex"]["token"]
+		if !plexToken {
+			configError = ConfigurationError{
+				Status:  CRITICAL,
+				Message: "Plex mediacenter token not defined.",
+				Key:     "mediacenters.plex.token",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Error("Configuration error")
+			errorList = multierror.Append(errorList, configError)
+		}
+	}
+
 	_, jellyfin := Config.MediaCenters["jellyfin"]
 	if jellyfin {
 		_, jellyfinAddress := Config.MediaCenters["jellyfin"]["address"]
@@ -400,6 +448,20 @@ func Check() error {
 			}).Warning("Configuration warning")
 			errorList = multierror.Append(errorList, configError)
 			Config.MediaCenters["jellyfin"]["port"] = "8096"
+		}
+		_, jellyfinAPIKey := Config.MediaCenters["jellyfin"]["apikey"]
+		if !jellyfinAPIKey {
+			configError = ConfigurationError{
+				Status:  CRITICAL,
+				Message: "Jellyfin mediacenter API key not defined.",
+				Key:     "mediacenters.jellyfin.apikey",
+				Value:   "",
+			}
+			log.WithFields(log.Fields{
+				"access_error": err,
+				"error":        configError,
+			}).Error("Configuration error")
+			errorList = multierror.Append(errorList, configError)
 		}
 	}
 
