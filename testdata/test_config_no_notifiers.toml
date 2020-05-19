@@ -1,0 +1,6 @@
+[notifications]
+    enabled = true
+    notify_new_episode = true
+    notify_new_movie = true
+    notify_download_complete = true
+    notify_failure = true

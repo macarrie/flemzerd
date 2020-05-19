@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"github.com/hashicorp/go-multierror"
 	"testing"
 
 	log "github.com/macarrie/flemzerd/logging"
@@ -28,15 +29,44 @@ func TestCheck(t *testing.T) {
 	customConfigFile = false
 	customConfigFilePath = ""
 	Load()
-	Check()
 
-	UseFile("../testdata/test_config.toml")
-	Load()
-	Check()
+	testMatrix := []struct {
+		ExpectedErrors int
+		FilePath       string
+	}{
+		{
+			7,
+			"../testdata/test_config.toml",
+		},
+		{
+			18,
+			"../testdata/test_config_bad.toml",
+		},
+		{
+			14,
+			"../testdata/test_config_mediacenters.toml",
+		},
+		{
+			6,
+			"../testdata/test_config_no_notifiers.toml",
+		},
+	}
 
-	UseFile("../testdata/test_config_bad.toml")
-	Load()
-	Check()
+	for _, test := range testMatrix {
+		t.Run(test.FilePath, func(t *testing.T) {
+			UseFile(test.FilePath)
+			loadErr := Load()
+			if loadErr != nil {
+				t.Errorf("Could not load config file: %s", loadErr)
+			}
+			if err := Check(); err != nil {
+				multierr, _ := err.(*multierror.Error)
+				if len(multierr.Errors) != test.ExpectedErrors {
+					t.Errorf("Expected %d configuration errors, got %d instead", test.ExpectedErrors, len(multierr.Errors))
+				}
+			}
+		})
+	}
 }
 
 func TestLoad(t *testing.T) {

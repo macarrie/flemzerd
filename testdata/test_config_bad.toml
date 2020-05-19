@@ -1,6 +1,8 @@
 [system]
     check_interval = 15
     torrent_download_attempts_limit = 20
+    preferred_media_quality = "does_not_exist"
+    excluded_release_types = "does_not_exist"
 
 [interface]
     enabled = true
@@ -8,8 +10,13 @@
 
 [providers]
 
+[notifiers]
+    pushbullet = []
+
 [mediacenters]
     kodi = []
+    plex = []
+    jellyfin = []
 
 [notifications]
     enabled = true
@@ -21,3 +28,4 @@
 [library]
     show_path = ""
     movie_path = ""
+    custom_tmp_path = ""

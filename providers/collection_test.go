@@ -61,6 +61,7 @@ func TestFindShow(t *testing.T) {
 	testShow := MediaIds{
 		Title: "Test show",
 	}
+	db.Client.Save(&testShow)
 
 	providersCollection = []Provider{}
 	_, err := FindShow(testShow)
@@ -70,12 +71,15 @@ func TestFindShow(t *testing.T) {
 
 	AddProvider(mock.TVProvider{})
 
-	show, err := FindShow(testShow)
-	if err != nil {
-		t.Error("Got error during FindShow: ", err)
-	}
-	if show.Model.ID != 1 {
-		t.Errorf("Expected show with id 1, got id %v instead\n", show.Model.ID)
+	// Test twice to check if show can be found when already in DB
+	for _ = range make([]int, 2) {
+		show, err := FindShow(testShow)
+		if err != nil {
+			t.Error("Got error during FindShow: ", err)
+		}
+		if show.Model.ID != 1 {
+			t.Errorf("Expected show with id 1, got id %v instead\n", show.Model.ID)
+		}
 	}
 
 	providersCollection = []Provider{mock.ErrorProvider{}}
@@ -143,12 +147,15 @@ func TestFindRecentlyAiredEpisodesForShow(t *testing.T) {
 	p := mock.TVProvider{}
 	providersCollection = []Provider{p}
 
-	episodeList, err := FindRecentlyAiredEpisodesForShow(testShow)
-	if err != nil {
-		t.Error("Got error during FindRecentlyAiredEpisodesForShow: ", err)
-	}
-	if episodeList[0].Model.ID != 1 {
-		t.Errorf("Expected episode with id 1, got id %v instead\n", episodeList[0].Model.ID)
+	// Execute test twice to test case when episode is already stored in DB
+	for _ = range make([]int, 2) {
+		episodeList, err := FindRecentlyAiredEpisodesForShow(testShow)
+		if err != nil {
+			t.Error("Got error during FindRecentlyAiredEpisodesForShow: ", err)
+		}
+		if episodeList[0].Model.ID != 1 {
+			t.Errorf("Expected episode with id 1, got id %v instead\n", episodeList[0].Model.ID)
+		}
 	}
 }
 
