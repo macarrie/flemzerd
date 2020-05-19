@@ -43,7 +43,7 @@ func initRouter() {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "flemzerd",
 		Key:         []byte("flemzerd_key"),
-		Timeout:     48 * time.Hour,
+		Timeout:     336 * time.Hour, // 2 Weeks
 		MaxRefresh:  0,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
