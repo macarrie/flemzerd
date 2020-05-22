@@ -248,7 +248,7 @@ class TvShows extends React.Component<any, State> {
 
                 <div className="columns is-vcentered is-multiline is-mobile">
                     <div className="column is-narrow">
-                        <span className="title is-3">Movies</span>
+                        <span className="title is-3">TV Shows</span>
                     </div>
                     <ItemSearchControls
                         updateSearch={this.setSearch}
