@@ -16,6 +16,7 @@ import LoadingButton from "../loading_button";
 import ItemFilterControls from "../item_filter_controls";
 
 import {RiLayoutGridLine, RiLayoutRowLine} from "react-icons/ri";
+import ItemSearchControls from "../item_search_controls";
 
 type State = {
     tracked :TvShow[] | null,
@@ -23,6 +24,7 @@ type State = {
     downloading_episodes :Episode[] | null,
     display_mode :number,
     item_filter :MediaMiniatureFilter,
+    search_filter :string,
 };
 
 class TvShows extends React.Component<any, State> {
@@ -33,6 +35,7 @@ class TvShows extends React.Component<any, State> {
         downloading_episodes: null,
         display_mode: Const.DISPLAY_MINIATURES,
         item_filter: MediaMiniatureFilter.TRACKED,
+        search_filter: "",
     };
 
     constructor(props: any) {
@@ -45,6 +48,7 @@ class TvShows extends React.Component<any, State> {
 
         this.getActiveLayoutClass = this.getActiveLayoutClass.bind(this);
         this.setFilter = this.setFilter.bind(this);
+        this.setSearch = this.setSearch.bind(this);
         this.renderShowList = this.renderShowList.bind(this);
         this.getDownloadingEpisodes = this.getDownloadingEpisodes.bind(this);
         this.abortEpisodeDownload = this.abortEpisodeDownload.bind(this);
@@ -67,8 +71,11 @@ class TvShows extends React.Component<any, State> {
     }
 
     setFilter(val :MediaMiniatureFilter) {
-        console.log("UPDATE FILTER: ", val);
         this.setState({item_filter: val});
+    }
+
+    setSearch(val :string) {
+        this.setState({search_filter: val});
     }
 
     getShows() {
@@ -168,6 +175,7 @@ class TvShows extends React.Component<any, State> {
                             item={show}
                             type="tvshow"
                             filter={this.state.item_filter}
+                            search={this.state.search_filter}
                             display_mode={this.state.display_mode}
                         />
                     ))
@@ -179,6 +187,7 @@ class TvShows extends React.Component<any, State> {
                             item={show}
                             type="tvshow"
                             filter={this.state.item_filter}
+                            search={this.state.search_filter}
                             display_mode={this.state.display_mode}
                         />
                     ))
@@ -237,10 +246,13 @@ class TvShows extends React.Component<any, State> {
             <div className="container">
                 {this.renderDownloadingList()}
 
-                <div className="columns is-mobile is-multiline">
-                    <div className="column is-full-mobile">
-                        <span className="title is-3">TV Shows</span>
+                <div className="columns is-vcentered is-multiline is-mobile">
+                    <div className="column is-narrow">
+                        <span className="title is-3">Movies</span>
                     </div>
+                    <ItemSearchControls
+                        updateSearch={this.setSearch}
+                    />
                     <ItemFilterControls
                         type={"tvshow"}
                         filterValue={this.state.item_filter}

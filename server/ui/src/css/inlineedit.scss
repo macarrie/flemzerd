@@ -1,0 +1,25 @@
+.inlineedit {
+    border-radius: $radius;
+    position: relative;
+    left: -$column-gap;
+
+    &:not(.episodedetails):hover {
+        &.columns {
+            background-color: rgba($light, 0.1);
+        }
+
+        .edit-button {
+            display: block !important;
+        }
+    }
+
+    .textarea {
+        min-height: auto;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .title {
+        //white-space: pre;
+    }
+}

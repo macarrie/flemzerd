@@ -1,5 +1,9 @@
 import React from "react";
 
+import TextareaAutosize from 'react-textarea-autosize';
+import {RiEdit2Line} from "react-icons/ri";
+import {RiEraserLine} from "react-icons/ri";
+
 type Props = {
     onFocus?(value: string): void,
     onFocusOut?(value: string): void,
@@ -25,10 +29,14 @@ class Editable extends React.Component<Props, State> {
 
         this.handleFocus = this.handleFocus.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.emptyValue = this.emptyValue.bind(this);
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        this.setState({ value: nextProps.value });
+        // Updating state when editing overwrites user changes in edit field
+        if (!this.state.isEditing) {
+            this.setState({ value: nextProps.value });
+        }
     }
 
     handleFocus(event :React.MouseEvent | React.FocusEvent) {
@@ -51,24 +59,52 @@ class Editable extends React.Component<Props, State> {
         });
     }
 
-    render() {
-        if (this.state.isEditing) {
-            return (
-                <input type="text"
-                    value={this.state.value}
-                    onBlur={this.handleFocus}
-                    onChange={this.handleChange}
-                    className={this.props.editingClassName}
-                    autoFocus />
-            )
+    emptyValue(event: any) {
+        if (typeof this.props.onFocusOut === "function") {
+            this.props.onFocusOut("");
         }
+        this.setState({
+            value: "",
+            isEditing: false,
+        });
+    }
 
+    render() {
         return (
-            <label
-                onClick={this.handleFocus}>
-                {this.state.value}
-            </label>
-        )
+            <div className="columns is-mobile is-vcentered inlineedit">
+                <div className={"column"}>
+                    <TextareaAutosize
+                        minRows={1}
+                        maxRows={3}
+                        value={this.state.value}
+                        onBlur={this.handleFocus}
+                        onClick={this.handleFocus}
+                        onChange={this.handleChange}
+                        className={`textarea is-static has-fixed-size ${this.props.editingClassName}`}
+                        autoFocus
+                        readOnly={!this.state.isEditing} />
+                </div>
+                {this.state.isEditing ? (
+                    <div className={"column is-narrow"}>
+                        <button className={"button is-naked is-dark"}
+                                onClick={this.emptyValue}>
+                                <span className={"icon edit-button has-text-grey is-hidden"}>
+                                    <RiEraserLine/>
+                                </span>
+                        </button>
+                    </div>
+                ) : (
+                    <div className={"column is-narrow"}>
+                        <button className={"button is-naked is-dark"}
+                                onClick={this.handleFocus}>
+                                <span className={"icon edit-button has-text-grey is-hidden"}>
+                                    <RiEdit2Line/>
+                                </span>
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
     }
 }
 

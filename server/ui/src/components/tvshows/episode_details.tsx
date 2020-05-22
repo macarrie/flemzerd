@@ -10,6 +10,8 @@ import MediaIdsComponent from "../media_ids";
 import MediaActionBar from "../media_action_bar";
 import DownloadingItemComponent from "../downloading_item";
 
+import TextareaAutosize from 'react-textarea-autosize';
+
 type State = {
     episode :Episode | null,
 };
@@ -163,14 +165,23 @@ class EpisodeDetails extends React.Component<any, State> {
                         </div>
                     </div>
                     <div className="column">
-                        <div className="columns">
-                            <div className="column is-narrow inlineedit">
+                        <div className="columns is-vcentered is-gapless">
+                            <div className="column">
                                 <span className="title is-2 has-text-grey-light">
-                                    {Helpers.getMediaTitle(this.state.episode.TvShow)} - {this.state.episode.Title}
+                                    <div className="columns is-vcentered inlineedit episodedetails">
+                                        <div className={"column is-narrow has-text-grey"}>
+                                            {this.getEpisodeNumber()}
+                                        </div>
+                                        <div className={"column"}>
+                                            <TextareaAutosize
+                                                minRows={1}
+                                                maxRows={3}
+                                                value={`${Helpers.getMediaTitle(this.state.episode.TvShow)} - ${this.state.episode.Title}`}
+                                                className={`textarea is-static has-fixed-size title is-2 has-text-grey-light`}
+                                                readOnly={true} />
+                                        </div>
+                                    </div>
                                 </span>
-                            </div>
-                            <div className={"column"}>
-                                <span className="title is-3 has-text-grey-light media_title_details">({this.getEpisodeNumber()})</span>
                             </div>
                         </div>
                         <div className="columns is-mobile">

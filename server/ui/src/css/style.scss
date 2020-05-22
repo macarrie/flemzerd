@@ -81,6 +81,7 @@ th, .title {
 @import "notifications.scss";
 @import "media.details.scss";
 @import "media.miniatures.scss";
+@import "inlineedit.scss";
 
 .title-gradient a {
     color: transparent !important;
@@ -102,17 +103,6 @@ hr {
 }
 .message .message-header {
     font-family: $title-family;
-}
-
-//// Inline edit component
-/////////////////////////////////
-/////////////////////////////////
-
-.inlineedit {
-    input[type=text] {
-        background: transparent;
-        border: none;
-    }
 }
 
 .configuration-error-status {
@@ -163,6 +153,16 @@ ul.block-list {
         &.active {
             color: $info;
             border-bottom: 1px dashed $info;
+        }
+    }
+}
+
+.item-search {
+    .icon.clickable {
+        pointer-events: auto !important;
+
+        &:hover {
+            color: $dark;
         }
     }
 }

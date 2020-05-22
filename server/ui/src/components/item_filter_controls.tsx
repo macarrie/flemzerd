@@ -36,7 +36,7 @@ class ItemFilterControls extends React.Component<Props, State> {
     render() {
         if (this.props.type === "movie") {
             return (
-                <div className="column is-narrow buttons has-addons item-filter-controls">
+                <div className="column is-narrow is-full-mobile buttons has-addons item-filter-controls">
                     <button className={`button is-naked is-underlined ${this.getActiveFilterClass(MediaMiniatureFilter.NONE)}`}
                         onClick={() => this.props.updateFilter(MediaMiniatureFilter.NONE)}>
                         All
@@ -61,7 +61,7 @@ class ItemFilterControls extends React.Component<Props, State> {
             );
         } else if (this.props.type === "tvshow") {
             return (
-                <div className="column is-narrow buttons has-addons">
+                <div className="column is-narrow is-full-mobile buttons has-addons">
                     <button className={`button is-naked is-underlined ${this.getActiveFilterClass(MediaMiniatureFilter.NONE)}`}
                             onClick={() => this.props.updateFilter(MediaMiniatureFilter.NONE)}>
                         All

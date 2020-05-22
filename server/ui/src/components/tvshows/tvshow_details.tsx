@@ -12,6 +12,7 @@ import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
 import SeasonList from "./season_list";
 import EpisodeDetails from './episode_details';
+import Moment from "react-moment";
 
 type State = {
     show :TvShow | null,
@@ -232,8 +233,8 @@ class TvShowDetails extends React.Component<any, State> {
                             </div>
                         </div>
                         <div className="column">
-                            <div className="columns is-mobile">
-                                <div className="column is-narrow inlineedit">
+                            <div className="columns is-vcentered is-gapless">
+                                <div className="column">
                                     <span className="title is-2 has-text-grey-light">
                                         <Editable
                                             value={this.state.show.DisplayTitle}
@@ -242,9 +243,6 @@ class TvShowDetails extends React.Component<any, State> {
                                         />
                                     </span>
                                 </div>
-                                <div className={"column"}>
-                                    <span className="title is-3 has-text-grey-light media_title_details">({Helpers.getYear(this.state.show.FirstAired)})</span>
-                                </div>
                             </div>
                             <div className="columns is-mobile">
                                 <div className={"column is-narrow"}> See on</div>
@@ -252,6 +250,12 @@ class TvShowDetails extends React.Component<any, State> {
                             </div>
 
                             <div className="container">
+                                <div className="row">
+                                    <h5 className={"title is-5 has-text-grey-light"}>Release date</h5>
+                                    <div className="col-12">
+                                        First aired on <Moment date={this.state.show?.FirstAired} format={"DD MMMM YYYY"}/>
+                                    </div>
+                                </div>
                                 <div className="row">
                                     <h5 className={"title is-5 has-text-grey-light"}>Overview</h5>
                                     <div className="col-12">
