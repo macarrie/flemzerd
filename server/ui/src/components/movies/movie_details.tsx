@@ -10,6 +10,7 @@ import MediaIdsComponent from "../media_ids";
 import Editable from "../editable";
 import MediaActionBar from "../media_action_bar";
 import DownloadingItemComponent from "../downloading_item";
+import Moment from "react-moment";
 
 type State = {
     movie: Movie,
@@ -186,8 +187,8 @@ class MovieDetails extends React.Component<any, State> {
                         </div>
                     </div>
                     <div className="column">
-                        <div className="columns is-mobile">
-                            <div className="column is-narrow inlineedit">
+                        <div className="columns is-vcentered is-gapless">
+                            <div className="column">
                                 <span className="title is-2 has-text-grey-light">
                                     <Editable
                                         value={this.state.movie.DisplayTitle}
@@ -196,9 +197,6 @@ class MovieDetails extends React.Component<any, State> {
                                     />
                                 </span>
                             </div>
-                            <div className={"column"}>
-                                <span className="title is-3 has-text-grey-light media_title_details">({Helpers.getYear(this.state.movie.Date)})</span>
-                            </div>
                         </div>
                         <div className="columns is-mobile">
                             <div className={"column is-narrow"}> See on </div>
@@ -206,6 +204,12 @@ class MovieDetails extends React.Component<any, State> {
                         </div>
 
                         <div className="container">
+                            <div className="row">
+                                <h5 className={"title is-5 has-text-grey-light"}>Release date</h5>
+                                <div className="col-12">
+                                    Released on <Moment date={this.state.movie.Date} format={"DD MMMM YYYY"}/>
+                                </div>
+                            </div>
                             <div className="row">
                                 <h5 className={"title is-5 has-text-grey-light"}>Overview</h5>
                                 <div className="col-12">

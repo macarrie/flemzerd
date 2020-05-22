@@ -87,5 +87,25 @@ input[type="checkbox"]:not(:disabled)+span:hover:before {
                 border-bottom: 1px dashed $info;
             }
         }
+
+        &.is-dark {
+            color: $light;
+
+            &:hover {
+                background: none;
+            }
+        }
+    }
+}
+
+.textarea {
+    &.is-static {
+        border: none;
+        background: transparent;
+
+        &:focus {
+            box-shadow: none;
+            border: none;
+        }
     }
 }

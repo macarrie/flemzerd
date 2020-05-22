@@ -8,6 +8,8 @@ import Movie from "../types/movie";
 import TvShow from "../types/tvshow";
 import {MediaMiniatureFilter} from "../types/media_miniature_filter";
 
+import Fuse from "fuse.js";
+
 import {RiCloseLine} from "react-icons/ri";
 import {RiCheckLine} from "react-icons/ri";
 import {RiDownloadLine} from "react-icons/ri";
@@ -20,12 +22,14 @@ type Props = {
     type :string,
     display_mode :number,
     filter :MediaMiniatureFilter,
+    search :string,
 };
 
 type State = {
     item :Movie | TvShow;
     display_mode :number,
     filter :MediaMiniatureFilter,
+    search :string,
 };
 
 class MediaMiniature extends React.Component<Props, State> {
@@ -35,6 +39,7 @@ class MediaMiniature extends React.Component<Props, State> {
             item: props.item,
             display_mode: props.display_mode,
             filter: props.filter,
+            search: props.search,
         };
 
         this.deleteItem = this.deleteItem.bind(this);
@@ -57,6 +62,7 @@ class MediaMiniature extends React.Component<Props, State> {
             item: nextProps.item,
             display_mode: nextProps.display_mode,
             filter: nextProps.filter,
+            search: nextProps.search,
         });
     }
 
@@ -155,6 +161,31 @@ class MediaMiniature extends React.Component<Props, State> {
         } else if (this.props.type === "tvshow") {
             return this.tvShowItemIsFiltered();
         }
+
+        return false;
+    }
+
+    itemMatchesSearch() :Boolean {
+        const options = {
+            includeScore: true,
+            shouldSort: true,
+            threshold: 0.5,
+            keys: ['name']
+        }
+
+        const fuse = new Fuse([{
+            name: Helpers.getMediaTitle(this.state.item)
+        }], options)
+
+        const result = fuse.search(this.state.search)
+
+        if (this.state.search === "") {
+            return true;
+        }
+         if (result.length > 0) {
+             console.log("SEARCH RESULT: ", result);
+             return true;
+         }
 
         return false;
     }
@@ -381,6 +412,9 @@ class MediaMiniature extends React.Component<Props, State> {
 
     render() {
         if (this.itemIsFiltered()) {
+            return "";
+        }
+        if (!this.itemMatchesSearch()) {
             return "";
         }
         if (this.state.display_mode === Const.DISPLAY_MINIATURES) {

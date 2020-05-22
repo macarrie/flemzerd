@@ -12,10 +12,11 @@ import ItemFilterControls from "../item_filter_controls";
 import MovieDetails from "./movie_details";
 import DownloadingItemTable from "../downloading_items_table";
 import LoadingButton from "../loading_button";
+import Helpers from "../../utils/helpers";
+import ItemSearchControls from "../item_search_controls";
 
 import {RiLayoutRowLine} from "react-icons/ri";
 import {RiLayoutGridLine} from "react-icons/ri";
-import Helpers from "../../utils/helpers";
 
 type State = {
     tracked :Movie[] | null,
@@ -24,6 +25,7 @@ type State = {
     downloading :Movie[] | null,
     display_mode :number,
     item_filter :MediaMiniatureFilter,
+    search_filter :string,
 };
 
 class Movies extends React.Component<any, State> {
@@ -35,6 +37,7 @@ class Movies extends React.Component<any, State> {
         downloading: null,
         display_mode: Const.DISPLAY_MINIATURES,
         item_filter: MediaMiniatureFilter.TRACKED,
+        search_filter: "",
     };
 
     constructor(props: any) {
@@ -43,6 +46,7 @@ class Movies extends React.Component<any, State> {
         this.movies_refresh_interval = 0;
 
         this.setFilter = this.setFilter.bind(this);
+        this.setSearch = this.setSearch.bind(this);
         this.poll = this.poll.bind(this);
         this.refreshWatchlists = this.refreshWatchlists.bind(this);
 
@@ -64,6 +68,10 @@ class Movies extends React.Component<any, State> {
 
     setFilter(val :MediaMiniatureFilter) {
         this.setState({item_filter: val});
+    }
+
+    setSearch(val :string) {
+        this.setState({search_filter: val});
     }
 
     getMovies() {
@@ -218,6 +226,7 @@ class Movies extends React.Component<any, State> {
                         <MediaMiniature key={movie.ID}
                         item={movie}
                         filter={this.state.item_filter}
+                        search={this.state.search_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -228,6 +237,7 @@ class Movies extends React.Component<any, State> {
                         <MediaMiniature key={movie.ID}
                         item={movie}
                         filter={this.state.item_filter}
+                        search={this.state.search_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -238,6 +248,7 @@ class Movies extends React.Component<any, State> {
                         <MediaMiniature key={movie.ID}
                         item={movie}
                         filter={this.state.item_filter}
+                        search={this.state.search_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -248,6 +259,7 @@ class Movies extends React.Component<any, State> {
                         <MediaMiniature key={movie.ID}
                         item={movie}
                         filter={this.state.item_filter}
+                        search={this.state.search_filter}
                         display_mode={this.state.display_mode}
                         type="movie" />
                     ))
@@ -262,10 +274,13 @@ class Movies extends React.Component<any, State> {
             <div className="container">
                 {this.renderDownloadingList()}
 
-                <div className="columns">
-                    <div className="column">
+                <div className="columns is-vcentered is-multiline is-mobile">
+                    <div className="column is-narrow">
                         <span className="title is-3">Movies</span>
                     </div>
+                    <ItemSearchControls
+                        updateSearch={this.setSearch}
+                    />
                     <ItemFilterControls
                         type={"movie"}
                         filterValue={this.state.item_filter}
