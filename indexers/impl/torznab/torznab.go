@@ -179,7 +179,6 @@ func (torznabIndexer TorznabIndexer) Status() (Module, error) {
 		// Perhaps the indexer does not support movie search, try again with an episode
 		tzErr, ok := err.(TorznabError)
 		if ok && tzErr.Code == 201 {
-			fmt.Println("TZ INDEXER STATUS 201")
 			// Capabilities error returned by indexer, try again with an episode instead of a movie
 			testEpisode := Episode{
 				TvShow: TvShow{
@@ -207,8 +206,7 @@ func (torznabIndexer TorznabIndexer) GetTorrents(d downloadable.Downloadable) ([
 	if !torznabIndexer.CheckCapabilities(d) {
 		d.GetLog().WithFields(log.Fields{
 			"indexer": torznabIndexer.Name,
-		}).Info("Torznab indexer does not support torrent search for this item. Skipping")
-		return []Torrent{}, nil
+		}).Info("Torznab indexer does not support torrent search for this item. Search results may be less precise for this indexer")
 	}
 
 	baseURL := torznabIndexer.Url
